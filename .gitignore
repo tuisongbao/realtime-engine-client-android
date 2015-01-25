@@ -1,0 +1,19 @@
+# MAC
+.DS_Store
+
+# android project gen files
+gen/
+bin/
+
+# gradle build folder
+*/*/build/
+*/*/*/build/
+.gradle
+*/.gradle
+
+# eclipse config
+.project
+.classpath
+.cache
+.settings
+
