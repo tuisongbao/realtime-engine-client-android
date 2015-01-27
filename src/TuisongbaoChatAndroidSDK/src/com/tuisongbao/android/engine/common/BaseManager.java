@@ -1,15 +1,22 @@
 package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.TSBEngine;
-import com.tuisongbao.android.engine.TSBEngine.TSBEngineListener;
 
 public abstract class BaseManager {
 
-    protected boolean send(ITSBMessage message) {
+    protected boolean send(ITSBRequestMessage message) {
         return send(message, null);
     }
 
-    protected boolean send(ITSBMessage message, TSBEngineListener l) {
-        return TSBEngine.send(message.getName(), message.getData(), l);
+    protected boolean send(ITSBRequestMessage message, ITSBResponseMessage response) {
+        return TSBEngine.send(message.getName(), message.getData(), response);
+    }
+
+    public void bind(String bindName, TSBEngineBindCallback callback) {
+        TSBEngine.bind(bindName, callback);
+    }
+
+    public void unbind(String bindName, TSBEngineBindCallback callback) {
+        TSBEngine.unbind(bindName, callback);
     }
 }

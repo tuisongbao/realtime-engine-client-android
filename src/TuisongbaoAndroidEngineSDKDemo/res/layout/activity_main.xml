@@ -17,6 +17,19 @@
     <TextView
         android:id="@+id/content"
         android:layout_below="@id/send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/bind"
+        android:layout_below="@id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bind" />
+
+    <TextView
+        android:id="@+id/bind_content"
+        android:layout_below="@id/bind"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

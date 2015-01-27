@@ -69,19 +69,12 @@ public class EngineConfig {
     }
 
     public boolean init(Context context, String appId) {
-
-//        if (loadFromProperties(context, "pushconfig.properties")) {
-//            if(isMiPushServiceAvailable()) {
-//                mServiceType = ServiceType.mipush;
-//            } else {
-//                mServiceType = ServiceType.tps;
-//            }
-//            return true;
-//        } else {
-//            return false;
-//        }
-        PUSH_APP_ID = appId;
-        return true;
+        if (StrUtil.isEmpty(appId)) {
+            return false;
+        } else {
+            PUSH_APP_ID = appId;
+            return true;
+        }
     }
 
     public boolean isXiaoMiDevice() {

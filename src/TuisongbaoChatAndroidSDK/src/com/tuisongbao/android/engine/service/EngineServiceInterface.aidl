@@ -12,7 +12,34 @@ interface EngineServiceInterface {
          * 发送消息到事实引擎
          * 
          * @param message
+         * @param listener
          * @return
          */
-        boolean send(in RawMessage message, in EngineServiceListener l);
+        boolean send(in RawMessage message, in EngineServiceListener listener);
+
+        /**
+         * 添加消息源
+         * 
+         * @param appId
+         * @return
+         */
+        void addEngineInterface(String appId);
+
+        /**
+         * 绑定事件
+         * 
+         * @param message
+         * @param listener
+         * @return
+         */
+        void bind(in RawMessage message, in EngineServiceListener listener);
+
+        /**
+         * 解除绑定事件
+         * 
+         * @param message
+         * @param listener
+         * @return
+         */
+        void unbind(in RawMessage message, in EngineServiceListener listener);
 }

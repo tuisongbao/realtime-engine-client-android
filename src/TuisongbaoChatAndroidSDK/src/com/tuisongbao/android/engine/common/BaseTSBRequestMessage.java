@@ -2,7 +2,7 @@ package com.tuisongbao.android.engine.common;
 
 import com.google.gson.Gson;
 
-public abstract class BaseTSBRequestMessage<T> implements ITSBMessage {
+public abstract class BaseTSBRequestMessage<T> implements ITSBRequestMessage {
 
     private String name;
     private T data;

@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -37,6 +38,7 @@ public class EngineIOManager implements Runnable {
     private int mConnectionStatus = EngineConstants.CONNECTION_STATUS_NONE;
     private Socket mSocket;
     private Context mSDKAppContext;
+    private RemoteCallbackList<EngineServiceListener> mRemoteCallbacks = new RemoteCallbackList<EngineServiceListener>(); 
     private ConcurrentMap<Long, ConcurrentHashMap<RawMessage, EngineServiceListener>> mCallbacks
             = new ConcurrentHashMap<Long, ConcurrentHashMap<RawMessage, EngineServiceListener>>();
     private BlockingDeque<String> mReceiveMessage = new LinkedBlockingDeque<String>();
@@ -108,7 +110,16 @@ public class EngineIOManager implements Runnable {
             ConcurrentHashMap<RawMessage, EngineServiceListener> map = new ConcurrentHashMap<RawMessage, EngineServiceListener>();
             map.put(msg, l);
             mCallbacks.put(requestId, map);
+            registerListener(l);
         }
+    }
+
+    private void registerListener(EngineServiceListener l) {
+        mRemoteCallbacks.register(l);
+    }
+
+    private void unregisterListener(EngineServiceListener l) {
+        mRemoteCallbacks.unregister(l);
     }
 
     public boolean isConnected() {
@@ -161,7 +172,6 @@ public class EngineIOManager implements Runnable {
         }
     }
 
-    boolean isping = false;
     private void openSocket() {
         String url = getWebsocketURL();
         if (!StrUtil.isEmpty(url)) {
@@ -270,16 +280,25 @@ public class EngineIOManager implements Runnable {
         } else {
             // empty
         }
+        callback(requestId, msg);
+    }
+    
+    private void callback(long requestId, String msg) {
         if (requestId > 0) {
             ConcurrentHashMap<RawMessage, EngineServiceListener> map = mCallbacks.remove(requestId);
             if (map != null && !map.isEmpty()) {
                 RawMessage raw = map.keys().nextElement();
-                raw.setName(msg);
+                raw.setData(msg);
                 EngineServiceListener l = map.get(raw);
-                try {
-                    l.call(raw);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                if (l != null) {
+                    mRemoteCallbacks.beginBroadcast();
+                    try {
+                        l.call(raw);
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                    mRemoteCallbacks.finishBroadcast();
+                    unregisterListener(l);
                 }
             }
         }
@@ -287,10 +306,5 @@ public class EngineIOManager implements Runnable {
 
     private EngineIOManager() {
         // empty
-    }
-
-    public static interface OnEngineListener {
-
-        public void call(Object... args);
     }
 }

@@ -1,10 +1,11 @@
 package com.tuisongbao.android.engine.channel;
 
-import com.tuisongbao.android.engine.TSBEngine.TSBEngineListener;
 import com.tuisongbao.android.engine.channel.entity.TSBChannelSubscribeData;
 import com.tuisongbao.android.engine.channel.entity.TSBChannelUserData;
 import com.tuisongbao.android.engine.channel.message.TSBSubscribeMessage;
+import com.tuisongbao.android.engine.channel.message.TSBSubscribeResponseMessage;
 import com.tuisongbao.android.engine.common.BaseManager;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
 
 public class TSBChannelManager extends BaseManager {
 
@@ -21,8 +22,8 @@ public class TSBChannelManager extends BaseManager {
         // empty
     }
 
-    public void subscribe(String channel, TSBEngineListener l) {
-        subscribe(channel, null, null, l);
+    public void subscribe(String channel, TSBEngineCallback<String> callback) {
+        subscribe(channel, null, null, callback);
     }
 
     public void subscribe(String channel) {
@@ -30,13 +31,19 @@ public class TSBChannelManager extends BaseManager {
     }
 
     public void subscribe(String channel, String signature,
-            TSBChannelUserData userData, TSBEngineListener l) {
+            TSBChannelUserData userData, TSBEngineCallback<String> callback) {
         TSBSubscribeMessage msg = new TSBSubscribeMessage();
         TSBChannelSubscribeData data = new TSBChannelSubscribeData();
         data.setChannel(channel);
         data.setChannelData(userData);
         data.setSignature(signature);
         msg.setData(data);
-        send(msg, l);
+        if (callback == null) {
+            send(msg);
+        } else {
+            TSBSubscribeResponseMessage response = new TSBSubscribeResponseMessage();
+            response.setCallBack(callback);
+            send(msg, response);
+        }
     }
 }

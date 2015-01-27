@@ -39,6 +39,10 @@ public class StrUtil
     public static String creatUUID() {
         return UUID.randomUUID().toString();
     }
+
+    public static String strNotNull(String str) {
+        return isEmpty(str) ? "" : str;
+    }
     
     /**
      * Convert value to long. If convert failed, it will return default value.

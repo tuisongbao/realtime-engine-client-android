@@ -4,5 +4,7 @@
     <string name="app_name">实时引擎DEMO</string>
     <string name="action_settings">Settings</string>
     <string name="send">发送</string>
+    <string name="bind">绑定</string>
+    <string name="unbind">解除绑定</string>
 
 </resources>

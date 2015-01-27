@@ -9,57 +9,105 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.TSBEngine.TSBEngineListener;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
-import com.tuisongbao.android.engine.service.RawMessage;
+import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class MainActivity extends Activity {
 
     private Button mSendButton;
     private TextView mContentTextView;
+    private Button mBindButton;
+    private TextView mBindContentTextView;
+    private String mChannel;
+    private boolean isBind = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mContentTextView = (TextView)findViewById(R.id.content);
         mSendButton = (Button)findViewById(R.id.send);
+        mChannel = StrUtil.creatUUID();
         mSendButton.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                TSBChannelManager.getInstance().subscribe(StrUtil.creatUUID(), new TSBEngineListener() {
+                TSBChannelManager.getInstance().subscribe(mChannel, new TSBEngineCallback<String>() {
                     
                     @Override
-                    public void call(final RawMessage msg) {
-                                runOnUiThread(new Runnable() {
+                    public void onSuccess(final String t) {
+                        runOnUiThread(new Runnable() {
 
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(MainActivity.this,
-                                                msg.getData(),
-                                                Toast.LENGTH_LONG).show();
-                                        mContentTextView.setText(msg.getData());
-                                    }
-                                });
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this,
+                                        "Channel: " + t,
+                                        Toast.LENGTH_LONG).show();
+                                mContentTextView.setText(t);
+                            }
+                        });
+                    }
+                    
+                    @Override
+                    public void onError(final int code, final String message) {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                String content = "Error [code=" + code + ";message=" + message;
+                                Toast.makeText(MainActivity.this,content,
+                                        Toast.LENGTH_LONG).show();
+                                mContentTextView.setText(content);
+                            }
+                        });
                     }
                 });
-//                RawMessage message = new RawMessage("", "", "2");
-//                TSBEngine.send("ping", "2", new TSBEngineListener() {
-//                    
-//                    @Override
-//                    public void call(final RawMessage msg) {
-//                        runOnUiThread(new Runnable() {
-//                            
-//                            @Override
-//                            public void run() {
-//                                Toast.makeText(MainActivity.this, msg.getData(), Toast.LENGTH_LONG).show();
-//                            }
-//                        });
-//                        
-//                    }
-//                });
+            }
+        });
+        mBindContentTextView = (TextView)findViewById(R.id.bind_content);
+        mBindButton = (Button)findViewById(R.id.bind);
+        mBindButton.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                if (!isBind) {
+                    TSBChannelManager.getInstance().bind(mChannel, new TSBEngineBindCallback() {
+                        
+                        @Override
+                        public void onEvent(final String eventName, final String name, final String data) {
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
+                                    mBindContentTextView.setText(content);
+                                }
+                            });
+                            
+                        }
+                    });
+                    mBindButton.setText(getString(R.string.unbind));
+                } else {
+                    TSBChannelManager.getInstance().unbind(mChannel, new TSBEngineBindCallback() {
+                        
+                        @Override
+                        public void onEvent(final String eventName, final String name, final String data) {
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
+                                    mBindContentTextView.setText(content);
+                                }
+                            });
+                            
+                        }
+                    });
+                    mBindButton.setText(getString(R.string.bind));
+                }
+                isBind = !isBind;
             }
         });
     }

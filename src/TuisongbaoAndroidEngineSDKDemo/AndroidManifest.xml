@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_APN_SETTINGS" />
+    <!-- 接收到新的推送消息，需要唤醒应用程序的进程 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name="com.tuisongbao.android.engine.demo.DemoApplication"

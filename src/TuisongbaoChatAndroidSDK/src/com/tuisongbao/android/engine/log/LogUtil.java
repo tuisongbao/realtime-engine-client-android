@@ -46,6 +46,9 @@ public class LogUtil {
     public static final String LOG_TAG_GEOFENCE = "com.tuisongbao.android.geofence";
     public static final String LOG_TAG_GEOFENCE_SERVICE = "com.tuisongbao.android.service.geolocationservice";
     public static final String LOG_TAG_GEOFENCE_MANAGER = "com.tuisongbao.android.pushlocationmanager";
+    
+    // engine
+    public static final String LOG_TAG_ENGINE = "om.tuisongbao.android.engine.engine";
 
 
     public static int mLogLevel = 0;
