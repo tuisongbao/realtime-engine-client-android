@@ -21,7 +21,7 @@ public class TSBConnectionManager extends BaseManager {
     
     public void bind(String bindName, TSBEngineCallback<TSBConnection> callback) {
         TSBConnectionResponseMessage message = new TSBConnectionResponseMessage();
-        message.setCallBack(callback);
-        bind(bindName, callback);
+        message.setCallback(callback);
+        super.bind(bindName, message);
     }
 }

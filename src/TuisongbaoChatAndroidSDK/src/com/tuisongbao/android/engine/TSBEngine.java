@@ -11,6 +11,7 @@ import com.tuisongbao.android.engine.common.ITSBResponseMessage;
 import com.tuisongbao.android.engine.connection.TSBConnectionManager;
 import com.tuisongbao.android.engine.engineio.DataPipeline;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.engineio.EngineManager;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
@@ -22,12 +23,14 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public final class TSBEngine {
 
+    public static TSBConnectionManager connection = TSBConnectionManager.getInstance();
     private static Context mApplicationContext = null;
     private static EngineServiceInterface mService;
     private static DataPipeline mDataPipeline = new DataPipeline();
     private static TSBListenerSink mNotifier = new TSBListenerSink();
     private static String mSocketId;
-    public static TSBConnectionManager connection = TSBConnectionManager.getInstance();
+    private static EngineManager mEngineManger = EngineManager.getInstance();
+    private static Long mRequestId = 1L;
 
     private TSBEngine() {
         // empty here
@@ -51,11 +54,22 @@ public final class TSBEngine {
                 LogUtil.info(LogUtil.LOG_TAG_PUSH_MANAGER,
                         "Successfully loaded configurations.");
             }
-            startEngineService(context);
+            // 初始化实时引擎
+            initEngine();
+//            startEngineService(context);
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
+    }
+
+    /**
+     * Checks whether engine is connected
+     * 
+     * @return
+     */
+    public static boolean isConnected () {
+        return mEngineManger.isConnected();
     }
 
     /**
@@ -75,25 +89,34 @@ public final class TSBEngine {
      */
     public static boolean send(String name, String sign, String data,
             ITSBResponseMessage response) {
-        if (mService != null) {
-            try {
-                RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), EngineConfig.instance()
-                        .getAppKey(), name, data);
-                message.setSignStr(sign);
-                if (response != null) {
-                    mNotifier.register(message, response);
-                    return mService.send(message, mEngineServiceListener);
-                } else {
-                    return mService.send(message, null);
-                }
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            return false;
+        RawMessage message = new RawMessage(EngineConfig.instance()
+                .getAppId(), EngineConfig.instance()
+                .getAppKey(), name, data);
+        message.setSignStr(sign);
+        if (response != null) {
+            mNotifier.register(message, response);
         }
+        message.setRequestId(getRequestId());
+        return mEngineManger.send(message);
+//        if (mService != null) {
+//            try {
+//                RawMessage message = new RawMessage(EngineConfig.instance()
+//                        .getAppId(), EngineConfig.instance()
+//                        .getAppKey(), name, data);
+//                message.setSignStr(sign);
+//                if (response != null) {
+//                    mNotifier.register(message, response);
+//                    return mService.send(message, mEngineServiceListener);
+//                } else {
+//                    return mService.send(message, null);
+//                }
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//                return false;
+//            }
+//        } else {
+//            return false;
+//        }
     }
 
     /**
@@ -108,39 +131,68 @@ public final class TSBEngine {
     }
 
     public static void bind(String bindName, ITSBResponseMessage response) {
-        if (mService != null && response != null && !StrUtil.isEmpty(bindName)) {
-            try {
-                RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), EngineConfig.instance()
-                        .getAppKey(), bindName, null);
-                message.setBindName(bindName);
-                mNotifier.bind(bindName, response);
-                mService.bind(message, mEngineServiceListener);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+        if (response != null && !StrUtil.isEmpty(bindName)) {
+            RawMessage message = new RawMessage(EngineConfig.instance()
+                    .getAppId(), EngineConfig.instance().getAppKey(),
+                    bindName, null);
+            message.setBindName(bindName);
+            mNotifier.bind(bindName, response);
         } else {
             // empty
         }
+//        if (mService != null && response != null && !StrUtil.isEmpty(bindName)) {
+//            try {
+//                RawMessage message = new RawMessage(EngineConfig.instance()
+//                        .getAppId(), EngineConfig.instance()
+//                        .getAppKey(), bindName, null);
+//                message.setBindName(bindName);
+//                mNotifier.bind(bindName, response);
+//                mService.bind(message, mEngineServiceListener);
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+//            // empty
+//        }
         
     }
 
     public static void unbind(String bindName) {
-        if (mService != null) {
-            try {
-                RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), EngineConfig.instance()
-                        .getAppKey(), null, null);
-                message.setBindName(bindName);
-                mService.unbind(message, null);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                // empty
-            }
+        if (StrUtil.isEmpty(bindName)) {
+            RawMessage message = new RawMessage(EngineConfig.instance()
+                    .getAppId(), EngineConfig.instance()
+                    .getAppKey(), null, null);
+            message.setBindName(bindName);
         } else {
             // empty
         }
+//        if (mService != null) {
+//            try {
+//                RawMessage message = new RawMessage(EngineConfig.instance()
+//                        .getAppId(), EngineConfig.instance()
+//                        .getAppKey(), null, null);
+//                message.setBindName(bindName);
+//                mService.unbind(message, null);
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//                // empty
+//            }
+//        } else {
+//            // empty
+//        }
         
+    }
+
+    private static void initEngine() {
+        initializeDefaultSinks();
+        mDataPipeline.addSource(EngineManager.getInstance().init(mApplicationContext));
+    }
+
+    private static long getRequestId() {
+        synchronized (mRequestId) {
+            mRequestId++;
+            return mRequestId;
+        }
     }
 
     private static void startEngineService(Context context) {

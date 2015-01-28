@@ -12,9 +12,9 @@ public abstract class BaseManager {
         return TSBEngine.send(message.getName(), message.getData(), response);
     }
 
-    protected void bind(String bindName, TSBEngineBindCallback callback) {
+    protected void bind(String bindName, ITSBEngineCallback callback) {
         TSBBindResponseMessage response = new TSBBindResponseMessage();
-        response.setBindCallBack(callback);
+        response.setCallback(callback);
         TSBEngine.bind(bindName, response);
     }
 

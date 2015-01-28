@@ -21,17 +21,27 @@ public class EngineConstants {
     public static final int CONNECTION_STATUS_ERROR = 2;
     public static final int CONNECTION_STATUS_CLOSED = 3;
     public static final int CONNECTION_STATUS_DISCONNECTED = 4;
+    public static final int CONNECTION_STATUS_CONNECTING = 5;
     public static final int CONNECTION_STATUS_NONE = 0;
+    
+    // channel
+    public static final String CHANNEL_NAME_PREFIX = "engine_channel";
+    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";
+    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:subscription_succeeded_error";
     
     // connection code
     public static final int CONNECTION_CODE_SUCCESS = 0;
+    public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1;
+    public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1;
+    public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -2;
     
     // connection name
-    public static final String CONNECTION_NAME_SOCKET_ID = "android_engine_connection_name_socket_id";
+    public static final String CONNECTION_NAME_SOCKET_ID = "android:engine_connection_name_socket_id";
+    public static final String CONNECTION_CLIENT_NAME_DISCONNECTED = "android:engine_connection:connected";
+    public static final String CONNECTION_CLIENT_NAME_CONNECTED = "android:engine_connection:connected";
     
     // event
     public static final String EVENT_CONNECTION_CHANGE_STATUS = "connection_change_status";
-    
     
     public static int getConnectionStatus(String src) {
         String statusString = getValue(src, CONNECTION_PREFIX);

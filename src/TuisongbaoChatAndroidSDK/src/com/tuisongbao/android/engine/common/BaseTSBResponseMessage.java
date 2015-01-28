@@ -1,7 +1,7 @@
 package com.tuisongbao.android.engine.common;
 
 
-public abstract class BaseTSBResponseMessage implements ITSBResponseMessage {
+public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
 
     private String mErrorMessage;
     private int mCode;
@@ -9,6 +9,7 @@ public abstract class BaseTSBResponseMessage implements ITSBResponseMessage {
     private String mData;
     private String mChannel;
     private String mBindName;
+    private ITSBEngineCallback mCallback;
 
     public String getErrorMessage() {
         return mErrorMessage;
@@ -32,6 +33,16 @@ public abstract class BaseTSBResponseMessage implements ITSBResponseMessage {
 
     public String getBindName() {
         return mBindName;
+    }
+    
+    @Override
+    public void setCallback(ITSBEngineCallback callback) {
+        mCallback = callback;
+    }
+    
+    @Override
+    public ITSBEngineCallback getCallback() {
+        return mCallback;
     }
 
     @Override
@@ -68,5 +79,31 @@ public abstract class BaseTSBResponseMessage implements ITSBResponseMessage {
     @Override
     public boolean isSuccess() {
         return mCode == 0;
+    }
+
+    abstract public T parse();
+
+    @Override
+    public void callBack() {
+        ITSBEngineCallback callBack = getCallback();
+        if (isSuccess()) {
+            if (callBack != null) {
+                if (callBack instanceof TSBEngineBindCallback) {
+                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
+                }
+                if (callBack instanceof TSBEngineCallback) {
+                    ((TSBEngineCallback)callBack).onSuccess(parse());
+                }
+            }
+        } else {
+            if (callBack != null) {
+                if (callBack instanceof TSBEngineBindCallback) {
+                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
+                }
+                if (callBack instanceof TSBEngineCallback) {
+                    ((TSBEngineCallback)callBack).onError(getCode(), getErrorMessage());
+                }
+            }
+        }
     }
 }

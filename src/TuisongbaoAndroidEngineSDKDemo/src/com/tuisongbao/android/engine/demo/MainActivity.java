@@ -9,10 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
+import com.tuisongbao.android.engine.channel.entity.TSBChannelUserData;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
+import com.tuisongbao.android.engine.entity.TSBUserInfo;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class MainActivity extends Activity {
@@ -29,11 +33,51 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mContentTextView = (TextView)findViewById(R.id.content);
         mSendButton = (Button)findViewById(R.id.send);
-        mChannel = TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + StrUtil.creatUUID();
+        mChannel = /*TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + */StrUtil.creatUUID();
+        final TSBChannelUserData data = new TSBChannelUserData();
+        data.setUserId("123");
+        TSBUserInfo info = new TSBUserInfo();
+        info.setName("Aug");
+        info.setGender("male");
+        info.setAge("25");
+        info.setHoby("coding");
+        data.setUserInfo(info);
+        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_EVENT_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
+            
+            @Override
+            public void onSuccess(TSBConnection t) {
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,
+                                "Connected",
+                                Toast.LENGTH_LONG).show();
+                        mContentTextView.setText("Connected");
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(int code, String message) {
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,
+                                "disConnected",
+                                Toast.LENGTH_LONG).show();
+                        mContentTextView.setText("disConnected");
+                    }
+                });
+            }
+        });
         mSendButton.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
+//                mChannel = StrUtil.creatUUID();
+//                TSBChannelManager.getInstance().subscribe(mChannel, data);
                 TSBChannelManager.getInstance().subscribe(mChannel);
 //                TSBChannelManager.getInstance().subscribe(mChannel, new TSBEngineCallback<String>() {
 //                    
