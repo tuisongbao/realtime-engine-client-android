@@ -66,6 +66,7 @@ public class ServiceCallbackSink extends BaseEngineCallbackSink {
                     map = new ConcurrentHashMap<String, EngineServiceListener>();
                 }
                 map.put(message.getAppId(), listener);
+                mBinds.put(message.getBindName(), map);
             }
         }
     }
@@ -103,6 +104,18 @@ public class ServiceCallbackSink extends BaseEngineCallbackSink {
         return mListenerCount;
     }
 
+    /**
+     * 获取request id
+     * 
+     * @return
+     */
+    public long getReqeustId() {
+        synchronized (mRequestId) {
+            mRequestId++;
+            return mRequestId;
+        }
+    }
+
     @Override
     protected void propagateMessage(RawMessage rawMessage) {
         synchronized (mListeners) {
@@ -129,6 +142,11 @@ public class ServiceCallbackSink extends BaseEngineCallbackSink {
             }
         }
         // 处理绑定事件
+        // service绑定事件处理(该类事件为service本身产生的事件，而非引擎返回事件)
+        if (!StrUtil.isEmpty(rawMessage.getBindName())) {
+            rawMessage.setIsUnbind(true);
+            callbackBindListener(rawMessage);
+        }
         // channel绑定事件处理
         if (!StrUtil.isEmpty(rawMessage.getChannel())) {
             rawMessage.setBindName(rawMessage.getChannel());
@@ -157,18 +175,6 @@ public class ServiceCallbackSink extends BaseEngineCallbackSink {
                 }
                 mListeners.finishBroadcast();
             }
-        }
-    }
-
-    /**
-     * 获取request id
-     * 
-     * @return
-     */
-    private long getReqeustId() {
-        synchronized (mRequestId) {
-            mRequestId++;
-            return mRequestId;
         }
     }
 };

@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class MainActivity extends Activity {
@@ -28,42 +29,42 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mContentTextView = (TextView)findViewById(R.id.content);
         mSendButton = (Button)findViewById(R.id.send);
-        mChannel = StrUtil.creatUUID();
+        mChannel = TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + StrUtil.creatUUID();
         mSendButton.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                TSBChannelManager.getInstance().subscribe(mChannel, new TSBEngineCallback<String>() {
-                    
-                    @Override
-                    public void onSuccess(final String t) {
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this,
-                                        "Channel: " + t,
-                                        Toast.LENGTH_LONG).show();
-                                mContentTextView.setText(t);
-                            }
-                        });
-                    }
-                    
-                    @Override
-                    public void onError(final int code, final String message) {
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                String content = "Error [code=" + code + ";message=" + message;
-                                Toast.makeText(MainActivity.this,content,
-                                        Toast.LENGTH_LONG).show();
-                                mContentTextView.setText(content);
-                            }
-                        });
-                    }
-                });
+                TSBChannelManager.getInstance().subscribe(mChannel);
+//                TSBChannelManager.getInstance().subscribe(mChannel, new TSBEngineCallback<String>() {
+//                    
+//                    @Override
+//                    public void onSuccess(final String t) {
+//                        runOnUiThread(new Runnable() {
+//
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(MainActivity.this,
+//                                        "Channel: " + t,
+//                                        Toast.LENGTH_LONG).show();
+//                                mContentTextView.setText(t);
+//                            }
+//                        });
+//                    }
+//                    
+//                    @Override
+//                    public void onError(final int code, final String message) {
+//                        runOnUiThread(new Runnable() {
+//
+//                            @Override
+//                            public void run() {
+//                                String content = "Error [code=" + code + ";message=" + message;
+//                                Toast.makeText(MainActivity.this,content,
+//                                        Toast.LENGTH_LONG).show();
+//                                mContentTextView.setText(content);
+//                            }
+//                        });
+//                    }
+//                });
             }
         });
         mBindContentTextView = (TextView)findViewById(R.id.bind_content);
@@ -90,21 +91,22 @@ public class MainActivity extends Activity {
                     });
                     mBindButton.setText(getString(R.string.unbind));
                 } else {
-                    TSBChannelManager.getInstance().unbind(mChannel, new TSBEngineBindCallback() {
-                        
-                        @Override
-                        public void onEvent(final String eventName, final String name, final String data) {
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
-                                    mBindContentTextView.setText(content);
-                                }
-                            });
-                            
-                        }
-                    });
+                    TSBChannelManager.getInstance().unbind(mChannel);
+//                    TSBChannelManager.getInstance().unbind(mChannel, new TSBEngineBindCallback() {
+//                        
+//                        @Override
+//                        public void onEvent(final String eventName, final String name, final String data) {
+//                            runOnUiThread(new Runnable() {
+//
+//                                @Override
+//                                public void run() {
+//                                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
+//                                    mBindContentTextView.setText(content);
+//                                }
+//                            });
+//                            
+//                        }
+//                    });
                     mBindButton.setText(getString(R.string.bind));
                 }
                 isBind = !isBind;

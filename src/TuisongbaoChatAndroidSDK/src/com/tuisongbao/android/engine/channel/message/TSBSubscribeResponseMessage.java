@@ -1,8 +1,8 @@
 package com.tuisongbao.android.engine.channel.message;
 
-import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
+import com.tuisongbao.android.engine.common.BaseTSBResponseCallbackMessage;
 
-public class TSBSubscribeResponseMessage extends BaseTSBResponseMessage<String> {
+public class TSBSubscribeResponseMessage extends BaseTSBResponseCallbackMessage<String> {
 
     @Override
     public String parse() {

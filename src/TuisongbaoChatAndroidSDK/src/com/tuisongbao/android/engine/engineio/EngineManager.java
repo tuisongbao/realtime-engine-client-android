@@ -4,13 +4,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.tuisongbao.android.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.android.engine.engineio.interfaces.IEngineInterface;
-import com.tuisongbao.android.engine.service.EngineServiceListener;
 import com.tuisongbao.android.engine.service.RawMessage;
 
 public class EngineManager {
 
     public static boolean send(ConcurrentHashMap<String, IEngineInterface> map,
-            RawMessage message, EngineServiceListener listener) {
+            RawMessage message) {
         IEngineInterface engineInterface = map.get(message.getAppId());
         if (engineInterface != null) {
             try {

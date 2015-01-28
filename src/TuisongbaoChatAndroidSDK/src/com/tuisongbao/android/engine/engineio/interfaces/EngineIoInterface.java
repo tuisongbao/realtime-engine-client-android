@@ -9,6 +9,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter.Listener;
+import com.github.nkzawa.engineio.client.HandshakeData;
 import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
@@ -30,25 +31,31 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     private int mConnectionStatus = EngineConstants.CONNECTION_STATUS_NONE;
     private Socket mSocket;
     private String mAppId;
+    private String mAppKey;
+    private String mSocketId;
 
     public EngineIoInterface(IEngineCallback callback, Context context,
-            String appId) {
+            String appId, String appKey) {
         super(callback, context);
-        setResource(appId);
+        mAppId = appId;
+        mAppKey = appKey;
         start();
     }
 
-    public EngineIoInterface(Context context, String appId) {
-        this(null, context, appId);
+    public EngineIoInterface(Context context, String appId, String appKey) {
+        this(null, context, appId, appKey);
     }
 
     @Override
     public boolean receive(RawMessage message) throws DataSinkException {
         if (isConnected()) {
-            mSocket.send(toSendMessage(message));
+            String msg = toSendMessage(message);
+            showLog("Send message: " + msg);
+            mSocket.send(msg);
             return true;
         } else {
             // TODO feed back error
+            showLog("Send message failed");
             return false;
         }
     }
@@ -73,9 +80,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         } else if (mSocket == null) {
             openSocket();
         }
-
-        // waiting for receive message
-        mConnectionChanged.await();
     }
 
     @Override
@@ -150,7 +154,8 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         showLog("Socket Close [msg=" + getArgsMSG(args) + "]");
                         // TODO: need parse error condition
                         mConnectionStatus = EngineConstants.CONNECTION_STATUS_CLOSED;
-                        disconnect();
+//                        disconnect();
+                        mSocket = null;
                         reconnect();
                     }
                 }).on(Socket.EVENT_FLUSH, new Listener() {
@@ -158,6 +163,24 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     @Override
                     public void call(Object... args) {
                         showLog("Socket Flush [msg=" + getArgsMSG(args) + "]");
+                    }
+                }).on(Socket.EVENT_TRANSPORT, new Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        showLog("Socket Transport [msg=" + getArgsMSG(args) + "]");
+                    }
+                }).on(Socket.EVENT_HANDSHAKE, new Listener() {
+
+                    @Override
+                    public void call(Object... args) {
+                        showLog("Socket HandShake [msg=" + getArgsMSG(args) + "]");
+                        if (args != null && args.length > 0 && args[0] instanceof HandshakeData) {
+                            mSocketId = ((HandshakeData) args[0]).sid;
+                            handleMessage(genConnectionBindRawMessage(
+                                    EngineConstants.CONNECTION_NAME_SOCKET_ID,
+                                    mSocketId));
+                        }
                     }
                 });
                 mSocket.open();
@@ -179,11 +202,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         if (!StrUtil.isEmpty(name)) {
             JSONObject data = json
                     .optJSONObject(EngineConstants.REQUEST_KEY_DATA);
-            int code = EngineConstants.ERROR_CODE_SUCCESS;
+            int code = EngineConstants.CONNECTION_CODE_SUCCESS;
             String errorMessage = "";
             if (data != null) {
                 code = json.optInt(EngineConstants.REQUEST_KEY_CODE);
-                if (code != EngineConstants.ERROR_CODE_SUCCESS) {
+                if (code != EngineConstants.CONNECTION_CODE_SUCCESS) {
                     errorMessage = json
                             .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
                 }
@@ -192,7 +215,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             if (name.startsWith(EngineConstants.CONNECTION_PREFIX)) {
                 int connectStatus = EngineConstants.getConnectionStatus(name);
                 if (connectStatus == EngineConstants.CONNECTION_STATUS_ERROR) {
-                    if (code != EngineConstants.ERROR_CODE_SUCCESS) {
+                    if (code != EngineConstants.CONNECTION_CODE_SUCCESS) {
                         // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
                         if (code >= 4000 && code <= 4099) {
                             // TODO: need do something
@@ -209,7 +232,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     mConnectionStatus = connectStatus;
                 }
             }
-            RawMessage rawMessage = new RawMessage(mAppId, name, data != null ? data.toString(): "");
+            RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data != null ? data.toString(): "");
             rawMessage.setChannel(channel);
             rawMessage.setRequestId(requestId);
             rawMessage.setCode(code);
@@ -219,13 +242,19 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             // empty
         }
     }
+    
+    private RawMessage genConnectionBindRawMessage(String name, String data) {
+        RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data);
+        rawMessage.setBindName(EngineConstants.EVENT_CONNECTION_CHANGE_STATUS);
+        return rawMessage;
+    }
 
     private void showLog(String content) {
         Log.w(TAG, content);
     }
 
     private String getArgsMSG(Object... args) {
-        return args == null || args.length == 0 ? "" : args.toString();
+        return args == null || args.length == 0 ? "<empty>" : args.toString();
     }
 
     private String getWebsocketURL() {

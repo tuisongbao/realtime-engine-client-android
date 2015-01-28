@@ -7,6 +7,7 @@ public interface ITSBResponseMessage {
     public void setName(String name);
     public void setData(String data);
     public void setChannel(String channel);
+    public void setBindName(String bindName);
     public boolean isSuccess();
     public void callBack();
 }

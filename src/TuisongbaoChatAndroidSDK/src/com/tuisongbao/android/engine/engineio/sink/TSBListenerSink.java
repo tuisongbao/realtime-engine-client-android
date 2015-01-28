@@ -16,7 +16,7 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
     private final static String TAG = "propagate";
 
     private ConcurrentMap<String, ConcurrentMap<RawMessage, ITSBResponseMessage>> mListeners = new ConcurrentHashMap<String, ConcurrentMap<RawMessage, ITSBResponseMessage>>();
-    private ConcurrentMap<String, TSBEngineBindCallback> mBinds = new ConcurrentHashMap<String, TSBEngineBindCallback>();
+    private ConcurrentMap<String, ITSBResponseMessage> mBinds = new ConcurrentHashMap<String, ITSBResponseMessage>();
 
     public TSBListenerSink() {
         // emtpy
@@ -32,7 +32,7 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
         mListeners.remove(message.getUUID());
     }
 
-    public void bind(String name, TSBEngineBindCallback callBack) {
+    public void bind(String name, ITSBResponseMessage callBack) {
         mBinds.put(name, callBack);
     }
 
@@ -56,17 +56,25 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                     callbackMessage.setData(message.getData());
                     callbackMessage.setName(message.getName());
                     callbackMessage.setData(message.getData());
+                    callbackMessage.setBindName(message.getBindName());
                     callbackMessage.callBack();
                 }
             }
             // 处理绑定事件
             if (!StrUtil.isEmpty(message.getBindName())) {
-                TSBEngineBindCallback callback = mBinds.get(message.getBindName());
+                ITSBResponseMessage callbackMessage = mBinds.get(message.getBindName());
                 if (message.isUnbind()) {
                     unbind(message.getBindName());
                 }
-                if (callback != null) {
-                    callback.onEvent(message.getBindName(), message.getName(), message.getData());
+                if (callbackMessage != null) {
+                    callbackMessage.setCode(message.getCode());
+                    callbackMessage.setErrorMessage(message.getErrorMessge());
+                    callbackMessage.setChannel(message.getChannel());
+                    callbackMessage.setData(message.getData());
+                    callbackMessage.setName(message.getName());
+                    callbackMessage.setData(message.getData());
+                    callbackMessage.setBindName(message.getBindName());
+                    callbackMessage.callBack();
                 }
             }
         }

@@ -12,11 +12,17 @@ public abstract class BaseManager {
         return TSBEngine.send(message.getName(), message.getData(), response);
     }
 
-    public void bind(String bindName, TSBEngineBindCallback callback) {
-        TSBEngine.bind(bindName, callback);
+    protected void bind(String bindName, TSBEngineBindCallback callback) {
+        TSBBindResponseMessage response = new TSBBindResponseMessage();
+        response.setBindCallBack(callback);
+        TSBEngine.bind(bindName, response);
     }
 
-    public void unbind(String bindName, TSBEngineBindCallback callback) {
-        TSBEngine.unbind(bindName, callback);
+    protected void bind(String bindName, ITSBResponseMessage response) {
+        TSBEngine.bind(bindName, response);
+    }
+
+    protected void unbind(String bindName) {
+        TSBEngine.unbind(bindName);
     }
 }

@@ -113,8 +113,8 @@ public class EngineService extends Service {
          * @throws DataSinkException
          */
         @Override
-        public void addEngineInterface(String appId) {
-            EngineService.this.addEngineInterface(appId);
+        public void addEngineInterface(String appId, String appKey) {
+            EngineService.this.addEngineInterface(appId, appKey);
         }
     };
 
@@ -123,8 +123,13 @@ public class EngineService extends Service {
     }
 
     private boolean send(RawMessage message, EngineServiceListener listener) {
-        mNotifier.register(message, listener);
-        return EngineManager.send(mEngineInterfaceMap, message, listener);
+        if (listener != null) {
+            mNotifier.register(message, listener);
+        } else {
+            long requestId = mNotifier.getReqeustId();
+            message.setRequestId(requestId);
+        }
+        return EngineManager.send(mEngineInterfaceMap, message);
     }
 
     private void bind(RawMessage message, EngineServiceListener listener) {
@@ -135,11 +140,11 @@ public class EngineService extends Service {
         mNotifier.unbind(message, listener);
     }
 
-    private void addEngineInterface(String appId) {
+    private void addEngineInterface(String appId, String appKey) {
         IEngineInterface engineInterface = findActiveEngineInterface(appId);
 
         if (engineInterface == null) {
-            engineInterface = new EngineIoInterface(this, appId);
+            engineInterface = new EngineIoInterface(this, appId, appKey);
 
             mEngineInterfaceMap.put(appId, engineInterface);
             mDataPipeline.addSource(engineInterface);

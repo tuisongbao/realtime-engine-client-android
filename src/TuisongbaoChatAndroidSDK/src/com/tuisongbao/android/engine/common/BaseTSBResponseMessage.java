@@ -1,14 +1,14 @@
 package com.tuisongbao.android.engine.common;
 
 
-public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
+public abstract class BaseTSBResponseMessage implements ITSBResponseMessage {
 
     private String mErrorMessage;
     private int mCode;
     private String mName;
     private String mData;
     private String mChannel;
-    private TSBEngineCallback<T> mCallBack;
+    private String mBindName;
 
     public String getErrorMessage() {
         return mErrorMessage;
@@ -30,12 +30,8 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
         return mChannel;
     }
 
-    public TSBEngineCallback<T> getCallBack() {
-        return mCallBack;
-    }
-
-    public void setCallBack(TSBEngineCallback<T> callback) {
-        mCallBack = callback;
+    public String getBindName() {
+        return mBindName;
     }
 
     @Override
@@ -65,22 +61,12 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     }
 
     @Override
-    public boolean isSuccess() {
-        return mCode == 0;
+    public void setBindName(String bindName) {
+        mBindName = bindName;
     }
 
-    abstract public T parse();
-
     @Override
-    public void callBack() {
-        if (isSuccess()) {
-            if (mCallBack != null) {
-                mCallBack.onSuccess(parse());
-            }
-        } else {
-            if (mCallBack != null) {
-                mCallBack.onError(mCode, mErrorMessage);
-            }
-        }
+    public boolean isSuccess() {
+        return mCode == 0;
     }
 }

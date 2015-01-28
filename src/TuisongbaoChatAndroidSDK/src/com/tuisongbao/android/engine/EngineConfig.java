@@ -68,11 +68,12 @@ public class EngineConfig {
         return PUSH_SERVICE_ACTION;
     }
 
-    public boolean init(Context context, String appId) {
-        if (StrUtil.isEmpty(appId)) {
+    public boolean init(Context context, String appId, String appKey) {
+        if (StrUtil.isEmpty(appId) || StrUtil.isEmpty(appKey)) {
             return false;
         } else {
             PUSH_APP_ID = appId;
+            PUSH_APP_KEY = appKey;
             return true;
         }
     }

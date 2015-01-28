@@ -40,8 +40,37 @@ public class StrUtil
         return UUID.randomUUID().toString();
     }
 
+    /**
+     * If str is null, returns "", or return str.
+     * 
+     * @param str
+     * @return
+     */
     public static String strNotNull(String str) {
         return isEmpty(str) ? "" : str;
+    }
+  
+    /**
+     * Converts byte to hex string
+     * 
+     * @param bytes
+     * @return
+     */
+    public static String byte2hex(final byte[] bytes) {
+        if (bytes == null || bytes.length < 0) {
+            return "";
+        }
+        String hs = "";
+        String stmp = "";
+        for (int n = 0; n < bytes.length; n++) {
+            stmp = (java.lang.Integer.toHexString(bytes[n] & 0xFF));
+            if (stmp.length() == 1) {
+                hs = hs + "0" + stmp;
+            } else {
+                hs = hs + stmp;
+            }
+        }
+        return hs;
     }
     
     /**

@@ -17,6 +17,10 @@ public class RawMessage implements Parcelable {
      */
     private String mAppId;
     /**
+     * 应用Secret
+     */
+    private String mAppKey;
+    /**
      * 消息名
      */
     private String mName;
@@ -31,7 +35,7 @@ public class RawMessage implements Parcelable {
     /**
      * 返回的状态码
      */
-    private int mCode = EngineConstants.ERROR_CODE_SUCCESS;
+    private int mCode = EngineConstants.CONNECTION_CODE_SUCCESS;
     /**
      * 返回的状态错误信息
      */
@@ -48,7 +52,35 @@ public class RawMessage implements Parcelable {
      * 请求id, 发送请求时使用
      */
     private long mRequestId;
+    /**
+     * 签名用的string
+     */
+    private String mSignStr;
     private long mTimestamp;
+    
+    public RawMessage(String appId, String appKey, String name, String data) {
+        this();
+        mAppKey = appKey;
+        mAppId = appId;
+        mName = name;
+        mData = data;
+    }
+
+    public String getSignStr() {
+        return mSignStr;
+    }
+
+    public void setSignStr(String signStr) {
+        this.mSignStr = signStr;
+    }
+
+    public String getAppKey() {
+        return mAppKey;
+    }
+
+    public void setAppKey(String appKey) {
+        this.mAppKey = appKey;
+    }
 
     public boolean isUnbind() {
         return mIsUnbind;
@@ -130,23 +162,18 @@ public class RawMessage implements Parcelable {
     public int describeContents() {
         return 0;
     }
-    
-    public RawMessage(String appId, String name, String data) {
-        this();
-        mAppId = appId;
-        mName = name;
-        mData = data;
-    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(StrUtil.strNotNull(mUUID));
         dest.writeString(StrUtil.strNotNull(mAppId));
+        dest.writeString(StrUtil.strNotNull(mAppKey));
         dest.writeString(StrUtil.strNotNull(mName));
         dest.writeString(StrUtil.strNotNull(mData));
         dest.writeString(StrUtil.strNotNull(mChannel));
         dest.writeString(StrUtil.strNotNull(mErrorMessge));
         dest.writeString(StrUtil.strNotNull(mBindName));
+        dest.writeString(StrUtil.strNotNull(mSignStr));
         dest.writeInt(mCode);
         dest.writeBooleanArray(new boolean[] {mIsUnbind});
     }
@@ -154,11 +181,13 @@ public class RawMessage implements Parcelable {
     public void readFromParcel(Parcel in) {
         mUUID = in.readString();
         mAppId = in.readString();
+        mAppKey = in.readString();
         mName = in.readString();
         mData = in.readString();
         mChannel = in.readString();
         mErrorMessge = in.readString();
         mBindName = in.readString();
+        mSignStr = in.readString();
         mCode = in.readInt();
 
         boolean[] bools = new boolean[1];

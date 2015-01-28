@@ -4,6 +4,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class EngineConstants {
 
+    // request key
     public static final String REQUEST_KEY_WS_ADDR = "addr";
     public static final String REQUEST_KEY_NAME = "name";
     public static final String REQUEST_KEY_ID = "id";
@@ -11,6 +12,8 @@ public class EngineConstants {
     public static final String REQUEST_KEY_DATA = "data";
     public static final String REQUEST_KEY_CODE = "code";
     public static final String REQUEST_KEY_ERROR_MESSAGE = "message";
+    
+    // connection
     public static final String CONNECTION_PREFIX = "engine_connection:";
     public static final String CONNECTION_CONNECTED = "established";
     public static final String CONNECTION_ERROR = "error";
@@ -20,8 +23,15 @@ public class EngineConstants {
     public static final int CONNECTION_STATUS_DISCONNECTED = 4;
     public static final int CONNECTION_STATUS_NONE = 0;
     
-    // error code
-    public static final int ERROR_CODE_SUCCESS = 0;
+    // connection code
+    public static final int CONNECTION_CODE_SUCCESS = 0;
+    
+    // connection name
+    public static final String CONNECTION_NAME_SOCKET_ID = "android_engine_connection_name_socket_id";
+    
+    // event
+    public static final String EVENT_CONNECTION_CHANGE_STATUS = "connection_change_status";
+    
     
     public static int getConnectionStatus(String src) {
         String statusString = getValue(src, CONNECTION_PREFIX);

@@ -1,7 +1,5 @@
 package com.tuisongbao.android.engine;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,25 +8,26 @@ import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
-import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.android.engine.connection.TSBConnectionManager;
 import com.tuisongbao.android.engine.engineio.DataPipeline;
-import com.tuisongbao.android.engine.engineio.interfaces.IEngineInterface;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.EngineService;
 import com.tuisongbao.android.engine.service.EngineServiceInterface;
 import com.tuisongbao.android.engine.service.EngineServiceListener;
 import com.tuisongbao.android.engine.service.RawMessage;
+import com.tuisongbao.android.engine.util.StrUtil;
 
 public final class TSBEngine {
 
     private static Context mApplicationContext = null;
     private static EngineServiceInterface mService;
-    private static ConcurrentHashMap<String, TSBEngineListener> mTBSEngineListener = new ConcurrentHashMap<String, TSBEngine.TSBEngineListener>();
-    private static String mAppId;
     private static DataPipeline mDataPipeline = new DataPipeline();
-    private static ConcurrentHashMap<String, IEngineInterface> mEngineInterfaceMap = new ConcurrentHashMap<String, IEngineInterface>();
     private static TSBListenerSink mNotifier = new TSBListenerSink();
+    private static String mSocketId;
+    public static TSBConnectionManager connection = TSBConnectionManager.getInstance();
 
     private TSBEngine() {
         // empty here
@@ -39,15 +38,13 @@ public final class TSBEngine {
      * 
      * @param context
      */
-    public static void init(Context context, String appId) {
+    public static void init(Context context, String appId, String appKey) {
 
-        mAppId = appId;
-        mApplicationContext = context.getApplicationContext(); // save the
-                                                               // application
-                                                               // context
+        // save the application context
+        mApplicationContext = context.getApplicationContext();
         EnginePreference.instance().init(context);
         try {
-            boolean initialized = EngineConfig.instance().init(context, appId);
+            boolean initialized = EngineConfig.instance().init(context, appId, appKey);
             if (!initialized) {
                 return;
             } else {
@@ -62,6 +59,44 @@ public final class TSBEngine {
     }
 
     /**
+     * Returns Connection socket id
+     * 
+     * @return
+     */
+    public static String getSocketId() {
+        return mSocketId;
+    }
+
+    /**
+     * 发送消息, 需要添加签名
+     * 
+     * @param message
+     * @return
+     */
+    public static boolean send(String name, String sign, String data,
+            ITSBResponseMessage response) {
+        if (mService != null) {
+            try {
+                RawMessage message = new RawMessage(EngineConfig.instance()
+                        .getAppId(), EngineConfig.instance()
+                        .getAppKey(), name, data);
+                message.setSignStr(sign);
+                if (response != null) {
+                    mNotifier.register(message, response);
+                    return mService.send(message, mEngineServiceListener);
+                } else {
+                    return mService.send(message, null);
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 发送消息
      * 
      * @param message
@@ -69,52 +104,41 @@ public final class TSBEngine {
      */
     public static boolean send(String name, String data,
             ITSBResponseMessage response) {
-        if (mService != null) {
-            try {
-                RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), name, data);
-                mNotifier.register(message, response);
-                return mService.send(message, mEngineServiceListener);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return send(name, null, data, response);
     }
 
-    public static boolean bind(String bindName, TSBEngineBindCallback callback) {
-        if (mService != null) {
+    public static void bind(String bindName, ITSBResponseMessage response) {
+        if (mService != null && response != null && !StrUtil.isEmpty(bindName)) {
             try {
                 RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), bindName, null);
+                        .getAppId(), EngineConfig.instance()
+                        .getAppKey(), bindName, null);
                 message.setBindName(bindName);
-                mNotifier.bind(bindName, callback);
-                return mService.send(message, mEngineServiceListener);
+                mNotifier.bind(bindName, response);
+                mService.bind(message, mEngineServiceListener);
             } catch (RemoteException e) {
                 e.printStackTrace();
-                return false;
             }
         } else {
-            return false;
+            // empty
         }
         
     }
 
-    public static boolean unbind(String bindName, TSBEngineBindCallback callback) {
+    public static void unbind(String bindName) {
         if (mService != null) {
             try {
                 RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), "", "");
+                        .getAppId(), EngineConfig.instance()
+                        .getAppKey(), null, null);
                 message.setBindName(bindName);
-                return mService.send(message, mEngineServiceListener);
+                mService.unbind(message, null);
             } catch (RemoteException e) {
                 e.printStackTrace();
-                return false;
+                // empty
             }
         } else {
-            return false;
+            // empty
         }
         
     }
@@ -146,7 +170,10 @@ public final class TSBEngine {
             LogUtil.debug(LogUtil.LOG_TAG_PUSH_MANAGER, "EngineService success");
             mService = EngineServiceInterface.Stub.asInterface(service);
             try {
-                mService.addEngineInterface(EngineConfig.instance().getAppId());
+                // bind connection change status
+                bindConnectionChangeStatus();
+                // bind socket id event
+                mService.addEngineInterface(EngineConfig.instance().getAppId(), EngineConfig.instance().getAppKey());
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -160,10 +187,32 @@ public final class TSBEngine {
             mService = null;
         }
     };
-
-    public static interface TSBEngineListener {
-        public void call(RawMessage msg);
+    
+    private static void bindConnectionChangeStatus() throws RemoteException {
+        RawMessage message = new RawMessage(EngineConfig.instance()
+                        .getAppId(), EngineConfig.instance()
+                        .getAppKey(), null, null);
+        message.setBindName(EngineConstants.EVENT_CONNECTION_CHANGE_STATUS);
+        mService.bind(message, mConnectionEngineServiceListener);
     }
+
+    /**
+     * Connection listener
+     */
+    private static EngineServiceListener mConnectionEngineServiceListener = new EngineServiceListener.Stub() {
+
+        @Override
+        public void call(RawMessage value) throws RemoteException {
+            if (value != null) {
+                // 获取socket id
+                if (EngineConstants.CONNECTION_NAME_SOCKET_ID.equals(value.getName())) {
+                    mSocketId = value.getData();
+                }
+                value.setBindName(TSBEngineConstants.TSBENGINE_EVENT_CONNECTION_STATUS);
+                mDataPipeline.receive(value);
+            }
+        }
+    };
 
     private static EngineServiceListener mEngineServiceListener = new EngineServiceListener.Stub() {
 

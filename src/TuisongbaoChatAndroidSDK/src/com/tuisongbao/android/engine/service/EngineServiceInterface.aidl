@@ -21,9 +21,10 @@ interface EngineServiceInterface {
          * 添加消息源
          * 
          * @param appId
+         * @param appKey
          * @return
          */
-        void addEngineInterface(String appId);
+        void addEngineInterface(String appId, String appKey);
 
         /**
          * 绑定事件

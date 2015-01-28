@@ -1,6 +1,6 @@
 package com.tuisongbao.android.engine.entity;
 
-public class TBSUserInfo {
+public class TSBUserInfo {
 
     private String name;
     private String gender;
