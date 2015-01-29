@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,9 +20,7 @@ import com.tuisongbao.android.engine.channel.entity.TSBPresenceChannel;
 import com.tuisongbao.android.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.android.engine.channel.message.TSBUnsubscribeMessage;
 import com.tuisongbao.android.engine.common.BaseManager;
-import com.tuisongbao.android.engine.common.ITSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
@@ -32,7 +33,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 public class TSBChannelManager extends BaseManager {
 
     Map<String, TSBSubscribeMessage> mChannelMap = new HashMap<String, TSBSubscribeMessage>();
-    Map<String, ArrayList<TSBEngineBindCallback>> mBindMap = new HashMap<String, ArrayList<TSBEngineBindCallback>>();
+    ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> mBindMap = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
 
     private static TSBChannelManager mInstance;
 
@@ -44,7 +45,7 @@ public class TSBChannelManager extends BaseManager {
     }
 
     private TSBChannelManager() {
-        bindConnectionEvents();
+        super();
     }
 
     /**
@@ -104,11 +105,40 @@ public class TSBChannelManager extends BaseManager {
     }
 
     public void bind(String bindName, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(bindName) || callback == null) {
+            return;
+        }
+        addBind(bindName, callback);
         super.bind(bindName, callback);
     }
 
-    public void unbind(String bindName, ITSBEngineCallback callback) {
+    public void unbind(String bindName, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(bindName) || callback == null) {
+            return;
+        }
+        removeBind(bindName, callback);
         super.unbind(bindName, callback);
+    }
+
+    private void addBind(String bindName, TSBEngineBindCallback callback) {
+        CopyOnWriteArrayList<TSBEngineBindCallback> list = mBindMap.get(bindName);
+        if (list == null) {
+            list = new CopyOnWriteArrayList<TSBEngineBindCallback>();
+        }
+        list.add(callback);
+        mBindMap.put(bindName, list);
+    }
+
+    private void removeBind(String bindName, TSBEngineBindCallback callback) {
+        CopyOnWriteArrayList<TSBEngineBindCallback> list = mBindMap.get(bindName);
+        if (list == null || list.isEmpty()) {
+            return;
+        }
+        for (TSBEngineBindCallback local : list) {
+            if (local == callback) {
+                list.remove(local);
+            }
+        }
     }
 
     private void sendUnsubscribeMessage(TSBSubscribeMessage msg) {
@@ -156,10 +186,6 @@ public class TSBChannelManager extends BaseManager {
     private TSBSubscribeMessage removeChannel(String channel) {
         unbind(channel, mSubscribeEngineCallback);
         return mChannelMap.remove(channel);
-    }
-
-    private void bindConnectionEvents() {
-        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, mConnectionCallback);
     }
     
     private void handleErrorMessage(String channel, String name, int code, String message) {
@@ -290,20 +316,8 @@ public class TSBChannelManager extends BaseManager {
         }
     };
 
-    private TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
-
-        @Override
-        public void onSuccess(TSBConnection t) {
-            handleConnect();
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            handeDisconnect();
-        }
-    };
-
-    private void handleConnect() {
+    @Override
+    protected void handleConnect(TSBConnection t) {
         HashSet<TSBSubscribeMessage> values = new HashSet<TSBSubscribeMessage>(mChannelMap.values());
         for (TSBSubscribeMessage message : values) {
             if (message.isUnsubscribeed()) {
@@ -315,11 +329,12 @@ public class TSBChannelManager extends BaseManager {
         }
     }
 
-    private void handeDisconnect() {
+    @Override
+    protected void handleDisconnect(int code, String message) {
         HashSet<TSBSubscribeMessage> values = new HashSet<TSBSubscribeMessage>(mChannelMap.values());
-        for (TSBSubscribeMessage message : values) {
-            if (message.isUnsubscribeed()) {
-                removeChannel(message.getName());
+        for (TSBSubscribeMessage msg : values) {
+            if (msg.isUnsubscribeed()) {
+                removeChannel(msg.getName());
             }
         }
     }

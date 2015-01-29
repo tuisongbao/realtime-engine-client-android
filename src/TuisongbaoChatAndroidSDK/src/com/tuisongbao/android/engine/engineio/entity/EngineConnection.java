@@ -25,7 +25,7 @@ public class EngineConnection {
     }
 
     public boolean isSuccess() {
-        return code == TSBEngineConstants.TSBENGINE_CONNECTION_CODE_SUCCESS;
+        return code == TSBEngineConstants.TSBENGINE_CODE_SUCCESS;
     }
 
     public String getSocketId() {

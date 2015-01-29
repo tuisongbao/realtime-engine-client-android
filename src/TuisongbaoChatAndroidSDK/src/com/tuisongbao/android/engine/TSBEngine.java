@@ -94,10 +94,10 @@ public final class TSBEngine {
         RawMessage message = new RawMessage(EngineConfig.instance()
                 .getAppId(), EngineConfig.instance()
                 .getAppKey(), name, data);
+        message.setRequestId(getRequestId());
         if (response != null) {
             mNotifier.register(message, response);
         }
-        message.setRequestId(getRequestId());
         return mEngineManger.send(message);
     }
 

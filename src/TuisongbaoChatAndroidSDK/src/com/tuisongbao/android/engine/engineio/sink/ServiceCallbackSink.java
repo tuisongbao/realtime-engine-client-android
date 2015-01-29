@@ -127,7 +127,7 @@ public class ServiceCallbackSink extends BaseEngineCallbackSink {
                 raw.setChannel(rawMessage.getChannel());
                 raw.setData(rawMessage.getData());
                 raw.setCode(rawMessage.getCode());
-                raw.setErrorMessge(rawMessage.getErrorMessge());
+                raw.setErrorMessage(rawMessage.getErrorMessge());
                 EngineServiceListener listener = map.get(raw);
                 if (listener != null) {
                     mListeners.beginBroadcast();

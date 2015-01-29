@@ -197,26 +197,55 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         JSONObject json = new JSONObject(msg);
         // 获取请求类型
         String name = json.optString(EngineConstants.REQUEST_KEY_NAME);
-        long requestId = StrUtil.toLong(
-                json.optString(EngineConstants.REQUEST_KEY_ID), 0);
+        // request id 只有在非事件中使用
+        long requestId = 0;
         String channel = json.optString(EngineConstants.REQUEST_KEY_CHANNEL);
         if (!StrUtil.isEmpty(name)) {
             JSONObject data = json
                     .optJSONObject(EngineConstants.REQUEST_KEY_DATA);
-            int code = EngineConstants.CONNECTION_CODE_SUCCESS;
+            int code = EngineConstants.ENGINE_CODE_SUCCESS;
+            
             String errorMessage = "";
             if (data != null) {
-                code = json.optInt(EngineConstants.REQUEST_KEY_CODE);
-                if (code != EngineConstants.CONNECTION_CODE_SUCCESS) {
-                    errorMessage = json
-                            .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
+                requestId = StrUtil.toLong(
+                        data.optString(EngineConstants.REQUEST_KEY_ID), 0);
+                if (requestId > 0) {
+                    // 说明是对客户端请求的response
+                    boolean ok = data
+                            .optBoolean(EngineConstants.REQUEST_KEY_RESPONSE_OK);
+                    try {
+                        if (ok) {
+                            JSONObject result = data
+                                    .optJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_RESULT);
+                            data = result;
+                        } else {
+                            JSONObject error = data.getJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_ERROR);
+                            if (error != null) {
+                                code = data.optInt(EngineConstants.REQUEST_KEY_CODE);
+                                errorMessage = data
+                                        .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
+                            } else {
+                                code = EngineConstants.COMMON_CODE_UNKNOWN;
+                                errorMessage = "Unknow error";
+                            }
+                        }
+                    } catch (Exception e) {
+                        data = null;
+                    }
+                } else {
+                    // 说明是事件
+                    code = data.optInt(EngineConstants.REQUEST_KEY_CODE);
+                    if (code != EngineConstants.ENGINE_CODE_SUCCESS) {
+                        errorMessage = data
+                                .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
+                    }
                 }
             }
             // 当为链接状态时
             if (name.startsWith(EngineConstants.CONNECTION_PREFIX)) {
                 int connectStatus = EngineConstants.getConnectionStatus(name);
                 if (connectStatus == EngineConstants.CONNECTION_STATUS_ERROR) {
-                    if (code != EngineConstants.CONNECTION_CODE_SUCCESS) {
+                    if (code != EngineConstants.ENGINE_CODE_SUCCESS) {
                         // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
                         if (code >= 4000 && code <= 4099) {
                             // empty
@@ -235,7 +264,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             rawMessage.setChannel(channel);
             rawMessage.setRequestId(requestId);
             rawMessage.setCode(code);
-            rawMessage.setErrorMessge(errorMessage);
+            rawMessage.setErrorMessage(errorMessage);
             handleMessage(rawMessage);
         } else {
             // empty
@@ -244,7 +273,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     
     private void handleSentFailedMessage(RawMessage message) {
         message.setCode(EngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED);
-        message.setErrorMessge("Send message failed");
+        message.setErrorMessage("Send message failed");
         // handle channel event
         if (StrUtil.strNotNull(message.getName()).startsWith(
                 EngineConstants.CHANNEL_NAME_PREFIX)
@@ -273,7 +302,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     private void handleDisconnectedMessage(int code, String messsage) {
         RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR, messsage);
         rawMessage.setCode(code);
-        rawMessage.setErrorMessge(messsage);
+        rawMessage.setErrorMessage(messsage);
         JSONObject json = new JSONObject();
         try {
             json.put(EngineConstants.REQUEST_KEY_CODE, code);
@@ -287,7 +316,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
 
     private void handleConnectedMessage() {
         RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED, "success");
-        rawMessage.setCode(EngineConstants.CONNECTION_CODE_SUCCESS);
+        rawMessage.setCode(EngineConstants.ENGINE_CODE_SUCCESS);
         handleMessage(rawMessage);
     }
 

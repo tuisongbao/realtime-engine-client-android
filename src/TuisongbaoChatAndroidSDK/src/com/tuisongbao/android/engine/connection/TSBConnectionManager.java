@@ -1,11 +1,11 @@
 package com.tuisongbao.android.engine.connection;
 
-import com.tuisongbao.android.engine.common.BaseManager;
+import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.connection.message.TSBConnectionResponseMessage;
 
-public class TSBConnectionManager extends BaseManager {
+public class TSBConnectionManager {
 
     private static TSBConnectionManager mInstance;
     private TSBConnectionManager() {
@@ -22,6 +22,6 @@ public class TSBConnectionManager extends BaseManager {
     public void bind(String bindName, TSBEngineCallback<TSBConnection> callback) {
         TSBConnectionResponseMessage message = new TSBConnectionResponseMessage();
         message.setCallback(callback);
-        super.bind(bindName, message);
+        TSBEngine.bind(bindName, message);
     }
 }

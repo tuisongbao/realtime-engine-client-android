@@ -15,7 +15,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
  */
 public class TSBListenerSink extends BaseEngineCallbackSink {
 
-    private ConcurrentMap<String, ConcurrentMap<RawMessage, ITSBResponseMessage>> mListeners = new ConcurrentHashMap<String, ConcurrentMap<RawMessage, ITSBResponseMessage>>();
+    private ConcurrentMap<Long, ConcurrentMap<RawMessage, ITSBResponseMessage>> mListeners = new ConcurrentHashMap<Long, ConcurrentMap<RawMessage, ITSBResponseMessage>>();
     private ConcurrentMap<String, ConcurrentMap<ITSBEngineCallback, ITSBResponseMessage>> mBinds = new ConcurrentHashMap<String, ConcurrentMap<ITSBEngineCallback, ITSBResponseMessage>>();
 
     public TSBListenerSink() {
@@ -25,11 +25,11 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
     public void register(RawMessage message, ITSBResponseMessage callBack) {
         ConcurrentMap<RawMessage, ITSBResponseMessage> map = new ConcurrentHashMap<RawMessage, ITSBResponseMessage>();
         map.put(message, callBack);
-        mListeners.put(message.getUUID(), map);
+        mListeners.put(message.getRequestId(), map);
     }
 
     public void unregister(RawMessage message) {
-        mListeners.remove(message.getUUID());
+        mListeners.remove(message.getRequestId());
     }
 
     public void bind(String name, ITSBResponseMessage response) {
@@ -67,20 +67,28 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
         if (message != null) {
             // 处理回调事件
             ConcurrentMap<RawMessage, ITSBResponseMessage> map = mListeners
-                    .remove(message.getUUID());
+                    .remove(message.getRequestId());
             if (map != null) {
-                ITSBResponseMessage callbackMessage = map.get(map.keySet()
-                        .iterator().next());
+                RawMessage requestMessage = map.keySet()
+                        .iterator().next();
+                ITSBResponseMessage callbackMessage = map.get(requestMessage);
                 if (callbackMessage != null) {
                     callbackMessage.setCode(message.getCode());
                     callbackMessage.setErrorMessage(message.getErrorMessge());
                     callbackMessage.setChannel(message.getChannel());
                     callbackMessage.setData(message.getData());
                     callbackMessage.setName(message.getName());
-                    callbackMessage.setData(message.getData());
                     callbackMessage.setBindName(message.getBindName());
                     callbackMessage.callBack();
                 }
+                // 由于对于request请求返回的name均是"requestMessage",所以绑定事件是需要使用请求的name
+                requestMessage.setCode(message.getCode());
+                requestMessage.setErrorMessage(message.getErrorMessge());
+                requestMessage.setChannel(message.getChannel());
+                requestMessage.setData(message.getData());
+                requestMessage.setBindName(requestMessage.getName());
+                requestMessage.setName(message.getName());
+                callbackBindListener(requestMessage);
             }
             // 处理绑定事件
             // service绑定事件处理(该类事件为service本身产生的事件，而非引擎返回事件)

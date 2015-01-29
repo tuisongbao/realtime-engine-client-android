@@ -11,9 +11,12 @@ import android.widget.Toast;
 
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
+import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -133,6 +136,40 @@ public class MainActivity extends Activity {
                 isBind = !isBind;
             }
         });
+        mBindButton.postDelayed(new Runnable() {
+            
+            @Override
+            public void run() {
+                TSBChatManager.getInstance().login(null, new TSBEngineCallback<TSBChatUser>() {
+                    
+                    @Override
+                    public void onSuccess(TSBChatUser t) {
+                        runOnUiThread(new Runnable() {
+                            
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this,
+                                        "login success",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                    
+                    @Override
+                    public void onError(int code, String message) {
+                        runOnUiThread(new Runnable() {
+                            
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this,
+                                        "login failed",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
+            }
+        }, 5 * 1000);
     }
 
     @Override

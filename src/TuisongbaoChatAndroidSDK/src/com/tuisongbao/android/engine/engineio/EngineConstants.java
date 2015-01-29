@@ -15,6 +15,10 @@ public class EngineConstants {
     public static final String REQUEST_KEY_DATA = "data";
     public static final String REQUEST_KEY_CODE = "code";
     public static final String REQUEST_KEY_ERROR_MESSAGE = "message";
+    public static final String REQUEST_KEY_RESPONSE_OK = "ok";
+    public static final String REQUEST_KEY_RESPONSE_RESULT = "result";
+    public static final String REQUEST_KEY_RESPONSE_ERROR = "error";
+    public static final String REQUEST_KEY_RESPONSE_TO = "to";
     
     // connection
     public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED = "engine_connection:established";
@@ -36,8 +40,11 @@ public class EngineConstants {
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
     
+    // common code
+    public static final int COMMON_CODE_UNKNOWN = -9001;
+    
     // connection code
-    public static final int CONNECTION_CODE_SUCCESS = 0;
+    public static final int ENGINE_CODE_SUCCESS = 0;
     public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1001;
     public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1002;
     public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -1003;

@@ -1,6 +1,8 @@
 package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.connection.entity.TSBConnection;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 
 public abstract class BaseManager {
 
@@ -34,5 +36,34 @@ public abstract class BaseManager {
         TSBBindResponseMessage response = new TSBBindResponseMessage();
         response.setCallback(callback);
         TSBEngine.unbind(bindName, response);
+    }
+
+    protected BaseManager() {
+        bindConnectionEvents();
+    }
+
+    private void bindConnectionEvents() {
+        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, mConnectionCallback);
+    }
+
+    private TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
+
+        @Override
+        public void onSuccess(TSBConnection t) {
+            handleConnect(t);
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            handleDisconnect(code, message);
+        }
+    };
+
+    protected void handleConnect(TSBConnection t) {
+        // empty
+    }
+
+    protected void handleDisconnect(int code, String message) {
+        // empty
     }
 }

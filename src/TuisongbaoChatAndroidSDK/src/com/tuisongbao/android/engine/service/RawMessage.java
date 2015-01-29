@@ -35,7 +35,7 @@ public class RawMessage implements Parcelable {
     /**
      * 返回的状态码
      */
-    private int mCode = EngineConstants.CONNECTION_CODE_SUCCESS;
+    private int mCode = EngineConstants.ENGINE_CODE_SUCCESS;
     /**
      * 返回的状态错误信息
      */
@@ -110,7 +110,7 @@ public class RawMessage implements Parcelable {
         return mErrorMessge;
     }
 
-    public void setErrorMessge(String errorMessage) {
+    public void setErrorMessage(String errorMessage) {
         this.mErrorMessge = errorMessage;
     }
 

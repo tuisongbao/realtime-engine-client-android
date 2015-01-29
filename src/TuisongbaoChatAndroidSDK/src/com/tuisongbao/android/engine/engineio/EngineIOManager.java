@@ -255,7 +255,7 @@ public class EngineIOManager implements Runnable {
         JSONObject json = new JSONObject(msg);
         // 获取请求类型
         String name = json.optString(EngineConstants.REQUEST_KEY_NAME);
-        long requestId = StrUtil.toLong(json.optString(EngineConstants.REQUEST_KEY_ID), 0);
+        long requestId = StrUtil.toLong(json.optString(EngineConstants.REQUEST_KEY_RESPONSE_TO), 0);
         if (!StrUtil.isEmpty(name)) {
             // 当为链接状态时
             if (name.startsWith(EngineConstants.CONNECTION_PREFIX)) {
