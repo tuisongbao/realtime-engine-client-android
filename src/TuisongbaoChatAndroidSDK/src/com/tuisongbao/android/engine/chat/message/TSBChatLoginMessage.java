@@ -14,8 +14,8 @@ public class TSBChatLoginMessage extends BaseTSBRequestMessage<TSBChatLoginData>
         return mCallback;
     }
 
-    public void setCallback(TSBEngineCallback<TSBChatUser> canllback) {
-        this.mCallback = canllback;
+    public void setCallback(TSBEngineCallback<TSBChatUser> callback) {
+        this.mCallback = callback;
     }
 
     public TSBChatLoginMessage() {

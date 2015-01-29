@@ -8,9 +8,6 @@ public class TSBEngineConstants {
     public static final String TSBENGINE_EVENT_UNBIND = "unbund";
     public static final String TSBENGINE_CHANNEL_PREFIX_PRIVATE = "private-";
     public static final String TSBENGINE_CHANNEL_PREFIX_PRESENCE = "presence-";
-
-    // connection
-    public static final int TSBENGINE_CODE_SUCCESS = EngineConstants.ENGINE_CODE_SUCCESS;
     
     // channel code
     /**
@@ -22,17 +19,32 @@ public class TSBEngineConstants {
     // channel name
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = EngineConstants.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED;
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = EngineConstants.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR;
-    
-    // chat code
-    public static final int CHAT_CODE_LOGIN_FAILED = -3001;
 
     // bind name
     public static final String TSBENGINE_BIND_NAME_CONNECTION_CONNECTED = EngineConstants.EVENT_CONNECTION_CHANGE_STATUS;
     public static final String TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED = "engine_chat:user:presenceChanged";
+
+
+    // code
+    // common
+    public static final int TSBENGINE_CODE_SUCCESS = EngineConstants.ENGINE_CODE_SUCCESS;
     /**
-     * 当重复登陆时会返回该code
+     * 当未登陆而去操作需要登录的操作时返回
      */
-    public static final int CHAT_CODE_LOGIN_HAS_LOGINED = -3002;
+    public static final int TSBENGINE_CODE_PERMISSION_DENNY = -9002;
+    /**
+     * 当未登陆而去操作需要登录的操作时返回
+     */
+    public static final int TSBENGINE_CODE_ILLEGAL_PARAMETER = -9003;
+    // chat code
+    /**
+     * 登录失败
+     */
+    public static final int TSBENGINE_CHAT_CODE_LOGIN_FAILED = -3001;
+    /**
+     * 当重复登录时会返回
+     */
+    public static final int TSBENGINE_CHAT_CODE_LOGIN_HAS_LOGINED = -3002;
 
     private TSBEngineConstants() {
         // empty

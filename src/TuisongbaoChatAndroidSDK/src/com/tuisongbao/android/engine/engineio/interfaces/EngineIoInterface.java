@@ -2,6 +2,7 @@ package com.tuisongbao.android.engine.engineio.interfaces;
 
 import java.net.URISyntaxException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -201,42 +202,50 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         long requestId = 0;
         String channel = json.optString(EngineConstants.REQUEST_KEY_CHANNEL);
         if (!StrUtil.isEmpty(name)) {
-            JSONObject data = json
+            JSONObject ret = json
                     .optJSONObject(EngineConstants.REQUEST_KEY_DATA);
+            String data = null;
             int code = EngineConstants.ENGINE_CODE_SUCCESS;
-            
             String errorMessage = "";
-            if (data != null) {
+            if (ret != null) {
                 requestId = StrUtil.toLong(
-                        data.optString(EngineConstants.REQUEST_KEY_ID), 0);
+                        ret.optString(EngineConstants.REQUEST_KEY_RESPONSE_TO), 0);
                 if (requestId > 0) {
                     // 说明是对客户端请求的response
-                    boolean ok = data
+                    boolean ok = ret
                             .optBoolean(EngineConstants.REQUEST_KEY_RESPONSE_OK);
                     try {
                         if (ok) {
-                            JSONObject result = data
+                            // result 的数据及可能是 json object 也可能是 json array
+                            JSONObject result = ret
                                     .optJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_RESULT);
-                            data = result;
+                            if (result == null) {
+                                JSONArray arrayResult = ret.optJSONArray(EngineConstants.REQUEST_KEY_RESPONSE_RESULT);
+                                if (arrayResult != null) {
+                                    data = arrayResult.toString();
+                                }
+                            } else {
+                                data = result.toString();
+                            }
                         } else {
-                            JSONObject error = data.getJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_ERROR);
+                            JSONObject error = ret.getJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_ERROR);
                             if (error != null) {
-                                code = data.optInt(EngineConstants.REQUEST_KEY_CODE);
-                                errorMessage = data
+                                code = ret.optInt(EngineConstants.REQUEST_KEY_CODE);
+                                errorMessage = ret
                                         .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
                             } else {
-                                code = EngineConstants.COMMON_CODE_UNKNOWN;
+                                code = EngineConstants.ENGINE_CODE_UNKNOWN;
                                 errorMessage = "Unknow error";
                             }
                         }
                     } catch (Exception e) {
-                        data = null;
+                        e.printStackTrace();
                     }
                 } else {
                     // 说明是事件
-                    code = data.optInt(EngineConstants.REQUEST_KEY_CODE);
+                    code = ret.optInt(EngineConstants.REQUEST_KEY_CODE);
                     if (code != EngineConstants.ENGINE_CODE_SUCCESS) {
-                        errorMessage = data
+                        errorMessage = ret
                                 .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
                     }
                 }
@@ -260,7 +269,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     handleConnectedMessage();
                 }
             }
-            RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data != null ? data.toString(): "");
+            RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data);
             rawMessage.setChannel(channel);
             rawMessage.setRequestId(requestId);
             rawMessage.setCode(code);

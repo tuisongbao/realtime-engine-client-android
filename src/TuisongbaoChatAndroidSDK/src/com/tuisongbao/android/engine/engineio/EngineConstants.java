@@ -41,10 +41,10 @@ public class EngineConstants {
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
     
     // common code
-    public static final int COMMON_CODE_UNKNOWN = -9001;
+    public static final int ENGINE_CODE_UNKNOWN = -9001;
+    public static final int ENGINE_CODE_SUCCESS = 0;
     
     // connection code
-    public static final int ENGINE_CODE_SUCCESS = 0;
     public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1001;
     public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1002;
     public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -1003;

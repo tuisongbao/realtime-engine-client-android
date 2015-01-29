@@ -19,7 +19,7 @@ public abstract class BaseManager {
     }
 
     protected void bind(String bindName, ITSBEngineCallback callback) {
-        TSBBindResponseMessage response = new TSBBindResponseMessage();
+        TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(callback);
         TSBEngine.bind(bindName, response);
     }
@@ -33,7 +33,7 @@ public abstract class BaseManager {
     }
 
     protected void unbind(String bindName, ITSBEngineCallback callback) {
-        TSBBindResponseMessage response = new TSBBindResponseMessage();
+        TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(callback);
         TSBEngine.unbind(bindName, response);
     }
