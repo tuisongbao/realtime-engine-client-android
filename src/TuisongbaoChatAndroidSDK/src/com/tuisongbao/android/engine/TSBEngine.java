@@ -37,17 +37,19 @@ public final class TSBEngine {
     }
 
     /**
-     * Open API for Push SDK integration.
+     * Initialize engine and start engine service.
      * 
-     * @param context
+     * @param context application conetext
+     * @param appId tuisong bao app id
+     * @param authEndpoint auth endpoint 
      */
-    public static void init(Context context, String appId, String appKey) {
+    public static void init(Context context, String appId, String authEndpoint) {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
         EnginePreference.instance().init(context);
         try {
-            boolean initialized = EngineConfig.instance().init(context, appId, appKey);
+            boolean initialized = EngineConfig.instance().init(context, appId, authEndpoint);
             if (!initialized) {
                 return;
             } else {
@@ -82,52 +84,21 @@ public final class TSBEngine {
     }
 
     /**
-     * 发送消息, 需要添加签名
-     * 
-     * @param message
-     * @return
-     */
-    public static boolean send(String name, String sign, String data,
-            ITSBResponseMessage response) {
-        RawMessage message = new RawMessage(EngineConfig.instance()
-                .getAppId(), EngineConfig.instance()
-                .getAppKey(), name, data);
-        message.setSignStr(sign);
-        if (response != null) {
-            mNotifier.register(message, response);
-        }
-        message.setRequestId(getRequestId());
-        return mEngineManger.send(message);
-//        if (mService != null) {
-//            try {
-//                RawMessage message = new RawMessage(EngineConfig.instance()
-//                        .getAppId(), EngineConfig.instance()
-//                        .getAppKey(), name, data);
-//                message.setSignStr(sign);
-//                if (response != null) {
-//                    mNotifier.register(message, response);
-//                    return mService.send(message, mEngineServiceListener);
-//                } else {
-//                    return mService.send(message, null);
-//                }
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//                return false;
-//            }
-//        } else {
-//            return false;
-//        }
-    }
-
-    /**
-     * 发送消息
+     * Sends message to engine service.
      * 
      * @param message
      * @return
      */
     public static boolean send(String name, String data,
             ITSBResponseMessage response) {
-        return send(name, null, data, response);
+        RawMessage message = new RawMessage(EngineConfig.instance()
+                .getAppId(), EngineConfig.instance()
+                .getAppKey(), name, data);
+        if (response != null) {
+            mNotifier.register(message, response);
+        }
+        message.setRequestId(getRequestId());
+        return mEngineManger.send(message);
     }
 
     public static void bind(String bindName, ITSBResponseMessage response) {
@@ -158,11 +129,39 @@ public final class TSBEngine {
     }
 
     public static void unbind(String bindName) {
-        if (StrUtil.isEmpty(bindName)) {
+        if (!StrUtil.isEmpty(bindName)) {
             RawMessage message = new RawMessage(EngineConfig.instance()
                     .getAppId(), EngineConfig.instance()
                     .getAppKey(), null, null);
             message.setBindName(bindName);
+            mNotifier.unbind(bindName);
+        } else {
+            // empty
+        }
+//        if (mService != null) {
+//            try {
+//                RawMessage message = new RawMessage(EngineConfig.instance()
+//                        .getAppId(), EngineConfig.instance()
+//                        .getAppKey(), null, null);
+//                message.setBindName(bindName);
+//                mService.unbind(message, null);
+//            } catch (RemoteException e) {
+//                e.printStackTrace();
+//                // empty
+//            }
+//        } else {
+//            // empty
+//        }
+        
+    }
+
+    public static void unbind(String bindName, ITSBResponseMessage response) {
+        if (response != null && !StrUtil.isEmpty(bindName)) {
+            RawMessage message = new RawMessage(EngineConfig.instance()
+                    .getAppId(), EngineConfig.instance()
+                    .getAppKey(), null, null);
+            message.setBindName(bindName);
+            mNotifier.unbind(bindName, response);
         } else {
             // empty
         }
@@ -256,11 +255,7 @@ public final class TSBEngine {
         @Override
         public void call(RawMessage value) throws RemoteException {
             if (value != null) {
-                // 获取socket id
-                if (EngineConstants.CONNECTION_NAME_SOCKET_ID.equals(value.getName())) {
-                    mSocketId = value.getData();
-                }
-                value.setBindName(TSBEngineConstants.TSBENGINE_EVENT_CONNECTION_STATUS);
+                value.setBindName(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED);
                 mDataPipeline.receive(value);
             }
         }

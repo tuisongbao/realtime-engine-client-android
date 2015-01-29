@@ -35,7 +35,11 @@ public class EngineManager {
     }
 
     public boolean isConnected() {
-        return mInstance.isConnected();
+        return mInterface.isConnected();
+    }
+
+    public String getSocktetId() {
+        return mInterface.getSocketId();
     }
 
     public boolean send(RawMessage message) {

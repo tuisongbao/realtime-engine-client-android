@@ -16,12 +16,22 @@ public abstract class BaseTSBRequestMessage<T> implements ITSBRequestMessage {
     }
 
     @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
 
     @Override
-    public String getData() {
+    public T getData() {
+        return this.data;
+    }
+
+    @Override
+    public String serialize() {
         if (data != null) {
             Gson gson = new Gson();
             return gson.toJson(data);

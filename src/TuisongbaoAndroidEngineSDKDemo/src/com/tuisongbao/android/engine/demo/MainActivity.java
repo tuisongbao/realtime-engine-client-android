@@ -11,12 +11,10 @@ import android.widget.Toast;
 
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
-import com.tuisongbao.android.engine.channel.entity.TSBChannelUserData;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
-import com.tuisongbao.android.engine.entity.TSBUserInfo;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class MainActivity extends Activity {
@@ -33,16 +31,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mContentTextView = (TextView)findViewById(R.id.content);
         mSendButton = (Button)findViewById(R.id.send);
-        mChannel = /*TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + */StrUtil.creatUUID();
-        final TSBChannelUserData data = new TSBChannelUserData();
-        data.setUserId("123");
-        TSBUserInfo info = new TSBUserInfo();
-        info.setName("Aug");
-        info.setGender("male");
-        info.setAge("25");
-        info.setHoby("coding");
-        data.setUserInfo(info);
-        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_EVENT_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
+        mChannel = TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + StrUtil.creatUUID();
+        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
             
             @Override
             public void onSuccess(TSBConnection t) {
@@ -118,24 +108,11 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (!isBind) {
-                    TSBChannelManager.getInstance().bind(mChannel, new TSBEngineBindCallback() {
-                        
-                        @Override
-                        public void onEvent(final String eventName, final String name, final String data) {
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
-                                    mBindContentTextView.setText(content);
-                                }
-                            });
-                            
-                        }
-                    });
+                    TSBChannelManager.getInstance().bind(mChannel, mTSBEngineBindCallback);
                     mBindButton.setText(getString(R.string.unbind));
                 } else {
-                    TSBChannelManager.getInstance().unbind(mChannel);
+                    TSBChannelManager.getInstance().unbind(mChannel, mTSBEngineBindCallback);
+                    mBindContentTextView.setText("");
 //                    TSBChannelManager.getInstance().unbind(mChannel, new TSBEngineBindCallback() {
 //                        
 //                        @Override
@@ -163,5 +140,21 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+    
+    private TSBEngineBindCallback mTSBEngineBindCallback = new TSBEngineBindCallback() {
+        
+        @Override
+        public void onEvent(final String eventName, final String name, final String data) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    String content = "Bind message [eventName=" + eventName + ";name=" + name + ";data" + data;
+                    mBindContentTextView.setText(content);
+                }
+            });
+            
+        }
+    };
 
 }

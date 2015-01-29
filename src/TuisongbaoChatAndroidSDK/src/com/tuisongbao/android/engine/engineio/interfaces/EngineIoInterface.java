@@ -70,6 +70,10 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         return mSocket != null
                 && mConnectionStatus == EngineConstants.CONNECTION_STATUS_CONNECTED;
     }
+    
+    public String getSocketId() {
+        return mSocketId;
+    }
 
     @Override
     protected void waitForConnection() throws DataSourceException,
@@ -156,9 +160,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     public void call(Object... args) {
                         showLog("Socket Close [msg=" + getArgsMSG(args) + "]");
                         startReconnect(EngineConstants.CONNECTION_CODE_CONNECTION_CLOSED, "Connection closed");
-//                        disconnect();
-//                        mSocket = null;
-//                        reconnect();
                     }
                 }).on(Socket.EVENT_FLUSH, new Listener() {
 
@@ -180,9 +181,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         if (args != null && args.length > 0 && args[0] instanceof HandshakeData) {
                             mSocketId = ((HandshakeData) args[0]).sid;
                             showLog("Socket HandShake [mSocketId=" + mSocketId + "]");
-                            handleMessage(genConnectionBindRawMessage(
-                                    EngineConstants.CONNECTION_NAME_SOCKET_ID,
-                                    mSocketId));
                         }
                     }
                 });
@@ -257,7 +255,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                 if (!StrUtil.isEmpty(channel)) {
                     message.setBindName(channel);
                 }
-                message.setName(EngineConstants.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR);
+                message.setName(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -267,20 +265,28 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
 
     private void startReconnect(int code, String messsage) {
         mConnectionStatus = EngineConstants.CONNECTION_STATUS_CONNECTING;
-        handleDisconnectedMessage(code, messsage);
         disconnect();
+        handleDisconnectedMessage(code, messsage);
         reconnect();
     }
 
     private void handleDisconnectedMessage(int code, String messsage) {
-        RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_CLIENT_NAME_DISCONNECTED, messsage);
+        RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR, messsage);
         rawMessage.setCode(code);
         rawMessage.setErrorMessge(messsage);
+        JSONObject json = new JSONObject();
+        try {
+            json.put(EngineConstants.REQUEST_KEY_CODE, code);
+            json.put(EngineConstants.REQUEST_KEY_ERROR_MESSAGE, StrUtil.strNotNull(messsage));
+            rawMessage.setData(json.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         handleMessage(rawMessage);
     }
 
     private void handleConnectedMessage() {
-        RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_CLIENT_NAME_CONNECTED, "success");
+        RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED, "success");
         rawMessage.setCode(EngineConstants.CONNECTION_CODE_SUCCESS);
         handleMessage(rawMessage);
     }
@@ -292,7 +298,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     }
 
     private void showLog(String content) {
-        Log.w(TAG, content);
+        Log.w(TAG, StrUtil.strNotNull(content));
     }
 
     private String getArgsMSG(Object... args) {

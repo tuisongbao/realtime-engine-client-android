@@ -1,5 +1,8 @@
 package com.tuisongbao.android.engine.engineio;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class EngineConstants {
@@ -14,6 +17,8 @@ public class EngineConstants {
     public static final String REQUEST_KEY_ERROR_MESSAGE = "message";
     
     // connection
+    public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED = "engine_connection:established";
+    public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR = "engine_connection:error";
     public static final String CONNECTION_PREFIX = "engine_connection:";
     public static final String CONNECTION_CONNECTED = "established";
     public static final String CONNECTION_ERROR = "error";
@@ -24,24 +29,24 @@ public class EngineConstants {
     public static final int CONNECTION_STATUS_CONNECTING = 5;
     public static final int CONNECTION_STATUS_NONE = 0;
     
-    // channel
+    // channel name
     public static final String CHANNEL_NAME_PREFIX = "engine_channel";
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:subscription_succeeded_error";
+    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:subscription_error";
+    public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
+    public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
     
     // connection code
     public static final int CONNECTION_CODE_SUCCESS = 0;
-    public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1;
-    public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1;
-    public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -2;
+    public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1001;
+    public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1002;
+    public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -1003;
     
-    // connection name
-    public static final String CONNECTION_NAME_SOCKET_ID = "android:engine_connection_name_socket_id";
-    public static final String CONNECTION_CLIENT_NAME_DISCONNECTED = "android:engine_connection:connected";
-    public static final String CONNECTION_CLIENT_NAME_CONNECTED = "android:engine_connection:connected";
+    // channel code
+    public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = -2001;
     
-    // event
-    public static final String EVENT_CONNECTION_CHANGE_STATUS = "connection_change_status";
+    // bind name
+    public static final String EVENT_CONNECTION_CHANGE_STATUS = "android:engine_connection:connection_change_status";
     
     public static int getConnectionStatus(String src) {
         String statusString = getValue(src, CONNECTION_PREFIX);
@@ -54,6 +59,17 @@ public class EngineConstants {
         } else {
             return CONNECTION_STATUS_NONE;
         }
+    }
+    
+    public static String genErrorJsonString(int code, String message) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put(REQUEST_KEY_CODE, code);
+            json.put(REQUEST_KEY_ERROR_MESSAGE, StrUtil.strNotNull(message));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json.toString();
     }
     
     

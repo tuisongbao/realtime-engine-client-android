@@ -44,6 +44,9 @@ public class EngineConfig {
     // for server url config
     private String PUSH_SERVER_URL = "https://api.tuisongbao.com";
     private String PUSH_SERVICE_ACTION = "com.tuisongbao.android.push.PushService";
+    
+    // Auth endpoint
+    private String AUTH_ENDPOINT;
 
     @SuppressWarnings("unused")
     private boolean DEBUG_SWITCH = false;
@@ -68,12 +71,12 @@ public class EngineConfig {
         return PUSH_SERVICE_ACTION;
     }
 
-    public boolean init(Context context, String appId, String appKey) {
-        if (StrUtil.isEmpty(appId) || StrUtil.isEmpty(appKey)) {
+    public boolean init(Context context, String appId, String endpoint) {
+        if (StrUtil.isEmpty(appId) || StrUtil.isEmpty(endpoint)) {
             return false;
         } else {
             PUSH_APP_ID = appId;
-            PUSH_APP_KEY = appKey;
+            AUTH_ENDPOINT = endpoint;
             return true;
         }
     }
@@ -102,6 +105,11 @@ public class EngineConfig {
     public String getAppIntentServicePath()
     {
         return PUSH_MSG_PROCESSOR;
+    }
+
+    public String getAuthEndpoint()
+    {
+        return AUTH_ENDPOINT;
     }
 
     public String getAppId()

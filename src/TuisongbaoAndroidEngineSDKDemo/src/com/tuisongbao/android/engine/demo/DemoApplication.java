@@ -24,7 +24,7 @@ public class DemoApplication extends Application {
 
         // 初始化与 server 的连接
         // appId是在推送宝官网注册应用时分配的ID
-        TSBEngine.init(this, "ab3d5241778158b2864c0852", "16477b81ad80b3af008f9601");
+        TSBEngine.init(this, "ab3d5241778158b2864c0852" , "http://staging.tuisongbao.com/api/engineDemo/authUser");
         // or, TSBEngine.init(this, appId, authUrl); authUrl用于鉴权, 推荐用https, 参见
         // 登陆 一节
     }
