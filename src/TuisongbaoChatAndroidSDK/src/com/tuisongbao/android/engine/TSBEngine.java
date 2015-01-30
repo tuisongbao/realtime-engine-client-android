@@ -5,10 +5,12 @@ import android.content.Context;
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
 import com.tuisongbao.android.engine.connection.TSBConnectionManager;
 import com.tuisongbao.android.engine.engineio.DataPipeline;
+import com.tuisongbao.android.engine.engineio.EngineIoOptions;
 import com.tuisongbao.android.engine.engineio.EngineManager;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
+import com.tuisongbao.android.engine.util.DeviceUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public final class TSBEngine {
@@ -20,6 +22,7 @@ public final class TSBEngine {
     private static String mSocketId;
     private static EngineManager mEngineManger = EngineManager.getInstance();
     private static Long mRequestId = 1L;
+    private static TSBEngineOptions mTSBEngineOptions;
 
     private TSBEngine() {
         // empty here
@@ -29,27 +32,36 @@ public final class TSBEngine {
      * Initialize engine and start engine service.
      * 
      * @param context application conetext
-     * @param appId tuisong bao app id
-     * @param authEndpoint auth endpoint 
+     * @param options 
      */
-    public static void init(Context context, String appId, String authEndpoint) {
+    public static void init(Context context, TSBEngineOptions options) {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
         try {
-            boolean initialized = EngineConfig.instance().init(context, appId, authEndpoint);
-            if (!initialized) {
+            if (options == null || StrUtil.isEmpty(options.getAppId())
+                    || StrUtil.isEmpty(options.getAuthEndpoint())
+                    || options.getChatIntentService() == null) {
                 return;
             } else {
                 LogUtil.info(LogUtil.LOG_TAG_PUSH_MANAGER,
                         "Successfully loaded configurations.");
             }
+            mTSBEngineOptions = options;
             // 初始化实时引擎
             initEngine();
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
+    }
+    
+    public static Context getContext() {
+        return mApplicationContext;
+    }
+    
+    public static TSBEngineOptions getTSBEngineOptions() {
+        return mTSBEngineOptions;
     }
 
     /**
@@ -78,9 +90,11 @@ public final class TSBEngine {
      */
     public static boolean send(String name, String data,
             ITSBResponseMessage response) {
-        RawMessage message = new RawMessage(EngineConfig.instance()
-                .getAppId(), EngineConfig.instance()
-                .getAppKey(), name, data);
+        if (!isIntialized()) {
+            return false;
+        }
+        RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(), mTSBEngineOptions
+                .getAppId(), name, data);
         message.setRequestId(getRequestId());
         if (response != null) {
             mNotifier.register(message, response);
@@ -89,10 +103,12 @@ public final class TSBEngine {
     }
 
     public static void bind(String bindName, ITSBResponseMessage response) {
+        if (!isIntialized()) {
+            return;
+        }
         if (response != null && !StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(EngineConfig.instance()
-                    .getAppId(), EngineConfig.instance().getAppKey(),
-                    bindName, null);
+            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
+                    mTSBEngineOptions.getAppId(), bindName, null);
             message.setBindName(bindName);
             mNotifier.bind(bindName, response);
         } else {
@@ -102,10 +118,12 @@ public final class TSBEngine {
     }
 
     public static void unbind(String bindName) {
+        if (!isIntialized()) {
+            return;
+        }
         if (!StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(EngineConfig.instance()
-                    .getAppId(), EngineConfig.instance()
-                    .getAppKey(), null, null);
+            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
+                    mTSBEngineOptions.getAppId(), null, null);
             message.setBindName(bindName);
             mNotifier.unbind(bindName);
         } else {
@@ -115,10 +133,12 @@ public final class TSBEngine {
     }
 
     public static void unbind(String bindName, ITSBResponseMessage response) {
+        if (!isIntialized()) {
+            return;
+        }
         if (response != null && !StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(EngineConfig.instance()
-                    .getAppId(), EngineConfig.instance()
-                    .getAppKey(), null, null);
+            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
+                    mTSBEngineOptions.getAppId(), null, null);
             message.setBindName(bindName);
             mNotifier.unbind(bindName, response);
         } else {
@@ -126,10 +146,17 @@ public final class TSBEngine {
         }
         
     }
+    
+    private static boolean isIntialized() {
+        return mTSBEngineOptions != null;
+    }
 
     private static void initEngine() {
         initializeDefaultSinks();
-        mDataPipeline.addSource(EngineManager.getInstance().init(mApplicationContext));
+        EngineIoOptions engineIoOption = new EngineIoOptions();
+        engineIoOption.setAppId(mTSBEngineOptions.getAppId());
+        engineIoOption.setPlatform("Android$" + DeviceUtil.getDeviceModel());
+        mDataPipeline.addSource(EngineManager.getInstance().init(mApplicationContext, engineIoOption));
     }
 
     private static long getRequestId() {

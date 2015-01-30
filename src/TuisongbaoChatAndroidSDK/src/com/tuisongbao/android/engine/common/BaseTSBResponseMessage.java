@@ -9,6 +9,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     private String mData;
     private String mChannel;
     private String mBindName;
+    private long mServerRequestId;
     private ITSBEngineCallback mCallback;
 
     public String getErrorMessage() {
@@ -33,6 +34,10 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
 
     public String getBindName() {
         return mBindName;
+    }
+
+    public long getServerRequestId() {
+        return mServerRequestId;
     }
     
     @Override
@@ -74,6 +79,11 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     @Override
     public void setBindName(String bindName) {
         mBindName = bindName;
+    }
+
+    @Override
+    public void setServerRequestId(long serverRequestId) {
+        mServerRequestId = serverRequestId;
     }
 
     @Override

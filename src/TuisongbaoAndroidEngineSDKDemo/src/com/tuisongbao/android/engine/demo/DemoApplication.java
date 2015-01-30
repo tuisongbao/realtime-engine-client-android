@@ -7,6 +7,7 @@ import android.app.ActivityManager;
 import android.app.Application;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.TSBEngineOptions;
 
 public class DemoApplication extends Application {
 
@@ -24,7 +25,8 @@ public class DemoApplication extends Application {
 
         // 初始化与 server 的连接
         // appId是在推送宝官网注册应用时分配的ID
-        TSBEngine.init(this, "ab3d5241778158b2864c0852" , "http://staging.tuisongbao.com/api/engineDemo/authUser");
+        TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://staging.tuisongbao.com/api/engineDemo/authUser");
+        TSBEngine.init(this, options);
         // or, TSBEngine.init(this, appId, authUrl); authUrl用于鉴权, 推荐用https, 参见
         // 登陆 一节
     }

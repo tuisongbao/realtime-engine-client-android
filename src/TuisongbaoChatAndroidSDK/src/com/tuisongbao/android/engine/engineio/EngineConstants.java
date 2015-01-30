@@ -40,6 +40,9 @@ public class EngineConstants {
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
     
+    // chat name
+    public static final String CHAT_NAME_NEW_MESSAGE = "engine_chat:message:new";
+    
     // common code
     public static final int ENGINE_CODE_UNKNOWN = -9001;
     public static final int ENGINE_CODE_SUCCESS = 0;

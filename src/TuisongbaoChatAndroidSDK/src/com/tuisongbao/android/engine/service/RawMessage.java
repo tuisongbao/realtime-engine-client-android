@@ -53,9 +53,9 @@ public class RawMessage implements Parcelable {
      */
     private long mRequestId;
     /**
-     * 签名用的string
+     * 服务端请求id, 服务端返回
      */
-    private String mSignStr;
+    private long mServerRequestId;
     private long mTimestamp;
     
     public RawMessage(String appId, String appKey, String name, String data) {
@@ -66,12 +66,12 @@ public class RawMessage implements Parcelable {
         mData = data;
     }
 
-    public String getSignStr() {
-        return mSignStr;
+    public long getServerRequestId() {
+        return mServerRequestId;
     }
 
-    public void setSignStr(String signStr) {
-        this.mSignStr = signStr;
+    public void setServerRequestId(long serverRequestId) {
+        this.mServerRequestId = serverRequestId;
     }
 
     public String getAppKey() {
@@ -173,9 +173,9 @@ public class RawMessage implements Parcelable {
         dest.writeString(StrUtil.strNotNull(mChannel));
         dest.writeString(StrUtil.strNotNull(mErrorMessge));
         dest.writeString(StrUtil.strNotNull(mBindName));
-        dest.writeString(StrUtil.strNotNull(mSignStr));
         dest.writeInt(mCode);
         dest.writeBooleanArray(new boolean[] {mIsUnbind});
+        dest.writeLong(mServerRequestId);
     }
 
     public void readFromParcel(Parcel in) {
@@ -187,12 +187,12 @@ public class RawMessage implements Parcelable {
         mChannel = in.readString();
         mErrorMessge = in.readString();
         mBindName = in.readString();
-        mSignStr = in.readString();
         mCode = in.readInt();
 
         boolean[] bools = new boolean[1];
         in.readBooleanArray(bools);
         mIsUnbind = bools[0];
+        mServerRequestId = in.readLong();
     }
 
     public static final Parcelable.Creator<RawMessage> CREATOR =

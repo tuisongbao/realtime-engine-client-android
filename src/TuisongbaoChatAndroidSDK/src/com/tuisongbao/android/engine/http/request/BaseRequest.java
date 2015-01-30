@@ -12,7 +12,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
-import com.tuisongbao.android.engine.EngineConfig;
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.TSBEngineOptions;
 import com.tuisongbao.android.engine.http.HttpsClient;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
 import com.tuisongbao.android.engine.log.LogUtil;
@@ -47,7 +48,7 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
                 setEntity(entity);
             }
             setHeader(HTTP.CONTENT_TYPE, "application/json");
-            setAuth(EngineConfig.instance().getAppId(), EngineConfig.instance().getAppKey());
+            setAuth(TSBEngine.getTSBEngineOptions().getAppId(), TSBEngine.getTSBEngineOptions().getAppId());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

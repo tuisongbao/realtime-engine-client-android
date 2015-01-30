@@ -3,6 +3,9 @@ package com.tuisongbao.android.engine.demo;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,7 +19,9 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.channel.TSBChannelManager;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
@@ -86,38 +91,34 @@ public class MainActivity extends Activity {
             
             @Override
             public void onClick(View v) {
-                List<String> list = new ArrayList<String>();
-                list.add("1111");
-                list.add("2222");
-                TSBChatManager.getInstance().joinInvitation("hello", list, new TSBEngineCallback<String>() {
-
+                TSBChatManager.getInstance().getMessages(ChatType.SingleChat, "1111", new TSBEngineCallback<List<TSBMessage>>() {
+                    
                     @Override
-                    public void onSuccess(String t) {
+                    public void onSuccess(List<TSBMessage> t) {
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
                                 Toast.makeText(MainActivity.this,
-                                        "get group success",
+                                        "get message success",
                                         Toast.LENGTH_LONG).show();
                             }
                         });
                     }
-
+                    
                     @Override
-                    public void onError(int code, final String message) {
+                    public void onError(int code, String message) {
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
                                 Toast.makeText(MainActivity.this,
-                                        "get group failed:" + message,
+                                        "get message failed",
                                         Toast.LENGTH_LONG).show();
                             }
                         });
                     }
                 });
-
 //                TSBChatManager.getInstance().createGroup("hello", null, new TSBEngineCallback<TSBChatGroup>() {
 //
 //                    @Override
@@ -273,7 +274,14 @@ public class MainActivity extends Activity {
             
             @Override
             public void run() {
-                TSBChatManager.getInstance().login(null, new TSBEngineCallback<TSBChatUser>() {
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("userId", "1111");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                TSBChatManager.getInstance().login("1111", new TSBEngineCallback<TSBChatUser>() {
                     
                     @Override
                     public void onSuccess(TSBChatUser t) {

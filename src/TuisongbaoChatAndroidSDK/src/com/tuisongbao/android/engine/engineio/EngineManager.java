@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import android.content.Context;
 
-import com.tuisongbao.android.engine.EngineConfig;
 import com.tuisongbao.android.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.android.engine.engineio.interfaces.EngineIoInterface;
 import com.tuisongbao.android.engine.engineio.interfaces.IEngineInterface;
@@ -27,10 +26,9 @@ public class EngineManager {
         return mInstance;
     }
 
-    public IEngineDataSource init(Context context) {
+    public IEngineDataSource init(Context context, EngineIoOptions options) {
         mContext = context;
-        mInterface = new EngineIoInterface(mContext, EngineConfig.instance()
-                .getAppId(), EngineConfig.instance().getAppKey());
+        mInterface = new EngineIoInterface(mContext, options);
         return mInterface;
     }
 

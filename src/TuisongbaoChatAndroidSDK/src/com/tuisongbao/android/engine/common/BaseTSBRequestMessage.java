@@ -29,11 +29,20 @@ public abstract class BaseTSBRequestMessage<T> implements ITSBRequestMessage {
     public T getData() {
         return this.data;
     }
+    
+    /**
+     * Gets serializer, it is used to serialize some special object ex, enum
+     * 
+     * @return
+     */
+    protected Gson getSerializer() {
+        return new Gson();
+    }
 
     @Override
     public String serialize() {
         if (data != null) {
-            Gson gson = new Gson();
+            Gson gson = getSerializer();
             return gson.toJson(data);
         } else {
             return null;

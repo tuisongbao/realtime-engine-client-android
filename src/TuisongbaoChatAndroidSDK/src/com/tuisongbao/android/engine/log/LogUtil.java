@@ -24,35 +24,18 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class LogUtil {
     public static final String LOG_TAG = "com.tuisongbao.android.push";
-    public static final String LOG_TAG_PUSH_SERVICE = "com.tuisongbao.android.push.pushservice";
+    public static final String LOG_TAG_SERVICE = "com.tuisongbao.android.engine.service";
 
     // network related tags
-    public static final String LOG_TAG_PUSH_SERVICE_NET = "com.tuisongbao.android.push.pushservice.net";
-    public static final String LOG_TAG_PUSH_SERVICE_NET_CONNECT = "com.tuisongbao.android.push.pushservice.net.connect";
-    public static final String LOG_TAG_PUSH_SERVICE_XGCM = "com.tuisongbao.android.push.pushservice.xgcm";
     public static final String LOG_TAG_PUSH_MANAGER = "com.tuisongbao.android.push.pushmanager";
-    public static final String LOG_TAG_GCM = "com.tuisongbao.android.push.gcm";
     public static final String LOG_TAG_HTTP = "com.tuisongbao.android.http";
-    public static final String LOG_TAG_NOTIFICATION = "com.tuisongbao.android.notification";
-    public static final String LOG_TAG_LOCATION = "com.tuisongbao.android.location";
-    public static final String LOG_TAG_UNITY = "com.tuisongbao.android.unity";
-    public static final String LOG_TAG_REGISTER_MANAGER = "com.tuisongbao.android.register";
     public static final String LOG_TAG_DEBUG_MSG = "com.tuisongbao.android.notification.debug";
     public static final String LOG_TAG_UNCAUGHT_EX = "com.tuisongbao.android.unhandled";
-    public static final String LOG_TAG_PROCESS_ACKCODE = "com.tuisongbao.android.httpUtil.processAckCode";
     public static final String LOG_FILE_NAME_STRING = "push-error-logs.txt";
-    public static final String LOG_TAG_XIAOMI = "com.tuisongbao.android.xiaomi";
-
-    public static final String LOG_TAG_GEOFENCE = "com.tuisongbao.android.geofence";
-    public static final String LOG_TAG_GEOFENCE_SERVICE = "com.tuisongbao.android.service.geolocationservice";
-    public static final String LOG_TAG_GEOFENCE_MANAGER = "com.tuisongbao.android.pushlocationmanager";
-    
-    // engine
-    public static final String LOG_TAG_ENGINE = "om.tuisongbao.android.engine.engine";
 
 
     public static int mLogLevel = 0;
-    public static boolean mLogSwitch = false;
+    public static boolean mLogSwitch = true;
     public static long lastSendLogTime = -1;
 
     public static void warn(String tag, String msg) {

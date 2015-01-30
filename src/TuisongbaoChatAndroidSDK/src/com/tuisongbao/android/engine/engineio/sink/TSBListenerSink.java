@@ -73,21 +73,17 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                         .iterator().next();
                 ITSBResponseMessage callbackMessage = map.get(requestMessage);
                 if (callbackMessage != null) {
-                    callbackMessage.setCode(message.getCode());
-                    callbackMessage.setErrorMessage(message.getErrorMessge());
-                    callbackMessage.setChannel(message.getChannel());
-                    callbackMessage.setData(message.getData());
-                    callbackMessage.setName(message.getName());
-                    callbackMessage.setBindName(message.getBindName());
+                    copyFromRawMessage(callbackMessage, message);
                     callbackMessage.callBack();
                 }
-                // 由于对于request请求返回的name均是"requestMessage",所以绑定事件是需要使用请求的name
+                // 由于对于request请求返回的name均是"event_response",所以绑定事件是需要使用请求的name
                 requestMessage.setCode(message.getCode());
                 requestMessage.setErrorMessage(message.getErrorMessge());
                 requestMessage.setChannel(message.getChannel());
                 requestMessage.setData(message.getData());
                 requestMessage.setBindName(requestMessage.getName());
                 requestMessage.setName(message.getName());
+                requestMessage.setServerRequestId(message.getServerRequestId());
                 callbackBindListener(requestMessage);
             }
             // 处理绑定事件
@@ -105,22 +101,6 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                 message.setBindName(message.getName());
                 callbackBindListener(message);
             }
-//            if (!StrUtil.isEmpty(message.getBindName())) {
-//                ITSBResponseMessage callbackMessage = mBinds.get(message.getBindName());
-//                if (message.isUnbind()) {
-//                    unbind(message.getBindName());
-//                }
-//                if (callbackMessage != null) {
-//                    callbackMessage.setCode(message.getCode());
-//                    callbackMessage.setErrorMessage(message.getErrorMessge());
-//                    callbackMessage.setChannel(message.getChannel());
-//                    callbackMessage.setData(message.getData());
-//                    callbackMessage.setName(message.getName());
-//                    callbackMessage.setData(message.getData());
-//                    callbackMessage.setBindName(message.getBindName());
-//                    callbackMessage.callBack();
-//                }
-//            }
         }
     }
     
@@ -131,16 +111,22 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
             while (iterator.hasNext()) {
                 ITSBResponseMessage callbackMessage = iterator.next();
                 if (callbackMessage != null) {
-                    callbackMessage.setCode(message.getCode());
-                    callbackMessage.setErrorMessage(message.getErrorMessge());
-                    callbackMessage.setChannel(message.getChannel());
-                    callbackMessage.setData(message.getData());
-                    callbackMessage.setName(message.getName());
-                    callbackMessage.setData(message.getData());
-                    callbackMessage.setBindName(message.getBindName());
+                    copyFromRawMessage(callbackMessage, message);
                     callbackMessage.callBack();
                 }
             }
         }
+    }
+    
+    private ITSBResponseMessage copyFromRawMessage(ITSBResponseMessage response, RawMessage message) {
+        response.setCode(message.getCode());
+        response.setErrorMessage(message.getErrorMessge());
+        response.setChannel(message.getChannel());
+        response.setData(message.getData());
+        response.setName(message.getName());
+        response.setData(message.getData());
+        response.setBindName(message.getBindName());
+        response.setServerRequestId(message.getServerRequestId());
+        return response;
     }
 }

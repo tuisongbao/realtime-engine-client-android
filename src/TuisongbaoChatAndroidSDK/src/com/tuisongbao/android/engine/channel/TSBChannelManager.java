@@ -12,7 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.tuisongbao.android.engine.EngineConfig;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.channel.entity.ChannelState;
 import com.tuisongbao.android.engine.channel.entity.TSBChannel;
@@ -37,7 +36,7 @@ public class TSBChannelManager extends BaseManager {
 
     private static TSBChannelManager mInstance;
 
-    public static TSBChannelManager getInstance() {
+    public synchronized static TSBChannelManager getInstance() {
         if (mInstance == null) {
             mInstance = new TSBChannelManager();
         }
@@ -226,8 +225,7 @@ public class TSBChannelManager extends BaseManager {
                     e.printStackTrace();
                 }
                 BaseRequest request = new BaseRequest(
-                        HttpConstants.HTTP_METHOD_POST, EngineConfig.instance()
-                                .getAuthEndpoint(), json.toString());
+                        HttpConstants.HTTP_METHOD_POST, TSBEngine.getTSBEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse response = request.execute();
                 if (response != null && response.isStatusOk()) {
                     JSONObject jsonData = response.getJSONData();

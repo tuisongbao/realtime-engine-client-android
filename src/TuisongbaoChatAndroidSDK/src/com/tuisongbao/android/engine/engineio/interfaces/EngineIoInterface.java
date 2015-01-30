@@ -15,6 +15,7 @@ import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.engineio.EngineIoOptions;
 import com.tuisongbao.android.engine.engineio.exception.DataSourceException;
 import com.tuisongbao.android.engine.engineio.source.BaseEngineIODataSource;
 import com.tuisongbao.android.engine.engineio.source.IEngineCallback;
@@ -31,19 +32,19 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     private int mConnectionStatus = EngineConstants.CONNECTION_STATUS_NONE;
     private Socket mSocket;
     private String mAppId;
-    private String mAppKey;
     private String mSocketId;
+    private EngineIoOptions mEngineIoOptions;
 
     public EngineIoInterface(IEngineCallback callback, Context context,
-            String appId, String appKey) {
+            EngineIoOptions options) {
         super(callback, context);
-        mAppId = appId;
-        mAppKey = appKey;
+        mAppId = options.getAppId();
+        mEngineIoOptions = options;
         start();
     }
 
-    public EngineIoInterface(Context context, String appId, String appKey) {
-        this(null, context, appId, appKey);
+    public EngineIoInterface(Context context, EngineIoOptions options) {
+        this(null, context, options);
     }
 
     @Override
@@ -148,7 +149,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     public void call(Object... args) {
                         showLog("Socket Error [msg="
                                 + ((Exception) args[0]).getLocalizedMessage());
-//                        mConnectionStatus = EngineConstants.CONNECTION_STATUS_ERROR;
                         startReconnect(
                                 EngineConstants.CONNECTION_CODE_CONNECTION_EXCEPTION,
                                 "Connection closed [exception="
@@ -200,6 +200,8 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         String name = json.optString(EngineConstants.REQUEST_KEY_NAME);
         // request id 只有在非事件中使用
         long requestId = 0;
+        // 用于客户端回复服务段
+        long serverRequestId = json.optLong(EngineConstants.REQUEST_KEY_ID);
         String channel = json.optString(EngineConstants.REQUEST_KEY_CHANNEL);
         if (!StrUtil.isEmpty(name)) {
             JSONObject ret = json
@@ -230,8 +232,8 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         } else {
                             JSONObject error = ret.getJSONObject(EngineConstants.REQUEST_KEY_RESPONSE_ERROR);
                             if (error != null) {
-                                code = ret.optInt(EngineConstants.REQUEST_KEY_CODE);
-                                errorMessage = ret
+                                code = error.optInt(EngineConstants.REQUEST_KEY_CODE);
+                                errorMessage = error
                                         .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
                             } else {
                                 code = EngineConstants.ENGINE_CODE_UNKNOWN;
@@ -265,15 +267,15 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         }
                     }
                 } else {
-                    mConnectionStatus = connectStatus;
                     handleConnectedMessage();
                 }
             }
-            RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data);
+            RawMessage rawMessage = new RawMessage(mAppId, mAppId, name, data);
             rawMessage.setChannel(channel);
             rawMessage.setRequestId(requestId);
             rawMessage.setCode(code);
             rawMessage.setErrorMessage(errorMessage);
+            rawMessage.setServerRequestId(serverRequestId);
             handleMessage(rawMessage);
         } else {
             // empty
@@ -302,9 +304,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     }
 
     private void startReconnect(int code, String messsage) {
-        mConnectionStatus = EngineConstants.CONNECTION_STATUS_CONNECTING;
         disconnect();
-        handleDisconnectedMessage(code, messsage);
+        if (mConnectionStatus == EngineConstants.CONNECTION_STATUS_CONNECTED) {
+            mConnectionStatus = EngineConstants.CONNECTION_STATUS_CONNECTING;
+            handleDisconnectedMessage(code, messsage);
+        }
         reconnect();
     }
 
@@ -324,13 +328,16 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     }
 
     private void handleConnectedMessage() {
-        RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED, "success");
-        rawMessage.setCode(EngineConstants.ENGINE_CODE_SUCCESS);
-        handleMessage(rawMessage);
+        if (mConnectionStatus != EngineConstants.CONNECTION_STATUS_CONNECTED) {
+            mConnectionStatus = EngineConstants.CONNECTION_STATUS_CONNECTED;
+            RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED, "success");
+            rawMessage.setCode(EngineConstants.ENGINE_CODE_SUCCESS);
+            handleMessage(rawMessage);
+        }
     }
 
     private RawMessage genConnectionBindRawMessage(String name, String data) {
-        RawMessage rawMessage = new RawMessage(mAppId, mAppKey, name, data);
+        RawMessage rawMessage = new RawMessage(mAppId, mAppId, name, data);
         rawMessage.setBindName(EngineConstants.EVENT_CONNECTION_CHANGE_STATUS);
         return rawMessage;
     }
@@ -347,8 +354,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         if (StrUtil.isEmpty(mWebsocketHostUrl)) {
             return "";
         } else {
-            return mWebsocketHostUrl
-                    + "/engine.io/?transport=websocket&platform=Android&sdkVersion=v1.0.0&protocol=v1&appId=" + mAppId;
+            return mWebsocketHostUrl + "/engine.io/?transport="
+                    + mEngineIoOptions.getTransport() + "&platform="
+                    + mEngineIoOptions.getPlatform() + "&sdkVersion="
+                    + mEngineIoOptions.getSDKVersion() + "&protocol="
+                    + mEngineIoOptions.getProtocol() + "&appId=" + mAppId;
         }
     }
 

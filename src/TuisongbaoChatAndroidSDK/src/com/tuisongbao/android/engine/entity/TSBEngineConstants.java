@@ -36,6 +36,10 @@ public class TSBEngineConstants {
      * 当未登陆而去操作需要登录的操作时返回
      */
     public static final int TSBENGINE_CODE_ILLEGAL_PARAMETER = -9003;
+    /**
+     * 当未登陆而去操作需要登录的操作时返回
+     */
+    public static final int TSBENGINE_CODE_NETWORK_UNAVAILABLE = -9004;
     // chat code
     /**
      * 登录失败
