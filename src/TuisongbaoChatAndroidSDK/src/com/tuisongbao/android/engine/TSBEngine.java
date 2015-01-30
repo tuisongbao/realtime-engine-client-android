@@ -1,6 +1,19 @@
 package com.tuisongbao.android.engine;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
 import com.tuisongbao.android.engine.connection.TSBConnectionManager;
@@ -11,6 +24,7 @@ import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.DeviceUtil;
+import com.tuisongbao.android.engine.util.ExecutorUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public final class TSBEngine {
@@ -23,6 +37,9 @@ public final class TSBEngine {
     private static EngineManager mEngineManger = EngineManager.getInstance();
     private static Long mRequestId = 1L;
     private static TSBEngineOptions mTSBEngineOptions;
+    private static String mPushAppId;
+    private static String mPushToken;
+    private static String mPushService;
 
     private TSBEngine() {
         // empty here
@@ -50,6 +67,7 @@ public final class TSBEngine {
             mTSBEngineOptions = options;
             // 初始化实时引擎
             initEngine();
+            uploadPusConfig();
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
@@ -155,7 +173,7 @@ public final class TSBEngine {
         initializeDefaultSinks();
         EngineIoOptions engineIoOption = new EngineIoOptions();
         engineIoOption.setAppId(mTSBEngineOptions.getAppId());
-        engineIoOption.setPlatform("Android$" + DeviceUtil.getDeviceModel());
+        engineIoOption.setPlatform("Android" + DeviceUtil.getDeviceModel());
         mDataPipeline.addSource(EngineManager.getInstance().init(mApplicationContext, engineIoOption));
     }
 
@@ -168,5 +186,93 @@ public final class TSBEngine {
 
     private static void initializeDefaultSinks() {
         mDataPipeline.addSink(mNotifier);
+    }
+
+    private static void uploadPusConfig() {
+        loadPushConfig();
+        if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
+            sendPushConfig();
+        } else {
+            // dalay two mins
+            ExecutorUtil.getTimers().schedule(new Runnable() {
+                
+                @Override
+                public void run() {
+                    loadPushConfig();
+                    sendPushConfig();
+                }
+            }, 2 * 1000 * 60, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private static void loadPushConfig() {
+        try {
+            Class forName = Class.forName("com.tuisongbao.android.PushConfig");
+            // get push app id
+            if (forName != null) {
+                if (StrUtil.isEmpty(mPushAppId)) {
+                    Field field = forName.getDeclaredField("PUSH_APP_ID");
+                    field.setAccessible(true);
+                    Object appId = field.get(forName);
+                    if (appId != null && appId instanceof String) {
+                        mPushAppId = (String)appId;
+                    } else {
+                        return;
+                    }
+                }
+                // get push app id
+                if (StrUtil.isEmpty(mPushService)) {
+                    Field field = forName.getDeclaredField("mServiceType");
+                    field.setAccessible(true);
+                    // service type
+                    Object serviceType = field.get(forName);
+                    if (serviceType != null && serviceType == int.class) {
+                        int type = (Integer)serviceType;
+                        if (type == 0) {
+                            mPushService = "gcm";
+                        } else if (type == 1) {
+                            mPushService = "tps";
+                        } else if (type == 2) {
+                            mPushService = "mipush";
+                        } else if (type == 3) {
+                            mPushService = "hybrid";
+                        }
+                    }
+                }
+                // get token
+                if (StrUtil.isEmpty(mPushToken)) {
+                    forName = Class.forName("com.tuisongbao.android.PushPreference");
+                    if (forName != null) {
+                        Method method = forName.getMethod("setAppToken", forName);
+                        String token = (String)method.invoke(forName);
+                        if (!StrUtil.isEmpty(token)) {
+                            mPushToken = token;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean sendPushConfig() {
+        if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
+            JSONObject data = new JSONObject();
+            try {
+                data.put("appId", mPushAppId);
+                data.put("service", mPushService);
+                data.put("token", mPushToken);
+                RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(), mTSBEngineOptions
+                        .getAppId(), "engine_connection:bindPush", data.toString());
+                message.setRequestId(getRequestId());
+                return mEngineManger.send(message);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return false;
+        } else {
+            return false;
+        }
     }
 }

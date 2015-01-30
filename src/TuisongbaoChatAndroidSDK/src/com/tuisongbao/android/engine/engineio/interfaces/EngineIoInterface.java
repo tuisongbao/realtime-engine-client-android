@@ -357,11 +357,17 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             return "";
         } else {
             try {
-                return URLEncoder.encode(mWebsocketHostUrl + "/engine.io/?transport="
-                        + mEngineIoOptions.getTransport() + "&platform="
-                        + mEngineIoOptions.getPlatform() + "&sdkVersion="
-                        + mEngineIoOptions.getSDKVersion() + "&protocol="
-                        + mEngineIoOptions.getProtocol() + "&appId=" + mAppId, "UTF-8");
+                return mWebsocketHostUrl
+                        + "/engine.io/?transport="
+                        + mEngineIoOptions.getTransport()
+                        + "&platform="
+                        + URLEncoder.encode(mEngineIoOptions.getPlatform().replace(" ", "%20"),
+                                "UTF-8")
+                        + "&sdkVersion="
+                        + mEngineIoOptions.getSDKVersion()
+                        + "&protocol="
+                        + mEngineIoOptions.getProtocol() + "&appId="
+                        + mAppId;
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             };
