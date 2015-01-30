@@ -1,6 +1,8 @@
 package com.tuisongbao.android.engine.engineio.interfaces;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -149,11 +151,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     public void call(Object... args) {
                         showLog("Socket Error [msg="
                                 + ((Exception) args[0]).getLocalizedMessage());
-                        startReconnect(
-                                EngineConstants.CONNECTION_CODE_CONNECTION_EXCEPTION,
-                                "Connection closed [exception="
-                                        + ((Exception) args[0])
-                                                .getLocalizedMessage() + "]");
+//                        startReconnect(
+//                                EngineConstants.CONNECTION_CODE_CONNECTION_EXCEPTION,
+//                                "Connection closed [exception="
+//                                        + ((Exception) args[0])
+//                                                .getLocalizedMessage() + "]");
                     }
                 }).on(Socket.EVENT_CLOSE, new Listener() {
 
@@ -354,11 +356,16 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         if (StrUtil.isEmpty(mWebsocketHostUrl)) {
             return "";
         } else {
-            return mWebsocketHostUrl + "/engine.io/?transport="
-                    + mEngineIoOptions.getTransport() + "&platform="
-                    + mEngineIoOptions.getPlatform() + "&sdkVersion="
-                    + mEngineIoOptions.getSDKVersion() + "&protocol="
-                    + mEngineIoOptions.getProtocol() + "&appId=" + mAppId;
+            try {
+                return URLEncoder.encode(mWebsocketHostUrl + "/engine.io/?transport="
+                        + mEngineIoOptions.getTransport() + "&platform="
+                        + mEngineIoOptions.getPlatform() + "&sdkVersion="
+                        + mEngineIoOptions.getSDKVersion() + "&protocol="
+                        + mEngineIoOptions.getProtocol() + "&appId=" + mAppId, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            };
+            return "";
         }
     }
 
