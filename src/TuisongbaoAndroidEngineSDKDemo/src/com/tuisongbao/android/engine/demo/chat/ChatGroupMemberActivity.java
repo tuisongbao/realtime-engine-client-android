@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,7 +28,7 @@ public class ChatGroupMemberActivity extends Activity {
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
     private List<TSBChatGroupUser> mListGroupUser;
-    private TextView mTextViewQuit;
+    private Button mButtonQuit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +36,7 @@ public class ChatGroupMemberActivity extends Activity {
         setContentView(R.layout.activity_group_member);
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
         mListGroupUser = new ArrayList<TSBChatGroupUser>();
-        mTextViewQuit = (TextView) findViewById(R.id.group_member_quit);
+        mButtonQuit = (Button) findViewById(R.id.group_member_quit);
 
         TSBChatGroupUser groupMember = new TSBChatGroupUser();
         groupMember.setUserId("用户A");
@@ -57,7 +58,8 @@ public class ChatGroupMemberActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member_add) {
-            
+            Intent intent = new Intent(this, ChatGroupMemberAddActivity.class);
+            startActivity(intent);
             return true;
         }
         return false;
