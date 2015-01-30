@@ -1,23 +1,13 @@
 package com.tuisongbao.android.engine;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.os.RemoteException;
 
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
 import com.tuisongbao.android.engine.connection.TSBConnectionManager;
 import com.tuisongbao.android.engine.engineio.DataPipeline;
-import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.engineio.EngineManager;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
-import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
-import com.tuisongbao.android.engine.service.EngineService;
-import com.tuisongbao.android.engine.service.EngineServiceInterface;
-import com.tuisongbao.android.engine.service.EngineServiceListener;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -25,7 +15,6 @@ public final class TSBEngine {
 
     public static TSBConnectionManager connection = TSBConnectionManager.getInstance();
     private static Context mApplicationContext = null;
-    private static EngineServiceInterface mService;
     private static DataPipeline mDataPipeline = new DataPipeline();
     private static TSBListenerSink mNotifier = new TSBListenerSink();
     private static String mSocketId;
@@ -47,7 +36,6 @@ public final class TSBEngine {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
-        EnginePreference.instance().init(context);
         try {
             boolean initialized = EngineConfig.instance().init(context, appId, authEndpoint);
             if (!initialized) {
@@ -58,7 +46,6 @@ public final class TSBEngine {
             }
             // 初始化实时引擎
             initEngine();
-//            startEngineService(context);
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
@@ -111,20 +98,6 @@ public final class TSBEngine {
         } else {
             // empty
         }
-//        if (mService != null && response != null && !StrUtil.isEmpty(bindName)) {
-//            try {
-//                RawMessage message = new RawMessage(EngineConfig.instance()
-//                        .getAppId(), EngineConfig.instance()
-//                        .getAppKey(), bindName, null);
-//                message.setBindName(bindName);
-//                mNotifier.bind(bindName, response);
-//                mService.bind(message, mEngineServiceListener);
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            // empty
-//        }
         
     }
 
@@ -138,20 +111,6 @@ public final class TSBEngine {
         } else {
             // empty
         }
-//        if (mService != null) {
-//            try {
-//                RawMessage message = new RawMessage(EngineConfig.instance()
-//                        .getAppId(), EngineConfig.instance()
-//                        .getAppKey(), null, null);
-//                message.setBindName(bindName);
-//                mService.unbind(message, null);
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//                // empty
-//            }
-//        } else {
-//            // empty
-//        }
         
     }
 
@@ -165,20 +124,6 @@ public final class TSBEngine {
         } else {
             // empty
         }
-//        if (mService != null) {
-//            try {
-//                RawMessage message = new RawMessage(EngineConfig.instance()
-//                        .getAppId(), EngineConfig.instance()
-//                        .getAppKey(), null, null);
-//                message.setBindName(bindName);
-//                mService.unbind(message, null);
-//            } catch (RemoteException e) {
-//                e.printStackTrace();
-//                // empty
-//            }
-//        } else {
-//            // empty
-//        }
         
     }
 
@@ -194,78 +139,7 @@ public final class TSBEngine {
         }
     }
 
-    private static void startEngineService(Context context) {
-        startEngineService(context, null);
-    }
-
-    private static void startEngineService(Context context,
-            String removedPackageName) {
-        try {
-
-            Intent i = new Intent(mApplicationContext, EngineService.class);
-            // context.startService(i);
-            context.bindService(i, mConnection, Context.BIND_AUTO_CREATE);
-
-        } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_PUSH_MANAGER, e);
-        }
-    }
-
     private static void initializeDefaultSinks() {
         mDataPipeline.addSink(mNotifier);
     }
-
-    private static ServiceConnection mConnection = new ServiceConnection() {
-        // Called when the connection with the service is established
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            LogUtil.debug(LogUtil.LOG_TAG_PUSH_MANAGER, "EngineService success");
-            mService = EngineServiceInterface.Stub.asInterface(service);
-            try {
-                // bind connection change status
-                bindConnectionChangeStatus();
-                // bind socket id event
-                mService.addEngineInterface(EngineConfig.instance().getAppId(), EngineConfig.instance().getAppKey());
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            initializeDefaultSinks();
-        }
-
-        // Called when the connection with the service disconnects unexpectedly
-        public void onServiceDisconnected(ComponentName className) {
-            LogUtil.debug(LogUtil.LOG_TAG_PUSH_MANAGER,
-                    "EngineService disconnected unexpectedly");
-            mService = null;
-        }
-    };
-    
-    private static void bindConnectionChangeStatus() throws RemoteException {
-        RawMessage message = new RawMessage(EngineConfig.instance()
-                        .getAppId(), EngineConfig.instance()
-                        .getAppKey(), null, null);
-        message.setBindName(EngineConstants.EVENT_CONNECTION_CHANGE_STATUS);
-        mService.bind(message, mConnectionEngineServiceListener);
-    }
-
-    /**
-     * Connection listener
-     */
-    private static EngineServiceListener mConnectionEngineServiceListener = new EngineServiceListener.Stub() {
-
-        @Override
-        public void call(RawMessage value) throws RemoteException {
-            if (value != null) {
-                value.setBindName(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED);
-                mDataPipeline.receive(value);
-            }
-        }
-    };
-
-    private static EngineServiceListener mEngineServiceListener = new EngineServiceListener.Stub() {
-
-        @Override
-        public void call(RawMessage value) throws RemoteException {
-            mDataPipeline.receive(value);
-        }
-    };
 }

@@ -47,7 +47,7 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
                 setEntity(entity);
             }
             setHeader(HTTP.CONTENT_TYPE, "application/json");
-            setAuth(EngineConfig.instance().getAppId(), EngineConfig.instance().getSDKSecret());
+            setAuth(EngineConfig.instance().getAppId(), EngineConfig.instance().getAppKey());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

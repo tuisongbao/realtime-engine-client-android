@@ -1,6 +1,6 @@
 package com.tuisongbao.android.engine.task;
 
-import com.tuisongbao.android.engine.common.PushException;
+import com.tuisongbao.android.engine.common.BaseEngineException;
 
 /**
  * General-purpose callback interface.
@@ -12,5 +12,5 @@ public interface IFeedBackSink<T>
      * @param paramT 
      * @param paramParseException
      */
-    void internalDone(T paramT, PushException paramParseException);
+    void internalDone(T paramT, BaseEngineException paramParseException);
 }

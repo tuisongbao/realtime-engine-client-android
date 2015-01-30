@@ -2,13 +2,13 @@ package com.tuisongbao.android.engine.task;
 
 import android.os.AsyncTask;
 
-import com.tuisongbao.android.engine.common.PushException;
+import com.tuisongbao.android.engine.common.BaseEngineException;
 
 public abstract class BaseAsyncTask<T> extends AsyncTask<Void, Void, Void>
 {
     private final IFeedBackSink<T> mCallBack;
     private T mResult;
-    private PushException mException;
+    private BaseEngineException mException;
 
     public BaseAsyncTask(IFeedBackSink<T> theCallback)
     {
@@ -17,7 +17,7 @@ public abstract class BaseAsyncTask<T> extends AsyncTask<Void, Void, Void>
         this.mCallBack = theCallback;
     }
 
-    public abstract T run() throws PushException;
+    public abstract T run() throws BaseEngineException;
 
     @Override
     protected Void doInBackground(Void... params)
@@ -27,7 +27,7 @@ public abstract class BaseAsyncTask<T> extends AsyncTask<Void, Void, Void>
             this.mResult = run();
             return null;
         }
-        catch (PushException e)
+        catch (BaseEngineException e)
         {
             this.mException = e;
         }

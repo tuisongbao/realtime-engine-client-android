@@ -1,8 +1,8 @@
 package com.tuisongbao.android.engine.engineio.exception;
 
-import com.tuisongbao.android.engine.common.PushException;
+import com.tuisongbao.android.engine.common.BaseEngineException;
 
-public class DataSourceException extends PushException {
+public class DataSourceException extends BaseEngineException {
 
     private static final long serialVersionUID = 1L;
 
