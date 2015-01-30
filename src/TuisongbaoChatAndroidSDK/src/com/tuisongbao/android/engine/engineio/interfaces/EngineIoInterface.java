@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter.Listener;
@@ -37,16 +36,15 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     private String mSocketId;
     private EngineIoOptions mEngineIoOptions;
 
-    public EngineIoInterface(IEngineCallback callback, Context context,
-            EngineIoOptions options) {
-        super(callback, context);
+    public EngineIoInterface(IEngineCallback callback, EngineIoOptions options) {
+        super(callback);
         mAppId = options.getAppId();
         mEngineIoOptions = options;
         start();
     }
 
-    public EngineIoInterface(Context context, EngineIoOptions options) {
-        this(null, context, options);
+    public EngineIoInterface( EngineIoOptions options) {
+        this(null, options);
     }
 
     @Override
@@ -188,7 +186,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     }
                 });
                 mSocket.open();
-                connected();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }

@@ -2,16 +2,15 @@ package com.tuisongbao.android.engine.demo.chat.adapter;
 
 import java.util.List;
 
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
-import com.tuisongbao.android.engine.demo.R;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.demo.R;
 
 public class ChatGroupAdapter extends BaseAdapter {
 
@@ -21,6 +20,11 @@ public class ChatGroupAdapter extends BaseAdapter {
     public ChatGroupAdapter(List<TSBChatGroup> listGroup, Context context) {
         mListGroup = listGroup;
         mContext = context;
+    }
+    
+    public void refresh(List<TSBChatGroup> listGroup) {
+        mListGroup = listGroup;
+        notifyDataSetChanged();
     }
 
     @Override

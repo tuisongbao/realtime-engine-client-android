@@ -97,7 +97,7 @@ public final class TSBEngine {
      * @return
      */
     public static String getSocketId() {
-        return mSocketId;
+        return mEngineManger.getSocketId();
     }
 
     /**
@@ -174,7 +174,7 @@ public final class TSBEngine {
         EngineIoOptions engineIoOption = new EngineIoOptions();
         engineIoOption.setAppId(mTSBEngineOptions.getAppId());
         engineIoOption.setPlatform("Android" + DeviceUtil.getDeviceModel());
-        mDataPipeline.addSource(EngineManager.getInstance().init(mApplicationContext, engineIoOption));
+        mDataPipeline.addSource(EngineManager.getInstance().init(engineIoOption));
     }
 
     private static long getRequestId() {

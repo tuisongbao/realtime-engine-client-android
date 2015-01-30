@@ -2,16 +2,15 @@ package com.tuisongbao.android.engine.demo.chat.adapter;
 
 import java.util.List;
 
-import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
-import com.tuisongbao.android.engine.demo.R;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.demo.R;
 
 public class ChatTalkAdapter extends BaseAdapter {
 
@@ -21,6 +20,11 @@ public class ChatTalkAdapter extends BaseAdapter {
     public ChatTalkAdapter(List<TSBChatConversation> listConversation, Context context) {
         mListConversation = listConversation;
         mContext = context;
+    }
+    
+    public void refresh(List<TSBChatConversation> listConversation) {
+        mListConversation = listConversation;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -52,6 +56,10 @@ public class ChatTalkAdapter extends BaseAdapter {
         TextView mTextViewContent = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_content);
         mTextViewContent.setText(mListConversation.get(position).getTarget());
+        
+        TextView mTextViewType = (TextView) convertView
+                .findViewById(R.id.list_item_chat_talk_type);
+        mTextViewType.setText(""+mListConversation.get(position).getType());
         
         TextView mTextViewTime = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_time);

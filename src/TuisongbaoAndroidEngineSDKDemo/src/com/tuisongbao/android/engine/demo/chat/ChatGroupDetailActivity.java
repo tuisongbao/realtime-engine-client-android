@@ -7,17 +7,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupAdapter;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupDetailAdapter;
 
 public class ChatGroupDetailActivity extends Activity {

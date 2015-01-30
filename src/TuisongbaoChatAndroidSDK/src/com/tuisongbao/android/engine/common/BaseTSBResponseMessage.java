@@ -1,5 +1,7 @@
 package com.tuisongbao.android.engine.common;
 
+import com.tuisongbao.android.engine.engineio.EngineConstants;
+
 
 public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
 
@@ -99,7 +101,11 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
         if (isSuccess()) {
             if (callBack != null) {
                 if (callBack instanceof TSBEngineBindCallback) {
-                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
+                    String data = getData();
+                    if (data == null) {
+                        data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                    }
+                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
                 }
                 if (callBack instanceof TSBEngineCallback) {
                     ((TSBEngineCallback)callBack).onSuccess(parse());
@@ -108,6 +114,10 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
         } else {
             if (callBack != null) {
                 if (callBack instanceof TSBEngineBindCallback) {
+                    String data = getData();
+                    if (data == null) {
+                        data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                    }
                     ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
                 }
                 if (callBack instanceof TSBEngineCallback) {

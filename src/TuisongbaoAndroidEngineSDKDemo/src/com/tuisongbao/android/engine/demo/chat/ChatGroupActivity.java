@@ -12,8 +12,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupAdapter;
 
@@ -29,12 +32,12 @@ public class ChatGroupActivity extends Activity {
         setContentView(R.layout.activity_group_list);
         mListViewGroup = (ListView) findViewById(R.id.group_list_view);
         mListGroup = new ArrayList<TSBChatGroup>();
-        TSBChatGroup group = new TSBChatGroup();
-        group.setName("群组 A");
-        mListGroup.add(group);
-        group = new TSBChatGroup();
-        group.setName("群组 B");
-        mListGroup.add(group);
+//        TSBChatGroup group = new TSBChatGroup();
+//        group.setName("群组 A");
+//        mListGroup.add(group);
+//        group = new TSBChatGroup();
+//        group.setName("群组 B");
+//        mListGroup.add(group);
         mAdapter = new ChatGroupAdapter(mListGroup, this);
         mListViewGroup.setAdapter(mAdapter);
         mListViewGroup.setOnItemClickListener(new OnItemClickListener() {
@@ -46,6 +49,13 @@ public class ChatGroupActivity extends Activity {
                 startActivity(intent);
             }
         });
+        request();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        request();
     }
 
     @Override
@@ -62,6 +72,34 @@ public class ChatGroupActivity extends Activity {
             return true;
         }
         return false;
+    }
+    
+    private void request() {
+        TSBChatManager.getInstance().getGroups(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
+            
+            @Override
+            public void onSuccess(List<TSBChatGroup> t) {
+                mListGroup  = t;
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        mAdapter.refresh(mListGroup);
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(int code, String message) {
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(ChatGroupActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
 }

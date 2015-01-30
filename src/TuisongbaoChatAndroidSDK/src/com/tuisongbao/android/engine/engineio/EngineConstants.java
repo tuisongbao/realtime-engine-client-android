@@ -58,6 +58,8 @@ public class EngineConstants {
     // bind name
     public static final String EVENT_CONNECTION_CHANGE_STATUS = "android:engine_connection:connection_change_status";
     
+    // chat code 
+    
     public static int getConnectionStatus(String src) {
         String statusString = getValue(src, CONNECTION_PREFIX);
         if (StrUtil.isEmpty(statusString)) {

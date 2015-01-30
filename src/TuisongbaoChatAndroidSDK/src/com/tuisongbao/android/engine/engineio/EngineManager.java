@@ -2,8 +2,6 @@ package com.tuisongbao.android.engine.engineio;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import android.content.Context;
-
 import com.tuisongbao.android.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.android.engine.engineio.interfaces.EngineIoInterface;
 import com.tuisongbao.android.engine.engineio.interfaces.IEngineInterface;
@@ -14,10 +12,6 @@ public class EngineManager {
 
     private static EngineManager mInstance;
     private EngineIoInterface mInterface;
-    /**
-     * Application context
-     */
-    private Context mContext;
 
     public static EngineManager getInstance() {
         if (mInstance == null) {
@@ -26,9 +20,8 @@ public class EngineManager {
         return mInstance;
     }
 
-    public IEngineDataSource init(Context context, EngineIoOptions options) {
-        mContext = context;
-        mInterface = new EngineIoInterface(mContext, options);
+    public IEngineDataSource init(EngineIoOptions options) {
+        mInterface = new EngineIoInterface(options);
         return mInterface;
     }
 
@@ -36,7 +29,7 @@ public class EngineManager {
         return mInterface.isConnected();
     }
 
-    public String getSocktetId() {
+    public String getSocketId() {
         return mInterface.getSocketId();
     }
 

@@ -65,9 +65,9 @@ public class ChatListFragment extends Fragment {
         });
 
         mListUser = new ArrayList<TSBChatGroupUser>();
-        TSBChatGroupUser user = new TSBChatGroupUser();
-        user.setUserId("好友A");
-        mListUser.add(user);
+//        TSBChatGroupUser user = new TSBChatGroupUser();
+//        user.setUserId("好友A");
+//        mListUser.add(user);
         mAdapterFriend = new ChatListFriendAdapter(mListUser, getActivity());
         mListViewFriend.setAdapter(mAdapterFriend);
 

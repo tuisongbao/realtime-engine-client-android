@@ -4,7 +4,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.tuisongbao.android.engine.engineio.exception.DataSourceException;
@@ -13,19 +12,15 @@ import com.tuisongbao.android.engine.engineio.exception.DataSourceException;
  * Common functionality for data sources that read a stream of newline-separated
  * messages in a separate thread from the main activity.
  */
-public abstract class BaseEngineIODataSource extends ContextualEngineDataSource
+public abstract class BaseEngineIODataSource extends BaseEngineDataSource
         implements Runnable {
     private final static String TAG = BaseEngineIODataSource.class.getSimpleName();
     private boolean mRunning = false;
     private final Lock mConnectionLock = new ReentrantLock();
     protected final Condition mConnectionChanged = mConnectionLock.newCondition();
 
-    public BaseEngineIODataSource(IEngineCallback callback, Context context) {
-        super(callback, context);
-    }
-
-    public BaseEngineIODataSource(Context context) {
-        this(null, context);
+    public BaseEngineIODataSource(IEngineCallback callback) {
+        super(callback);
     }
 
     public synchronized void start() {

@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/group_create_detail"
-        android:text="群组权限:" />
+        android:text="群组权限:(私有群)" />
 
     <ToggleButton
         android:id="@+id/group_create_detail_is_private"
@@ -35,9 +35,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/group_create_detail_is_private"
-        android:text="成员邀请权限:" />
+        android:text="成员邀请权限:(不允许群成员邀请其他人)" />
 
     <ToggleButton
+        android:id="@+id/group_create_detail_invited_permission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/group_create_detail_textview_invite" />

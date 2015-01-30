@@ -128,7 +128,7 @@ public class TSBChatManager extends BaseManager {
         if (TSBEngine.isConnected()) {
             TSBChatLogoutMessage message = new TSBChatLogoutMessage();
             message.setCallback(callback);
-            bind(TSBChatLoginMessage.NAME, mLoginEngineCallback);
+            bind(TSBChatLogoutMessage.NAME, mLoginEngineCallback);
             TSBResponseMessage response = new TSBResponseMessage();
             response.setCallback(callback);
             send(message, response);
@@ -215,7 +215,7 @@ public class TSBChatManager extends BaseManager {
             handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
             return;
         }
-        if (isIllegalGroupName(groupName)) {
+        if (!isIllegalGroupName(groupName)) {
             handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group name can't not be empty or illegal");
             return;
         }
@@ -319,7 +319,7 @@ public class TSBChatManager extends BaseManager {
      * @param target 可选，跟谁， userId 或 groupId
      * @param callback
      */
-    public void getConversation(String type, String target, TSBEngineCallback<TSBChatConversation> callback) {
+    public void getConversation(String type, String target, TSBEngineCallback<List<TSBChatConversation>> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
             return;

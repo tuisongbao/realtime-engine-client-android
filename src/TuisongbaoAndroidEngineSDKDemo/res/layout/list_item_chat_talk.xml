@@ -24,10 +24,17 @@
             android:layout_below="@id/list_item_chat_talk_title" />
 
         <TextView
-            android:id="@+id/list_item_chat_talk_time"
+            android:id="@+id/list_item_chat_talk_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true" />
+
+        <TextView
+            android:id="@+id/list_item_chat_talk_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/list_item_chat_talk_type" />
     </RelativeLayout>
 
 </RelativeLayout>
