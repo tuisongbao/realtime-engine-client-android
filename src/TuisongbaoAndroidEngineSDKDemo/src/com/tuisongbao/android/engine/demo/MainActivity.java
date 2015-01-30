@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
+import com.tuisongbao.android.engine.demo.chat.LoginActivity;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -30,6 +32,8 @@ public class MainActivity extends Activity {
     private TextView mBindContentTextView;
     private String mChannel;
     private boolean isBind = false;
+    private Button mLoginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +41,17 @@ public class MainActivity extends Activity {
         mContentTextView = (TextView)findViewById(R.id.content);
         mSendButton = (Button)findViewById(R.id.send);
         mChannel = TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + StrUtil.creatUUID();
+        
+        mLoginButton = (Button) findViewById(R.id.login);
+        mLoginButton.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+        
         TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
             
             @Override
@@ -102,6 +117,7 @@ public class MainActivity extends Activity {
                         });
                     }
                 });
+
 //                TSBChatManager.getInstance().createGroup("hello", null, new TSBEngineCallback<TSBChatGroup>() {
 //
 //                    @Override

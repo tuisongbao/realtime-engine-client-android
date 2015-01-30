@@ -10,7 +10,6 @@
     <!-- 网络连接. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS" />
     <!-- 接收到新的推送消息，需要唤醒应用程序的进程 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -20,7 +19,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
         <activity
             android:name="com.tuisongbao.android.engine.demo.MainActivity"
             android:label="@string/app_name" >
@@ -29,6 +27,38 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.LoginActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.DashboradActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupCreateActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupMemberAddActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatConversationActivity"
+            android:label="@string/app_name" >
         </activity>
 
         <service

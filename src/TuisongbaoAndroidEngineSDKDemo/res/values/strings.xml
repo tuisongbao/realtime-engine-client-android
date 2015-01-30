@@ -6,5 +6,22 @@
     <string name="send">发送</string>
     <string name="bind">绑定</string>
     <string name="unbind">解除绑定</string>
+    <string name="login">登陆</string>
+    <string name="search">搜索</string>
+    
+    <!-- login -->
+    <string name="login_account">个人帐号</string>
+    <string name="login_password">密码</string>
+    <string name="login_register">注册</string>
+    <string name="login_login">登录</string>
 
+    <!-- dashborad -->
+    <string name="dashboard_item_talk">会话</string>
+    <string name="dashboard_item_list">通讯录</string>
+    <string name="dashboard_item_setting">设置</string>
+
+    <!-- fragment list -->
+    <string name="chat_list_group">群组</string>
+
+    <string name="chat_group_quit">退出并删除</string>
 </resources>
