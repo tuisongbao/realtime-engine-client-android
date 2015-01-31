@@ -641,16 +641,20 @@ public class TSBChatManager extends BaseManager {
                                     TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                                     "auth failed, signature is empty");
                         } else {
-                            data.setSignature(signature);
+                            // empty
                         }
                         String userData = jsonData.optString("userData");
-                        data.setUserData(userData);
+                        TSBChatLoginMessage authMessage = new TSBChatLoginMessage();
+                        TSBChatLoginData authData = new TSBChatLoginData();
+                        authData.setUserData(userData);
+                        authData.setSignature(signature);
+                        authMessage.setData(authData);
                         if (isNeedCallback) {
                             TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
                             responseMessage.setCallback(msg.getCallback());
-                            send(msg, responseMessage);
+                            send(authMessage, responseMessage);
                         } else {
-                            send(msg);
+                            send(authMessage);
                         }
                     }
                 } else {
