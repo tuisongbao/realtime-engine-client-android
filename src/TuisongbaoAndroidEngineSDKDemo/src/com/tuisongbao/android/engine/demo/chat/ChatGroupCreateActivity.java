@@ -50,8 +50,6 @@ public class ChatGroupCreateActivity extends Activity {
 
     private void create() {
         List<String> members = new ArrayList<String>();
-        members.add("123");
-        members.add("456");
         TSBChatManager.getInstance().createGroup(
                 mGroupNameEditText.getText().toString(),
                 mGroupDescEditText.getText().toString(), members,
