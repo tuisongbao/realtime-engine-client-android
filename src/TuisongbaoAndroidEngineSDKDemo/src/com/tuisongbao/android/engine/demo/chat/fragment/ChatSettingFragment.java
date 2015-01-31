@@ -1,5 +1,6 @@
 package com.tuisongbao.android.engine.demo.chat.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,7 +43,11 @@ public class ChatSettingFragment extends Fragment {
                     
                     @Override
                     public void onSuccess(String t) {
-                        getActivity().runOnUiThread(new Runnable() {
+                        Activity activity = getActivity();
+                        if (activity == null) {
+                            return;
+                        }
+                        activity.runOnUiThread(new Runnable() {
                             
                             @Override
                             public void run() {
@@ -56,7 +61,11 @@ public class ChatSettingFragment extends Fragment {
                     
                     @Override
                     public void onError(int code, String message) {
-                        getActivity().runOnUiThread(new Runnable() {
+                        Activity activity = getActivity();
+                        if (activity == null) {
+                            return;
+                        }
+                        activity.runOnUiThread(new Runnable() {
                             
                             @Override
                             public void run() {

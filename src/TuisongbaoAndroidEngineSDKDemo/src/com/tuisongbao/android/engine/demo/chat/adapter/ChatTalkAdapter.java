@@ -51,19 +51,19 @@ public class ChatTalkAdapter extends BaseAdapter {
         }
         TextView mTextViewName = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_title);
-        mTextViewName.setText(""+mListConversation.get(position).getUnreadMessageCount());
+        mTextViewName.setText("未读消息数：" + mListConversation.get(position).getUnreadMessageCount());
         
         TextView mTextViewContent = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_content);
-        mTextViewContent.setText(mListConversation.get(position).getTarget());
+        mTextViewContent.setText("和(group/user id)：" + mListConversation.get(position).getTarget());
         
         TextView mTextViewType = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_type);
-        mTextViewType.setText(""+mListConversation.get(position).getType());
+        mTextViewType.setText("会话类型：" + mListConversation.get(position).getType().getName());
         
         TextView mTextViewTime = (TextView) convertView
                 .findViewById(R.id.list_item_chat_talk_time);
-        mTextViewTime.setText(mListConversation.get(position).getLastActiveAt());
+        mTextViewTime.setText("时间：" + mListConversation.get(position).getLastActiveAt());
 
         return convertView;
     }

@@ -18,7 +18,7 @@ public class TSBChatMessageTypeSerializer implements
     @Override
     public JsonElement serialize(TYPE type, Type typeOfT,
             JsonSerializationContext arg) {
-        return new JsonPrimitive(type.name());
+        return new JsonPrimitive(type.getName());
     }
 
     @Override

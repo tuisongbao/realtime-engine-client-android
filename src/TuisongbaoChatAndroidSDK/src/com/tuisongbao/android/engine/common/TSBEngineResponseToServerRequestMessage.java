@@ -1,8 +1,10 @@
 package com.tuisongbao.android.engine.common;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.tuisongbao.android.engine.common.TSBEngineResponseToServerRequestMessage.ResponseToServerData;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
 
 /**
  * I‘s used to response server request message, such as "engine_chat:message:get", "engine_chat:message:new" and so on
@@ -22,6 +24,27 @@ public class TSBEngineResponseToServerRequestMessage extends BaseTSBRequestMessa
     
     public void setResult(JSONObject result) {
         getData().setResult(result);
+    }
+    
+    @Override
+    public String serialize() {
+        ResponseToServerData data = getData();
+        if (data != null) {
+            JSONObject json = new JSONObject();
+            try {
+                json.put(EngineConstants.REQUEST_KEY_RESPONSE_TO, data.getTo());
+                json.put(EngineConstants.REQUEST_KEY_RESPONSE_OK, data.getOk());
+                JSONObject result = data.getResult();
+                if (result != null) {
+                    json.put(EngineConstants.REQUEST_KEY_RESPONSE_RESULT, result);
+                }
+                return json.toString();
+            } catch (JSONException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     public class ResponseToServerData {

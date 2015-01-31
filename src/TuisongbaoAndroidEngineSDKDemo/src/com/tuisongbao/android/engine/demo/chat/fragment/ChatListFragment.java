@@ -3,11 +3,6 @@ package com.tuisongbao.android.engine.demo.chat.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
-import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
-import com.tuisongbao.android.engine.demo.chat.adapter.ChatListFriendAdapter;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+
+import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.demo.R;
+import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity;
+import com.tuisongbao.android.engine.demo.chat.adapter.ChatListFriendAdapter;
+import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
 public class ChatListFragment extends Fragment {
     private static ChatListFragment mChatListFragment;
@@ -64,14 +70,29 @@ public class ChatListFragment extends Fragment {
             }
         });
 
-        mListUser = new ArrayList<TSBChatGroupUser>();
-//        TSBChatGroupUser user = new TSBChatGroupUser();
-//        user.setUserId("好友A");
-//        mListUser.add(user);
+        mListUser = new ArrayList<TSBChatGroupUser>(LoginChache.getAddedUserList());
         mAdapterFriend = new ChatListFriendAdapter(mListUser, getActivity());
         mListViewFriend.setAdapter(mAdapterFriend);
+        mListViewFriend.setOnItemClickListener(new OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+                    long arg3) {
+                Intent intent = new Intent(getActivity(),
+                        ChatGroupDetailActivity.class);
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, mListUser.get(arg2).getUserId());
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, ChatType.SingleChat.getName());
+                startActivity(intent);
+            }
+        });
+        
 
         return mRootView;
+    }
+    
+    public void refresh() {
+        mListUser = new ArrayList<TSBChatGroupUser>(LoginChache.getAddedUserList());
+        mAdapterFriend.refresh(mListUser);
     }
 
     @Override

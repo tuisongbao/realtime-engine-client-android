@@ -33,6 +33,9 @@ public class EngineConstants {
     public static final int CONNECTION_STATUS_CONNECTING = 5;
     public static final int CONNECTION_STATUS_NONE = 0;
     
+    // common name
+    public static final String ENGINE_ENGINE_RESPONSE = "engine_response";
+    
     // channel name
     public static final String CHANNEL_NAME_PREFIX = "engine_channel";
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";

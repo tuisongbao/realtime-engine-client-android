@@ -11,11 +11,13 @@
         android:orientation="horizontal" >
 
         <EditText
+            android:id="@+id/group_detail_message_content_edittext"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <Button
+            android:id="@+id/group_detail_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/send" />

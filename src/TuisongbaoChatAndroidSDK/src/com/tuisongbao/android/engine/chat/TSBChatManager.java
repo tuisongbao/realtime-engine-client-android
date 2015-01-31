@@ -24,6 +24,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatMessageGetData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.message.TSBChatConversationDeleteMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatConversationGetMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatConversationGetReponseMessage;
@@ -45,6 +46,7 @@ import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetResponseMessa
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage.TSBChatMessageResponseMessageCallback;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageSendMessage;
+import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageBodySerializer;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.android.engine.common.BaseManager;
@@ -79,7 +81,8 @@ public class TSBChatManager extends BaseManager {
     private TSBChatManager() {
         super();
         // bind get message event
-        TSBChatMessageResponseMessage response = new TSBChatMessageResponseMessage(mChatMessageCallback);
+        TSBChatMessageResponseMessage response = new TSBChatMessageResponseMessage(
+                mChatMessageCallback);
         bind(TSBChatMessageGetMessage.NAME, response);
         // bind receive new message event
         bind(EngineConstants.CHAT_NAME_NEW_MESSAGE, response);
@@ -88,7 +91,8 @@ public class TSBChatManager extends BaseManager {
     /**
      * 聊天登录
      * 
-     * @param userData 用户信息
+     * @param userData
+     *            用户信息
      * @param callback
      */
     public void login(String userData, TSBEngineCallback<TSBChatUser> callback) {
@@ -105,7 +109,7 @@ public class TSBChatManager extends BaseManager {
             message.setData(data);
             message.setCallback(callback);
             bind(TSBChatLoginMessage.NAME, mLoginEngineCallback);
-            auth(message);
+            auth(message, true);
             mTSBLoginMessage = message;
         } else {
             callback.onError(
@@ -142,13 +146,18 @@ public class TSBChatManager extends BaseManager {
     /**
      * 获取群组列表
      * 
-     * @param groupId 可选，根据 id 过滤
-     * @param groupName 可选，根据 name 过滤
+     * @param groupId
+     *            可选，根据 id 过滤
+     * @param groupName
+     *            可选，根据 name 过滤
      * @param callback
      */
-    public void getGroups(String groupId, String groupName, TSBEngineCallback<List<TSBChatGroup>> callback) {
+    public void getGroups(String groupId, String groupName,
+            TSBEngineCallback<List<TSBChatGroup>> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         TSBChatGroupGetMessage message = new TSBChatGroupGetMessage();
@@ -167,13 +176,18 @@ public class TSBChatManager extends BaseManager {
      * @param groupId
      * @param callback
      */
-    public void getUsers(String groupId, TSBEngineCallback<List<TSBChatGroupUser>> callback) {
+    public void getUsers(String groupId,
+            TSBEngineCallback<List<TSBChatGroupUser>> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (StrUtil.isEmpty(groupId)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group id can't be not empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: group id can't be not empty");
             return;
         }
         TSBChatGroupGetUsersMessage message = new TSBChatGroupGetUsersMessage();
@@ -188,38 +202,48 @@ public class TSBChatManager extends BaseManager {
     /**
      * 创建群组
      * 
-     * @param groupName 群的名称
-     *      注意, 群名称不能以 private- 或者 present- 开头
-     * @param members 群聊成员，可以为空，此时成员只有自己
+     * @param groupName
+     *            群的名称 注意, 群名称不能以 private- 或者 present- 开头
+     * @param members
+     *            群聊成员，可以为空，此时成员只有自己
      * @param callback
      */
-    public void createGroup(String groupName, List<String> members, TSBEngineCallback<TSBChatGroup> callback) {
+    public void createGroup(String groupName, List<String> members,
+            TSBEngineCallback<TSBChatGroup> callback) {
         createGroup(groupName, "", members, false, false, callback);
     }
 
     /**
      * 创建群组
      * 
-     * @param groupName 群的名称
-     *      注意, 群名称不能以 private- 或者 present- 开头
-     * @param description 群的描述
-     * @param members 群聊成员，可以为空，此时成员只有自己
-     * @param isPublic 默认值 true ，任何用户的加群请求都会直接通过，无需审核
-     * @param userCanInvite 默认值 true ，除创建者（owner）外，其他群用户也可以发送加群邀请
+     * @param groupName
+     *            群的名称 注意, 群名称不能以 private- 或者 present- 开头
+     * @param description
+     *            群的描述
+     * @param members
+     *            群聊成员，可以为空，此时成员只有自己
+     * @param isPublic
+     *            默认值 true ，任何用户的加群请求都会直接通过，无需审核
+     * @param userCanInvite
+     *            默认值 true ，除创建者（owner）外，其他群用户也可以发送加群邀请
      * @param callback
      */
     public void createGroup(String groupName, String description,
             List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<TSBChatGroup> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (!isIllegalGroupName(groupName)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group name can't not be empty or illegal");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: group name can't not be empty or illegal");
             return;
         }
-        
+
         TSBChatGroupCreateMessage message = new TSBChatGroupCreateMessage();
         TSBChatGroupCreateData data = new TSBChatGroupCreateData();
         data.setName(groupName);
@@ -236,20 +260,27 @@ public class TSBChatManager extends BaseManager {
     /**
      * 邀请加入群组
      * 
-     * @param groupId 群的id
-     * @param userIds 邀请加入的用户id
+     * @param groupId
+     *            群的id
+     * @param userIds
+     *            邀请加入的用户id
      * @param callback
      */
-    public void joinInvitation(String groupId, List<String> userIds, TSBEngineCallback<String> callback) {
+    public void joinInvitation(String groupId, List<String> userIds,
+            TSBEngineCallback<String> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group id or user ids can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: group id or user ids can't not be empty");
             return;
         }
-        
+
         TSBChatGroupJoinInvitationMessage message = new TSBChatGroupJoinInvitationMessage();
         TSBChatGroupJoinInvitationData data = new TSBChatGroupJoinInvitationData();
         data.setGroupId(groupId);
@@ -263,20 +294,27 @@ public class TSBChatManager extends BaseManager {
     /**
      * 删除群组中的用户
      * 
-     * @param groupId 群的id
-     * @param userIds 删除的用户id
+     * @param groupId
+     *            群的id
+     * @param userIds
+     *            删除的用户id
      * @param callback
      */
-    public void removeUser(String groupId, List<String> userIds, TSBEngineCallback<String> callback) {
+    public void removeUsers(String groupId, List<String> userIds,
+            TSBEngineCallback<String> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group id or user ids can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: group id or user ids can't not be empty");
             return;
         }
-        
+
         TSBChatGroupRemoveUserMessage message = new TSBChatGroupRemoveUserMessage();
         TSBChatGroupRemoveUserData data = new TSBChatGroupRemoveUserData();
         data.setGroupId(groupId);
@@ -290,19 +328,24 @@ public class TSBChatManager extends BaseManager {
     /**
      * 离开群组
      * 
-     * @param groupId 群的id
+     * @param groupId
+     *            群的id
      * @param callback
      */
     public void leaveGroup(String groupId, TSBEngineCallback<String> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (StrUtil.isEmpty(groupId)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: group id can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: group id can't not be empty");
             return;
         }
-        
+
         TSBChatGroupLeaveMessage message = new TSBChatGroupLeaveMessage();
         TSBChatGroupLeaveData data = new TSBChatGroupLeaveData();
         data.setGroupId(groupId);
@@ -315,16 +358,21 @@ public class TSBChatManager extends BaseManager {
     /**
      * 获取会话
      * 
-     * @param type 可选， singleChat（单聊） 或 groupChat （群聊）
-     * @param target 可选，跟谁， userId 或 groupId
+     * @param type
+     *            可选， singleChat（单聊） 或 groupChat （群聊）
+     * @param target
+     *            可选，跟谁， userId 或 groupId
      * @param callback
      */
-    public void getConversation(String type, String target, TSBEngineCallback<List<TSBChatConversation>> callback) {
+    public void getConversation(ChatType type, String target,
+            TSBEngineCallback<List<TSBChatConversation>> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
-        
+
         TSBChatConversationGetMessage message = new TSBChatConversationGetMessage();
         TSBChatConversationData data = new TSBChatConversationData();
         data.setType(type);
@@ -338,17 +386,16 @@ public class TSBChatManager extends BaseManager {
     /**
      * 重置会话
      * 
-     * @param type singleChat（单聊） 或 groupChat （群聊）
-     * @param target 跟谁， userId 或 groupId
-     * @param callback TODO: do not need call back?
+     * @param type
+     *            singleChat（单聊） 或 groupChat （群聊）
+     * @param target
+     *            跟谁， userId 或 groupId
      */
-    public void resetUnread(String type, String target, TSBEngineCallback<String> callback) {
+    public void resetUnread(ChatType type, String target) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
             return;
         }
-        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(target)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: type or target can't not be empty");
+        if (type == null || StrUtil.isEmpty(target)) {
             return;
         }
         TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
@@ -356,25 +403,30 @@ public class TSBChatManager extends BaseManager {
         data.setType(type);
         data.setTarget(target);
         message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
+        send(message);
     }
 
     /**
      * 删除会话
      * 
-     * @param type singleChat（单聊） 或 groupChat （群聊）
-     * @param target 跟谁， userId 或 groupId
+     * @param type
+     *            singleChat（单聊） 或 groupChat （群聊）
+     * @param target
+     *            跟谁， userId 或 groupId
      * @param callback
      */
-    public void deleteConversation(String type, String target, TSBEngineCallback<String> callback) {
+    public void deleteConversation(ChatType type, String target,
+            TSBEngineCallback<String> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
-        if (StrUtil.isEmpty(type) || StrUtil.isEmpty(target)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: type or target can't not be empty");
+        if (type == null || StrUtil.isEmpty(target)) {
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: type or target can't not be empty");
             return;
         }
         TSBChatConversationDeleteMessage message = new TSBChatConversationDeleteMessage();
@@ -390,41 +442,55 @@ public class TSBChatManager extends BaseManager {
     /**
      * 获取消息
      * 
-     * @param type singleChat（单聊） 或 groupChat （群聊）
-     * @param recipientId 跟谁， userId 或 groupId
+     * @param type
+     *            singleChat（单聊） 或 groupChat （群聊）
+     * @param target
+     *            跟谁， userId 或 groupId
      */
-    public void getMessages(ChatType type, String recipientId, TSBEngineCallback<List<TSBMessage>> callback) {
-        getMessages(type, recipientId, 0, 0, 20, callback);
+    public void getMessages(ChatType type, String target,
+            TSBEngineCallback<List<TSBMessage>> callback) {
+        getMessages(type, target, 0, 0, 20, callback);
     }
 
     /**
      * 获取消息
      * 
-     * @param type singleChat（单聊） 或 groupChat （群聊）
-     * @param recipientId 跟谁， userId 或 groupId
-     * @param startMessageId 可选
-     * @param endMessageId 可选
-     * @param limit 可选，默认 20，最大 100
+     * @param type
+     *            singleChat（单聊） 或 groupChat （群聊）
+     * @param target
+     *            跟谁， userId 或 groupId
+     * @param startMessageId
+     *            可选
+     * @param endMessageId
+     *            可选
+     * @param limit
+     *            可选，默认 20，最大 100
      */
-    public void getMessages(ChatType type, String recipientId,
-            long startMessageId, long endMessageId, int limit,
+    public void getMessages(ChatType type, String target, long startMessageId,
+            long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
         if (!isLogin()) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (type == null) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: chat type ocan't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: chat type ocan't not be empty");
             return;
         }
-        if (StrUtil.isEmpty(recipientId)) {
-            handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: recipiet id can't not be empty");
+        if (StrUtil.isEmpty(target)) {
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: recipiet id can't not be empty");
             return;
         }
         TSBChatMessageGetMessage message = new TSBChatMessageGetMessage();
         TSBChatMessageGetData data = new TSBChatMessageGetData();
         data.setType(type);
-        data.setTarget(recipientId);
+        data.setTarget(target);
         data.setStartMessageId(startMessageId);
         data.setEndMessageId(endMessageId);
         data.setLimit(limit);
@@ -438,31 +504,47 @@ public class TSBChatManager extends BaseManager {
     /**
      * 获取消息
      * 
-     * @param type singleChat（单聊） 或 groupChat （群聊）
-     * @param recipientId 跟谁， userId 或 groupId
-     * @param startMessageId 可选
-     * @param endMessageId 可选
-     * @param limit 可选，默认 20，最大 100
+     * @param type
+     *            singleChat（单聊） 或 groupChat （群聊）
+     * @param recipientId
+     *            跟谁， userId 或 groupId
+     * @param startMessageId
+     *            可选
+     * @param endMessageId
+     *            可选
+     * @param limit
+     *            可选，默认 20，最大 100
      */
-    public void sendMessages(TSBMessage message) {
+    public void sendMessage(TSBMessage message,
+            TSBEngineCallback<TSBMessage> callback) {
         if (!isLogin()) {
-            handleSendMessageErrorMessage(message, TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY, "permission denny: need to login");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                    "permission denny: need to login");
             return;
         }
         if (message == null) {
-            handleSendMessageErrorMessage(message, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: message can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: message can't not be empty");
             return;
         }
         if (message.getChatType() == null) {
-            handleSendMessageErrorMessage(message, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: message chat type can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: message chat type can't not be empty");
             return;
         }
         if (StrUtil.isEmpty(message.getRecipient())) {
-            handleSendMessageErrorMessage(message, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: message recipient id can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: message recipient id can't not be empty");
             return;
         }
         if (message.getBody() == null) {
-            handleSendMessageErrorMessage(message, TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER, "illegal parameter: message body can't not be empty");
+            handleErrorMessage(callback,
+                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                    "illegal parameter: message body can't not be empty");
             return;
         }
         TSBChatMessageSendMessage request = new TSBChatMessageSendMessage();
@@ -472,8 +554,10 @@ public class TSBChatManager extends BaseManager {
         data.setContent(message.getBody());
         request.setData(data);
 
-        TSBChatMessageResponseMessage response = new TSBChatMessageResponseMessage(mChatMessageCallback);
+        TSBChatMessageResponseMessage response = new TSBChatMessageResponseMessage(
+                mChatMessageCallback);
         response.setSendMessage(message);
+        response.setCustomCallback(callback);
         send(request, response);
     }
 
@@ -509,24 +593,16 @@ public class TSBChatManager extends BaseManager {
                         .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
     }
 
-    private <T> void handleErrorMessage(TSBEngineCallback<T> callback, int code,
-            String message) {
+    private <T> void handleErrorMessage(TSBEngineCallback<T> callback,
+            int code, String message) {
         callback.onError(code, message);
-    }
-
-    private void handleSendMessageErrorMessage(TSBMessage message, int code, String errorMessage) {
-        handleSendMessageErrorMessage(message, EngineConstants.genErrorJsonString(code, errorMessage));
-    }
-
-    private void handleSendMessageErrorMessage(TSBMessage message, String error) {
-        EngineServiceManager.sendMessageFailure(message, error);
     }
 
     private boolean isLogin() {
         return mTSBChatLoginData != null;
     }
 
-    private void auth(final TSBChatLoginMessage msg) {
+    private void auth(final TSBChatLoginMessage msg, final boolean isNeedCallback) {
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
 
             @Override
@@ -544,21 +620,24 @@ public class TSBChatManager extends BaseManager {
                     e.printStackTrace();
                 }
                 BaseRequest request = new BaseRequest(
-                        HttpConstants.HTTP_METHOD_POST, TSBEngine.getTSBEngineOptions()
-                                .getAuthEndpoint(), json.toString());
+                        HttpConstants.HTTP_METHOD_POST, TSBEngine
+                                .getTSBEngineOptions().getAuthEndpoint(), json
+                                .toString());
                 BaseResponse response = request.execute();
                 if (response != null && response.isStatusOk()) {
                     JSONObject jsonData = response.getJSONData();
                     if (jsonData == null) {
                         // feed back empty
-                        handleErrorMessage(msg,
+                        handleErrorMessage(
+                                msg,
                                 TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                                 "auth failed, feed back auth data is empty");
                     } else {
                         String signature = jsonData.optString("signature");
                         if (StrUtil.isEmpty(signature)) {
                             // signature data empty
-                            handleErrorMessage(msg,
+                            handleErrorMessage(
+                                    msg,
                                     TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                                     "auth failed, signature is empty");
                         } else {
@@ -566,14 +645,19 @@ public class TSBChatManager extends BaseManager {
                         }
                         String userData = jsonData.optString("userData");
                         data.setUserData(userData);
-                        TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
-                        responseMessage.setCallback(msg.getCallback());
-                        send(msg, responseMessage);
+                        if (isNeedCallback) {
+                            TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
+                            responseMessage.setCallback(msg.getCallback());
+                            send(msg, responseMessage);
+                        } else {
+                            send(msg);
+                        }
                     }
                 } else {
                     // connection to user server error or user server feed back
                     // error
-                    handleErrorMessage(msg,
+                    handleErrorMessage(
+                            msg,
                             TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                             "auth failed, connection to user server error or user server feed back error");
                 }
@@ -608,24 +692,30 @@ public class TSBChatManager extends BaseManager {
         @Override
         public void onEvent(TSBChatMessageResponseMessage response) {
             if (response.isSuccess()) {
-                if (TSBChatMessageGetMessage.NAME.equals(response.getBindName())) {
+                if (TSBChatMessageGetMessage.NAME
+                        .equals(response.getBindName())) {
                     // 当为获取消息时
                     // response to server
                     long serverRequestId = response.getServerRequestId();
-                    TSBEngineResponseToServerRequestMessage message = new TSBEngineResponseToServerRequestMessage(serverRequestId, true);
+                    TSBEngineResponseToServerRequestMessage message = new TSBEngineResponseToServerRequestMessage(
+                            serverRequestId, true);
                     send(message);
-                } else if (TSBChatMessageSendMessage.NAME.equals(response.getBindName())) {
-                    // 发送消息成功
-                    TSBMessage message = response.getSendMessage();
-                    try {
-                        JSONObject json = new JSONObject(response.getData());
-                        long messageId = json.optLong("messageId");
-                        message.setMessageId(messageId);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                } else if (TSBChatMessageSendMessage.NAME.equals(response
+                        .getBindName())) {
+                    if (response.getCustomCallback() != null) {
+                        // 发送消息成功
+                        TSBMessage message = response.getSendMessage();
+                        try {
+                            JSONObject json = new JSONObject(response.getData());
+                            long messageId = json.optLong("messageId");
+                            message.setMessageId(messageId);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        response.getCustomCallback().onSuccess(message);
                     }
-                    EngineServiceManager.sendMessageSuccess(message);
-                } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE.equals(response.getBindName())) {
+                } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE
+                        .equals(response.getBindName())) {
                     // 接收到消息
                     if (response.getData() != null) {
                         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -633,31 +723,36 @@ public class TSBChatManager extends BaseManager {
                                 new TSBChatMessageChatTypeSerializer());
                         gsonBuilder.registerTypeAdapter(TSBMessage.TYPE.class,
                                 new TSBChatMessageTypeSerializer());
+                        gsonBuilder.registerTypeAdapter(TSBMessageBody.class,
+                                new TSBChatMessageBodySerializer());
                         Gson gson = gsonBuilder.create();
-                        TSBMessage message = gson.fromJson(response.getData(), TSBMessage.class);
+                        TSBMessage message = gson.fromJson(response.getData(),
+                                TSBMessage.class);
                         EngineServiceManager.receivedMessage(message);
                         // response to server
                         long serverRequestId = response.getServerRequestId();
-                        TSBEngineResponseToServerRequestMessage request = new TSBEngineResponseToServerRequestMessage(serverRequestId, true);
+                        TSBEngineResponseToServerRequestMessage request = new TSBEngineResponseToServerRequestMessage(
+                                serverRequestId, true);
                         try {
                             JSONObject result = new JSONObject();
                             result.put("messageId", message.getMessageId());
                             request.setResult(result);
                             send(request);
                         } catch (JSONException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
                 }
             } else {
                 // 发送消息失败
-                if (TSBChatMessageSendMessage.NAME.equals(response.getBindName())) {
-                    TSBMessage message = response.getSendMessage();
-                    handleSendMessageErrorMessage(message, response.getData());
+                if (TSBChatMessageSendMessage.NAME.equals(response
+                        .getBindName())) {
+                    if (response.getCustomCallback() != null) {
+                        response.getCustomCallback().onError(response.getCode(), response.getErrorMessage());
+                    }
                 }
             }
-            
+
         }
     };
 
@@ -665,7 +760,8 @@ public class TSBChatManager extends BaseManager {
     protected void handleConnect(TSBConnection t) {
         // when logined, it need to re-login
         if (isLogin() && mTSBLoginMessage != null) {
-            auth(mTSBLoginMessage);
+            // 当断掉重连时不需要回调
+            auth(mTSBLoginMessage, false);
         }
     }
 

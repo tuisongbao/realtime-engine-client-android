@@ -13,7 +13,7 @@ public class TSBMessage implements Parcelable {
     private ChatType type;
     private String from;
     private String to;
-    private TSBMessageBody body;
+    private TSBMessageBody content;
     private String createdAt;
     private Map<String, String> map;
 
@@ -62,11 +62,11 @@ public class TSBMessage implements Parcelable {
     }
 
     public TSBMessageBody getBody() {
-        return body;
+        return content;
     }
 
     public TSBMessage setBody(TSBMessageBody body) {
-        this.body = body;
+        this.content = body;
         return this;
     }
 
@@ -81,14 +81,7 @@ public class TSBMessage implements Parcelable {
 
     public static TSBMessage createMessage(TYPE type) {
         TSBMessage message = new TSBMessage();
-        if (type == null) {
-            message.setBody(new TSBTextMessageBody());
-        }
-        if (type.getIndex() == TYPE.TEXT.getIndex()) {
-            message.setBody(new TSBTextMessageBody());
-        } else {
-            message.setBody(new TSBTextMessageBody());
-        }
+        message.setBody(TSBMessageBody.createMessage(type));
         return message;
     }
 
@@ -134,7 +127,7 @@ public class TSBMessage implements Parcelable {
         dest.writeString(from);
         dest.writeString(to);
         dest.writeString(createdAt);
-        dest.writeParcelable(body, flags);
+        dest.writeParcelable(content, flags);
         dest.writeMap(map);
     }
 
@@ -145,7 +138,7 @@ public class TSBMessage implements Parcelable {
         from = in.readString();
         to = in.readString();
         createdAt = in.readString();
-        body = in.readParcelable(TSBMessageBody.class.getClassLoader());
+        content = in.readParcelable(TSBMessageBody.class.getClassLoader());
         map = in.readHashMap(HashMap.class.getClassLoader());
     }
 

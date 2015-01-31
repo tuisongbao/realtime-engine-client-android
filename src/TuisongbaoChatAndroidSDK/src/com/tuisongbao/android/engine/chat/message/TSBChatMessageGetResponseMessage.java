@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
+import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageBodySerializer;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
@@ -32,6 +34,8 @@ public class TSBChatMessageGetResponseMessage extends BaseTSBResponseMessage<Lis
                             new TSBChatMessageChatTypeSerializer());
                     gsonBuilder.registerTypeAdapter(TSBMessage.TYPE.class,
                             new TSBChatMessageTypeSerializer());
+                    gsonBuilder.registerTypeAdapter(TSBMessageBody.class,
+                            new TSBChatMessageBodySerializer());
                     Gson gson = gsonBuilder.create();
                     for (int i = 0; i < json.length(); i++) {
                         JSONObject item = json.optJSONObject(i);
@@ -44,7 +48,7 @@ public class TSBChatMessageGetResponseMessage extends BaseTSBResponseMessage<Lis
                                 TSBMessage.TYPE t = TSBMessage.TYPE.getType(type);
                                 if (t != null) {
                                     TSBMessage message = TSBMessage.createMessage(t);
-                                    message = gson.fromJson(item.toString(), message.getClass());
+                                    message = gson.fromJson(item.toString(), TSBMessage.class);
                                     if (message != null) {
                                         list.add(message);
                                     }

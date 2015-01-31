@@ -1,19 +1,35 @@
 package com.tuisongbao.android.engine.demo.chat;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.demo.R;
+import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatListFragment;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatSettingFragment;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatTalkFragment;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
+import com.tuisongbao.android.engine.util.StrUtil;
 
 public class DashboradActivity extends FragmentActivity {
 
@@ -97,6 +113,36 @@ public class DashboradActivity extends FragmentActivity {
                 showFragment(R.id.dashboard_textview_setting);
             }
         });
+        TSBChatManager.getInstance().bind(
+                TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
+                new TSBEngineBindCallback() {
+
+                    @Override
+                    public void onEvent(String bindName, String name,
+                            final String data) {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                if (!StrUtil.isEmpty(data)) {
+                                    try {
+                                        JSONObject json = new JSONObject(data);
+                                        String userId = json
+                                                .getString("userId");
+                                        String status = json
+                                                .getString("changedTo");
+                                        Toast.makeText(
+                                                DashboradActivity.this,
+                                                userId + " change to " + status,
+                                                Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
     }
 
     private void initFragment() {
@@ -145,6 +191,48 @@ public class DashboradActivity extends FragmentActivity {
                     R.color.blue));
             break;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.group_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.group_add) {
+            showAddUserDialog();
+            return true;
+        }
+        return false;
+    }
+
+    private void showAddUserDialog() {
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(
+                R.layout.dialog_input_layout, null);
+        new AlertDialog.Builder(this).setTitle("添加用户").setView(textEntryView)
+                .setPositiveButton("添加", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String userId = ((EditText)textEntryView.findViewById(R.id.dialog_input_edittext)).getText().toString();
+                        if (!StrUtil.isEmpty(userId)) {
+                            TSBChatGroupUser user = new TSBChatGroupUser();
+                            user.setUserId(userId);
+                            LoginChache.addUser(user);
+                            mFragmentChatList.refresh();
+                        }
+                    }
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
     }
 
 }

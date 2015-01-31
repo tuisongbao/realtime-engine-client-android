@@ -49,9 +49,31 @@ public class ChatGroupAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_chat_group, null);
         }
-        TextView mTextViewName = (TextView) convertView
+        TSBChatGroup group = mListGroup.get(position);
+        TextView textViewGroupId = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_id);
+        textViewGroupId.setText("组id：" + group.getGroupId());
+        TextView textViewName = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_name);
-        mTextViewName.setText(mListGroup.get(position).getName());
+        textViewName.setText("组名：" + group.getName());
+        TextView textViewOwner = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_owner);
+        textViewOwner.setText("楼主：" + group.getOwner());
+        TextView textViewDesc = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_desc);
+        textViewDesc.setText(group.getDescription());
+        TextView textViewIspublic = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_ispublic);
+        textViewIspublic.setText("是否公开：" + group.isPublic());
+        TextView textViewUserCanInvite = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_usercaninvite);
+        textViewUserCanInvite.setText("用户是否可以邀请：" + group.userCanInvite());
+        TextView textViewUserCount = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_user_count);
+        textViewUserCount.setText("用户数：" + group.getUserCount());
+        TextView textViewUserCountLimit = (TextView) convertView
+                .findViewById(R.id.list_item_chat_group_user_count_limit);
+        textViewUserCountLimit.setText("最大用户数：" + group.getUserCountLimit());
 
         return convertView;
     }

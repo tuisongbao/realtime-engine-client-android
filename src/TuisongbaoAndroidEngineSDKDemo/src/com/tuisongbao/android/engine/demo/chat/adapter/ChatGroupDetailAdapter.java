@@ -2,11 +2,6 @@ package com.tuisongbao.android.engine.demo.chat.adapter;
 
 import java.util.List;
 
-import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
-import com.tuisongbao.android.engine.demo.R;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,15 +10,25 @@ import android.widget.BaseAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.demo.R;
+import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
+import com.tuisongbao.android.engine.util.StrUtil;
+
 public class ChatGroupDetailAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<TSBChatConversation> mListConversation;
+    private List<TSBMessage> mListConversation;
 
-    public ChatGroupDetailAdapter(List<TSBChatConversation> listConversation,
+    public ChatGroupDetailAdapter(List<TSBMessage> listConversation,
             Context context) {
         mListConversation = listConversation;
         mContext = context;
+    }
+    
+    public void refresh(List<TSBMessage> listConversation) {
+        mListConversation = listConversation;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -48,35 +53,39 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_chat_detail, null);
         }
-        TSBChatConversation conversation = mListConversation.get(position);
+        TSBMessage message = mListConversation.get(position);
         RelativeLayout layoutSend = (RelativeLayout) convertView
                 .findViewById(R.id.list_item_chat_detail_send);
         RelativeLayout layoutReplay = (RelativeLayout) convertView
                 .findViewById(R.id.list_item_chat_detail_reply);
-        if ("send".equals(conversation.getType())) {
+        if (StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId())) {
 
             layoutSend.setVisibility(View.VISIBLE);
             layoutReplay.setVisibility(View.GONE);
 
             TextView mTextViewTime = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_send_time);
-            mTextViewTime.setText(conversation.getLastActiveAt());
+            mTextViewTime.setText(message.getCreatedAt());
 
             TextView mTextViewContent = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_send_content);
-            mTextViewContent.setText(conversation.getTarget());
+            mTextViewContent.setText(message.getBody() != null ? message.getBody().getText() : "");
 
         } else {
             layoutSend.setVisibility(View.GONE);
             layoutReplay.setVisibility(View.VISIBLE);
 
+            TextView mTextViewReplyUser = (TextView) convertView
+                    .findViewById(R.id.list_item_chat_detail_reply_user);
+            mTextViewReplyUser.setText(message.getFrom());
+
             TextView mTextViewTime = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_reply_time);
-            mTextViewTime.setText(conversation.getLastActiveAt());
+            mTextViewTime.setText(message.getCreatedAt());
 
             TextView mTextViewContent = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_reply_content);
-            mTextViewContent.setText(conversation.getTarget());
+            mTextViewContent.setText(message.getBody() != null ? message.getBody().getText() : "");
         }
 
         return convertView;

@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.tuisongbao.android.engine.common.ITSBEngineCallback;
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -74,6 +75,9 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                 ITSBResponseMessage callbackMessage = map.get(requestMessage);
                 if (callbackMessage != null) {
                     copyFromRawMessage(callbackMessage, message);
+                    if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(message.getName())) {
+                        callbackMessage.setBindName(requestMessage.getName());
+                    }
                     callbackMessage.callBack();
                 }
                 // 由于对于request请求返回的name均是"event_response",所以绑定事件是需要使用请求的name

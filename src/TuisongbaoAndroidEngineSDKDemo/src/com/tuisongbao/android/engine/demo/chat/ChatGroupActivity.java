@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
@@ -32,20 +33,17 @@ public class ChatGroupActivity extends Activity {
         setContentView(R.layout.activity_group_list);
         mListViewGroup = (ListView) findViewById(R.id.group_list_view);
         mListGroup = new ArrayList<TSBChatGroup>();
-//        TSBChatGroup group = new TSBChatGroup();
-//        group.setName("群组 A");
-//        mListGroup.add(group);
-//        group = new TSBChatGroup();
-//        group.setName("群组 B");
-//        mListGroup.add(group);
         mAdapter = new ChatGroupAdapter(mListGroup, this);
         mListViewGroup.setAdapter(mAdapter);
         mListViewGroup.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
+                TSBChatGroup group = mListGroup.get(arg2);
                 Intent intent = new Intent(ChatGroupActivity.this,
                         ChatGroupDetailActivity.class);
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, group.getGroupId());
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, ChatType.GroupChat.getName());
                 startActivity(intent);
             }
         });

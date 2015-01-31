@@ -22,6 +22,11 @@ public class ChatGroupUserAdapter extends BaseAdapter {
         mListGroupUser = listGroupUser;
         mContext = context;
     }
+    
+    public void refresh(List<TSBChatGroupUser> listGroupUser) {
+        mListGroupUser = listGroupUser;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {

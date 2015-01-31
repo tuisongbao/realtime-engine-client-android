@@ -10,6 +10,11 @@ public class TSBTextMessageBody extends TSBMessageBody {
         super(TSBMessage.TYPE.TEXT);
     }
 
+    public TSBTextMessageBody(String text) {
+        super(TSBMessage.TYPE.TEXT);
+        setText(text);
+    }
+
     public void setText(String text) {
         super.setText(text);
     }

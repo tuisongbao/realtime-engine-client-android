@@ -1,17 +1,17 @@
 package com.tuisongbao.android.engine.chat.message;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
 import com.tuisongbao.android.engine.common.ITSBEngineCallback;
-import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
 
 public class TSBChatMessageResponseMessage extends
-        BaseTSBResponseMessage<String> {
+        BaseTSBResponseMessage<TSBMessage> {
     private TSBMessage mSendMessage;
+    /**
+     * 用于保存用户传递的call back
+     */
+    private TSBEngineCallback<TSBMessage> mCustomCallback;
     
     public TSBChatMessageResponseMessage(TSBChatMessageResponseMessageCallback callback) {
         setCallback(callback);
@@ -25,42 +25,22 @@ public class TSBChatMessageResponseMessage extends
         this.mSendMessage = sendMessage;
     }
 
+    public TSBEngineCallback<TSBMessage> getCustomCallback() {
+        return mCustomCallback;
+    }
+
+    public void setCustomCallback(TSBEngineCallback<TSBMessage> customCallback) {
+        this.mCustomCallback = customCallback;
+    }
+
     @Override
-    public String parse() {
-        return "";
+    public TSBMessage parse() {
+        return null;
     }
 
     @Override
     public void callBack() {
         ((TSBChatMessageResponseMessageCallback)getCallback()).onEvent(this);
-        if (isSuccess()) {
-            if (TSBChatMessageGetMessage.NAME.equals(getBindName())) {
-                // 当为获取消息时
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put(EngineConstants.REQUEST_KEY_RESPONSE_TO, getServerRequestId());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            } else if (TSBChatMessageSendMessage.NAME.equals(getBindName())) {
-                // 发送消息成功
-                ((TSBEngineBindCallback)getCallback()).onEvent(getBindName(), getName(), getData());
-            } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE.equals(getBindName())) {
-                // 接收到消息
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put(EngineConstants.REQUEST_KEY_RESPONSE_TO, getServerRequestId());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                ((TSBEngineBindCallback)getCallback()).onEvent(getBindName(), getName(), getData());
-            }
-        } else {
-            // 发送消息失败
-            if (TSBChatMessageSendMessage.NAME.equals(getBindName())) {
-                ((TSBEngineBindCallback)getCallback()).onEvent(getBindName(), getName(), getData());
-            }
-        }
     }
 
     public static interface TSBChatMessageResponseMessageCallback extends ITSBEngineCallback {

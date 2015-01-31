@@ -3,6 +3,10 @@ package com.tuisongbao.android.engine.demo.chat.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,9 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
@@ -56,7 +61,37 @@ public class ChatTalkFragment extends Fragment {
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
                         ChatGroupDetailActivity.class);
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, mListConversation.get(arg2).getType().getName());
+                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, mListConversation.get(arg2).getTarget());
                 startActivity(intent);
+                resetUnread(mListConversation.get(arg2));
+            }
+        });
+        mListViewTalk.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                    final int arg2, long arg3) {
+                new AlertDialog.Builder(getActivity())
+                    .setTitle("确定删除该会话吗？")
+                    .setPositiveButton("确定", new OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                int which) {
+                            deleteConversation(mListConversation.get(arg2));
+                        }
+                    })
+                    .setNegativeButton("取消", new OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                int which) {
+                            // empty
+
+                        }
+                    }).show();
+                return true;
             }
         });
         request();
@@ -76,7 +111,11 @@ public class ChatTalkFragment extends Fragment {
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
                 mListConversation = t;
-                getActivity().runOnUiThread(new Runnable() {
+                Activity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(new Runnable() {
                     
                     @Override
                     public void run() {
@@ -88,7 +127,11 @@ public class ChatTalkFragment extends Fragment {
             
             @Override
             public void onError(int code, String message) {
-                getActivity().runOnUiThread(new Runnable() {
+                Activity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(new Runnable() {
                     
                     @Override
                     public void run() {
@@ -97,5 +140,45 @@ public class ChatTalkFragment extends Fragment {
                 });
             }
         });
+    }
+    
+    private void deleteConversation(TSBChatConversation conversation) {
+        TSBChatManager.getInstance().deleteConversation(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
+
+            @Override
+            public void onSuccess(String t) {
+                Activity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "删除会话成功，请稍后再试", Toast.LENGTH_LONG).show();
+                        request();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                Activity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                activity.runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "删除会话失败，请稍后再试", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void resetUnread(TSBChatConversation conversation) {
+        TSBChatManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget());
     }
 }

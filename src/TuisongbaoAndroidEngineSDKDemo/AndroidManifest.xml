@@ -61,10 +61,9 @@
             android:label="@string/app_name" >
         </activity>
 
-        <service
-            android:name="com.tuisongbao.android.engine.service.EngineService"
-            android:process=":engine_v1" >
+        <service android:name="com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService" >
         </service>
+
     </application>
 
 </manifest>

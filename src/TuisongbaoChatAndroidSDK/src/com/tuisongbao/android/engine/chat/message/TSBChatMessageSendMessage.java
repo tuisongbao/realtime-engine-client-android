@@ -25,7 +25,7 @@ public class TSBChatMessageSendMessage extends
                 new TSBChatMessageChatTypeSerializer());
         gsonBuilder.registerTypeAdapter(TSBMessage.TYPE.class,
                 new TSBChatMessageTypeSerializer());
-        return super.getSerializer();
+        return gsonBuilder.create();
     }
 
 }

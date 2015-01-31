@@ -2,16 +2,16 @@ package com.tuisongbao.android.engine.chat.entity;
 
 
 public class TSBChatConversation {
-    private String type;
+    private ChatType type;
     private String target;
     private int unreadMessageCount;
     private String lastActiveAt;
 
-    public String getType() {
+    public ChatType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ChatType type) {
         this.type = type;
     }
 

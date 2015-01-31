@@ -7,7 +7,10 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 public abstract class TSBMessageBody implements Parcelable {
 
     public TSBMessageBody(TYPE type) {
-        
+        this.type = type;
+    }
+
+    public TSBMessageBody() {
     }
 
     private TYPE type;
@@ -27,5 +30,18 @@ public abstract class TSBMessageBody implements Parcelable {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public static TSBMessageBody createMessage(TYPE type) {
+        TSBMessageBody body = null;
+        if (type == null) {
+            body = new TSBTextMessageBody();
+        }
+        if (type.getIndex() == TYPE.TEXT.getIndex()) {
+            body = new TSBTextMessageBody();
+        } else {
+            body = new TSBTextMessageBody();
+        }
+        return body;
     }
 }

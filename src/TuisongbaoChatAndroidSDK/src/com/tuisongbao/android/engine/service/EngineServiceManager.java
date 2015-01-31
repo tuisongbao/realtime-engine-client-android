@@ -7,22 +7,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 
 public class EngineServiceManager {
 
-    public static void sendMessageSuccess(TSBMessage message) {
-        Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
-        intent.setAction(TSBChatIntentService.INTENT_ACTION_SEND_MESSAGE_SUCCESS);
-        intent.putExtra(TSBChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message);
-        TSBEngine.getContext().startService(intent);
-    }
-
-    public static void sendMessageFailure(TSBMessage message, String error) {
-        Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
-        intent.setAction(TSBChatIntentService.INTENT_ACTION_SEND_MESSAGE_FAILED);
-        intent.putExtra(TSBChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message);
-        intent.putExtra(TSBChatIntentService.INTENT_EXTRA_KEY_ERROR, error);
-        TSBEngine.getContext().startService(intent);
-    }
-
-    public static void receivedMessage(TSBMessage message) {
+    public static void receivedMessage(final TSBMessage message) {
         Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
         intent.setAction(TSBChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE);
         intent.putExtra(TSBChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message);

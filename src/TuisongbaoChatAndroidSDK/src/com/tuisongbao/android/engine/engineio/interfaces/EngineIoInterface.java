@@ -249,6 +249,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         errorMessage = ret
                                 .optString(EngineConstants.REQUEST_KEY_ERROR_MESSAGE);
                     }
+                    data = ret.toString();
                 }
             }
             // 当为链接状态时

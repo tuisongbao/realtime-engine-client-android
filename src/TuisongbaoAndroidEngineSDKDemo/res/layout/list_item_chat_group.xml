@@ -5,13 +5,69 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/common_item_height"
+        android:layout_height="wrap_content"
         android:background="@color/gray"
         android:gravity="center_vertical"
-        android:orientation="horizontal" >
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/list_item_chat_group_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="group id" />
 
         <TextView
             android:id="@+id/list_item_chat_group_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_owner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_ispublic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_usercaninvite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_user_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="@string/chat_list_group" />
+
+        <TextView
+            android:id="@+id/list_item_chat_group_user_count_limit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
