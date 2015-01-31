@@ -15,6 +15,7 @@ import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.LoginActivity;
+import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
 public class ChatSettingFragment extends Fragment {
 
@@ -54,6 +55,7 @@ public class ChatSettingFragment extends Fragment {
                                 Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                                 startActivity(intent);
+                                LoginChache.clear();
                                 getActivity().finish();
                             }
                         });

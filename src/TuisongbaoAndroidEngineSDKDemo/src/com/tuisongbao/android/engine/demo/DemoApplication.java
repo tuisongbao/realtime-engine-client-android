@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.ActivityManager;
 import android.app.Application;
 
+import com.tuisongbao.android.PushManager;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.TSBEngineOptions;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
@@ -24,6 +25,7 @@ public class DemoApplication extends Application {
             return;
         }
 
+        PushManager.init(this);
         // 初始化与 server 的连接
         // appId是在推送宝官网注册应用时分配的ID
         TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://staging.tuisongbao.com/api/engineDemo/authUser");

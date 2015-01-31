@@ -12,6 +12,32 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- 接收到新的推送消息，需要唤醒应用程序的进程 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- push 权限 start -->
+    <!-- 推送宝需要根据以下信息产生设备的唯一识别码 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- 开机启动和读取网络状态，使得Service运行稳定 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- 允许收到通知时设置振动 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- 点击消息时打开应用 -->
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
+    <!-- 用于记录日志 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- 可选，建议配置，推送宝会跟踪用户的地理位置，开发者则可以进行基于区域的推送 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- push 权限 end -->
+
+    <permission
+        android:name="com.tuisongbao.android.engine.demo.permission.PUSH"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.tuisongbao.android.engine.demo.permission.PUSH" />
 
     <application
         android:name="com.tuisongbao.android.engine.demo.DemoApplication"
@@ -63,6 +89,55 @@
 
         <service android:name="com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService" >
         </service>
+        
+        <!-- push 配置 start -->
+        <service android:name="com.tuisongbao.android.service.NotificationIntentService" >
+        </service>
+
+        <service
+            android:name="com.tuisongbao.android.service.PushService"
+            android:exported="true"
+            android:process=":tps_v2" >
+            <intent-filter>
+                <action android:name="com.tuisongbao.android.push.PushService" />
+            </intent-filter>
+        </service>
+        
+        <activity
+            android:name="com.tuisongbao.android.richmedia.RichMediaActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        
+        <service
+            android:name="com.tuisongbao.android.location.service.PushLocationService"
+            android:exported="true"
+            android:process=":tlocation_v2" >
+        </service>
+        
+        <receiver
+            android:name="com.tuisongbao.android.broadcast.PushBroadcastReceiver"
+            android:exported="true" >
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+
+                <category android:name="com.tuisongbao.android.engine.demo" />
+            </intent-filter>
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="com.tuisongbao.push.android.intent.RECEIVE" />
+                <action android:name="com.tuisongbao.push.android.intent.GEOFENCE" />
+                <action android:name="com.tuisongbao.push.android.intent.DEBUG_MESSAGE" />
+            </intent-filter>
+        </receiver>
+        <!-- push 配置 end -->
 
     </application>
 

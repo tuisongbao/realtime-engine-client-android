@@ -13,28 +13,12 @@
         android:layout_height="wrap_content"
         android:hint="@string/login_account" />
 
-    <EditText
-        android:id="@+id/login_edittext_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_edittext_account"
-        android:hint="@string/login_password"
-        android:inputType="textPassword" />
-
     <Button
         android:id="@+id/login_textview_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_edittext_password"
+        android:layout_below="@id/login_edittext_account"
         android:gravity="center"
         android:text="@string/login_login" />
-
-    <Button
-        android:id="@+id/login_textview_reigster"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_textview_login"
-        android:gravity="center"
-        android:text="@string/login_register" />
 
 </RelativeLayout>

@@ -209,10 +209,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             int code = EngineConstants.ENGINE_CODE_SUCCESS;
             String errorMessage = "";
             if (ret != null) {
-                requestId = StrUtil.toLong(
-                        ret.optString(EngineConstants.REQUEST_KEY_RESPONSE_TO), 0);
-                if (requestId > 0) {
-                    // 说明是对客户端请求的response
+                
+                if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(name)) {
+                    // 说明是对客户端请求的response(engine_response)
+                    requestId = StrUtil.toLong(
+                            ret.optString(EngineConstants.REQUEST_KEY_RESPONSE_TO), 0);
                     boolean ok = ret
                             .optBoolean(EngineConstants.REQUEST_KEY_RESPONSE_OK);
                     try {

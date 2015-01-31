@@ -19,9 +19,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 public class LoginActivity extends Activity {
 
     private EditText mEditTextAccount;
-    private EditText mEditTextPassword;
     private Button mButtonLogin;
-    private Button mButtonReigster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +64,12 @@ public class LoginActivity extends Activity {
                 }
             }
         });
+        if (LoginChache.isLogin()) {
+            Intent intent = new Intent(LoginActivity.this,
+                    DashboradActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
     
     private boolean validate() {

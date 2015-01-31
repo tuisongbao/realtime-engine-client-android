@@ -210,10 +210,14 @@ public final class TSBEngine {
             Class forName = Class.forName("com.tuisongbao.android.PushConfig");
             // get push app id
             if (forName != null) {
-                if (StrUtil.isEmpty(mPushAppId)) {
+                // get push config instance
+                Field pushConfigInstance = forName.getDeclaredField("mInstance");
+                pushConfigInstance.setAccessible(true);
+                Object pushConfig = pushConfigInstance.get(forName);
+                if (StrUtil.isEmpty(mPushAppId) && pushConfig != null) {
                     Field field = forName.getDeclaredField("PUSH_APP_ID");
                     field.setAccessible(true);
-                    Object appId = field.get(forName);
+                    Object appId = field.get(pushConfig);
                     if (appId != null && appId instanceof String) {
                         mPushAppId = (String)appId;
                     } else {
@@ -221,32 +225,29 @@ public final class TSBEngine {
                     }
                 }
                 // get push app id
-                if (StrUtil.isEmpty(mPushService)) {
+                if (StrUtil.isEmpty(mPushService) && pushConfig != null) {
                     Field field = forName.getDeclaredField("mServiceType");
                     field.setAccessible(true);
                     // service type
-                    Object serviceType = field.get(forName);
-                    if (serviceType != null && serviceType == int.class) {
-                        int type = (Integer)serviceType;
-                        if (type == 0) {
-                            mPushService = "gcm";
-                        } else if (type == 1) {
-                            mPushService = "tps";
-                        } else if (type == 2) {
-                            mPushService = "mipush";
-                        } else if (type == 3) {
-                            mPushService = "hybrid";
-                        }
+                    Object serviceType = field.get(pushConfig);
+                    if (serviceType != null && serviceType instanceof Enum) {
+                        mPushService = ((Enum)serviceType).name();
                     }
                 }
                 // get token
                 if (StrUtil.isEmpty(mPushToken)) {
                     forName = Class.forName("com.tuisongbao.android.PushPreference");
                     if (forName != null) {
-                        Method method = forName.getMethod("setAppToken", forName);
-                        String token = (String)method.invoke(forName);
-                        if (!StrUtil.isEmpty(token)) {
-                            mPushToken = token;
+                        // get push config instance
+                        Field pushPreferenceInstance = forName.getDeclaredField("mInstance");
+                        pushPreferenceInstance.setAccessible(true);
+                        Object pushPreference = pushPreferenceInstance.get(forName);
+                        if (pushPreference != null) {
+                            Method method = forName.getMethod("getAppToken");
+                            String token = (String)method.invoke(pushPreference);
+                            if (!StrUtil.isEmpty(token)) {
+                                mPushToken = token;
+                            }
                         }
                     }
                 }

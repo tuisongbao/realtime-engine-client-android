@@ -1,6 +1,8 @@
 package com.tuisongbao.android.engine.demo.chat;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -26,6 +29,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupDetailAdapter;
+import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.android.engine.service.TSBChatIntentService;
 
@@ -65,6 +69,9 @@ public class ChatGroupDetailActivity extends Activity {
                     
                     @Override
                     public void onSuccess(TSBMessage t) {
+                        t.setFrom(LoginChache.getUserId());
+                        SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd hh:mm:ss.S");
+                        t.setCreatedAt(format.format(new Date()));
                         mListConversation.add(t);
                         runOnUiThread(new Runnable() {
                             
@@ -88,6 +95,12 @@ public class ChatGroupDetailActivity extends Activity {
                         });
                     }
                 });
+                mContenEditText.setText("");
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                      // imm.hideSoftInputFromWindow(myEditText.getWindowToken(), 0);
+                if (imm.isActive()) // 一直是true
+                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
+                            InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
         registerBroadcast();
