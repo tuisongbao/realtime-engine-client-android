@@ -1,6 +1,7 @@
 package com.tuisongbao.android.engine.engineio.sink;
 
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -66,29 +67,23 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
     @Override
     protected void propagateMessage(RawMessage message) {
         if (message != null) {
-            // 处理回调事件
-            ConcurrentMap<RawMessage, ITSBResponseMessage> map = mListeners
-                    .remove(message.getRequestId());
-            if (map != null) {
-                RawMessage requestMessage = map.keySet()
-                        .iterator().next();
-                ITSBResponseMessage callbackMessage = map.get(requestMessage);
-                if (callbackMessage != null) {
-                    copyFromRawMessage(callbackMessage, message);
-                    if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(message.getName())) {
-                        callbackMessage.setBindName(requestMessage.getName());
+            // 当网络联络连接失败后，需要将callback listener全部回调
+            if (EngineConstants.EVENT_CONNECTION_CHANGE_STATUS.equals(message
+                    .getBindName())
+                    && message.getCode() != EngineConstants.ENGINE_CODE_SUCCESS) {
+                if (!mListeners.isEmpty()) {
+                    Set<Long> requestIds = mListeners.keySet();
+                    for (Long requestId : requestIds) {
+                        ConcurrentMap<RawMessage, ITSBResponseMessage> map = mListeners
+                                .remove(requestId);
+                        callbackListener(map, message);
                     }
-                    callbackMessage.callBack();
                 }
-                // 由于对于request请求返回的name均是"event_response",所以绑定事件是需要使用请求的name
-                requestMessage.setCode(message.getCode());
-                requestMessage.setErrorMessage(message.getErrorMessge());
-                requestMessage.setChannel(message.getChannel());
-                requestMessage.setData(message.getData());
-                requestMessage.setBindName(requestMessage.getName());
-                requestMessage.setName(message.getName());
-                requestMessage.setServerRequestId(message.getServerRequestId());
-                callbackBindListener(requestMessage);
+            } else {
+                ConcurrentMap<RawMessage, ITSBResponseMessage> map = mListeners
+                        .remove(message.getRequestId());
+                // 正常处理回调事件
+                callbackListener(map, message);
             }
             // 处理绑定事件
             // service绑定事件处理(该类事件为service本身产生的事件，而非引擎返回事件)
@@ -105,6 +100,30 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                 message.setBindName(message.getName());
                 callbackBindListener(message);
             }
+        }
+    }
+    
+    private void callbackListener(ConcurrentMap<RawMessage, ITSBResponseMessage> map, RawMessage message) {
+        if (map != null) {
+            RawMessage requestMessage = map.keySet()
+                    .iterator().next();
+            ITSBResponseMessage callbackMessage = map.get(requestMessage);
+            if (callbackMessage != null) {
+                copyFromRawMessage(callbackMessage, message);
+                if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(message.getName())) {
+                    callbackMessage.setBindName(requestMessage.getName());
+                }
+                callbackMessage.callBack();
+            }
+            // 由于对于request请求返回的name均是"event_response",所以绑定事件是需要使用请求的name
+            requestMessage.setCode(message.getCode());
+            requestMessage.setErrorMessage(message.getErrorMessge());
+            requestMessage.setChannel(message.getChannel());
+            requestMessage.setData(message.getData());
+            requestMessage.setBindName(requestMessage.getName());
+            requestMessage.setName(message.getName());
+            requestMessage.setServerRequestId(message.getServerRequestId());
+            callbackBindListener(requestMessage);
         }
     }
     
