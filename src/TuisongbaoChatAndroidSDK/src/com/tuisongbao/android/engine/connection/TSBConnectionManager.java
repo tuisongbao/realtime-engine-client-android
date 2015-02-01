@@ -4,6 +4,7 @@ import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.connection.message.TSBConnectionResponseMessage;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 
 public class TSBConnectionManager {
 
@@ -19,9 +20,9 @@ public class TSBConnectionManager {
         return mInstance;
     }
     
-    public void bind(String bindName, TSBEngineCallback<TSBConnection> callback) {
+    public void bindConnectionChangeStatusEvent(TSBEngineCallback<TSBConnection> callback) {
         TSBConnectionResponseMessage message = new TSBConnectionResponseMessage();
         message.setCallback(callback);
-        TSBEngine.bind(bindName, message);
+        TSBEngine.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, message);
     }
 }

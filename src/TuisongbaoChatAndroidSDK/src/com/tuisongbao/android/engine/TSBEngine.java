@@ -17,7 +17,6 @@ import com.tuisongbao.android.engine.engineio.DataPipeline;
 import com.tuisongbao.android.engine.engineio.EngineIoOptions;
 import com.tuisongbao.android.engine.engineio.EngineManager;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
-import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.DeviceUtil;
@@ -175,7 +174,7 @@ public final class TSBEngine {
     }
 
     private static void bindConnection() {
-        connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, mConnectionCallback);
+        connection.bindConnectionChangeStatusEvent(mConnectionCallback);
     }
 
     private static long getRequestId() {

@@ -146,7 +146,7 @@ public class DashboradActivity extends FragmentActivity {
                         });
                     }
                 });
-        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
+        TSBEngine.connection.bindConnectionChangeStatusEvent(new TSBEngineCallback<TSBConnection>() {
             
             @Override
             public void onSuccess(TSBConnection t) {

@@ -2,7 +2,6 @@ package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
-import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 
 public abstract class BaseManager {
 
@@ -43,7 +42,7 @@ public abstract class BaseManager {
     }
 
     private void bindConnectionEvents() {
-        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, mConnectionCallback);
+        TSBEngine.connection.bindConnectionChangeStatusEvent(mConnectionCallback);
     }
 
     private TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
