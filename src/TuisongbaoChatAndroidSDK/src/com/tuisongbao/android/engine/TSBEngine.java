@@ -1,26 +1,23 @@
 package com.tuisongbao.android.engine;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 
 import com.tuisongbao.android.engine.common.ITSBResponseMessage;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.TSBConnectionManager;
+import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.engineio.DataPipeline;
 import com.tuisongbao.android.engine.engineio.EngineIoOptions;
 import com.tuisongbao.android.engine.engineio.EngineManager;
 import com.tuisongbao.android.engine.engineio.sink.TSBListenerSink;
+import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.DeviceUtil;
@@ -33,7 +30,6 @@ public final class TSBEngine {
     private static Context mApplicationContext = null;
     private static DataPipeline mDataPipeline = new DataPipeline();
     private static TSBListenerSink mNotifier = new TSBListenerSink();
-    private static String mSocketId;
     private static EngineManager mEngineManger = EngineManager.getInstance();
     private static Long mRequestId = 1L;
     private static TSBEngineOptions mTSBEngineOptions;
@@ -67,7 +63,6 @@ public final class TSBEngine {
             mTSBEngineOptions = options;
             // 初始化实时引擎
             initEngine();
-            uploadPusConfig();
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
@@ -171,10 +166,16 @@ public final class TSBEngine {
 
     private static void initEngine() {
         initializeDefaultSinks();
+        // bind connection, it must be called after initializeDefaultSinks
+        bindConnection();
         EngineIoOptions engineIoOption = new EngineIoOptions();
         engineIoOption.setAppId(mTSBEngineOptions.getAppId());
-        engineIoOption.setPlatform("Android" + DeviceUtil.getDeviceModel());
+        engineIoOption.setPlatform("Android$" + DeviceUtil.getDeviceModel());
         mDataPipeline.addSource(EngineManager.getInstance().init(engineIoOption));
+    }
+
+    private static void bindConnection() {
+        connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, mConnectionCallback);
     }
 
     private static long getRequestId() {
@@ -189,23 +190,31 @@ public final class TSBEngine {
     }
 
     private static void uploadPusConfig() {
-        loadPushConfig();
-        if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
-            sendPushConfig();
+        if (loadPushConfig()) {
+            if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
+                sendPushConfig();
+            } else {
+                // delay 30s and retry
+                ExecutorUtil.getTimers().schedule(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        loadPushConfig();
+                        sendPushConfig();
+                    }
+                }, 1000 * 30, TimeUnit.MILLISECONDS);
+            }
         } else {
-            // dalay two mins
-            ExecutorUtil.getTimers().schedule(new Runnable() {
-                
-                @Override
-                public void run() {
-                    loadPushConfig();
-                    sendPushConfig();
-                }
-            }, 2 * 1000 * 60, TimeUnit.MILLISECONDS);
+            // empty, not integrate with push 
         }
     }
 
-    private static void loadPushConfig() {
+    /**
+     * Returns whether the app is integrate with push
+     * 
+     * @return true if the app is integrate with push, or false
+     */
+    private static boolean loadPushConfig() {
         try {
             Class forName = Class.forName("com.tuisongbao.android.PushConfig");
             // get push app id
@@ -221,7 +230,7 @@ public final class TSBEngine {
                     if (appId != null && appId instanceof String) {
                         mPushAppId = (String)appId;
                     } else {
-                        return;
+                        return true;
                     }
                 }
                 // get push app id
@@ -252,9 +261,11 @@ public final class TSBEngine {
                     }
                 }
             }
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     private static boolean sendPushConfig() {
@@ -276,4 +287,18 @@ public final class TSBEngine {
             return false;
         }
     }
+
+    private static TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
+
+        @Override
+        public void onSuccess(TSBConnection t) {
+            // when reconnection to upload push config
+            uploadPusConfig();
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            
+        }
+    };
 }

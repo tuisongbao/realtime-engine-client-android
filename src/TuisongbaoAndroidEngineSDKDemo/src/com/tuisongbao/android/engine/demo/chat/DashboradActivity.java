@@ -20,9 +20,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatListFragment;
@@ -143,6 +146,37 @@ public class DashboradActivity extends FragmentActivity {
                         });
                     }
                 });
+        TSBEngine.connection.bind(TSBEngineConstants.TSBENGINE_BIND_NAME_CONNECTION_CONNECTED, new TSBEngineCallback<TSBConnection>() {
+            
+            @Override
+            public void onSuccess(TSBConnection t) {
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(
+                                DashboradActivity.this,
+                                "你已成功链接上网络",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+                
+            }
+            
+            @Override
+            public void onError(final int code, final String message) {
+                runOnUiThread(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        Toast.makeText(
+                                DashboradActivity.this,
+                                "你已成功断开网络[code=" + code + ";message=" + message + "]",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
     private void initFragment() {

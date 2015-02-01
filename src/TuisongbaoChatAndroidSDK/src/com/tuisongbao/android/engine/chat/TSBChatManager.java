@@ -132,14 +132,13 @@ public class TSBChatManager extends BaseManager {
         if (TSBEngine.isConnected()) {
             TSBChatLogoutMessage message = new TSBChatLogoutMessage();
             message.setCallback(callback);
-            bind(TSBChatLogoutMessage.NAME, mLoginEngineCallback);
             TSBResponseMessage response = new TSBResponseMessage();
             response.setCallback(callback);
             send(message, response);
+            logout();
         } else {
-            callback.onError(
-                    TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
-                    "can't connect to engine server");
+            callback.onSuccess("logout success");
+            logout();
         }
     }
 
@@ -607,7 +606,6 @@ public class TSBChatManager extends BaseManager {
 
             @Override
             public void run() {
-                TSBChatLoginData data = msg.getData();
                 JSONObject json = new JSONObject();
                 try {
                     json.put("socketId", TSBEngine.getSocketId());
@@ -677,16 +675,6 @@ public class TSBChatManager extends BaseManager {
             if (TSBChatLoginMessage.NAME.equals(bindName)) {
                 mTSBChatLoginData = new Gson().fromJson(data,
                         TSBChatLoginData.class);
-            } else if (TSBChatLogoutMessage.NAME.equals(bindName)) {
-                try {
-                    JSONObject result = new JSONObject(data);
-                    int code = result.optInt(EngineConstants.REQUEST_KEY_CODE);
-                    if (EngineConstants.ENGINE_CODE_SUCCESS == code) {
-                        logout();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
         }
     };

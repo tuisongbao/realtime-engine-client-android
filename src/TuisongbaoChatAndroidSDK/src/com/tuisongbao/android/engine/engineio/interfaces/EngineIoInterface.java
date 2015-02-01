@@ -35,6 +35,27 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     private String mAppId;
     private String mSocketId;
     private EngineIoOptions mEngineIoOptions;
+    /**
+     * 重连次数间隔
+     */
+    private int mReconnectGap = 0;
+    /**
+     * 重连次数
+     */
+    private long mReconnectTimes = 0;
+    /**
+     * 重连策略
+     */
+    private String mReconnectStrategy = EngineConstants.CONNECTION_STRATEGY_BACKOFF;
+    /**
+     * 重连基数
+     */
+    private int mReconnectIn = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+    /**
+     * 重连最大间隔
+     */
+    private int mReconnectMax = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+    private int mConnectionType = EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
 
     public EngineIoInterface(IEngineCallback callback, EngineIoOptions options) {
         super(callback);
@@ -80,6 +101,8 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     @Override
     protected void waitForConnection() throws DataSourceException,
             InterruptedException {
+        showLog("Start to connection");
+        preConnection();
         if (StrUtil.isEmpty(getWebsocketURL())) {
             startConnect();
         } else if (mSocket == null) {
@@ -93,6 +116,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             mSocket.close();
             mSocket = null;
         }
+        mWebsocketHostUrl = "";
     }
 
     private void startConnect() {
@@ -113,6 +137,75 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                 }
             }
         }
+    }
+
+    /**
+     * 该方法用于控制重连频率，在重连网络之前需要判断其需要经个多少再连一次
+     */
+    private void preConnection() {
+        // 需要马上重连
+        if (mConnectionType == EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY
+                && mReconnectTimes <= 0) {
+            mReconnectTimes++;
+            return;
+        }
+        if (EngineConstants.CONNECTION_STRATEGY_STATIC.equals(mReconnectStrategy)) {
+            /**
+             * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error Event 的
+             * data.reconnectStrategy 来启用，通过 data.reconnectIn 设置重连间隔。
+             */
+            if (mReconnectIn <= 0) {
+                mReconnectIn = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+            } else {
+                // empty
+            }
+            mReconnectGap = mReconnectIn;
+        } else {
+            /**
+             * backoff ：默认策略，重连间隔从一个基数开始（默认为 0），每次乘以 2 ，直到达到最大值（默认为 10 秒）。服务端可以通过
+             * engine_connection:error Event 的 data.reconnectIn 、 data.reconnectInMax
+             * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
+             * 
+             * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
+             * 10000 10000 ... 。
+             */
+            if (mReconnectMax <= 0) {
+                mReconnectMax = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+            }
+            if (mReconnectIn < 0) {
+                mReconnectMax = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+            }
+            if (mReconnectTimes <= 0) {
+                mReconnectGap = mReconnectIn;
+            } else {
+                if (mReconnectGap <= 0) {
+                    mReconnectGap = 1;
+                } else if(mReconnectGap * 2 < mReconnectMax) {
+                    mReconnectGap = mReconnectGap * 2;
+                } else {
+                    mReconnectGap = mReconnectMax;
+                }
+            }
+        }
+        try {
+            showLog("Start to sleep： " + mReconnectGap);
+            if (mReconnectGap > 0) {
+                Thread.sleep(mReconnectGap);
+            }
+            showLog("end to sleep： " + mReconnectGap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mReconnectTimes++;
+    }
+    
+    private void resetConnectionStrategy() {
+        mReconnectGap = 0;
+        mReconnectTimes = 0;
+        mReconnectStrategy = EngineConstants.CONNECTION_STRATEGY_BACKOFF;
+        mReconnectIn = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+        mReconnectMax = EngineConstants.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+        mConnectionType = EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
     }
 
     private void openSocket() {
@@ -186,6 +279,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     }
                 });
                 mSocket.open();
+                waitForReconnect();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -260,10 +354,19 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     if (code != EngineConstants.ENGINE_CODE_SUCCESS) {
                         // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
                         if (code >= 4000 && code <= 4099) {
-                            // empty
+                            mConnectionType = EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_FORBIDDEN_CONNECTION;
+                            stop();
                         }
                         // 4100 ~ 4199: 连接将被服务端关闭, 客户端应按照指示进行重连。
                         if (code >= 4100 && code <= 4199) {
+                            mConnectionType = EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
+                            setReconnectionStrategy(ret);
+                            startReconnect(code, errorMessage);
+                        }
+                        // 4200 ~ 4299: 连接将被服务端关闭, 客户端应立即重连。
+                        if (code >= 4200 && code <= 4299) {
+                            mConnectionType = EngineConstants.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY;
+                            setReconnectionStrategy(ret);
                             startReconnect(code, errorMessage);
                         }
                     }
@@ -280,6 +383,21 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             handleMessage(rawMessage);
         } else {
             // empty
+        }
+    }
+
+    private void setReconnectionStrategy(JSONObject data) {
+        String reconnectStrategy = data.optString(EngineConstants.REQUEST_KEY_RECONNECTION_STRATEGY);
+        if (!StrUtil.isEmpty(reconnectStrategy)) {
+            mReconnectStrategy = reconnectStrategy;
+            int reconnectIn = data.optInt(EngineConstants.REQUEST_KEY_RECONNECTION_IN);
+            if (reconnectIn >= 0) {
+                mReconnectIn = reconnectIn;
+            }
+            int reconnectMax = data.optInt(EngineConstants.REQUEST_KEY_RECONNECTION_INMAX);
+            if (reconnectMax >= 0) {
+                mReconnectMax = reconnectMax;
+            }
         }
     }
     
@@ -329,6 +447,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     }
 
     private void handleConnectedMessage() {
+        resetConnectionStrategy();
         if (mConnectionStatus != EngineConstants.CONNECTION_STATUS_CONNECTED) {
             mConnectionStatus = EngineConstants.CONNECTION_STATUS_CONNECTED;
             RawMessage rawMessage = genConnectionBindRawMessage(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED, "success");

@@ -16,6 +16,7 @@
     <!-- push 权限 start -->
     <!-- 推送宝需要根据以下信息产生设备的唯一识别码 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- 开机启动和读取网络状态，使得Service运行稳定 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -45,10 +46,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name="com.tuisongbao.android.engine.demo.MainActivity"
-            android:label="@string/app_name" >
-        </activity>
         <activity
             android:name="com.tuisongbao.android.engine.demo.chat.LoginActivity"
             android:label="@string/app_name" >
@@ -99,7 +96,7 @@
             android:exported="true"
             android:process=":tps_v2" >
             <intent-filter>
-                <action android:name="com.tuisongbao.android.push.PushService" />
+                <action android:name="com.augmentum.tuisongbao.chat.PushService" />
             </intent-filter>
         </service>
         

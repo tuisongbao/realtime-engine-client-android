@@ -19,6 +19,9 @@ public class EngineConstants {
     public static final String REQUEST_KEY_RESPONSE_RESULT = "result";
     public static final String REQUEST_KEY_RESPONSE_ERROR = "error";
     public static final String REQUEST_KEY_RESPONSE_TO = "to";
+    public static final String REQUEST_KEY_RECONNECTION_STRATEGY = "reconnectStrategy";
+    public static final String REQUEST_KEY_RECONNECTION_IN = "reconnectIn";
+    public static final String REQUEST_KEY_RECONNECTION_INMAX = "reconnectInMax";
     
     // connection
     public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED = "engine_connection:established";
@@ -32,6 +35,46 @@ public class EngineConstants {
     public static final int CONNECTION_STATUS_DISCONNECTED = 4;
     public static final int CONNECTION_STATUS_CONNECTING = 5;
     public static final int CONNECTION_STATUS_NONE = 0;
+    
+    // connection strategy
+    /**
+     * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error Event 的
+     * data.reconnectStrategy 来启用，通过 data.reconnectIn 设置重连间隔。
+     */
+    public static final String CONNECTION_STRATEGY_STATIC = "static";
+    /**
+     * backoff ：默认策略，重连间隔从一个基数开始（默认为 0），每次乘以 2 ，直到达到最大值（默认为 10 秒）。服务端可以通过
+     * engine_connection:error Event 的 data.reconnectIn 、 data.reconnectInMax
+     * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
+     * 
+     * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
+     * 10000 10000 ... 。
+     */
+    public static final String CONNECTION_STRATEGY_BACKOFF = "backoff";
+    /**
+     * static default reconnection
+     */
+    public static final int CONNECTION_STRATEGY_STATIC_DEFAULT_RECONNECTIN = 10000;
+    /**
+     * backoff default reconnection
+     */
+    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN = 0;
+    /**
+     * backoff default reconnection
+     */
+    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX = 10000;
+    /**
+     * 禁止连接，出现4000 ~ 4099（连接将被服务端关闭, 客户端 不 应该进行重连）时
+     */
+    public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_FORBIDDEN_CONNECTION = 1;
+    /**
+     * 按策略重新连接，出现4100 ~ 4199（连接将被服务端关闭, 客户端应按照指示进行重连）时
+     */
+    public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY = 2;
+    /**
+     * 按策略重新连接，出现4200 ~ 4299（连接将被服务端关闭, 客户端应立即重连）时
+     */
+    public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY = 3;
     
     // common name
     public static final String ENGINE_ENGINE_RESPONSE = "engine_response";

@@ -62,20 +62,21 @@ public abstract class BaseEngineIODataSource extends BaseEngineDataSource
                 mConnectionLock.unlock();
                 continue;
             }
-            try {
-                // waiting for connection
-                mConnectionChanged.await();
-            } catch(InterruptedException e) {
-                Log.d(TAG, "Interrupted while waiting for a new " +
-                        "item for notification -- likely shutting down");
-                stop();
-                mConnectionLock.unlock();
-                continue;
-            }
 
             mConnectionLock.unlock();
         }
         Log.d(getTag(), "Stopped " + getTag());
+    }
+
+    protected void waitForReconnect() {
+        try {
+            // waiting for connection
+            mConnectionChanged.await();
+        } catch(InterruptedException e) {
+            Log.d(TAG, "Interrupted while waiting for a new " +
+                    "item for notification -- likely shutting down");
+            stop();
+        }
     }
 
     protected void reconnect() {
