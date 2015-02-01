@@ -171,7 +171,7 @@ public class DashboradActivity extends FragmentActivity {
                     public void run() {
                         Toast.makeText(
                                 DashboradActivity.this,
-                                "你已成功断开网络[code=" + code + ";message=" + message + "]",
+                                "你已经断开连接[code=" + code + ";message=" + message + "]",
                                 Toast.LENGTH_LONG).show();
                     }
                 });
