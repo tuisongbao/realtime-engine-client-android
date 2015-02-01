@@ -2,6 +2,7 @@ package com.tuisongbao.android.engine.demo.chat;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -146,6 +147,7 @@ public class ChatGroupDetailActivity extends Activity {
             
             @Override
             public void onSuccess(List<TSBMessage> t) {
+                Collections.reverse(t);
                 mListConversation = t;
                 runOnUiThread(new Runnable() {
                     
