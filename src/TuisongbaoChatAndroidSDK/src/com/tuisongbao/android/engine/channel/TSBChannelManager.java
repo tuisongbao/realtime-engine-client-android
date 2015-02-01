@@ -48,12 +48,31 @@ public class TSBChannelManager extends BaseManager {
     }
 
     /**
-     * 订阅channel
+     * 订阅公用channel并绑定渠道事件
      * 
      * @param channel
      */
-    public void subscribe(String channel) {
-        subscribe(channel, null);
+    public void subscribePublicChannel(String channel, TSBEngineBindCallback callback) {
+        subscribe(channel, null, callback);
+    }
+
+    /**
+     * 订阅 private channel并绑定渠道事件
+     * 
+     * @param channel
+     */
+    public void subscribePrivateChannel(String channel, TSBEngineBindCallback callback) {
+        subscribe(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + channel, null, callback);
+    }
+
+    /**
+     * 订阅 presence channel并绑定渠道事件
+     * 
+     * @param channel
+     * @param authData 用户信息
+     */
+    public void subscribePresenceChannel(String channel, String authData, TSBEngineBindCallback callback) {
+        subscribe(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE + channel, authData, callback);
     }
 
     /**
@@ -66,7 +85,10 @@ public class TSBChannelManager extends BaseManager {
      * @param authData
      * @param callback
      */
-    public void subscribe(String channel, String authData) {
+    private void subscribe(String channel, String authData, TSBEngineBindCallback callback) {
+        if (!StrUtil.isEmpty(channel) && callback != null) {
+            bind(channel, callback);
+        }
         if (StrUtil.isEmpty(channel) || hasSubscribe(channel)) {
             return;
         }
@@ -103,20 +125,26 @@ public class TSBChannelManager extends BaseManager {
         }
     }
 
-    public void bind(String bindName, TSBEngineBindCallback callback) {
-        if (StrUtil.isEmpty(bindName) || callback == null) {
+    /**
+     * 
+     * 
+     * @param channel
+     * @param callback
+     */
+    public void bind(String channel, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(channel) || callback == null) {
             return;
         }
-        addBind(bindName, callback);
-        super.bind(bindName, callback);
+        addBind(channel, callback);
+        super.bind(channel, callback);
     }
 
-    public void unbind(String bindName, TSBEngineBindCallback callback) {
-        if (StrUtil.isEmpty(bindName) || callback == null) {
+    public void unbind(String channel, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(channel) || callback == null) {
             return;
         }
-        removeBind(bindName, callback);
-        super.unbind(bindName, callback);
+        removeBind(channel, callback);
+        super.unbind(channel, callback);
     }
 
     private void addBind(String bindName, TSBEngineBindCallback callback) {

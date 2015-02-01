@@ -1,6 +1,5 @@
 package com.tuisongbao.android.engine.demo.chat.fragment;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,7 +11,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBChatManager;
-import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.LoginActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
@@ -40,43 +38,12 @@ public class ChatSettingFragment extends Fragment {
             
             @Override
             public void onClick(View v) {
-                TSBChatManager.getInstance().logout(new TSBEngineCallback<String>() {
-                    
-                    @Override
-                    public void onSuccess(String t) {
-                        Activity activity = getActivity();
-                        if (activity == null) {
-                            return;
-                        }
-                        activity.runOnUiThread(new Runnable() {
-                            
-                            @Override
-                            public void run() {
-                                Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                                startActivity(intent);
-                                LoginChache.clear();
-                                getActivity().finish();
-                            }
-                        });
-                    }
-                    
-                    @Override
-                    public void onError(int code, String message) {
-                        Activity activity = getActivity();
-                        if (activity == null) {
-                            return;
-                        }
-                        activity.runOnUiThread(new Runnable() {
-                            
-                            @Override
-                            public void run() {
-                                Toast.makeText(getActivity(), "登出失败，请稍后再试", Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        
-                    }
-                });
+                TSBChatManager.getInstance().logout();
+                Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+                LoginChache.clear();
+                getActivity().finish();
             }
         });
 

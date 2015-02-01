@@ -119,27 +119,19 @@ public class TSBChatManager extends BaseManager {
     }
 
     /**
-     * 聊天登出
+     * 退出登录
      * 
-     * @param callback
      */
-    public void logout(TSBEngineCallback<String> callback) {
+    public void logout() {
         if (!isLogin()) {
-            callback.onSuccess("logout success");
-            logout();
+            clearCache();
             return;
         }
         if (TSBEngine.isConnected()) {
             TSBChatLogoutMessage message = new TSBChatLogoutMessage();
-            message.setCallback(callback);
-            TSBResponseMessage response = new TSBResponseMessage();
-            response.setCallback(callback);
-            send(message, response);
-            logout();
-        } else {
-            callback.onSuccess("logout success");
-            logout();
+            send(message);
         }
+        clearCache();
     }
 
     /**
@@ -574,7 +566,7 @@ public class TSBChatManager extends BaseManager {
         super.unbind(bindName, callback);
     }
 
-    private void logout() {
+    private void clearCache() {
         mTSBChatLoginData = null;
         mTSBLoginMessage = null;
     }
