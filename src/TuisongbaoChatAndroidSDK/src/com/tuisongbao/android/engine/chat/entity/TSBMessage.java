@@ -10,7 +10,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBMessage implements Parcelable {
     private long messageId;
-    private ChatType type;
+    private ChatType type = ChatType.SingleChat;
     private String from;
     private String to;
     private TSBMessageBody content;

@@ -33,7 +33,7 @@ public class TSBEngineConstants {
      */
     public static final int TSBENGINE_CODE_PERMISSION_DENNY = -9002;
     /**
-     * 当未登陆而去操作需要登录的操作时返回
+     * 传递参数不合法时返回
      */
     public static final int TSBENGINE_CODE_ILLEGAL_PARAMETER = -9003;
     /**

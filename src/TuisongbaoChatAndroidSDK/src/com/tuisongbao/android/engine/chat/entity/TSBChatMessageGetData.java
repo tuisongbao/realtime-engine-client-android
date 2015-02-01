@@ -3,8 +3,8 @@ package com.tuisongbao.android.engine.chat.entity;
 public class TSBChatMessageGetData {
     private ChatType type;
     private String target;
-    private long startMessageId;
-    private long endMessageId;
+    private Long startMessageId;
+    private Long endMessageId;
     private int limit;
 
     public ChatType getType() {
@@ -15,19 +15,19 @@ public class TSBChatMessageGetData {
         this.type = type;
     }
 
-    public long getStartMessageId() {
+    public Long getStartMessageId() {
         return startMessageId;
     }
 
-    public void setStartMessageId(long startMessageId) {
+    public void setStartMessageId(Long startMessageId) {
         this.startMessageId = startMessageId;
     }
 
-    public long getEndMessageId() {
+    public Long getEndMessageId() {
         return endMessageId;
     }
 
-    public void setEndMessageId(long endMessageId) {
+    public void setEndMessageId(Long endMessageId) {
         this.endMessageId = endMessageId;
     }
 

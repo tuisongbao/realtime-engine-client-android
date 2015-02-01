@@ -31,7 +31,6 @@ import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupDetailAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
-import com.tuisongbao.android.engine.service.TSBChatIntentService;
 
 public class ChatGroupDetailActivity extends Activity {
 
@@ -143,7 +142,7 @@ public class ChatGroupDetailActivity extends Activity {
     }
     
     private void request() {
-        TSBChatManager.getInstance().getMessages(mChatType, mTarget, 0, 1000, 20, new TSBEngineCallback<List<TSBMessage>>() {
+        TSBChatManager.getInstance().getMessages(mChatType, mTarget, 0, 0, 20, new TSBEngineCallback<List<TSBMessage>>() {
             
             @Override
             public void onSuccess(List<TSBMessage> t) {

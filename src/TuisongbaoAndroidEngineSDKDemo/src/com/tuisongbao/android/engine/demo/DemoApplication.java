@@ -17,8 +17,9 @@ public class DemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // 初始化
+        // 初始化push, 注意push必须在最新初始化，否则会导致收不到推送消息
         PushManager.init(this);
+
         // remote service 启动时会有第二次 onCreate 的调用
         // 为了解决这个问题，可以根据 process name 来防止SDK被初始化2次
         String processName = getProcessName(android.os.Process.myPid());
@@ -27,7 +28,6 @@ public class DemoApplication extends Application {
             return;
         }
         
-        // 初始化与 server 的连接
         // appId是在推送宝官网注册应用时分配的ID
         TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://staging.tuisongbao.com/api/engineDemo/authUser");
         options.setChatIntentService(TSBMessageRevieveService.class);

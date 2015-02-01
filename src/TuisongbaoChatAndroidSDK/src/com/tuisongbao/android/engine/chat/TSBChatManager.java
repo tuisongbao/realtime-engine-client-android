@@ -349,13 +349,13 @@ public class TSBChatManager extends BaseManager {
     /**
      * 获取会话
      * 
-     * @param type
+     * @param chatType
      *            可选， singleChat（单聊） 或 groupChat （群聊）
      * @param target
      *            可选，跟谁， userId 或 groupId
      * @param callback
      */
-    public void getConversation(ChatType type, String target,
+    public void getConversation(ChatType chatType, String target,
             TSBEngineCallback<List<TSBChatConversation>> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
@@ -366,7 +366,7 @@ public class TSBChatManager extends BaseManager {
 
         TSBChatConversationGetMessage message = new TSBChatConversationGetMessage();
         TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(type);
+        data.setType(chatType);
         data.setTarget(target);
         message.setData(data);
         TSBChatConversationGetReponseMessage response = new TSBChatConversationGetReponseMessage();
@@ -375,23 +375,23 @@ public class TSBChatManager extends BaseManager {
     }
 
     /**
-     * 重置会话
+     * 重置未读消息
      * 
-     * @param type
+     * @param chatType
      *            singleChat（单聊） 或 groupChat （群聊）
      * @param target
      *            跟谁， userId 或 groupId
      */
-    public void resetUnread(ChatType type, String target) {
+    public void resetUnread(ChatType chatType, String target) {
         if (!isLogin()) {
             return;
         }
-        if (type == null || StrUtil.isEmpty(target)) {
+        if (chatType == null || StrUtil.isEmpty(target)) {
             return;
         }
         TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
         TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(type);
+        data.setType(chatType);
         data.setTarget(target);
         message.setData(data);
         send(message);
@@ -400,13 +400,13 @@ public class TSBChatManager extends BaseManager {
     /**
      * 删除会话
      * 
-     * @param type
+     * @param chatType
      *            singleChat（单聊） 或 groupChat （群聊）
      * @param target
      *            跟谁， userId 或 groupId
      * @param callback
      */
-    public void deleteConversation(ChatType type, String target,
+    public void deleteConversation(ChatType chatType, String target,
             TSBEngineCallback<String> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
@@ -414,7 +414,7 @@ public class TSBChatManager extends BaseManager {
                     "permission denny: need to login");
             return;
         }
-        if (type == null || StrUtil.isEmpty(target)) {
+        if (chatType == null || StrUtil.isEmpty(target)) {
             handleErrorMessage(callback,
                     TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
                     "illegal parameter: type or target can't not be empty");
@@ -422,7 +422,7 @@ public class TSBChatManager extends BaseManager {
         }
         TSBChatConversationDeleteMessage message = new TSBChatConversationDeleteMessage();
         TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(type);
+        data.setType(chatType);
         data.setTarget(target);
         message.setData(data);
         TSBResponseMessage response = new TSBResponseMessage();
@@ -431,22 +431,22 @@ public class TSBChatManager extends BaseManager {
     }
 
     /**
-     * 获取消息
+     * 获取最新20条消息
      * 
-     * @param type
+     * @param chatType
      *            singleChat（单聊） 或 groupChat （群聊）
      * @param target
      *            跟谁， userId 或 groupId
      */
-    public void getMessages(ChatType type, String target,
+    public void getMessages(ChatType chatType, String target,
             TSBEngineCallback<List<TSBMessage>> callback) {
-        getMessages(type, target, 0, 0, 20, callback);
+        getMessages(chatType, target, 0, 0, 20, callback);
     }
 
     /**
      * 获取消息
      * 
-     * @param type
+     * @param chatType
      *            singleChat（单聊） 或 groupChat （群聊）
      * @param target
      *            跟谁， userId 或 groupId
@@ -457,7 +457,7 @@ public class TSBChatManager extends BaseManager {
      * @param limit
      *            可选，默认 20，最大 100
      */
-    public void getMessages(ChatType type, String target, long startMessageId,
+    public void getMessages(ChatType chatType, String target, long startMessageId,
             long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
         if (!isLogin()) {
@@ -466,7 +466,7 @@ public class TSBChatManager extends BaseManager {
                     "permission denny: need to login");
             return;
         }
-        if (type == null) {
+        if (chatType == null) {
             handleErrorMessage(callback,
                     TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
                     "illegal parameter: chat type ocan't not be empty");
@@ -480,10 +480,10 @@ public class TSBChatManager extends BaseManager {
         }
         TSBChatMessageGetMessage message = new TSBChatMessageGetMessage();
         TSBChatMessageGetData data = new TSBChatMessageGetData();
-        data.setType(type);
+        data.setType(chatType);
         data.setTarget(target);
-        data.setStartMessageId(startMessageId);
-        data.setEndMessageId(endMessageId);
+        data.setStartMessageId(startMessageId <= 0 ? null : startMessageId);
+        data.setEndMessageId(endMessageId <= 0 ? null : endMessageId);
         data.setLimit(limit);
         message.setData(data);
 
@@ -493,7 +493,7 @@ public class TSBChatManager extends BaseManager {
     }
 
     /**
-     * 获取消息
+     * 发送消息
      * 
      * @param type
      *            singleChat（单聊） 或 groupChat （群聊）
