@@ -6,11 +6,17 @@ import com.github.nkzawa.engineio.parser.Packet;
 import com.github.nkzawa.engineio.parser.Parser;
 import com.github.nkzawa.parseqs.ParseQS;
 import com.github.nkzawa.thread.EventThread;
-import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
+/**
+ * 由于engine io是基于java websocketv1.3.0,
+ * 但v1.3.0对ssl的android支持不是很好，所以改为java websocket 1.2.0+(从java
+ * websocket的master取最新代码并打包) added at 2015/02/03 by rico
+ **/
+//import org.java_websocket.client.DefaultSSLWebSocketClientFactory;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_17;
 import org.java_websocket.handshake.ServerHandshake;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -95,7 +101,18 @@ public class WebSocket extends Transport {
                 }
             };
             if (this.sslContext != null) {
-                this.ws.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(this.sslContext));
+
+                /**
+                 * 由于engine io是基于java websocketv1.3.0,
+                 * 但v1.3.0对ssl的android支持不是很好，所以改为java websocket 1.2.0+(从java
+                 * websocket的master取最新代码并打包) added at 2015/02/03 by rico
+                 **/
+//                this.ws.setWebSocketFactory(new DefaultSSLWebSocketClientFactory(this.sslContext));
+                try {
+                    this.ws.setSocket(this.sslContext.getSocketFactory().createSocket());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
             this.ws.connect();
         } catch (URISyntaxException e) {
