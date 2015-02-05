@@ -13,7 +13,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
 import com.tuisongbao.android.engine.TSBEngine;
-import com.tuisongbao.android.engine.TSBEngineOptions;
 import com.tuisongbao.android.engine.http.HttpsClient;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
 import com.tuisongbao.android.engine.log.LogUtil;

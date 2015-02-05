@@ -42,7 +42,7 @@ public class DataPipeline implements IEngineCallback {
             try {
                 sink.receive(message);
             } catch(DataSinkException e) {
-                LogUtil.warn(TAG, this.getClass().getName() + ": The sink " +
+                LogUtil.warn(LogUtil.LOG_TAG_ENGINEIO, TAG + ": The sink " +
                         sink + " exploded when we sent a new message " +
                         "-- removing it from the pipeline: " + e);
                 deadSinks.add(sink);

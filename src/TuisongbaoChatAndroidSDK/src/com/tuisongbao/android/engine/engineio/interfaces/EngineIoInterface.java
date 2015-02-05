@@ -16,8 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.github.nkzawa.emitter.Emitter.Listener;
 import com.github.nkzawa.engineio.client.HandshakeData;
 import com.github.nkzawa.engineio.client.Socket;
@@ -31,12 +29,12 @@ import com.tuisongbao.android.engine.engineio.source.IEngineCallback;
 import com.tuisongbao.android.engine.http.HttpConstants;
 import com.tuisongbao.android.engine.http.request.BaseRequest;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class EngineIoInterface extends BaseEngineIODataSource implements
         IEngineInterface {
-    private final static String TAG = EngineIoInterface.class.getSimpleName();
     private static final String WSS_SCHEME = "wss";
     private String mWebsocketHostUrl;
     private int mConnectionStatus = EngineConstants.CONNECTION_STATUS_NONE;
@@ -139,7 +137,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                 try {
                     mWebsocketHostUrl = json.getString("addr");
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Engine server request url parse exception", e);
                 }
                 if (!StrUtil.isEmpty(mWebsocketHostUrl)) {
                     openSocket();
@@ -203,7 +201,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             }
             showLog("end to sleep： " + mReconnectGap);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Connection sleep excetion", e);
         }
         mReconnectTimes++;
     }
@@ -259,11 +257,6 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     public void call(Object... args) {
                         showLog("Socket Error [msg="
                                 + ((Exception) args[0]).getLocalizedMessage());
-//                        startReconnect(
-//                                EngineConstants.CONNECTION_CODE_CONNECTION_EXCEPTION,
-//                                "Connection closed [exception="
-//                                        + ((Exception) args[0])
-//                                                .getLocalizedMessage() + "]");
                     }
                 }).on(Socket.EVENT_CLOSE, new Listener() {
 
@@ -288,7 +281,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
 
                     @Override
                     public void call(Object... args) {
-                        showLog("Socket HandShake [msg=" + getArgsMSG(args) + "]");
+                        showLog("Socket HandShake");
                         if (args != null && args.length > 0 && args[0] instanceof HandshakeData) {
                             mSocketId = ((HandshakeData) args[0]).sid;
                             showLog("Socket HandShake [mSocketId=" + mSocketId + "]");
@@ -298,7 +291,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                 mSocket.open();
                 waitForReconnect();
             } catch (URISyntaxException e) {
-                e.printStackTrace();
+                LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Socket open exception", e);
             }
         }
     }
@@ -379,7 +372,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                             }
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Parse response result exception", e);
                     }
                 } else {
                     // 说明是事件
@@ -460,7 +453,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                 }
                 message.setName(EngineConstants.CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR);
             } catch (JSONException e) {
-                e.printStackTrace();
+                LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "handle sent failed message exception", e);
             }
         }
         handleMessage(message);
@@ -485,7 +478,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             json.put(EngineConstants.REQUEST_KEY_ERROR_MESSAGE, StrUtil.strNotNull(messsage));
             rawMessage.setData(json.toString());
         } catch (JSONException e) {
-            e.printStackTrace();
+            LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "handle disconnected message exception", e);
         }
         handleMessage(rawMessage);
     }
@@ -507,7 +500,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
     }
 
     private void showLog(String content) {
-        Log.w(TAG, StrUtil.strNotNull(content));
+        LogUtil.info(LogUtil.LOG_TAG_ENGINEIO, StrUtil.strNotNull(content));
     }
 
     private String getArgsMSG(Object... args) {
@@ -531,7 +524,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                         + mEngineIoOptions.getProtocol() + "&appId="
                         + mAppId;
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Prepare websocket url", e);
             };
             return "";
         }

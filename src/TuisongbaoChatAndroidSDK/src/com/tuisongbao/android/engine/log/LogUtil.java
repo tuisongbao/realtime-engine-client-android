@@ -27,10 +27,12 @@ public class LogUtil {
     public static final String LOG_TAG_SERVICE = "com.tuisongbao.android.engine.service";
 
     // network related tags
-    public static final String LOG_TAG_PUSH_MANAGER = "com.tuisongbao.android.push.pushmanager";
-    public static final String LOG_TAG_HTTP = "com.tuisongbao.android.http";
+    public static final String LOG_TAG_CHAT = "com.tuisongbao.android.engine.chat";
+    public static final String LOG_TAG_TSB_ENGINE = "com.tuisongbao.android.engine.TSBEngine";
+    public static final String LOG_TAG_ENGINEIO = "com.tuisongbao.android.engineio";
+    public static final String LOG_TAG_HTTP = "com.tuisongbao.android.engine.http";
     public static final String LOG_TAG_DEBUG_MSG = "com.tuisongbao.android.notification.debug";
-    public static final String LOG_TAG_UNCAUGHT_EX = "com.tuisongbao.android.unhandled";
+    public static final String LOG_TAG_UNCAUGHT_EX = "com.tuisongbao.android.engine.unhandled";
     public static final String LOG_FILE_NAME_STRING = "push-error-logs.txt";
 
 

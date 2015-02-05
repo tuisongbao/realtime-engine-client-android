@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import android.util.Log;
 
 import com.tuisongbao.android.engine.engineio.exception.DataSinkException;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.RawMessage;
 
 /**
@@ -54,7 +55,7 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
         }
 
         public synchronized void done() {
-            Log.d(TAG, "Stopping notification thread");
+            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Stopping notification thread");
             mRunning = false;
             interrupt();
         }
@@ -67,7 +68,7 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
                         mNotificationReceived.await();
                     }
                 } catch(InterruptedException e) {
-                    Log.d(TAG, "Interrupted while waiting for a new " +
+                    LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Interrupted while waiting for a new " +
                             "item for notification -- likely shutting down");
                     return;
                 } finally {
@@ -81,7 +82,7 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
                     propagateMessage(message);
                 }
             }
-            Log.d(TAG, "Stopped measurement notifier");
+            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Stopped message receive");
         }
     }
 }

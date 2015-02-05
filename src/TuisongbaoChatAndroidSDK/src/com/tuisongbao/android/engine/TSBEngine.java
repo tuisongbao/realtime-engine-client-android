@@ -56,8 +56,8 @@ public final class TSBEngine {
                     || options.getChatIntentService() == null) {
                 return;
             } else {
-                LogUtil.info(LogUtil.LOG_TAG_PUSH_MANAGER,
-                        "Successfully loaded configurations.");
+                LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
+                        "Successfully load configurations.");
             }
             mTSBEngineOptions = options;
             // 初始化实时引擎
@@ -262,7 +262,7 @@ public final class TSBEngine {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.warn(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
         return false;
     }
@@ -279,7 +279,7 @@ public final class TSBEngine {
                 message.setRequestId(getRequestId());
                 return mEngineManger.send(message);
             } catch (JSONException e) {
-                e.printStackTrace();
+                LogUtil.warn(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
             }
             return false;
         } else {

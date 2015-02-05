@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import android.util.Log;
 
 import com.tuisongbao.android.engine.engineio.exception.DataSourceException;
+import com.tuisongbao.android.engine.log.LogUtil;
 
 /**
  * Common functionality for data sources that read a stream of newline-separated
@@ -33,10 +34,10 @@ public abstract class BaseEngineIODataSource extends BaseEngineDataSource
     public synchronized void stop() {
         super.stop();
         if(!mRunning) {
-            Log.d(getTag(), "Already stopped.");
+            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Already stopped.");
             return;
         }
-        Log.d(getTag(), "Stopping " + getTag() + " source");
+        LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Stopping " + getTag() + " source");
         mRunning = false;
         disconnect();
     }
@@ -48,7 +49,7 @@ public abstract class BaseEngineIODataSource extends BaseEngineDataSource
             try {
                 waitForConnection();
             } catch(DataSourceException e) {
-                Log.i(getTag(), "Unable to connect to target engine -- " +
+                LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Unable to connect to target engine -- " +
                         "sleeping for awhile before trying again");
                 try {
                     Thread.sleep(5000);
@@ -73,7 +74,7 @@ public abstract class BaseEngineIODataSource extends BaseEngineDataSource
             // waiting for connection
             mConnectionChanged.await();
         } catch(InterruptedException e) {
-            Log.d(TAG, "Interrupted while waiting for a new " +
+            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Interrupted while waiting for a new " +
                     "item for notification -- likely shutting down");
             stop();
         }

@@ -18,3 +18,27 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn com.tuisongbao.android.**
+-dontwarn com.google.gson.**
+-dontwarn org.apache.thrift.**
+
+# engine proguard
+-keep class com.tuisongbao.android.engine.entity.** { *; }
+-keep class com.tuisongbao.android.engine.*.entity.** { *; }
+-keep class com.tuisongbao.android.engine.*.message.** { *; }
+
+# push proguard
+-keep class com.tuisongbao.android.PushConfig { *; }
+-keep class com.tuisongbao.android.PushPreference { *; }
+
+# Gson proguard
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
+
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.google.gson.examples.android.model.** { *; }
