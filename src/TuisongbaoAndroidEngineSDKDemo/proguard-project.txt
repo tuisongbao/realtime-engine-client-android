@@ -19,6 +19,7 @@
 #   public *;
 #}
 
+# no need warning packcage
 -dontwarn com.tuisongbao.android.**
 -dontwarn com.google.gson.**
 -dontwarn org.apache.thrift.**
