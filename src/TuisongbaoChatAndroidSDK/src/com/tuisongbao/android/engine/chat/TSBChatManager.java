@@ -66,7 +66,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBChatManager extends BaseManager {
 
-    private TSBChatLoginData mTSBChatLoginData;
+    private TSBChatUser mTSBChatUser;
     private TSBChatLoginMessage mTSBLoginMessage;
 
     private static TSBChatManager mInstance;
@@ -108,9 +108,8 @@ public class TSBChatManager extends BaseManager {
             data.setUserData(userData);
             message.setData(data);
             message.setCallback(callback);
-            bind(TSBChatLoginMessage.NAME, mLoginEngineCallback);
-            auth(message, true);
             mTSBLoginMessage = message;
+            auth(message);
         } else {
             callback.onError(
                     TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
@@ -567,7 +566,7 @@ public class TSBChatManager extends BaseManager {
     }
 
     private void clearCache() {
-        mTSBChatLoginData = null;
+        mTSBChatUser = null;
         mTSBLoginMessage = null;
     }
 
@@ -590,10 +589,10 @@ public class TSBChatManager extends BaseManager {
     }
 
     private boolean isLogin() {
-        return mTSBChatLoginData != null;
+        return mTSBChatUser != null;
     }
 
-    private void auth(final TSBChatLoginMessage msg, final boolean isNeedCallback) {
+    private void auth(final TSBChatLoginMessage msg) {
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
 
             @Override
@@ -639,13 +638,9 @@ public class TSBChatManager extends BaseManager {
                         authData.setUserData(userData);
                         authData.setSignature(signature);
                         authMessage.setData(authData);
-                        if (isNeedCallback) {
-                            TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
-                            responseMessage.setCallback(msg.getCallback());
-                            send(authMessage, responseMessage);
-                        } else {
-                            send(authMessage);
-                        }
+                        TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
+                        responseMessage.setCallback(mLoginCallback);
+                        send(authMessage, responseMessage);
                     }
                 } else {
                     // connection to user server error or user server feed back
@@ -659,14 +654,26 @@ public class TSBChatManager extends BaseManager {
         });
     }
 
-    private TSBEngineBindCallback mLoginEngineCallback = new TSBEngineBindCallback() {
+    private TSBEngineCallback<TSBChatUser> mLoginCallback = new TSBEngineCallback<TSBChatUser>() {
 
         @Override
-        public void onEvent(String bindName, String name, String data) {
-            // login
-            if (TSBChatLoginMessage.NAME.equals(bindName)) {
-                mTSBChatLoginData = new Gson().fromJson(data,
-                        TSBChatLoginData.class);
+        public void onSuccess(TSBChatUser t) {
+            if (!isLogin()) {
+                // 初次登陆时需要回调
+                mTSBChatUser = t;
+                if (mTSBLoginMessage != null && mTSBLoginMessage.getCallback() != null) {
+                    mTSBLoginMessage.getCallback().onSuccess(t);
+                }
+            } else {
+                // 由于网络原因等重新登陆时不需要需要回调
+                mTSBChatUser = t;
+            }
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            if (mTSBLoginMessage != null && mTSBLoginMessage.getCallback() != null) {
+                mTSBLoginMessage.getCallback().onError(code, message);
             }
         }
     };
@@ -745,7 +752,7 @@ public class TSBChatManager extends BaseManager {
         // when logined, it need to re-login
         if (isLogin() && mTSBLoginMessage != null) {
             // 当断掉重连时不需要回调
-            auth(mTSBLoginMessage, false);
+            auth(mTSBLoginMessage);
         }
     }
 
