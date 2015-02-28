@@ -494,16 +494,9 @@ public class TSBChatManager extends BaseManager {
     /**
      * 发送消息
      * 
-     * @param type
-     *            singleChat（单聊） 或 groupChat （群聊）
-     * @param recipientId
-     *            跟谁， userId 或 groupId
-     * @param startMessageId
-     *            可选
-     * @param endMessageId
-     *            可选
-     * @param limit
-     *            可选，默认 20，最大 100
+     * @param message
+     *            消息
+     * @param callback
      */
     public void sendMessage(TSBMessage message,
             TSBEngineCallback<TSBMessage> callback) {
