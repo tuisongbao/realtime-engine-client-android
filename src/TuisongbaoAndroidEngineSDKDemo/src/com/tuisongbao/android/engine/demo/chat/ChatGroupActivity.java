@@ -14,9 +14,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupAdapter;
@@ -49,7 +49,7 @@ public class ChatGroupActivity extends Activity {
         });
         request();
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -71,26 +71,26 @@ public class ChatGroupActivity extends Activity {
         }
         return false;
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getGroups(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
-            
+        TSBGroupManager.getInstance().getGroups(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
+
             @Override
             public void onSuccess(List<TSBChatGroup> t) {
                 mListGroup  = t;
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapter.refresh(mListGroup);
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();

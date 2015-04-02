@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 
@@ -50,7 +50,7 @@ public class ChatGroupCreateActivity extends Activity {
 
     private void create() {
         List<String> members = new ArrayList<String>();
-        TSBChatManager.getInstance().createGroup(
+        TSBGroupManager.getInstance().createGroup(
                 mGroupNameEditText.getText().toString(),
                 mGroupDescEditText.getText().toString(), members,
                 !mGroupIsPrivateToggleButton.isChecked(),

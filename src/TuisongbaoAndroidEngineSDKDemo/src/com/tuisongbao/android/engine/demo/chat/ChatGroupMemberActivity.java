@@ -18,8 +18,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupUserAdapter;
@@ -75,7 +75,7 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
         mButtonQuit.setOnClickListener(new View.OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 quit();
@@ -100,20 +100,20 @@ public class ChatGroupMemberActivity extends Activity {
         }
         return false;
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
         request();
     }
-    
+
     private void deleteUser(List<String> list) {
-        TSBChatManager.getInstance().removeUsers(mGroupId, list, new TSBEngineCallback<String>() {
+        TSBGroupManager.getInstance().removeUsers(mGroupId, list, new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "删除成功", Toast.LENGTH_LONG).show();
@@ -125,7 +125,7 @@ public class ChatGroupMemberActivity extends Activity {
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "删除失败", Toast.LENGTH_LONG).show();
@@ -134,14 +134,14 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
     }
-    
+
     private void quit() {
-        TSBChatManager.getInstance().leaveGroup(mGroupId, new TSBEngineCallback<String>() {
-            
+        TSBGroupManager.getInstance().leaveGroup(mGroupId, new TSBEngineCallback<String>() {
+
             @Override
             public void onSuccess(String t) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "你已退出该群", Toast.LENGTH_LONG).show();
@@ -149,11 +149,11 @@ public class ChatGroupMemberActivity extends Activity {
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "退出失败", Toast.LENGTH_LONG).show();
@@ -162,32 +162,32 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBChatGroupUser>>() {
-            
+        TSBGroupManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBChatGroupUser>>() {
+
             @Override
             public void onSuccess(List<TSBChatGroupUser> t) {
                 mListGroupUser = t;
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapter.refresh(mListGroupUser);
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "获取成员列表失败，请稍后再试", Toast.LENGTH_LONG).show();
                     }
                 });
-                
+
             }
         });
     }

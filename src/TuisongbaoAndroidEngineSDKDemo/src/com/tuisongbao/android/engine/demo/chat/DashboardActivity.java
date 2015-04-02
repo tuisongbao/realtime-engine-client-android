@@ -115,6 +115,7 @@ public class DashboardActivity extends FragmentActivity {
                 showFragment(R.id.dashboard_textview_setting);
             }
         });
+
         TSBChatManager.getInstance().bind(
                 TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
                 new TSBEngineBindCallback() {

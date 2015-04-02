@@ -58,6 +58,11 @@ public abstract class BaseManager {
         }
     };
 
+    protected <T> void handleErrorMessage(TSBEngineCallback<T> callback,
+            int code, String message) {
+        callback.onError(code, message);
+    }
+
     protected void handleConnect(TSBConnection t) {
         // empty
     }

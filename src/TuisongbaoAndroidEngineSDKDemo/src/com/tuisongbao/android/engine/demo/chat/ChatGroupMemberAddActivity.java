@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.util.StrUtil;
@@ -49,7 +49,7 @@ public class ChatGroupMemberAddActivity extends Activity {
         }
         return false;
     }
-    
+
     private void inviteMembers() {
         String str = mEditText.getText().toString();
         if (StrUtil.isEmpty(str)) {
@@ -60,23 +60,23 @@ public class ChatGroupMemberAddActivity extends Activity {
             for (String split : splits) {
                 list.add(split);
             }
-            TSBChatManager.getInstance().joinInvitation(mGroupId, list, new TSBEngineCallback<String>() {
-                
+            TSBGroupManager.getInstance().joinInvitation(mGroupId, list, new TSBEngineCallback<String>() {
+
                 @Override
                 public void onSuccess(String t) {
                     runOnUiThread(new Runnable() {
-                        
+
                         @Override
                         public void run() {
                             Toast.makeText(ChatGroupMemberAddActivity.this, "添加成功", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
-                
+
                 @Override
                 public void onError(int code, String message) {
                     runOnUiThread(new Runnable() {
-                        
+
                         @Override
                         public void run() {
                             Toast.makeText(ChatGroupMemberAddActivity.this, "添加失败", Toast.LENGTH_LONG).show();
