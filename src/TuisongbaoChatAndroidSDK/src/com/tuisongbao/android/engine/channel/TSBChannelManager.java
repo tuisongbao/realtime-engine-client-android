@@ -49,7 +49,7 @@ public class TSBChannelManager extends BaseManager {
 
     /**
      * 订阅公用channel并绑定渠道事件
-     * 
+     *
      * @param channel
      */
     public void subscribePublicChannel(String channel, TSBEngineBindCallback callback) {
@@ -58,7 +58,7 @@ public class TSBChannelManager extends BaseManager {
 
     /**
      * 订阅 private channel并绑定渠道事件
-     * 
+     *
      * @param channel
      */
     public void subscribePrivateChannel(String channel, TSBEngineBindCallback callback) {
@@ -67,7 +67,7 @@ public class TSBChannelManager extends BaseManager {
 
     /**
      * 订阅 presence channel并绑定渠道事件
-     * 
+     *
      * @param channel
      * @param authData 用户信息
      */
@@ -80,7 +80,7 @@ public class TSBChannelManager extends BaseManager {
      * {@link TSBEngineConstants#TSBENGINE_CHANNEL_PREFIX_PRIVATE}，如需要订阅Presence
      * Channel，名字必须使用 presence- 前缀
      * {@link TSBEngineConstants#TSBENGINE_CHANNEL_PREFIX_PRESENCE}。
-     * 
+     *
      * @param channel
      * @param authData
      * @param callback
@@ -103,7 +103,7 @@ public class TSBChannelManager extends BaseManager {
 
     /**
      * 取消订阅
-     * 
+     *
      * @param channel
      * @param authData
      * @param callback
@@ -126,8 +126,8 @@ public class TSBChannelManager extends BaseManager {
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @param channel
      * @param callback
      */
@@ -214,7 +214,7 @@ public class TSBChannelManager extends BaseManager {
         unbind(channel, mSubscribeEngineCallback);
         return mChannelMap.remove(channel);
     }
-    
+
     private void handleErrorMessage(String channel, String name, int code, String message) {
         List<TSBEngineBindCallback> calls = mBindMap.get(channel);
         removeChannel(channel);
@@ -234,7 +234,7 @@ public class TSBChannelManager extends BaseManager {
 
     private void auth(final TSBSubscribeMessage msg) {
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
-            
+
             @Override
             public void run() {
                 TSBPresenceChannel data = msg.getData();
@@ -287,7 +287,7 @@ public class TSBChannelManager extends BaseManager {
                                         "auth failed, channel data is empty");
                             } else {
                                 // send message
-                                data.setChannelData(jsonData.toString());
+                                data.setChannelData(channelData.toString());
                                 send(msg);
                             }
                         } else {
@@ -306,19 +306,19 @@ public class TSBChannelManager extends BaseManager {
             }
         });
     }
-    
+
     private boolean isPrivateChannel(String channel) {
         return channel
                 .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE);
     }
-    
+
     private boolean isPresenceChannel(String channel) {
         return channel
                 .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
     }
 
     private TSBEngineBindCallback mSubscribeEngineCallback = new TSBEngineBindCallback() {
-        
+
         @Override
         public void onEvent(String eventName, String name, String data) {
             if (!StrUtil.isEmpty(eventName)) {
