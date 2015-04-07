@@ -1,9 +1,13 @@
 package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 
 public abstract class BaseManager {
+    protected boolean isLogin() {
+        return TSBChatManager.getInstance().isLogin();
+    }
 
     protected boolean send(ITSBRequestMessage message) {
         return send(message, null);

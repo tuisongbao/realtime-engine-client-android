@@ -136,7 +136,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void quit() {
-        TSBGroupManager.getInstance().leaveGroup(mGroupId, new TSBEngineCallback<String>() {
+        TSBGroupManager.getInstance().leave(mGroupId, new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {

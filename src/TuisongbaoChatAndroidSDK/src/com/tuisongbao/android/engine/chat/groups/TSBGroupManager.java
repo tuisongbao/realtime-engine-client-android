@@ -2,7 +2,6 @@ package com.tuisongbao.android.engine.chat.groups;
 
 import java.util.List;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupCreateData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupGetData;
@@ -48,9 +47,9 @@ public class TSBGroupManager extends BaseManager {
      *            群聊成员，可以为空，此时成员只有自己
      * @param callback
      */
-    public void createGroup(String groupName, List<String> members,
+    public void create(String groupName, List<String> members,
             TSBEngineCallback<TSBChatGroup> callback) {
-        createGroup(groupName, "", members, false, false, callback);
+        create(groupName, "", members, false, false, callback);
     }
 
 
@@ -69,7 +68,7 @@ public class TSBGroupManager extends BaseManager {
      *            默认值 true ，除创建者（owner）外，其他群用户也可以发送加群邀请
      * @param callback
      */
-    public void createGroup(String groupName, String description,
+    public void create(String groupName, String description,
             List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<TSBChatGroup> callback) {
         if (!isLogin()) {
@@ -108,7 +107,7 @@ public class TSBGroupManager extends BaseManager {
      *            可选，根据 name 过滤
      * @param callback
      */
-    public void getGroups(String groupId, String groupName, TSBEngineCallback<List<TSBChatGroup>> callback) {
+    public void getList(String groupId, String groupName, TSBEngineCallback<List<TSBChatGroup>> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
                     TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
@@ -231,7 +230,7 @@ public class TSBGroupManager extends BaseManager {
      *            群的id
      * @param callback
      */
-    public void leaveGroup(String groupId, TSBEngineCallback<String> callback) {
+    public void leave(String groupId, TSBEngineCallback<String> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
                     TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
@@ -260,9 +259,5 @@ public class TSBGroupManager extends BaseManager {
                         .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE)
                 && !groupName
                         .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
-    }
-
-    private boolean isLogin() {
-        return TSBChatManager.getInstance().isLogin();
     }
 }

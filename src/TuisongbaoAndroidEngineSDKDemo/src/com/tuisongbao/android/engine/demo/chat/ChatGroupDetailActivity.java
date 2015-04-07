@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.conversations.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
@@ -59,14 +60,14 @@ public class ChatGroupDetailActivity extends Activity {
         mAdapter = new ChatGroupDetailAdapter(mListConversation, this);
         mListViewGroupDetail.setAdapter(mAdapter);
         mSendButton.setOnClickListener(new OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 TSBMessage message = TSBMessage.createMessage(TSBMessage.TYPE.TEXT);
                 TSBMessageBody body = new TSBTextMessageBody(mContenEditText.getText().toString());
                 message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
                 TSBChatManager.getInstance().sendMessage(message, new TSBEngineCallback<TSBMessage>() {
-                    
+
                     @Override
                     public void onSuccess(TSBMessage t) {
                         t.setFrom(LoginChache.getUserId());
@@ -74,20 +75,20 @@ public class ChatGroupDetailActivity extends Activity {
                         t.setCreatedAt(format.format(new Date()));
                         mListConversation.add(t);
                         runOnUiThread(new Runnable() {
-                            
+
                             @Override
                             public void run() {
                                 mAdapter.refresh(mListConversation);
                                 Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
                             }
                         });
-                        
+
                     }
-                    
+
                     @Override
                     public void onError(final int code, final String message) {
                         runOnUiThread(new Runnable() {
-                            
+
                             @Override
                             public void run() {
                                 Toast.makeText(ChatGroupDetailActivity.this, "Send failure [code=" + code + ";msg=" + message + "]", Toast.LENGTH_LONG).show();
@@ -125,43 +126,43 @@ public class ChatGroupDetailActivity extends Activity {
         }
         return false;
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
     }
-    
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unregisterBroadcast();
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getMessages(mChatType, mTarget, 0, 0, 20, new TSBEngineCallback<List<TSBMessage>>() {
-            
+        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, 0, 0, 20, new TSBEngineCallback<List<TSBMessage>>() {
+
             @Override
             public void onSuccess(List<TSBMessage> t) {
                 Collections.reverse(t);
                 mListConversation = t;
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapter.refresh(mListConversation);
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupDetailActivity.this, "获取消息失败，请稍后再试", Toast.LENGTH_LONG).show();
@@ -170,19 +171,19 @@ public class ChatGroupDetailActivity extends Activity {
             }
         });
     }
-    
+
     private void registerBroadcast() {
-        IntentFilter filter = new IntentFilter();  
-        filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);  
-        registerReceiver(mBroadcastReceiver, filter); 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        registerReceiver(mBroadcastReceiver, filter);
     }
-    
+
     private void unregisterBroadcast() {
         unregisterReceiver(mBroadcastReceiver);
     }
-    
+
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-        
+
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {

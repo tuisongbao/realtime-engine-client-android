@@ -19,7 +19,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.conversations.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
@@ -98,16 +98,16 @@ public class ChatTalkFragment extends Fragment {
 
         return mRootView;
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
         request();
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getConversation(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
-            
+        TSBConversationManager.getInstance().getOne(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
+
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
                 mListConversation = t;
@@ -116,15 +116,15 @@ public class ChatTalkFragment extends Fragment {
                     return;
                 }
                 activity.runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapterChatTalk.refresh(mListConversation);
                     }
                 });
-                
+
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 Activity activity = getActivity();
@@ -132,7 +132,7 @@ public class ChatTalkFragment extends Fragment {
                     return;
                 }
                 activity.runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(getActivity(), "获取会话失败，请稍后再试", Toast.LENGTH_LONG).show();
@@ -141,9 +141,9 @@ public class ChatTalkFragment extends Fragment {
             }
         });
     }
-    
+
     private void deleteConversation(TSBChatConversation conversation) {
-        TSBChatManager.getInstance().deleteConversation(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
+        TSBConversationManager.getInstance().delete(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -152,7 +152,7 @@ public class ChatTalkFragment extends Fragment {
                     return;
                 }
                 activity.runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(getActivity(), "删除会话成功，请稍后再试", Toast.LENGTH_LONG).show();
@@ -168,7 +168,7 @@ public class ChatTalkFragment extends Fragment {
                     return;
                 }
                 activity.runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(getActivity(), "删除会话失败，请稍后再试", Toast.LENGTH_LONG).show();
@@ -179,6 +179,6 @@ public class ChatTalkFragment extends Fragment {
     }
 
     private void resetUnread(TSBChatConversation conversation) {
-        TSBChatManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget());
+        TSBConversationManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget());
     }
 }
