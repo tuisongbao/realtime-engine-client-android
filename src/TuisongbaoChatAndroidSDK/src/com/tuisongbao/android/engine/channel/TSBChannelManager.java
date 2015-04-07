@@ -62,7 +62,7 @@ public class TSBChannelManager extends BaseManager {
      * @param channel
      */
     public void subscribePrivateChannel(String channel, TSBEngineBindCallback callback) {
-        subscribe(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE + channel, null, callback);
+        subscribe(channel, null, callback);
     }
 
     /**
@@ -72,7 +72,7 @@ public class TSBChannelManager extends BaseManager {
      * @param authData 用户信息
      */
     public void subscribePresenceChannel(String channel, String authData, TSBEngineBindCallback callback) {
-        subscribe(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE + channel, authData, callback);
+        subscribe(channel, authData, callback);
     }
 
     /**
