@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.chat.conversations;
+package com.tuisongbao.android.engine.chat;
 
 import java.util.List;
 

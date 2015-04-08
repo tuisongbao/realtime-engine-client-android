@@ -2,6 +2,9 @@ package com.tuisongbao.android.engine.chat.entity;
 
 import java.util.List;
 
+import com.tuisongbao.android.engine.chat.TSBGroupManager;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
+
 public class TSBChatGroup {
 
     private String groupId;
@@ -84,6 +87,10 @@ public class TSBChatGroup {
 
     public void setInvitedUserIds(List<String> invitedUserIds) {
         this.invitedUserIds = invitedUserIds;
+    }
+
+    public void getUsers(TSBEngineCallback<List<TSBChatGroupUser>> callback) {
+        TSBGroupManager.getInstance().getUsers(groupId, callback);
     }
 
     @Override
