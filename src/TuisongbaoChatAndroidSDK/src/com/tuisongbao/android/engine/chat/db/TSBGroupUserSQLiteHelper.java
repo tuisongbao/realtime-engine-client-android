@@ -20,6 +20,7 @@ public class TSBGroupUserSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String COLUMN_GROUP_ID = "groupId";
     public static final String COLUMN_USER_ID = "userId";
+    public static final String COLUMN_PRESENCE = "presence";
 
     public TSBGroupUserSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,6 +33,7 @@ public class TSBGroupUserSQLiteHelper extends SQLiteOpenHelper {
           + " integer primary key autoincrement, "
           + COLUMN_GROUP_ID + " text not null, "
           + COLUMN_USER_ID + " text not null "
+          + COLUMN_PRESENCE + " text not null "
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_DB, createDatabaseString);
         database.execSQL(createDatabaseString);

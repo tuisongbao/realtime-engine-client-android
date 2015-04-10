@@ -42,9 +42,9 @@ public final class TSBEngine {
 
     /**
      * Initialize engine and start engine service.
-     * 
+     *
      * @param context application conetext
-     * @param options 
+     * @param options
      */
     public static void init(Context context, TSBEngineOptions options) {
 
@@ -67,18 +67,18 @@ public final class TSBEngine {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
-    
+
     public static Context getContext() {
         return mApplicationContext;
     }
-    
+
     public static TSBEngineOptions getTSBEngineOptions() {
         return mTSBEngineOptions;
     }
 
     /**
      * Checks whether engine is connected
-     * 
+     *
      * @return
      */
     public static boolean isConnected () {
@@ -87,7 +87,7 @@ public final class TSBEngine {
 
     /**
      * Returns Connection socket id
-     * 
+     *
      * @return
      */
     public static String getSocketId() {
@@ -96,7 +96,7 @@ public final class TSBEngine {
 
     /**
      * Sends message to engine service.
-     * 
+     *
      * @param message
      * @return
      */
@@ -126,7 +126,7 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
 
     public static void unbind(String bindName) {
@@ -141,7 +141,7 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
 
     public static void unbind(String bindName, ITSBResponseMessage response) {
@@ -156,9 +156,9 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
-    
+
     private static boolean isIntialized() {
         return mTSBEngineOptions != null;
     }
@@ -195,7 +195,7 @@ public final class TSBEngine {
             } else {
                 // delay 30s and retry
                 ExecutorUtil.getTimers().schedule(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         loadPushConfig();
@@ -204,13 +204,13 @@ public final class TSBEngine {
                 }, 1000 * 30, TimeUnit.MILLISECONDS);
             }
         } else {
-            // empty, not integrate with push 
+            // empty, not integrate with push
         }
     }
 
     /**
      * Returns whether the app is integrate with push
-     * 
+     *
      * @return true if the app is integrate with push, or false
      */
     private static boolean loadPushConfig() {
@@ -297,7 +297,7 @@ public final class TSBEngine {
 
         @Override
         public void onError(int code, String message) {
-            
+
         }
     };
 }

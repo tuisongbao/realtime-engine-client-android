@@ -13,7 +13,7 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 /**
  * A data sink that sends new messages of specific types to listeners.
- * 
+ *
  */
 public class TSBListenerSink extends BaseEngineCallbackSink {
 
@@ -102,7 +102,7 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
             }
         }
     }
-    
+
     private void callbackListener(ConcurrentMap<RawMessage, ITSBResponseMessage> map, RawMessage message) {
         if (map != null) {
             RawMessage requestMessage = map.keySet()
@@ -112,6 +112,8 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
                 copyFromRawMessage(callbackMessage, message);
                 if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(message.getName())) {
                     callbackMessage.setBindName(requestMessage.getName());
+                    // TODO: check the request params
+                    callbackMessage.setRequestData(requestMessage.getData());
                 }
                 callbackMessage.callBack();
             }
@@ -126,7 +128,7 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
             callbackBindListener(requestMessage);
         }
     }
-    
+
     private void callbackBindListener(RawMessage message) {
         ConcurrentMap<ITSBEngineCallback, ITSBResponseMessage> map = mBinds.get(message.getBindName());
         if (map != null && !map.isEmpty()) {
@@ -140,7 +142,7 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
             }
         }
     }
-    
+
     private ITSBResponseMessage copyFromRawMessage(ITSBResponseMessage response, RawMessage message) {
         response.setCode(message.getCode());
         response.setErrorMessage(message.getErrorMessge());

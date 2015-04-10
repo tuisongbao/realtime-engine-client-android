@@ -15,7 +15,6 @@ public class TSBConversationSQLiteHelper extends SQLiteOpenHelper {
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_TARGET = "target";
     public static final String COLUMN_TYPE = "type";
-    public static final String COLUMN_MESSAGE_ID = "messageId";
     public static final String COLUMN_UNREAD_MESSAGE_COUNT = "unreadMessageCount";
     /***
      * TODO: add limit
@@ -34,9 +33,8 @@ public class TSBConversationSQLiteHelper extends SQLiteOpenHelper {
           + COLUMN_USER_ID + " text not null, "
           + COLUMN_TARGET + " text not null, "
           + COLUMN_TYPE + " text not null, "
-          + COLUMN_MESSAGE_ID + " text not null, "
           + COLUMN_UNREAD_MESSAGE_COUNT + " integer "
-          + COLUMN_LAST_ACTIVE_AT + " text not null, "
+          + COLUMN_LAST_ACTIVE_AT + " text"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_DB, createDatabaseString);
         database.execSQL(createDatabaseString);

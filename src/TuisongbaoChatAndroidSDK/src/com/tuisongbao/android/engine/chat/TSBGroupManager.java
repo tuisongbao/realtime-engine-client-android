@@ -2,6 +2,8 @@ package com.tuisongbao.android.engine.chat;
 
 import java.util.List;
 
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.db.TSBGroupDataSource;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupCreateData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupGetData;
@@ -27,8 +29,10 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBGroupManager extends BaseManager {
     private static TSBGroupManager mInstance;
+    private static TSBGroupDataSource dataSource;
 
     public TSBGroupManager() {
+        dataSource = new TSBGroupDataSource(TSBEngine.getContext());
     }
 
     public synchronized static TSBGroupManager getInstance() {
@@ -97,6 +101,7 @@ public class TSBGroupManager extends BaseManager {
         send(message, response);
     }
 
+
     /**
      * 获取群组列表
      *
@@ -127,7 +132,7 @@ public class TSBGroupManager extends BaseManager {
 
 
     /**
-     * 获取群组下用户列表
+     * 获取群组下用户列表，会从服务器同步最新的数据
      *
      * @param groupId
      * @param callback
@@ -153,6 +158,15 @@ public class TSBGroupManager extends BaseManager {
         TSBChatGroupGetUsersReponseMessage response = new TSBChatGroupGetUsersReponseMessage();
         response.setCallback(callback);
         send(message, response);
+    }
+
+    public List<TSBChatGroupUser> getUsers(String groupId) {
+        List<TSBChatGroupUser> users = null;
+        dataSource.open();
+        users = dataSource.getUsers(groupId);
+        dataSource.close();
+
+        return users;
     }
 
     /**

@@ -19,7 +19,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.conversations.TSBConversationManager;
+import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
@@ -106,7 +106,7 @@ public class ChatTalkFragment extends Fragment {
     }
 
     private void request() {
-        TSBConversationManager.getInstance().getOne(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
+        TSBConversationManager.getInstance().getList(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
 
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
@@ -155,7 +155,7 @@ public class ChatTalkFragment extends Fragment {
 
                     @Override
                     public void run() {
-                        Toast.makeText(getActivity(), "删除会话成功，请稍后再试", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "删除会话成功", Toast.LENGTH_LONG).show();
                         request();
                     }
                 });
@@ -179,6 +179,16 @@ public class ChatTalkFragment extends Fragment {
     }
 
     private void resetUnread(TSBChatConversation conversation) {
-        TSBConversationManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget());
+        TSBConversationManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
+            @Override
+            public void onSuccess(String t) {
+                Toast.makeText(getActivity(), "重置未读消息成功", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                Toast.makeText(getActivity(), "重置未读消息失败，请稍后再试", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

@@ -8,7 +8,11 @@ import org.json.JSONObject;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageBodySerializer;
@@ -18,6 +22,23 @@ import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBChatMessageGetResponseMessage extends BaseTSBResponseMessage<List<TSBMessage>> {
+
+    @Override
+    protected void preCallBack(List<TSBMessage> data) {
+        super.preCallBack(data);
+
+        if (!TSBChatManager.getInstance().isUseCache()) {
+            return;
+        }
+
+        TSBChatUser user = TSBChatManager.getInstance().getChatUser();
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        dataSource.open();
+        for (TSBMessage message : data) {
+            dataSource.addMessage(user.getUserId(), message);
+        }
+        dataSource.close();
+    }
 
     @Override
     public List<TSBMessage> parse() {

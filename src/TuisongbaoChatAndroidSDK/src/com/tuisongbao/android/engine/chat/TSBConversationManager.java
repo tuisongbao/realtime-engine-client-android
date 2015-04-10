@@ -42,7 +42,7 @@ public class TSBConversationManager extends BaseManager {
      *            可选，跟谁， userId 或 groupId
      * @param callback
      */
-    public void getOne(ChatType chatType, String target,
+    public void getList(ChatType chatType, String target,
             TSBEngineCallback<List<TSBChatConversation>> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
@@ -69,7 +69,7 @@ public class TSBConversationManager extends BaseManager {
      * @param target
      *            跟谁， userId 或 groupId
      */
-    public void resetUnread(ChatType chatType, String target) {
+    public void resetUnread(ChatType chatType, String target, TSBEngineCallback<String> callback) {
         if (!isLogin()) {
             return;
         }
@@ -81,7 +81,9 @@ public class TSBConversationManager extends BaseManager {
         data.setType(chatType);
         data.setTarget(target);
         message.setData(data);
-        send(message);
+        TSBResponseMessage response = new TSBResponseMessage();
+        response.setCallback(callback);
+        send(message, response);
     }
 
     /**
@@ -115,19 +117,6 @@ public class TSBConversationManager extends BaseManager {
         TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(callback);
         send(message, response);
-    }
-
-    /**
-     * 获取最新20条消息
-     *
-     * @param chatType
-     *            singleChat（单聊） 或 groupChat （群聊）
-     * @param target
-     *            跟谁， userId 或 groupId
-     */
-    public void getMessages(ChatType chatType, String target,
-            TSBEngineCallback<List<TSBMessage>> callback) {
-        getMessages(chatType, target, 0, 0, 20, callback);
     }
 
     /**

@@ -18,8 +18,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.tuisongbao.android.engine.chat.TSBGroupManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
-import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupUserAdapter;

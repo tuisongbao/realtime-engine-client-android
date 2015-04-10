@@ -11,6 +11,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     private String mData;
     private String mChannel;
     private String mBindName;
+    private Object mRequestData;
     private long mServerRequestId;
     private ITSBEngineCallback mCallback;
 
@@ -41,12 +42,16 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     public long getServerRequestId() {
         return mServerRequestId;
     }
-    
+
+    public Object getRequestData() {
+        return mRequestData;
+    }
+
     @Override
     public void setCallback(ITSBEngineCallback callback) {
         mCallback = callback;
     }
-    
+
     @Override
     public ITSBEngineCallback getCallback() {
         return mCallback;
@@ -65,7 +70,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     @Override
     public void setName(String name) {
         mName = name;
-        
+
     }
 
     @Override
@@ -89,11 +94,25 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     }
 
     @Override
+    public void setRequestData(Object data) {
+        mRequestData = data;
+    }
+
+    @Override
     public boolean isSuccess() {
         return mCode == 0;
     }
 
     abstract public T parse();
+
+    /**
+     * Called before callback event
+     *
+     * do things like persistent data.
+     */
+    protected void preCallBack(T data) {
+
+    }
 
     @Override
     public void callBack() {
@@ -108,7 +127,10 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
                     ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
                 }
                 if (callBack instanceof TSBEngineCallback) {
-                    ((TSBEngineCallback)callBack).onSuccess(parse());
+                    T data = parse();
+                    // TODO: what if failed ?
+                    preCallBack(data);
+                    ((TSBEngineCallback)callBack).onSuccess(data);
                 }
             }
         } else {

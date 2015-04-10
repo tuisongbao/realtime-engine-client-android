@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBGroupDataSource {
@@ -32,20 +33,6 @@ public class TSBGroupDataSource {
         groupUserSQLiteHelper.close();
     }
 
-    public TSBChatGroup createGroup(Cursor cursor) {
-        TSBChatGroup group = new TSBChatGroup();
-        group.setGroupId(cursor.getString(1));
-        group.setOwner(cursor.getString(2));
-        group.setName(cursor.getString(3));
-        group.setDescription(cursor.getString(4));
-        group.setIsPublic(cursor.getInt(5) == 1 ? true : false);
-        group.setUserCanInvite(cursor.getInt(6) == 1 ? true : false);
-        group.setUserCount(cursor.getInt(7));
-        group.setUserCountLimit(cursor.getInt(8));
-
-        return group;
-    }
-
     public void insert(TSBChatGroup group) {
         ContentValues values = new ContentValues();
         values.put(TSBGroupSQLiteHelper.COLUMN_GROUP_ID, group.getGroupId());
@@ -61,21 +48,21 @@ public class TSBGroupDataSource {
     }
 
     public List<TSBChatGroup> getList(String groupId, String groupName) {
-        String queryString = "";
+        String whereClause = "";
         Cursor cursor = null;
         List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
 
         if(!StrUtil.isEmpty(groupId)) {
-            queryString = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
+            whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
                 + " WHERE " + TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?"
                 + " AND " + TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE ?"
                 + ";";
-            cursor = groupDB.rawQuery(queryString, new String[]{ groupId, "%" + groupName + "%" });
+            cursor = groupDB.rawQuery(whereClause, new String[]{ groupId, "%" + groupName + "%" });
         } else {
-            queryString = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
+            whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
                     + " WHERE " + TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE ?"
                     + ";";
-            cursor = groupDB.rawQuery(queryString, new String[]{ "%" + groupName + "%" });
+            cursor = groupDB.rawQuery(whereClause, new String[]{ "%" + groupName + "%" });
         }
 
         cursor.moveToFirst();
@@ -89,10 +76,26 @@ public class TSBGroupDataSource {
         return groups;
     }
 
-    public void getUsers(String groupId) {
-        String queryString = "SELECT " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID
+    public void remove(String groupId) {
+        String whereClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?";
+        groupDB.delete(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, whereClause, new String[]{ groupId });
+    }
+
+    public List<TSBChatGroupUser> getUsers(String groupId) {
+        List<TSBChatGroupUser> users = new ArrayList<TSBChatGroupUser>();
+        String whereClause = "SELECT " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID
                 + " WHERE " + TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ?";
-        groupUserDB.rawQuery(queryString, new String[]{ groupId });
+        Cursor cursor = groupUserDB.rawQuery(whereClause, new String[]{ groupId });
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            TSBChatGroupUser user = createGroupUser(cursor);
+            users.add(user);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return users;
     }
 
     public void addUser(String groupId, String userId) {
@@ -107,5 +110,33 @@ public class TSBGroupDataSource {
         String whereClause = TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ? AND "
                 + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
         groupUserDB.delete(TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
+
+        // 如果这个group已经没有人了，删除这个group
+        List<TSBChatGroup> groups = getList(groupId, null);
+        if (groups.get(0).getUserCount() < 1) {
+            remove(groupId);
+        }
+    }
+
+    private TSBChatGroup createGroup(Cursor cursor) {
+        TSBChatGroup group = new TSBChatGroup();
+        group.setGroupId(cursor.getString(1));
+        group.setOwner(cursor.getString(2));
+        group.setName(cursor.getString(3));
+        group.setDescription(cursor.getString(4));
+        group.setIsPublic(cursor.getInt(5) == 1 ? true : false);
+        group.setUserCanInvite(cursor.getInt(6) == 1 ? true : false);
+        group.setUserCount(cursor.getInt(7));
+        group.setUserCountLimit(cursor.getInt(8));
+
+        return group;
+    }
+
+    private TSBChatGroupUser createGroupUser(Cursor cursor) {
+        TSBChatGroupUser user = new TSBChatGroupUser();
+        user.setUserId(cursor.getString(2));
+        user.setPresence(cursor.getString(3));
+
+        return user;
     }
 }

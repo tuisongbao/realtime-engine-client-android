@@ -93,6 +93,18 @@ public class TSBChatGroup {
         TSBGroupManager.getInstance().getUsers(groupId, callback);
     }
 
+    public void getUsers() {
+        TSBGroupManager.getInstance().getUsers(groupId);
+    }
+
+    public void join(List<String> userIds, TSBEngineCallback<String> callback) {
+        TSBGroupManager.getInstance().joinInvitation(groupId, userIds, callback);
+    }
+
+    public void removeUsers(List<String> userIds, TSBEngineCallback<String> callback) {
+        TSBGroupManager.getInstance().removeUsers(groupId, userIds, callback);
+    }
+
     @Override
     public String toString() {
         return "TSBChatGroup [groupId=" + groupId + ", owner=" + owner

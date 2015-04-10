@@ -11,8 +11,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.tuisongbao.android.engine.chat.TSBGroupManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.android.engine.chat.groups.TSBGroupManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 

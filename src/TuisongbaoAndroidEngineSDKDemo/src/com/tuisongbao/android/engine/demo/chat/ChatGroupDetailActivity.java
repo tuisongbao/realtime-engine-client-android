@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBChatManager;
-import com.tuisongbao.android.engine.chat.conversations.TSBConversationManager;
+import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;

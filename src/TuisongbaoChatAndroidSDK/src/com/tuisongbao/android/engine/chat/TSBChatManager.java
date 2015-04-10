@@ -42,6 +42,7 @@ public class TSBChatManager extends BaseManager {
     private TSBChatLoginMessage mTSBLoginMessage;
 
     private static TSBChatManager mInstance;
+    private boolean mUseCache = true;
 
     public synchronized static TSBChatManager getInstance() {
         if (mInstance == null) {
@@ -89,8 +90,13 @@ public class TSBChatManager extends BaseManager {
         }
     }
 
+    @Override
     public boolean isLogin() {
         return mTSBChatUser != null;
+    }
+
+    public TSBChatUser getChatUser() {
+        return mTSBChatUser;
     }
 
     /**
@@ -109,6 +115,13 @@ public class TSBChatManager extends BaseManager {
         clearCache();
     }
 
+    public void userCache(boolean enabled) {
+        mUseCache = enabled;
+    }
+
+    public boolean isUseCache() {
+        return mUseCache;
+    }
 
     /**
      * 发送消息
@@ -255,6 +268,8 @@ public class TSBChatManager extends BaseManager {
             if (!isLogin()) {
                 // 初次登陆时需要回调
                 mTSBChatUser = t;
+                // TODO: check user data
+                mTSBChatUser.setUserId(mTSBLoginMessage.getData().getUserData());
                 if (mTSBLoginMessage != null && mTSBLoginMessage.getCallback() != null) {
                     mTSBLoginMessage.getCallback().onSuccess(t);
                 }
@@ -297,6 +312,7 @@ public class TSBChatManager extends BaseManager {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        response.runPreCallBack(message);
                         response.getCustomCallback().onSuccess(message);
                     }
                 } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE

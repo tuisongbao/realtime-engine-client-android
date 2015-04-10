@@ -6,7 +6,7 @@ public class TSBEngineOptions {
 
     // For engin config
     private String mEngineAppId;
-    
+
     // Auth endpoint
     private String mAuthEndPoint;
     // chat intent service

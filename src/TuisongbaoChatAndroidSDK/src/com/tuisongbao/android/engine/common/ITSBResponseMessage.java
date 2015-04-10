@@ -9,6 +9,7 @@ public interface ITSBResponseMessage {
     public void setChannel(String channel);
     public void setBindName(String bindName);
     public void setServerRequestId(long serverRequestId);
+    public void setRequestData(Object params);
     public boolean isSuccess();
     public void setCallback(ITSBEngineCallback callback);
     public ITSBEngineCallback getCallback();

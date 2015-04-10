@@ -1,5 +1,8 @@
 package com.tuisongbao.android.engine.chat.message;
 
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
 import com.tuisongbao.android.engine.common.ITSBEngineCallback;
@@ -12,7 +15,7 @@ public class TSBChatMessageResponseMessage extends
      * 用于保存用户传递的call back
      */
     private TSBEngineCallback<TSBMessage> mCustomCallback;
-    
+
     public TSBChatMessageResponseMessage(TSBChatMessageResponseMessageCallback callback) {
         setCallback(callback);
     }
@@ -33,9 +36,27 @@ public class TSBChatMessageResponseMessage extends
         this.mCustomCallback = customCallback;
     }
 
+    public void runPreCallBack(TSBMessage message) {
+        preCallBack(message);
+    }
+
     @Override
     public TSBMessage parse() {
         return null;
+    }
+
+    @Override
+    protected void preCallBack(TSBMessage data) {
+        super.preCallBack(data);
+
+        if (!TSBChatManager.getInstance().isUseCache()) {
+            return;
+        }
+
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        dataSource.open();
+        dataSource.addMessage(TSBChatManager.getInstance().getChatUser().getUserId(), data);
+        dataSource.close();
     }
 
     @Override
