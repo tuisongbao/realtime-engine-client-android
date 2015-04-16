@@ -10,6 +10,7 @@ import com.tuisongbao.android.engine.channel.entity.TSBPrivateChannel;
 import com.tuisongbao.android.engine.common.BaseManager;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBChannelManager extends BaseManager {
@@ -67,28 +68,35 @@ public class TSBChannelManager extends BaseManager {
      * @param callback
      */
     private TSBChannel subscribe(String channelName, String authData) {
-        // unique instance return if the channel's name is same.
-        TSBChannel channel = mChannelMap.get(channelName);
-        if (channel != null) {
+        try {
+            // unique instance return if the channel's name is same.
+            TSBChannel channel = mChannelMap.get(channelName);
+            if (channel != null) {
+                return channel;
+            }
+            if (StrUtil.isEmpty(channelName)) {
+                return null;
+            }
+
+            if (isPrivateChannel(channelName)) {
+                channel = new TSBPrivateChannel(channelName);
+            } else if (isPresenceChannel(channelName)) {
+                TSBPresenceChannel presenceChannel = new TSBPresenceChannel(channelName);
+                presenceChannel.setAuthData(authData);
+                channel = presenceChannel;
+            } else {
+                // If not specified prefix found, default is public channel.
+                channel = new TSBChannel(channelName);
+            }
+            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Subscribe channel: " + channelName);
+            mChannelMap.put(channelName, channel);
+            channel.subscribe();
             return channel;
-        }
-        if (StrUtil.isEmpty(channelName)) {
+
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, "Channel subscribe failed.", e);
             return null;
         }
-
-        if (isPrivateChannel(channelName)) {
-            channel = new TSBPrivateChannel(channelName);
-        } else if (isPresenceChannel(channelName)) {
-            TSBPresenceChannel presenceChannel = new TSBPresenceChannel(channelName);
-            presenceChannel.setAuthData(authData);
-            channel = presenceChannel;
-        } else {
-            // If not specified prefix found, default is public channel.
-            channel = new TSBChannel(channelName);
-        }
-        mChannelMap.put(channelName, channel);
-        channel.subscribe();
-        return channel;
     }
 
     /**
@@ -99,12 +107,26 @@ public class TSBChannelManager extends BaseManager {
      * @param callback
      */
     public void unSubscribe(String channelName) {
-        if (StrUtil.isEmpty(channelName)) {
-            return;
+        try {
+            if (StrUtil.isEmpty(channelName)) {
+                return;
+            }
+            TSBChannel channel = mChannelMap.get(channelName);
+            if (channel != null) {
+                channel.unsubscribe();
+                mChannelMap.remove(channelName);
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, "Channel subscribe failed.", e);
         }
-        TSBChannel channel = mChannelMap.get(channelName);
-        channel.unsubscribe();
-        mChannelMap.remove(channelName);
+    }
+
+    @Override
+    protected void handleConnect(TSBConnection t) {
+        HashSet<TSBChannel> values = new HashSet<TSBChannel>(mChannelMap.values());
+        for (TSBChannel channel : values) {
+            channel.subscribe();
+        }
     }
 
     private boolean isPrivateChannel(String channel) {
@@ -117,11 +139,4 @@ public class TSBChannelManager extends BaseManager {
                 .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
     }
 
-    @Override
-    protected void handleConnect(TSBConnection t) {
-        HashSet<TSBChannel> values = new HashSet<TSBChannel>(mChannelMap.values());
-        for (TSBChannel channel : values) {
-            channel.subscribe();
-        }
-    }
 }

@@ -29,10 +29,12 @@ public class TSBChannel {
             if (!StrUtil.isEqual(channelName, channel)) {
                 return;
             }
+            eventName = formatEventName(eventName);
             CopyOnWriteArrayList<TSBEngineBindCallback> handlers = eventHandlers.get(eventName);
-            if (eventHandlers == null || eventHandlers.size() < 1) {
+            if (handlers == null) {
                 return;
             }
+            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are" + handlers.size() + " handlers and begine to call them");
             for (TSBEngineBindCallback handler : handlers) {
                 handler.onEvent(channelName, eventName, data);
             }
@@ -41,10 +43,6 @@ public class TSBChannel {
 
     public TSBChannel(String name) {
         this.channel = name;
-
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(bindCallback);
-        TSBEngine.bind(name, response);
     }
 
     public String getName() {
@@ -81,25 +79,34 @@ public class TSBChannel {
     }
 
     public void subscribe() {
+        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Bind event listner for channel: " + channel);
+        TSBResponseMessage response = new TSBResponseMessage();
+        response.setCallback(bindCallback);
+        TSBEngine.bind(channel, response);
+
+        LogUtil.debug(LogUtil.LOG_TAG_CHANNEL, "Begin auth channel: " + channel);
         validata(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
+                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation pass: " + t);
                 TSBSubscribeMessage message = generateSubscribeMessage();
-                TSBEngine.send(channel, message.serialize(), null);
+                TSBEngine.send(message.getName(), message.serialize(), null);
             }
 
             @Override
             public void onError(int code, String message) {
-                handleErrorMessage(EngineConstants.CHANNEL_NAME_SUBSCRIPTION_ERROR, message);
+                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed: " + message);
+                handleErrorMessage(formatEventName(EngineConstants.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
             }
         });
     }
 
     public void unsubscribe() {
         TSBUnsubscribeMessage message = new TSBUnsubscribeMessage();
-        message.setName(channel);
-        TSBEngine.send(channel, message.serialize(), null);
+        TSBChannel data = new TSBChannel(channel);
+        message.setData(data);
+        TSBEngine.send(message.getName(), message.serialize(), null);
 
         // Remove listeners on engineIO layer
         TSBEngine.unbind(channel);
@@ -108,7 +115,7 @@ public class TSBChannel {
     }
 
     protected void validata(TSBEngineCallback<String> callback) {
-        callback.onSuccess("OK");
+        callback.onSuccess(channel);
     }
 
     protected TSBSubscribeMessage generateSubscribeMessage() {
@@ -127,8 +134,18 @@ public class TSBChannel {
 
     protected void handleErrorMessage(String eventName, String errorData) {
         List<TSBEngineBindCallback> errorCallbacks = eventHandlers.get(eventName);
+        if (errorCallbacks == null) {
+            return;
+        }
         for (TSBEngineBindCallback callback : errorCallbacks) {
             callback.onEvent(getName(), eventName, errorData);
         }
+    }
+
+    /***
+     *  Do not let developer know our internal event name.
+     */
+    protected String formatEventName(String origin) {
+        return origin.replace("engine_channel", "engine");
     }
 }

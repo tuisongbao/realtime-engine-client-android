@@ -16,6 +16,10 @@
     <string name="login_register">注册</string>
     <string name="login_login">登录</string>
     <string name="login_channel">channel</string>
+    
+    <string name="login_channel_subscribe_hint">input channel name</string>
+    <string name="login_channel_subscribe_button">Subscribe</string>
+    <string name="login_channel_unsubscribe_button">Unsubscribe</string>
 
     <!-- dashborad -->
     <string name="dashboard_item_talk">会话</string>

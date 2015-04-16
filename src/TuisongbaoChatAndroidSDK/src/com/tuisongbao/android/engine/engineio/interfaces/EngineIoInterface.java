@@ -100,7 +100,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         return mSocket != null
                 && mConnectionStatus == EngineConstants.CONNECTION_STATUS_CONNECTED;
     }
-    
+
     public String getSocketId() {
         return mSocketId;
     }
@@ -172,7 +172,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
              * backoff ：默认策略，重连间隔从一个基数开始（默认为 0），每次乘以 2 ，直到达到最大值（默认为 10 秒）。服务端可以通过
              * engine_connection:error Event 的 data.reconnectIn 、 data.reconnectInMax
              * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
-             * 
+             *
              * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
              * 10000 10000 ... 。
              */
@@ -205,7 +205,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
         }
         mReconnectTimes++;
     }
-    
+
     private void resetConnectionStrategy() {
         mReconnectGap = 0;
         mReconnectTimes = 0;
@@ -315,7 +315,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     throws CertificateException {
             }
         };
-        
+
         SSLContext sslContext = null;
         sslContext = SSLContext.getInstance( "TLS" );
 
@@ -340,7 +340,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             int code = EngineConstants.ENGINE_CODE_SUCCESS;
             String errorMessage = "";
             if (ret != null) {
-                
+
                 if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(name)) {
                     // 说明是对客户端请求的response(engine_response)
                     requestId = StrUtil.toLong(
@@ -383,7 +383,11 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
                     }
                     data = ret.toString();
                 }
+            } else {
+                // Support sending un-json format event data
+                data = json.optString(EngineConstants.REQUEST_KEY_DATA);
             }
+
             // 当为链接状态时
             if (name.startsWith(EngineConstants.CONNECTION_PREFIX)) {
                 int connectStatus = EngineConstants.getConnectionStatus(name);
@@ -437,7 +441,7 @@ public class EngineIoInterface extends BaseEngineIODataSource implements
             }
         }
     }
-    
+
     private void handleSentFailedMessage(RawMessage message) {
         message.setCode(EngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED);
         message.setErrorMessage("Send message failed");

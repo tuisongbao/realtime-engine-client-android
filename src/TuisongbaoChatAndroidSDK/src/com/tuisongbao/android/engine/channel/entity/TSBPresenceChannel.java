@@ -3,6 +3,7 @@ package com.tuisongbao.android.engine.channel.entity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.tuisongbao.android.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
@@ -37,6 +38,18 @@ public class TSBPresenceChannel extends TSBPrivateChannel {
         object.put("authData", authData);
 
         return object;
+    }
+
+    @Override
+    protected TSBSubscribeMessage generateSubscribeMessage() {
+        TSBSubscribeMessage message = new TSBSubscribeMessage();
+        TSBPresenceChannel data = new TSBPresenceChannel(channel);
+        data.setSignature(signature);
+        data.setChannelData(channelData);
+        message.setAuthData(authData);
+        message.setData(data);
+
+        return message;
     }
 
     @Override

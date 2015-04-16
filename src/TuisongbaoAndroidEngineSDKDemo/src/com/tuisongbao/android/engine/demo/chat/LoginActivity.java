@@ -24,8 +24,11 @@ public class LoginActivity extends Activity {
     private static String TAG = "com.tuisongbao.android.engine.demo:LoginActivity";
     private EditText mEditTextAccount;
     private Button mButtonLogin;
-    private Button mChannelButton;
-    private Button mChannel2Button;
+
+    private Button mSubscribeChannelButton;
+    private Button mUnsubscribeChannelButton;
+    private EditText mSubscribeChannelEditText;
+    private EditText mUnsubscribeChannelEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +80,18 @@ public class LoginActivity extends Activity {
             finish();
         }
 
-        mChannel2Button = (Button) findViewById(R.id.login_channel2);
-        mChannel2Button.setOnClickListener(new OnClickListener() {
+        mSubscribeChannelButton = (Button) findViewById(R.id.login_button_channel_subscribe);
+        mSubscribeChannelEditText = (EditText) findViewById(R.id.login_edittext_channel_subscribe);
+        mSubscribeChannelButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                TSBChannel channel = TSBChannelManager.getInstance().subscribePrivateChannel("private-android-demo");
+                String channelName = mSubscribeChannelEditText.getText().toString();
+                if (channelName == null || channelName.trim().length() < 1) {
+                    Toast.makeText(LoginActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                TSBChannel channel = TSBChannelManager.getInstance().subscribePrivateChannel(channelName);
                 channel.bind("engine:subscription_succeeded", new TSBEngineBindCallback() {
 
                     @Override
@@ -95,7 +104,7 @@ public class LoginActivity extends Activity {
 
                     @Override
                     public void onEvent(String channelName, String eventName, String data) {
-                        Log.e(TAG, "engine:subscription_error");
+                        Log.e(TAG, "engine:subscription_error " + data);
                     }
                 });
 
@@ -107,6 +116,21 @@ public class LoginActivity extends Activity {
 
                     }
                 });
+            }
+        });
+
+        mUnsubscribeChannelEditText = (EditText) findViewById(R.id.login_edittext_channel_unsubscribe);
+        mUnsubscribeChannelButton = (Button) findViewById(R.id.login_button_channel_unsubscribe);
+        mUnsubscribeChannelButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                String channelName = mUnsubscribeChannelEditText.getText().toString();
+                if (channelName == null || channelName.trim().length() < 1) {
+                    Toast.makeText(LoginActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                TSBChannelManager.getInstance().unSubscribe(channelName);
             }
         });
     }

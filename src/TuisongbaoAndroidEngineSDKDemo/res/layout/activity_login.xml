@@ -21,20 +21,38 @@
         android:gravity="center"
         android:text="@string/login_login" />
     
-    <Button
-        android:id="@+id/login_channel"
+    <LinearLayout
+        android:id="@+id/layout_channel"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_textview_login"
-        android:gravity="center"
-        android:text="@string/login_channel" />
+        android:layout_below="@id/login_textview_login" >
+        
+        <EditText
+        android:id="@+id/login_edittext_channel_subscribe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/login_channel_subscribe_hint" />
+        
+        <Button
+           android:id="@+id/login_button_channel_subscribe"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:gravity="center"
+           android:text="@string/login_channel_subscribe_button" />
+        
+        <EditText
+	       android:id="@+id/login_edittext_channel_unsubscribe"
+	       android:layout_width="match_parent"
+	       android:layout_height="wrap_content"
+	       android:hint="@string/login_channel_unsubscribe_button" />
     
         <Button
-        android:id="@+id/login_channel2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/login_channel"
-        android:gravity="center"
-        android:text="@string/login_channel" />
+            android:id="@+id/login_button_channel_unsubscribe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/login_channel_unsubscribe_button" />
+    </LinearLayout>
 
 </RelativeLayout>

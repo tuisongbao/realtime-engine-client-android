@@ -4,21 +4,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.http.HttpConstants;
 import com.tuisongbao.android.engine.http.request.BaseRequest;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.ExecutorUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBPrivateChannel extends TSBChannel {
     public TSBPrivateChannel(String name) {
         super(name);
-        // TODO Auto-generated constructor stub
     }
 
-    private String signature;
+    String signature;
 
     public String getSignature() {
         return signature;
@@ -36,13 +37,23 @@ public class TSBPrivateChannel extends TSBChannel {
         return json;
     }
 
+    @Override
+    protected TSBSubscribeMessage generateSubscribeMessage() {
+        TSBSubscribeMessage message = new TSBSubscribeMessage();
+        TSBPresenceChannel data = new TSBPresenceChannel(channel);
+        data.setSignature(signature);
+        message.setData(data);
+
+        return message;
+    }
+
     protected boolean validateResponseDataOfAuth(JSONObject data, TSBEngineCallback<String> callback) {
         signature = data.optString("signature");
         if (StrUtil.isEmpty(signature)) {
             callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, Signature field is empty");
             return false;
         }
-        callback.onSuccess("OK");
+        callback.onSuccess(channel);
         return true;
     }
 
@@ -55,12 +66,11 @@ public class TSBPrivateChannel extends TSBChannel {
                 JSONObject json = null;
                 try {
                     json = getHttpRequestObjectOfAuth();
-                    callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Error accured when call auth server");
-                    return;
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Tuisongbao internal error");
+                    LogUtil.error(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed.",  e);
+                    return;
                 }
-                @SuppressWarnings("null")
                 BaseRequest authRequest = new BaseRequest(
                         HttpConstants.HTTP_METHOD_POST, TSBEngine.getTSBEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse authResponse = authRequest.execute();
