@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.channel.TSBChannelManager;
 import com.tuisongbao.android.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.android.engine.channel.message.TSBUnsubscribeMessage;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
@@ -34,7 +35,7 @@ public class TSBChannel {
             if (handlers == null) {
                 return;
             }
-            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are" + handlers.size() + " handlers and begine to call them");
+            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are " + handlers.size() + " handlers and begine to call them");
             for (TSBEngineBindCallback handler : handlers) {
                 handler.onEvent(channelName, eventName, data);
             }
@@ -51,6 +52,16 @@ public class TSBChannel {
 
     public void setName(String name) {
         channel = name;
+    }
+
+    /***
+     * Make sure this method only be called once!
+     */
+    public void setEventListener() {
+        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Bind event listner for channel: " + channel);
+        TSBResponseMessage response = new TSBResponseMessage();
+        response.setCallback(bindCallback);
+        TSBEngine.bind(channel, response);
     }
 
     public void bind(String eventName, TSBEngineBindCallback callback) {
@@ -79,25 +90,22 @@ public class TSBChannel {
     }
 
     public void subscribe() {
-        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Bind event listner for channel: " + channel);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(bindCallback);
-        TSBEngine.bind(channel, response);
-
         LogUtil.debug(LogUtil.LOG_TAG_CHANNEL, "Begin auth channel: " + channel);
         validata(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
                 LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation pass: " + t);
-                TSBSubscribeMessage message = generateSubscribeMessage();
-                TSBEngine.send(message.getName(), message.serialize(), null);
+                sendSubscribeRequest();
             }
 
             @Override
             public void onError(int code, String message) {
                 LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed: " + message);
                 handleErrorMessage(formatEventName(EngineConstants.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
+
+                // remove reference from tsbchannel manager
+                TSBChannelManager.getInstance().unSubscribe(channel);
             }
         });
     }
@@ -112,6 +120,11 @@ public class TSBChannel {
         TSBEngine.unbind(channel);
 
         eventHandlers = null;
+    }
+
+    public void sendSubscribeRequest() {
+        TSBSubscribeMessage message = generateSubscribeMessage();
+        TSBEngine.send(message.getName(), message.serialize(), null);
     }
 
     protected void validata(TSBEngineCallback<String> callback) {

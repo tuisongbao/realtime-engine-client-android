@@ -8,6 +8,7 @@ import com.tuisongbao.android.engine.channel.entity.TSBChannel;
 import com.tuisongbao.android.engine.channel.entity.TSBPresenceChannel;
 import com.tuisongbao.android.engine.channel.entity.TSBPrivateChannel;
 import com.tuisongbao.android.engine.common.BaseManager;
+import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
@@ -18,6 +19,14 @@ public class TSBChannelManager extends BaseManager {
     Map<String, TSBChannel> mChannelMap = new HashMap<String, TSBChannel>();
 
     private static TSBChannelManager mInstance;
+    private TSBEngineBindCallback mSubscribeErrorCallback = new TSBEngineBindCallback() {
+
+        @Override
+        public void onEvent(String channelName, String eventName, String data) {
+            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel manager get subscribe error of " + channelName + ", remove it now");
+            mChannelMap.remove(channelName);
+        }
+    };
 
     public synchronized static TSBChannelManager getInstance() {
         if (mInstance == null) {
@@ -90,7 +99,9 @@ public class TSBChannelManager extends BaseManager {
             }
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
+            channel.setEventListener();
             channel.subscribe();
+            channel.bind("engine:subscription_error", mSubscribeErrorCallback);
             return channel;
 
         } catch (Exception e) {
@@ -123,6 +134,7 @@ public class TSBChannelManager extends BaseManager {
 
     @Override
     protected void handleConnect(TSBConnection t) {
+        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Engine connected, resend all subscribe channel request");
         HashSet<TSBChannel> values = new HashSet<TSBChannel>(mChannelMap.values());
         for (TSBChannel channel : values) {
             channel.subscribe();
@@ -138,5 +150,4 @@ public class TSBChannelManager extends BaseManager {
         return channel
                 .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
     }
-
 }
