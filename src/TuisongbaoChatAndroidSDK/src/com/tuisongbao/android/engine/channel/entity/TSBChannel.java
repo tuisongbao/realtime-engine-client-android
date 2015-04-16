@@ -33,6 +33,7 @@ public class TSBChannel {
             eventName = formatEventName(eventName);
             CopyOnWriteArrayList<TSBEngineBindCallback> handlers = eventHandlers.get(eventName);
             if (handlers == null) {
+                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are no handlers for this event");
                 return;
             }
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are " + handlers.size() + " handlers and begine to call them");
@@ -74,11 +75,13 @@ public class TSBChannel {
     }
 
     public void unbind(String eventName, TSBEngineBindCallback callback) {
-        CopyOnWriteArrayList<TSBEngineBindCallback> list = eventHandlers.get(eventName);
-        if (list == null || list.isEmpty()) {
+        if (callback == null) {
+            eventHandlers.remove(eventName);
             return;
         }
-        if (callback == null) {
+
+        CopyOnWriteArrayList<TSBEngineBindCallback> list = eventHandlers.get(eventName);
+        if (list == null) {
             eventHandlers.remove(eventName);
             return;
         }
@@ -86,6 +89,13 @@ public class TSBChannel {
             if (local == callback) {
                 list.remove(local);
             }
+        }
+
+        // If there are no callback for this event, remove it
+        list = eventHandlers.get(eventName);
+        if (list == null || list.isEmpty()) {
+            eventHandlers.remove(eventName);
+            return;
         }
     }
 
