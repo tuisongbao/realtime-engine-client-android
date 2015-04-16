@@ -82,7 +82,7 @@ public class EngineConstants {
     // channel name
     public static final String CHANNEL_NAME_PREFIX = "engine_channel";
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:subscription_error";
+    public static final String CHANNEL_NAME_SUBSCRIPTION_ERROR = "engine_channel:subscription_error";
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
     

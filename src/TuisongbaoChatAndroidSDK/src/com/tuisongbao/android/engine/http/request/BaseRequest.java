@@ -70,6 +70,7 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
         return this.getMethod() + " " + this.getURI() + " " + this.params;
     }
 
+    // TODO: set timeout
     public BaseResponse execute()
     {
         BaseResponse localResponse = null;

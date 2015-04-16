@@ -6,5 +6,5 @@ public interface TSBEngineBindCallback extends ITSBEngineCallback {
      * @param name event name
      * @param data response data(json format)
      */
-    public void onEvent(String bindName, String name, String data);
+    public void onEvent(String channelName, String eventName, String data);
 }

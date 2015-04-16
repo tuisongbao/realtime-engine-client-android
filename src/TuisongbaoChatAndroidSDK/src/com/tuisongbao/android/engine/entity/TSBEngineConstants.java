@@ -18,7 +18,7 @@ public class TSBEngineConstants {
     
     // channel name
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = EngineConstants.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED;
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = EngineConstants.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR;
+    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = EngineConstants.CHANNEL_NAME_SUBSCRIPTION_ERROR;
 
     // bind name
     public static final String TSBENGINE_BIND_NAME_CONNECTION_CONNECTED = EngineConstants.EVENT_CONNECTION_CHANGE_STATUS;

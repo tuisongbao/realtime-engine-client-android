@@ -29,6 +29,7 @@ public class LogUtil {
     // network related tags
     public static final String LOG_TAG_CHAT = "com.tuisongbao.android.engine.chat";
     public static final String LOG_TAG_TSB_ENGINE = "com.tuisongbao.android.engine.TSBEngine";
+    public static final String LOG_TAG_CHANNEL = "com.tuisongbao.android.engine.channel";
     public static final String LOG_TAG_ENGINEIO = "com.tuisongbao.android.engineio";
     public static final String LOG_TAG_HTTP = "com.tuisongbao.android.engine.http";
     public static final String LOG_TAG_DEBUG_MSG = "com.tuisongbao.android.notification.debug";

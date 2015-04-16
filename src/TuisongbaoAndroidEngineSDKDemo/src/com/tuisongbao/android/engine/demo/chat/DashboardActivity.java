@@ -34,8 +34,7 @@ import com.tuisongbao.android.engine.demo.chat.fragment.ChatTalkFragment;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
-public class DashboradActivity extends FragmentActivity {
-
+public class DashboardActivity extends FragmentActivity {
     private TextView mTextViewTalk;
     private TextView mTextViewList;
     private TextView mTextViewSetting;
@@ -135,7 +134,7 @@ public class DashboradActivity extends FragmentActivity {
                                         String status = json
                                                 .getString("changedTo");
                                         Toast.makeText(
-                                                DashboradActivity.this,
+                                                DashboardActivity.this,
                                                 userId + " change to " + status,
                                                 Toast.LENGTH_LONG).show();
                                     } catch (JSONException e) {
@@ -147,30 +146,30 @@ public class DashboradActivity extends FragmentActivity {
                     }
                 });
         TSBEngine.connection.bindConnectionChangeStatusEvent(new TSBEngineCallback<TSBConnection>() {
-            
+
             @Override
             public void onSuccess(TSBConnection t) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(
-                                DashboradActivity.this,
+                                DashboardActivity.this,
                                 "你已成功链接上网络",
                                 Toast.LENGTH_LONG).show();
                     }
                 });
-                
+
             }
-            
+
             @Override
             public void onError(final int code, final String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(
-                                DashboradActivity.this,
+                                DashboardActivity.this,
                                 "你已经断开连接[code=" + code + ";message=" + message + "]",
                                 Toast.LENGTH_LONG).show();
                     }

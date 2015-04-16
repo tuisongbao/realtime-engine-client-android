@@ -144,10 +144,12 @@ public class TSBMessage implements Parcelable {
 
     public static final Parcelable.Creator<TSBMessage> CREATOR =
             new Parcelable.Creator<TSBMessage>() {
+        @Override
         public TSBMessage createFromParcel(Parcel in) {
             return new TSBMessage(in);
         }
 
+        @Override
         public TSBMessage[] newArray(int size) {
             return new TSBMessage[size];
         }
