@@ -53,7 +53,6 @@ public class TSBPrivateChannel extends TSBChannel {
             callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, Signature field is empty");
             return false;
         }
-        callback.onSuccess(channel);
         return true;
     }
 
@@ -84,7 +83,9 @@ public class TSBPrivateChannel extends TSBChannel {
                     callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, auth server response nothing");
                     return;
                 }
-                validateResponseDataOfAuth(jsonData, callback);
+                if (validateResponseDataOfAuth(jsonData, callback)) {
+                    callback.onSuccess(channel);
+                }
             }
         });
     }
