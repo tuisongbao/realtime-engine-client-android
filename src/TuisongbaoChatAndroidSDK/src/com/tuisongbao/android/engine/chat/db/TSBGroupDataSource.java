@@ -33,16 +33,30 @@ public class TSBGroupDataSource {
         groupUserSQLiteHelper.close();
     }
 
+    /***
+     * Try to update items, if not rows effected then insert.
+     *
+     * @param conversation
+     * @param userId
+     */
+    public void upsert(TSBChatGroup group, String userId) {
+        String groupId = group.getGroupId();
+        int rowsEffected = update(group);
+        if (rowsEffected < 1) {
+            insert(group);
+        }
+        insertUserIfNotExist(groupId, userId);
+    }
+
+    public void upsert(List<TSBChatGroup> groups, String userId) {
+        for (TSBChatGroup group : groups) {
+            upsert(group, userId);
+        }
+    }
+
     public void insert(TSBChatGroup group) {
-        ContentValues values = new ContentValues();
+        ContentValues values = getContentValuesExceptGroupId(group);
         values.put(TSBGroupSQLiteHelper.COLUMN_GROUP_ID, group.getGroupId());
-        values.put(TSBGroupSQLiteHelper.COLUMN_OWNER, group.getOwner());
-        values.put(TSBGroupSQLiteHelper.COLUMN_NAME, group.getName());
-        values.put(TSBGroupSQLiteHelper.COLUMN_DESCRIPTION, group.getDescription());
-        values.put(TSBGroupSQLiteHelper.COLUMN_ISPUBLIC, group.isPublic());
-        values.put(TSBGroupSQLiteHelper.COLUMN_USER_CAN_INVITE, group.userCanInvite());
-        values.put(TSBGroupSQLiteHelper.COLUMN_USER_COUNT, group.getUserCount());
-        values.put(TSBGroupSQLiteHelper.COLUMN_USER_COUNT_LIMIT, group.getUserCountLimit());
 
         groupDB.insert(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, null, values);
     }
@@ -76,9 +90,20 @@ public class TSBGroupDataSource {
         return groups;
     }
 
-    public void remove(String groupId) {
+    public int update(TSBChatGroup group) {
+        String whereClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?";
+        ContentValues values = getContentValuesExceptGroupId(group);
+
+        return groupDB.update(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, values, whereClause, new String[]{ group.getGroupId() });
+    }
+
+    public void remove(String groupId, String userId) {
         String whereClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?";
         groupDB.delete(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, whereClause, new String[]{ groupId });
+
+        if (!StrUtil.isEmpty(userId)) {
+            removeUser(groupId, userId);
+        }
     }
 
     public List<TSBChatGroupUser> getUsers(String groupId) {
@@ -98,12 +123,24 @@ public class TSBGroupDataSource {
         return users;
     }
 
-    public void addUser(String groupId, String userId) {
-        ContentValues values = new ContentValues();
-        values.put(TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID, groupId);
-        values.put(TSBGroupUserSQLiteHelper.COLUMN_USER_ID, userId);
+    /**
+     * Query user in this group first, if not exist, insert the user
+     *
+     * @param groupId
+     * @param userId
+     */
+    public void insertUserIfNotExist(String groupId, String userId) {
+        String whereClause = "SELECT * FROM " + TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER
+                + " WHERE " + TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ?"
+                + " AND " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
+        Cursor cursor = groupUserDB.rawQuery(whereClause, new String[]{ groupId, userId });
 
-        groupUserDB.insert(TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
+        if (cursor.isAfterLast()) {
+            ContentValues values = new ContentValues();
+            values.put(TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID, groupId);
+            values.put(TSBGroupUserSQLiteHelper.COLUMN_USER_ID, userId);
+            groupUserDB.insert(TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
+        }
     }
 
     public void removeUser(String groupId, String userId) {
@@ -111,11 +148,7 @@ public class TSBGroupDataSource {
                 + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
         groupUserDB.delete(TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
 
-        // 如果这个group已经没有人了，删除这个group
-        List<TSBChatGroup> groups = getList(groupId, null);
-        if (groups.get(0).getUserCount() < 1) {
-            remove(groupId);
-        }
+        // TODO: if the group is empty, remove this group.
     }
 
     private TSBChatGroup createGroup(Cursor cursor) {
@@ -138,5 +171,18 @@ public class TSBGroupDataSource {
         user.setPresence(cursor.getString(3));
 
         return user;
+    }
+
+    private ContentValues getContentValuesExceptGroupId(TSBChatGroup group) {
+        ContentValues values = new ContentValues();
+        values.put(TSBGroupSQLiteHelper.COLUMN_OWNER, group.getOwner());
+        values.put(TSBGroupSQLiteHelper.COLUMN_NAME, group.getName());
+        values.put(TSBGroupSQLiteHelper.COLUMN_DESCRIPTION, group.getDescription());
+        values.put(TSBGroupSQLiteHelper.COLUMN_ISPUBLIC, group.isPublic());
+        values.put(TSBGroupSQLiteHelper.COLUMN_USER_CAN_INVITE, group.userCanInvite());
+        values.put(TSBGroupSQLiteHelper.COLUMN_USER_COUNT, group.getUserCount());
+        values.put(TSBGroupSQLiteHelper.COLUMN_USER_COUNT_LIMIT, group.getUserCountLimit());
+
+        return values;
     }
 }

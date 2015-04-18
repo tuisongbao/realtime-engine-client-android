@@ -9,6 +9,10 @@ import android.os.Parcelable;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBMessage implements Parcelable {
+    /***
+     * This value is not unique, it is the message's order number in a conversation,
+     * A different conversation may has a message which has a same messageId.
+     */
     private long messageId;
     private ChatType type = ChatType.SingleChat;
     private String from;
@@ -161,5 +165,11 @@ public class TSBMessage implements Parcelable {
 
     public TSBMessage() {
         // empty
+    }
+
+    @Override
+    public String toString() {
+        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
+                , messageId, from, to, type.getName(), content, createdAt);
     }
 }

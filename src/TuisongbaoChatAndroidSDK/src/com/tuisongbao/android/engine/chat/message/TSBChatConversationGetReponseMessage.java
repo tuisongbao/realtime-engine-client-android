@@ -9,6 +9,7 @@ import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversationData;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
 
@@ -16,19 +17,28 @@ public class TSBChatConversationGetReponseMessage extends
         BaseTSBResponseMessage<List<TSBChatConversation>> {
 
     @Override
-    protected void preCallBack(List<TSBChatConversation> conversations) {
-        super.preCallBack(conversations);
+    protected List<TSBChatConversation> prepareCallBackData() {
+        List<TSBChatConversation> changedConversations = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isUseCache()) {
-            return;
+        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            return changedConversations;
         }
 
         TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        String userId = TSBChatManager.getInstance().getChatUser().getUserId();
         dataSource.open();
-        for (TSBChatConversation conversation : conversations) {
-            dataSource.insert(conversation, TSBChatManager.getInstance().getChatUser().getUserId());
-        }
+        dataSource.upsert(changedConversations, userId);
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
+        TSBChatConversationData requestData = gsonBuilder.create().fromJson((String)getRequestData(),
+                new TypeToken<TSBChatConversationData>() {
+                }.getType());
+
+        List<TSBChatConversation> callbackData = dataSource.getList(userId, requestData.getType(), requestData.getTarget());
         dataSource.close();
+
+        return callbackData;
     }
 
     @Override

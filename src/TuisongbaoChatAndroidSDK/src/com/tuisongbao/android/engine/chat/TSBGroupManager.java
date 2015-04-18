@@ -1,5 +1,6 @@
 package com.tuisongbao.android.engine.chat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.tuisongbao.android.engine.TSBEngine;
@@ -101,6 +102,14 @@ public class TSBGroupManager extends BaseManager {
         send(message, response);
     }
 
+    public List<TSBChatGroup> getList(String groupId, String groupName) {
+        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
+        dataSource.open();
+        groups = dataSource.getList(groupId, groupName);
+        dataSource.close();
+
+        return groups;
+    }
 
     /**
      * 获取群组列表

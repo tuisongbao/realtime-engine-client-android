@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,6 +39,7 @@ public class ChatGroupDetailActivity extends Activity {
 
     public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_TARGET";
     public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE";
+    private static final String TAG = "com.tuisongbao.android.engine.demo.ChatGroupDetailActivity";
     private String mTarget;
     private ChatType mChatType;
     private ListView mListViewGroupDetail;
@@ -148,6 +150,10 @@ public class ChatGroupDetailActivity extends Activity {
 
             @Override
             public void onSuccess(List<TSBMessage> t) {
+                Log.d(TAG, "Get " + t.size() + " messages");
+                for (TSBMessage message : t) {
+                    Log.d(TAG, message.toString());
+                }
                 Collections.reverse(t);
                 mListConversation = t;
                 runOnUiThread(new Runnable() {

@@ -107,10 +107,7 @@ public class TSBChatGroup {
 
     @Override
     public String toString() {
-        return "TSBChatGroup [groupId=" + groupId + ", owner=" + owner
-                + ", name=" + name + ", description=" + description
-                + ", isPublic=" + isPublic + ", userCanInvite=" + userCanInvite
-                + ", userCount=" + userCount + ", userCountLimit="
-                + userCountLimit + "]";
+        return String.format("TSBChatGroup[groupId: %s, owner: %s, name: %s, description: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s]"
+                , groupId, owner, name, description, isPublic, userCanInvite, userCount, userCountLimit);
     }
 }

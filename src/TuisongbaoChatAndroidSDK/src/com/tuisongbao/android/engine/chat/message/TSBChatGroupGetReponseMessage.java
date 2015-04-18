@@ -8,25 +8,30 @@ import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.db.TSBGroupDataSource;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroupGetData;
 import com.tuisongbao.android.engine.common.BaseTSBResponseMessage;
 
 public class TSBChatGroupGetReponseMessage extends
         BaseTSBResponseMessage<List<TSBChatGroup>> {
 
     @Override
-    protected void preCallBack(List<TSBChatGroup> groups) {
-        super.preCallBack(groups);
+    protected List<TSBChatGroup> prepareCallBackData() {
+        List<TSBChatGroup> groups = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isUseCache()) {
-            return;
+        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            return groups;
         }
 
         TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+        String userId = TSBChatManager.getInstance().getChatUser().getUserId();
         dataSource.open();
-        for (TSBChatGroup group : groups) {
-            dataSource.insert(group);
-        }
+        dataSource.upsert(groups, userId);
+
+        TSBChatGroupGetData requestData = (TSBChatGroupGetData)getRequestData();
+        groups = dataSource.getList(requestData.getGroupId(), requestData.getName());
         dataSource.close();
+
+        return groups;
     }
 
     @Override

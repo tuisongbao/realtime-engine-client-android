@@ -2,11 +2,10 @@ package com.tuisongbao.android.engine.chat.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import com.tuisongbao.android.engine.log.LogUtil;
 
-public class TSBGroupSQLiteHelper extends SQLiteOpenHelper {
+public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
     public static final String TABLE_CHAT_GROUP = "chatGroup";
     private static final String DATABASE_NAME = "chatGroup.db";
     private static final int DATABASE_VERSION = 1;
@@ -39,15 +38,15 @@ public class TSBGroupSQLiteHelper extends SQLiteOpenHelper {
           + COLUMN_USER_CAN_INVITE + " integer, "
           + COLUMN_USER_COUNT + " integer, "
           + COLUMN_USER_COUNT_LIMIT + " integer, "
-          + COLUMN_LAST_ACTIVE_AT + " text not null"
+          + COLUMN_LAST_ACTIVE_AT + " text"
           + ");";
-        LogUtil.debug(LogUtil.LOG_TAG_CHAT_DB, createDatabaseString);
+        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);
         database.execSQL(createDatabaseString);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        LogUtil.warn(LogUtil.LOG_TAG_CHAT_DB, "Upgrading database from version " + oldVersion + " to "
+        LogUtil.warn(LogUtil.LOG_TAG_CHAT_CACHE, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_GROUP);
         onCreate(database);

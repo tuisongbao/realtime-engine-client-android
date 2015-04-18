@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import com.tuisongbao.android.engine.demo.chat.adapter.ChatTalkAdapter;
 public class ChatTalkFragment extends Fragment {
 
     private static ChatTalkFragment mChatTalkFragment;
+    private static final String TAG = "com.tuisongbao.engine.demo.ChatTalkFragment";
 
     private View mRootView;
     private ListView mListViewTalk;
@@ -111,6 +113,7 @@ public class ChatTalkFragment extends Fragment {
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
                 mListConversation = t;
+                Log.d(TAG, "Get " + t.size() + " conversations");
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;

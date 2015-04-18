@@ -3,15 +3,11 @@ package com.tuisongbao.android.engine.chat;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.tuisongbao.android.engine.TSBEngine;
-import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatLoginData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
-import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLogoutMessage;
@@ -19,9 +15,6 @@ import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage.TSBChatMessageResponseMessageCallback;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageSendMessage;
-import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageBodySerializer;
-import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
-import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.android.engine.common.BaseManager;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
@@ -32,7 +25,6 @@ import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.http.HttpConstants;
 import com.tuisongbao.android.engine.http.request.BaseRequest;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
-import com.tuisongbao.android.engine.service.EngineServiceManager;
 import com.tuisongbao.android.engine.util.ExecutorUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -42,7 +34,7 @@ public class TSBChatManager extends BaseManager {
     private TSBChatLoginMessage mTSBLoginMessage;
 
     private static TSBChatManager mInstance;
-    private boolean mUseCache = true;
+    private boolean mIsCacheEnabled = false;
 
     public synchronized static TSBChatManager getInstance() {
         if (mInstance == null) {
@@ -115,12 +107,12 @@ public class TSBChatManager extends BaseManager {
         clearCache();
     }
 
-    public void userCache(boolean enabled) {
-        mUseCache = enabled;
+    public void enableCache() {
+        mIsCacheEnabled = true;
     }
 
-    public boolean isUseCache() {
-        return mUseCache;
+    public boolean isCacheEnabled() {
+        return mIsCacheEnabled;
     }
 
     /**
@@ -312,28 +304,17 @@ public class TSBChatManager extends BaseManager {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        response.runPreCallBack(message);
-                        response.getCustomCallback().onSuccess(message);
+                        response.getCustomCallback().onSuccess(response.getCallBackData());
                     }
                 } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE
                         .equals(response.getBindName())) {
                     // 接收到消息
                     if (response.getData() != null) {
-                        GsonBuilder gsonBuilder = new GsonBuilder();
-                        gsonBuilder.registerTypeAdapter(ChatType.class,
-                                new TSBChatMessageChatTypeSerializer());
-                        gsonBuilder.registerTypeAdapter(TSBMessage.TYPE.class,
-                                new TSBChatMessageTypeSerializer());
-                        gsonBuilder.registerTypeAdapter(TSBMessageBody.class,
-                                new TSBChatMessageBodySerializer());
-                        Gson gson = gsonBuilder.create();
-                        TSBMessage message = gson.fromJson(response.getData(),
-                                TSBMessage.class);
-                        EngineServiceManager.receivedMessage(message);
                         // response to server
                         long serverRequestId = response.getServerRequestId();
                         TSBEngineResponseToServerRequestMessage request = new TSBEngineResponseToServerRequestMessage(
                                 serverRequestId, true);
+                        TSBMessage message = response.getCallBackData();
                         try {
                             JSONObject result = new JSONObject();
                             result.put("messageId", message.getMessageId());

@@ -8,14 +8,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBConversationDataSource {
+    private static final String TABLE_CONVERSATION = TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
+    private static final String TABLE_MESSAGE = TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
+
     private SQLiteDatabase conversationDB;
     private SQLiteDatabase messageDB;
     private TSBConversationSQLiteHelper conversationSQLiteHelper;
@@ -36,7 +41,37 @@ public class TSBConversationDataSource {
         messageSQLiteHelper.close();
     }
 
-    public void insert(TSBChatConversation conversation, String userId) {
+    public String getLatestLastActiveAt() {
+        String sql = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                + " ORDER BY datetime(" + TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
+        Cursor cursor = conversationDB.rawQuery(sql, null);
+        if (cursor.isAfterLast()) {
+            return null;
+        }
+        cursor.moveToFirst();
+        return cursor.getString(5);
+    }
+
+    /***
+     * Try to update items, if not rows effected then insert.
+     *
+     * @param conversation
+     * @param userId
+     */
+    public void upsert(TSBChatConversation conversation, String userId) {
+        int rowsEffected = update(conversation, userId);
+        if (rowsEffected < 1) {
+            insert(conversation, userId);
+        }
+    }
+
+    public void upsert(List<TSBChatConversation> conversations, String userId) {
+        for (TSBChatConversation conversation : conversations) {
+            upsert(conversation, userId);
+        }
+    }
+
+    private void insert(TSBChatConversation conversation, String userId) {
         ContentValues values = new ContentValues();
         values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
         values.put(TSBConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
@@ -45,6 +80,7 @@ public class TSBConversationDataSource {
         values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         conversationDB.insert(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
+        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation);
     }
 
     public List<TSBChatConversation> getList(String userId, ChatType type, String target) {
@@ -54,16 +90,18 @@ public class TSBConversationDataSource {
 
         if(!StrUtil.isEmpty(target)) {
             queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
-                    + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
-                    + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?"
+                    + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
+                    + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'"
                     + ";";
-            cursor = conversationDB.rawQuery(queryString, new String[]{ userId, target });
-        } else {
-            queryString = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
-                    + " WHERE " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = ?"
+        } else if (StrUtil.isEmpty(target) && type != null) {
+            queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                    + " WHERE " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
                     + ";";
-            cursor = conversationDB.rawQuery(queryString, new String[]{ type.getName() });
+        } else if (StrUtil.isEmpty(target) && type == null) {
+            queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                    + ";";
         }
+        cursor = conversationDB.rawQuery(queryString, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -74,6 +112,81 @@ public class TSBConversationDataSource {
         cursor.close();
 
         return conversations;
+    }
+
+    /**
+     * When new message received or first message of chat, there is no such conversation of message's from and to,
+     * so it will create a conversation for it.
+     *
+     * @param message
+     */
+    public void upsertMessage(String userId, TSBMessage message) {
+        // TODO: transaction
+        if (isMessageExist(message)) {
+            return;
+        }
+
+        String target = null;
+        if (message.getChatType() == ChatType.GroupChat) {
+            target = message.getRecipient();
+        } else {
+            target = message.getFrom();
+        }
+        boolean needCreateConversation = isConversationExist(userId, target);
+        if (needCreateConversation) {
+            TSBChatConversation conversation = new TSBChatConversation();
+            conversation.setTarget(target);
+            conversation.setType(message.getChatType());
+            conversation.setUnreadMessageCount(1);
+            insert(conversation, userId);
+        }
+        if (insertMessage(message) > 0) {
+            LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + message);
+        }
+    }
+
+
+    /**
+     * Conversation's type and target map the message's type and to field relatively.
+     *
+     * @param type
+     * @param target
+     * @return List<TSBMessage>
+     */
+    public List<TSBMessage> getMessages(ChatType type, String target, long startMessageId, long endMessageId) {
+        List<TSBMessage> messages = new ArrayList<TSBMessage>();
+        Cursor cursor = null;
+        String queryString = "";
+        String currentUserId = TSBChatManager.getInstance().getChatUser().getUserId();
+        if (type == ChatType.GroupChat) {
+            queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
+                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
+                    + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target + "'"
+                    + ";";
+        } else {
+            queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
+                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
+                    + " AND "
+                    + "((" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + currentUserId + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target
+                    + "') OR "
+                    + "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + target + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + currentUserId
+                    + "'))"
+                    + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " > " + startMessageId
+                    + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " < " + endMessageId
+                    + " ORDER BY " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID
+                    + ";";
+        }
+        cursor = messageDB.rawQuery(queryString, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            TSBMessage message = createMessage(cursor);
+            messages.add(message);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return messages;
     }
 
     public void resetUnread(String userId, ChatType type, String target) {
@@ -100,71 +213,42 @@ public class TSBConversationDataSource {
                 new String[]{ type.getName(), userId, target });
     }
 
-    /**
-     * When new message received or first message of chat, there is no such conversation of message's from and to,
-     * so it will create a conversation for it.
-     *
-     * @param message
-     */
-    public void addMessage(String userId, TSBMessage message) {
-        List<TSBChatConversation> conversations = getList(userId, message.getChatType(),
-                message.getRecipient());
-        // TODO: is there a way to realize upsert?
-        if (conversations.size() < 1) {
-            TSBChatConversation conversation = new TSBChatConversation();
-            conversation.setTarget(message.getRecipient());
-            conversation.setType(message.getChatType());
-            conversation.setUnreadMessageCount(1);
-            insert(conversation, userId);
-        }
-        // TODO: need transmission??
-        ContentValues values =  new ContentValues();
-        values.put(TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
-        values.put(TSBMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
-        values.put(TSBMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
-        values.put(TSBMessageSQLiteHelper.COLUMN_TYPE, message.getChatType().getName());
-        values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, message.getBody().getText());
-        values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
-
-        messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
-    }
-
-
-    /**
-     * Conversation's type and target map the message's type and to field relatively.
-     *
-     * @param type
-     * @param target
-     * @return List<TSBMessage>
-     */
-    public List<TSBMessage> getMessages(ChatType type, String from, String to) {
-        List<TSBMessage> messages = new ArrayList<TSBMessage>();
-        Cursor cursor = null;
+    public boolean isMessageExist(TSBMessage message) {
+        String uniqueMessageId = generateUniqueMessageId(message);
         String queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " is ? "
-                + " AND " + TSBMessageSQLiteHelper.COLUMN_FROM + " is ?"
-                + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " is ?"
+                + " WHERE " + TSBMessageSQLiteHelper.COLUMN_ID + " = '" + uniqueMessageId + "'"
                 + ";";
-        cursor = messageDB.rawQuery(queryString, new String[] { type.getName(), from, to });
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            TSBMessage message = createMessage(cursor);
-            messages.add(message);
-            cursor.moveToNext();
-        }
-        cursor.close();
-
-        return messages;
+        Cursor cursor = messageDB.rawQuery(queryString, null);
+        return cursor.getCount() > 0;
     }
 
+
+    /***
+     *
+     * @param conversation
+     * @param userId
+     * @return rows effected
+     */
+    private int update(TSBChatConversation conversation, String userId) {
+        String currentUserId = TSBChatManager.getInstance().getChatUser().getUserId();
+        String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
+                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
+
+        ContentValues values = new ContentValues();
+        values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
+        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
+
+        return conversationDB.update(TABLE_CONVERSATION, values, whereClause,
+                new String[]{ currentUserId, conversation.getTarget() });
+    }
 
     private TSBChatConversation createConversation(Cursor cursor) {
         TSBChatConversation conversation = new TSBChatConversation();
         conversation.setTarget(cursor.getString(2));
         conversation.setType(ChatType.getType(cursor.getString(3)));
-        // TODO: keep messageId ? what's the use of it ?
-        conversation.setUnreadMessageCount(cursor.getInt(5));
+        conversation.setUnreadMessageCount(cursor.getInt(4));
+        conversation.setLastActiveAt(cursor.getString(5));
 
         return conversation;
     }
@@ -183,5 +267,36 @@ public class TSBConversationDataSource {
         message.setCreatedAt(cursor.getString(6));
 
         return message;
+    }
+
+    private String generateUniqueMessageId(TSBMessage message) {
+        // These three value can unique specified a message
+        return message.getFrom() + "#" + message.getRecipient() + "#" + message.getMessageId();
+    }
+
+    private boolean isConversationExist(String userId, String target) {
+        if (StrUtil.isEqual(userId,  target)) {
+            return true;
+        }
+
+        String queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
+                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'"
+                + ";";
+        Cursor cursor = conversationDB.rawQuery(queryString, null);
+        return cursor.getCount() < 1;
+    }
+
+    private long insertMessage(TSBMessage message) {
+        ContentValues values =  new ContentValues();
+        values.put(TSBMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
+        values.put(TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
+        values.put(TSBMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
+        values.put(TSBMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
+        values.put(TSBMessageSQLiteHelper.COLUMN_TYPE, message.getChatType().getName());
+        values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, message.getBody().getText());
+        values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
+
+        return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
     }
 }

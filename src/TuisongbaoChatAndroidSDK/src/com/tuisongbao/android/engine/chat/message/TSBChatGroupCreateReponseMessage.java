@@ -11,17 +11,19 @@ public class TSBChatGroupCreateReponseMessage extends
         BaseTSBResponseMessage<TSBChatGroup> {
 
     @Override
-    protected void preCallBack(TSBChatGroup group) {
-        super.preCallBack(group);
+    protected TSBChatGroup prepareCallBackData() {
+        TSBChatGroup group = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isUseCache()) {
-            return;
+        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            return group;
         }
 
         TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
         dataSource.open();
         dataSource.insert(group);
         dataSource.close();
+
+        return group;
     }
 
     @Override

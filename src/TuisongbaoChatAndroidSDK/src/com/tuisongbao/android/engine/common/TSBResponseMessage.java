@@ -27,11 +27,11 @@ import com.tuisongbao.android.engine.util.StrUtil;
 public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
 
     @Override
-    protected void preCallBack(String data) {
-        super.preCallBack(data);
+    protected String prepareCallBackData() {
+        String result = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isUseCache()) {
-            return;
+        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            return result;
         }
 
         // 初始化数据库
@@ -54,13 +54,13 @@ public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
             List<String> userIds = joinInvitationData.getUserIds();
 
             for (String userId : userIds) {
-                groupDataSource.addUser(groupId, userId);
+                groupDataSource.insertUserIfNotExist(groupId, userId);
             }
 
         } else if (StrUtil.isEqual(requestName, TSBChatGroupLeaveMessage.NAME)) {
             TSBChatGroupLeaveData leaveData = (TSBChatGroupLeaveData)requestData;
             if (currentUser == null) {
-                return;
+                return result;
             }
             groupDataSource.removeUser(leaveData.getGroupId(), currentUser.getUserId());
 
@@ -84,6 +84,7 @@ public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
 
         groupDataSource.close();
         conversationDataSource.close();
+        return result;
     }
 
     @Override

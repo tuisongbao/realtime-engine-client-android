@@ -1,6 +1,7 @@
 package com.tuisongbao.android.engine.chat.entity;
 
 
+
 public class TSBChatConversation {
     private ChatType type;
     private String target;
@@ -37,5 +38,11 @@ public class TSBChatConversation {
 
     public void setLastActiveAt(String lastActiveAt) {
         this.lastActiveAt = lastActiveAt;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("TSBChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s]"
+                , type.getName(), target, unreadMessageCount, lastActiveAt);
     }
 }

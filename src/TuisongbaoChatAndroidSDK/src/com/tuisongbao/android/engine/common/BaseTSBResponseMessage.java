@@ -109,9 +109,10 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
      * Called before callback event
      *
      * do things like persistent data.
+     * @return TODO
      */
-    protected void preCallBack(T data) {
-
+    protected T prepareCallBackData() {
+        return parse();
     }
 
     @Override
@@ -127,10 +128,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
                     ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
                 }
                 if (callBack instanceof TSBEngineCallback) {
-                    T data = parse();
-                    // TODO: what if failed ?
-                    preCallBack(data);
-                    ((TSBEngineCallback)callBack).onSuccess(data);
+                    ((TSBEngineCallback)callBack).onSuccess(prepareCallBackData());
                 }
             }
         } else {
