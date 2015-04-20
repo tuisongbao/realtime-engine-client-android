@@ -146,14 +146,11 @@ public class ChatGroupDetailActivity extends Activity {
     }
 
     private void request() {
-        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, 0, 0, 20, new TSBEngineCallback<List<TSBMessage>>() {
+        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, 30L, 10L, 20, new TSBEngineCallback<List<TSBMessage>>() {
 
             @Override
             public void onSuccess(List<TSBMessage> t) {
                 Log.d(TAG, "Get " + t.size() + " messages");
-                for (TSBMessage message : t) {
-                    Log.d(TAG, message.toString());
-                }
                 Collections.reverse(t);
                 mListConversation = t;
                 runOnUiThread(new Runnable() {

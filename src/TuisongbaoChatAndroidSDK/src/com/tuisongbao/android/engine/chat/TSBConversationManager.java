@@ -15,10 +15,12 @@ import com.tuisongbao.android.engine.chat.message.TSBChatConversationGetReponseM
 import com.tuisongbao.android.engine.chat.message.TSBChatConversationResetUnreadMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetResponseMessage;
+import com.tuisongbao.android.engine.chat.message.TSBChatMessageMultiGetResponseMessage;
 import com.tuisongbao.android.engine.common.BaseManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBResponseMessage;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBConversationManager extends BaseManager {
@@ -53,21 +55,14 @@ public class TSBConversationManager extends BaseManager {
                     "permission denny: need to login");
             return;
         }
-
-        dataSource.open();
-        String lastActiveAt = dataSource.getLatestLastActiveAt();
-        dataSource.close();
-
-        TSBChatConversationGetMessage message = new TSBChatConversationGetMessage();
-        TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(chatType);
-        data.setTarget(target);
-        // Only query the changes after this time.
-        data.setLastActiveAt(lastActiveAt);
-        message.setData(data);
-        TSBChatConversationGetReponseMessage response = new TSBChatConversationGetReponseMessage();
-        response.setCallback(callback);
-        send(message, response);
+        String lastActiveAt = null;
+        if (TSBChatManager.getInstance().isCacheEnabled()) {
+            dataSource.open();
+            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+            lastActiveAt = dataSource.getLatestLastActiveAt(userId);
+            dataSource.close();
+        }
+        sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
     }
 
     /**
@@ -142,8 +137,8 @@ public class TSBConversationManager extends BaseManager {
      * @param limit
      *            可选，默认 20，最大 100
      */
-    public void getMessages(ChatType chatType, String target, long startMessageId,
-            long endMessageId, int limit,
+    public void getMessages(ChatType chatType, String target, Long startMessageId,
+            Long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
@@ -164,48 +159,87 @@ public class TSBConversationManager extends BaseManager {
             return;
         }
 
-        dataSource.open();
-        List<TSBMessage> messages = dataSource.getMessages(chatType, target, startMessageId, endMessageId);
-        dataSource.close();
-
-        if (messages.size() < 1) {
-            sendRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit, callback);
+        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
+            TSBChatMessageGetResponseMessage response = new TSBChatMessageGetResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
             return;
         }
 
-        long minCachedMessageId = messages.get(0).getMessageId();
-        if (minCachedMessageId > startMessageId) {
-            sendRequestOfGetMessages(chatType, target, startMessageId, minCachedMessageId, limit, callback);
-        }
-        long maxCachedMessageId = messages.get(messages.size() - 1).getMessageId();
-        if (maxCachedMessageId < endMessageId) {
-            sendRequestOfGetMessages(chatType, target, maxCachedMessageId, endMessageId, limit, callback);
+        TSBChatMessageMultiGetResponseMessage response = new TSBChatMessageMultiGetResponseMessage();
+        response.setMessageIdSpan(startMessageId, endMessageId);
+        response.setCallback(callback);
+
+        // Query local data
+        dataSource.open();
+        List<TSBMessage> messages = dataSource.getMessages(chatType, target, startMessageId, endMessageId, limit);
+        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + messages.size() + " messages");
+        dataSource.close();
+
+        if (messages.size() < 1) {
+            TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
+            response.incRequestCount();
+            send(message, response);
+            return;
         }
 
-        long pre = minCachedMessageId;
+        // Check whether missing messages from begin.
+        Long maxCachedMessageId = messages.get(0).getMessageId();
+        if (startMessageId != null && maxCachedMessageId < startMessageId) {
+            TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, maxCachedMessageId, limit);
+            response.incRequestCount();
+            send(message, response);
+        }
+        // Check whether missing messages from end.
+        Long minCachedMessageId = messages.get(messages.size() - 1).getMessageId();
+        if (endMessageId != null && minCachedMessageId > endMessageId) {
+            TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, minCachedMessageId, endMessageId, limit);
+            response.incRequestCount();
+            send(message, response);
+        }
+        // Check missing messages between local DB
+        Long pre = maxCachedMessageId;
         for (int i = 1; i < messages.size(); i++) {
-            long next = messages.get(i).getMessageId();
-            boolean needSendRequest = (next - minCachedMessageId) > 1;
+            Long next = messages.get(i).getMessageId();
+            boolean needSendRequest = (pre - next) > 1;
             if (needSendRequest) {
-                sendRequestOfGetMessages(chatType, target, pre, next, limit, callback);
+                TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, pre, next, limit);
+                response.incRequestCount();
+                send(message, response);
             }
+            pre = next;
+        }
+        // All request messages is in local DB
+        if (response.getRequestCount() < 1) {
+            callback.onSuccess(messages);
         }
     }
 
-    private void sendRequestOfGetMessages(ChatType chatType, String target, long startMessageId,
-            long endMessageId, int limit,
-            TSBEngineCallback<List<TSBMessage>> callback) {
-
+    private TSBChatMessageGetMessage getRequestOfGetMessages(ChatType chatType, String target, Long startMessageId,
+            Long endMessageId, int limit) {
         TSBChatMessageGetMessage message = new TSBChatMessageGetMessage();
         TSBChatMessageGetData data = new TSBChatMessageGetData();
         data.setType(chatType);
         data.setTarget(target);
-        data.setStartMessageId(startMessageId <= 0 ? null : startMessageId);
-        data.setEndMessageId(endMessageId <= 0 ? null : endMessageId);
+        data.setStartMessageId(startMessageId);
+        data.setEndMessageId(endMessageId);
         data.setLimit(limit);
         message.setData(data);
 
-        TSBChatMessageGetResponseMessage response = new TSBChatMessageGetResponseMessage();
+        return message;
+    }
+
+    private void sendRequestOfGetConversations(ChatType chatType, String target, String lastActiveAt,
+            TSBEngineCallback<List<TSBChatConversation>> callback) {
+        TSBChatConversationGetMessage message = new TSBChatConversationGetMessage();
+        TSBChatConversationData data = new TSBChatConversationData();
+        data.setType(chatType);
+        data.setTarget(target);
+        // Only query the changes after this time.
+        data.setLastActiveAt(lastActiveAt);
+        message.setData(data);
+        TSBChatConversationGetReponseMessage response = new TSBChatConversationGetReponseMessage();
         response.setCallback(callback);
         send(message, response);
     }
