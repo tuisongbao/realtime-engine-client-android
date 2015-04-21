@@ -12,6 +12,8 @@ import com.tuisongbao.android.engine.chat.message.TSBChatLoginMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLogoutMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetMessage;
+import com.tuisongbao.android.engine.chat.message.TSBChatMessageNextMessage;
+import com.tuisongbao.android.engine.chat.message.TSBChatMessageNextResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage.TSBChatMessageResponseMessageCallback;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageSendMessage;
@@ -122,8 +124,8 @@ public class TSBChatManager extends BaseManager {
      *            消息
      * @param callback
      */
-    public void sendMessage(TSBMessage message,
-            TSBEngineCallback<TSBMessage> callback) {
+    public void sendMessage(final TSBMessage message,
+            final TSBEngineCallback<TSBMessage> callback) {
         if (!isLogin()) {
             handleErrorMessage(callback,
                     TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
@@ -154,6 +156,7 @@ public class TSBChatManager extends BaseManager {
                     "illegal parameter: message body can't not be empty");
             return;
         }
+
         TSBChatMessageSendMessage request = new TSBChatMessageSendMessage();
         TSBChatMessageSendData data = new TSBChatMessageSendData();
         data.setTo(message.getRecipient());
@@ -165,6 +168,19 @@ public class TSBChatManager extends BaseManager {
                 mChatMessageCallback);
         response.setSendMessage(message);
         response.setCustomCallback(callback);
+        send(request, response);
+    }
+
+    public void sendImageMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
+        TSBChatMessageNextMessage request = new TSBChatMessageNextMessage();
+        TSBChatMessageSendData data = new TSBChatMessageSendData();
+        data.setTo(message.getRecipient());
+        data.setType(message.getChatType());
+        data.setContent(message.getBody());
+        request.setData(data);
+
+        TSBChatMessageNextResponseMessage response = new TSBChatMessageNextResponseMessage();
+        response.setCallback(callback);
         send(request, response);
     }
 

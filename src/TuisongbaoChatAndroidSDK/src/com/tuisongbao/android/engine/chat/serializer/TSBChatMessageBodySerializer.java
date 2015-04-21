@@ -19,7 +19,7 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
         TSBMessage.TYPE type = TSBMessage.TYPE.TEXT;
         String text = "";
         if (bodyJson != null) {
-            type = TSBMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type") .getAsString() : null);
+            type = TSBMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type").getAsString() : null);
             text = bodyJson.get("text") != null ? bodyJson.get("text") .getAsString() : "";
         }
         TSBMessageBody body = TSBMessageBody.createMessage(type);

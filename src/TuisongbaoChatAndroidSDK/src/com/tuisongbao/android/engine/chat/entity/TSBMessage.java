@@ -90,7 +90,9 @@ public class TSBMessage implements Parcelable {
     }
 
     public static enum TYPE {
-        TEXT("text", 1);
+        TEXT("text", 1),
+        IMAGE("image", 2);
+
         private String name;
         private int index;
 

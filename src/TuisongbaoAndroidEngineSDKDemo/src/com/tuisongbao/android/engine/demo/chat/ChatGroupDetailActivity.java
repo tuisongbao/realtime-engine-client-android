@@ -6,12 +6,20 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +35,7 @@ import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
@@ -35,7 +44,8 @@ import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupDetailAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 
-public class ChatGroupDetailActivity extends Activity {
+@SuppressLint("NewApi")
+public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_TARGET";
     public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE";
@@ -44,16 +54,20 @@ public class ChatGroupDetailActivity extends Activity {
     private ChatType mChatType;
     private ListView mListViewGroupDetail;
     private Button mSendButton;
+    private Button mImageSelectButton;
     private EditText mContenEditText;
     private ChatGroupDetailAdapter mAdapter;
     private List<TSBMessage> mListConversation;
+
+    private Uri mImageUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_detail);
         mListViewGroupDetail = (ListView) findViewById(R.id.group_detail_list_view);
-        mSendButton = (Button) findViewById(R.id.group_detail_send_button);
+        mSendButton = (Button) findViewById(R.id.group_detail_text_send_button);
+        mImageSelectButton = (Button) findViewById(R.id.group_detail_media_send_button);
         mContenEditText = (EditText) findViewById(R.id.group_detail_message_content_edittext);
         mListConversation = new ArrayList<TSBMessage>();
         mTarget = getIntent().getStringExtra(EXTRA_CODE_TARGET);
@@ -106,8 +120,30 @@ public class ChatGroupDetailActivity extends Activity {
                             InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
+
+        mImageSelectButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, 1);
+            }
+        });
         registerBroadcast();
         request();
+
+//        getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            mImageUri = data.getData();
+            getLoaderManager().restartLoader(0, null, this);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -145,6 +181,75 @@ public class ChatGroupDetailActivity extends Activity {
         unregisterBroadcast();
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+        return getAppropriateLoader();
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
+        handlerLoaderFinished(arg1);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private Loader<Cursor> getAppropriateLoader() {
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT) {
+            Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+            String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
+
+            CursorLoader cursorLoader = new CursorLoader(ChatGroupDetailActivity.this, uri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            return cursorLoader;
+
+        } else {
+            String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
+
+            CursorLoader cursorLoader = new CursorLoader(ChatGroupDetailActivity.this, mImageUri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            return cursorLoader;
+        }
+    }
+
+    private void handlerLoaderFinished(Cursor cursor) {
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        String realPath = "";
+        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT){
+            String wholeID = DocumentsContract.getDocumentId(mImageUri);
+            Log.d(TAG, wholeID);
+            String[] splits = wholeID.split(":");
+
+            if (splits.length != 2) {
+                return;
+            }
+            String imageId = splits[1];
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String id = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+
+                if (imageId.equals(id)) {
+                    realPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    break;
+                }
+                cursor.moveToNext();
+            }
+        } else {
+            if (cursor.getCount() > 0) {
+                cursor.moveToFirst();
+                realPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+            }
+        }
+        sendImageMessage(realPath);
+    }
+
     private void request() {
         TSBConversationManager.getInstance().getMessages(mChatType, mTarget, 30L, 10L, 20, new TSBEngineCallback<List<TSBMessage>>() {
 
@@ -175,6 +280,45 @@ public class ChatGroupDetailActivity extends Activity {
         });
     }
 
+    private void sendImageMessage(String filePath) {
+        if (filePath == null || filePath.length() < 1) {
+            Toast.makeText(ChatGroupDetailActivity.this, "Send failed, file not exist", Toast.LENGTH_LONG).show();
+            return;
+        }
+        TSBMessage message = new TSBMessage();
+        TSBMessageBody body = TSBMessageBody.createMessage(TYPE.IMAGE);
+        body.setText(filePath);
+        message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
+        TSBChatManager.getInstance().sendImageMessage(message, new TSBEngineCallback<TSBMessage>() {
+
+            @Override
+            public void onSuccess(TSBMessage t) {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        mAdapter.refresh(mListConversation);
+                        Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        mAdapter.refresh(mListConversation);
+                        Toast.makeText(ChatGroupDetailActivity.this, "Send failed", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+        });
+    }
+
     private void registerBroadcast() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
@@ -198,4 +342,7 @@ public class ChatGroupDetailActivity extends Activity {
             }
         }
     };
+
+
+
 }

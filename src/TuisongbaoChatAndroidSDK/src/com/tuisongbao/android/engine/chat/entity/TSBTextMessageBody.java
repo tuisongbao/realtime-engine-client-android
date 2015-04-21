@@ -15,6 +15,7 @@ public class TSBTextMessageBody extends TSBMessageBody {
         setText(text);
     }
 
+    @Override
     public void setText(String text) {
         super.setText(text);
     }
@@ -35,10 +36,12 @@ public class TSBTextMessageBody extends TSBMessageBody {
 
     public static final Parcelable.Creator<TSBTextMessageBody> CREATOR =
             new Parcelable.Creator<TSBTextMessageBody>() {
+        @Override
         public TSBTextMessageBody createFromParcel(Parcel in) {
             return new TSBTextMessageBody(in);
         }
 
+        @Override
         public TSBTextMessageBody[] newArray(int size) {
             return new TSBTextMessageBody[size];
         }

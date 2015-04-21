@@ -37,10 +37,11 @@ public abstract class TSBMessageBody implements Parcelable {
         if (type == null) {
             body = new TSBTextMessageBody();
         }
-        if (type.getIndex() == TYPE.TEXT.getIndex()) {
+        if (type == TYPE.TEXT) {
             body = new TSBTextMessageBody();
-        } else {
+        } else if (type == TYPE.IMAGE) {
             body = new TSBTextMessageBody();
+            body.setType(TYPE.IMAGE);
         }
         return body;
     }

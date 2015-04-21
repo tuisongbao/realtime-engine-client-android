@@ -4,6 +4,7 @@ public class TSBChatUser {
 
     private boolean isNew;
     private String userId;
+    private String uploadToken;
 
     public boolean isNew() {
         return isNew;
@@ -19,5 +20,13 @@ public class TSBChatUser {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUploadToken() {
+        return uploadToken;
+    }
+
+    public void setUploadToken(String uploadToken) {
+        this.uploadToken = uploadToken;
     }
 }
