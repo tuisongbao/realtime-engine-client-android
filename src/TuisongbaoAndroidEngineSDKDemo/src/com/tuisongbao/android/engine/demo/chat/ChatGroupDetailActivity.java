@@ -26,6 +26,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -60,6 +62,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
     private List<TSBMessage> mListConversation;
 
     private Uri mImageUri = null;
+    private Long mStartMessageId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +124,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
             }
         });
 
+        // Select a image
         mImageSelectButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -131,16 +135,34 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                 startActivityForResult(intent, 1);
             }
         });
-        registerBroadcast();
-        request();
 
-//        getLoaderManager().initLoader(0, null, this);
+        mListViewGroupDetail.setOnScrollListener(new OnScrollListener() {
+
+            int currentFirstVisibleItem;
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if (currentFirstVisibleItem == 0 && scrollState == SCROLL_STATE_IDLE) {
+                    request();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView arg0, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                this.currentFirstVisibleItem = firstVisibleItem;
+            }
+        });
+
+        registerBroadcast();
+
+        // Request the latest messages.
+        request();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             mImageUri = data.getData();
+            // Query the real path of the image.
             getLoaderManager().restartLoader(0, null, this);
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -198,8 +220,10 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
     }
 
     private Loader<Cursor> getAppropriateLoader() {
+        // The Uri of different Android version has different format.
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT) {
+            // If the SDK version is over lollipop, have to query all
             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
             String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA,
@@ -225,6 +249,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
         if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT){
             String wholeID = DocumentsContract.getDocumentId(mImageUri);
             Log.d(TAG, wholeID);
+            // Lollipop: content://com...../media:{id}, match id to find the file path.
             String[] splits = wholeID.split(":");
 
             if (splits.length != 2) {
@@ -251,12 +276,18 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
     }
 
     private void request() {
-        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, 30L, 10L, 20, new TSBEngineCallback<List<TSBMessage>>() {
+        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, mStartMessageId, null, 20, new TSBEngineCallback<List<TSBMessage>>() {
 
             @Override
-            public void onSuccess(List<TSBMessage> t) {
+            public void onSuccess(final List<TSBMessage> t) {
                 Log.d(TAG, "Get " + t.size() + " messages");
+                if (t.size() < 1) {
+                    return;
+                }
+                mStartMessageId = t.get(0).getMessageId();
+                mStartMessageId = mStartMessageId - Long.valueOf(t.size());
                 Collections.reverse(t);
+                t.addAll(mListConversation);
                 mListConversation = t;
                 runOnUiThread(new Runnable() {
 
@@ -342,7 +373,4 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
             }
         }
     };
-
-
-
 }

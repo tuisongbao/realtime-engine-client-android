@@ -1,5 +1,7 @@
 package com.tuisongbao.android.engine.chat.message;
 
+import java.util.Date;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,6 +22,7 @@ import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.service.EngineServiceManager;
+import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBChatMessageResponseMessage extends
         BaseTSBResponseMessage<TSBMessage> {
@@ -88,6 +91,9 @@ public class TSBChatMessageResponseMessage extends
                 json = new JSONObject(getData());
                 long messageId = json.optLong("messageId");
                 message.setMessageId(messageId);
+                message.setFrom(userId);
+                // Keep message order. the server will also create one, after getMessage called, update this field to keep consistent with server.
+                message.setCreatedAt(StrUtil.getTimeStringIOS8061(new Date()));
             } catch (JSONException e) {
                 LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
             }

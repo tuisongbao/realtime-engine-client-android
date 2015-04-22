@@ -1,5 +1,6 @@
 package com.tuisongbao.android.engine.chat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.tuisongbao.android.engine.TSBEngine;
@@ -19,6 +20,7 @@ import com.tuisongbao.android.engine.chat.message.TSBChatMessageMultiGetResponse
 import com.tuisongbao.android.engine.common.BaseManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBResponseMessage;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
@@ -49,20 +51,26 @@ public class TSBConversationManager extends BaseManager {
      */
     public void getList(ChatType chatType, String target,
             TSBEngineCallback<List<TSBChatConversation>> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+
+            String lastActiveAt = null;
+            if (TSBChatManager.getInstance().isCacheEnabled()) {
+                dataSource.open();
+                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+                lastActiveAt = dataSource.getLatestLastActiveAt(userId);
+                dataSource.close();
+            }
+            sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
-        String lastActiveAt = null;
-        if (TSBChatManager.getInstance().isCacheEnabled()) {
-            dataSource.open();
-            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
-            lastActiveAt = dataSource.getLatestLastActiveAt(userId);
-            dataSource.close();
-        }
-        sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
     }
 
     /**
@@ -74,20 +82,26 @@ public class TSBConversationManager extends BaseManager {
      *            跟谁， userId 或 groupId
      */
     public void resetUnread(ChatType chatType, String target, TSBEngineCallback<String> callback) {
-        if (!isLogin()) {
-            return;
+        try {
+            if (!isLogin()) {
+                return;
+            }
+            if (chatType == null || StrUtil.isEmpty(target)) {
+                return;
+            }
+            TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
+            TSBChatConversationData data = new TSBChatConversationData();
+            data.setType(chatType);
+            data.setTarget(target);
+            message.setData(data);
+            TSBResponseMessage response = new TSBResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
-        if (chatType == null || StrUtil.isEmpty(target)) {
-            return;
-        }
-        TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
-        TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(chatType);
-        data.setTarget(target);
-        message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
     }
 
     /**
@@ -101,26 +115,32 @@ public class TSBConversationManager extends BaseManager {
      */
     public void delete(ChatType chatType, String target,
             TSBEngineCallback<String> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (chatType == null || StrUtil.isEmpty(target)) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: type or target can't not be empty");
+                return;
+            }
+            TSBChatConversationDeleteMessage message = new TSBChatConversationDeleteMessage();
+            TSBChatConversationData data = new TSBChatConversationData();
+            data.setType(chatType);
+            data.setTarget(target);
+            message.setData(data);
+            TSBResponseMessage response = new TSBResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
-        if (chatType == null || StrUtil.isEmpty(target)) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: type or target can't not be empty");
-            return;
-        }
-        TSBChatConversationDeleteMessage message = new TSBChatConversationDeleteMessage();
-        TSBChatConversationData data = new TSBChatConversationData();
-        data.setType(chatType);
-        data.setTarget(target);
-        message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
     }
 
     /**
@@ -140,33 +160,50 @@ public class TSBConversationManager extends BaseManager {
     public void getMessages(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
-        }
-        if (chatType == null) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: chat type ocan't not be empty");
-            return;
-        }
-        if (StrUtil.isEmpty(target)) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: recipiet id can't not be empty");
-            return;
-        }
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (chatType == null) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: chat type ocan't not be empty");
+                return;
+            }
+            if (StrUtil.isEmpty(target)) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: recipiet id can't not be empty");
+                return;
+            }
 
-        if (!TSBChatManager.getInstance().isCacheEnabled()) {
-            TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
-            TSBChatMessageGetResponseMessage response = new TSBChatMessageGetResponseMessage();
-            response.setCallback(callback);
-            send(message, response);
-            return;
-        }
+            // No need to query if startMessageId is less 0
+            if (startMessageId != null && startMessageId <= 0) {
+                callback.onSuccess(new ArrayList<TSBMessage>());
+                return;
+            }
 
+            if (!TSBChatManager.getInstance().isCacheEnabled()) {
+                TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
+                TSBChatMessageGetResponseMessage response = new TSBChatMessageGetResponseMessage();
+                response.setCallback(callback);
+                send(message, response);
+                return;
+            }
+
+            requestMissingMessagesInLocalCache(chatType, target, startMessageId, endMessageId, limit, callback);
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+        }
+    }
+
+    private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
+            Long endMessageId, int limit,
+            TSBEngineCallback<List<TSBMessage>> callback) {
         TSBChatMessageMultiGetResponseMessage response = new TSBChatMessageMultiGetResponseMessage();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
@@ -177,7 +214,8 @@ public class TSBConversationManager extends BaseManager {
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + messages.size() + " messages");
         dataSource.close();
 
-        if (messages.size() < 1) {
+        // if startMessageId is null, pull the latest messages.
+        if (messages.size() < 1 || startMessageId == null) {
             TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
             response.incRequestCount();
             send(message, response);
@@ -198,7 +236,7 @@ public class TSBConversationManager extends BaseManager {
             response.incRequestCount();
             send(message, response);
         }
-        // Check missing messages between local DB
+        // Check missing messages between messages of local DB
         Long pre = maxCachedMessageId;
         for (int i = 1; i < messages.size(); i++) {
             Long next = messages.get(i).getMessageId();

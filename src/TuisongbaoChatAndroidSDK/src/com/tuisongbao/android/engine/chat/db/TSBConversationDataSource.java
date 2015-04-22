@@ -119,15 +119,16 @@ public class TSBConversationDataSource {
      */
     public void upsertMessage(String userId, TSBMessage message) {
         // TODO: transaction
-        if (isMessageExist(message)) {
+        if (updateMessage(message) > 0) {
             return;
         }
 
-        String target = null;
-        if (message.getChatType() == ChatType.GroupChat) {
-            target = message.getRecipient();
-        } else {
-            target = message.getFrom();
+        // Create conversation if no such conversation between from and to
+        String target = message.getRecipient();
+        if (message.getChatType() == ChatType.SingleChat) {
+            if (StrUtil.isEqual(target, userId)) {
+                target = message.getFrom();
+            }
         }
         boolean needCreateConversation = !isConversationExist(userId, target);
         if (needCreateConversation) {
@@ -171,7 +172,7 @@ public class TSBConversationDataSource {
         if (startMessageId != null) {
             queryString += " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " < " + startMessageId;
         }
-        if (startMessageId != null) {
+        if (endMessageId != null) {
             queryString = queryString + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " > " + endMessageId;
         }
         queryString = queryString
@@ -215,13 +216,14 @@ public class TSBConversationDataSource {
                 new String[]{ type.getName(), userId, target });
     }
 
-    public boolean isMessageExist(TSBMessage message) {
+    public int updateMessage(TSBMessage message) {
         String uniqueMessageId = generateUniqueMessageId(message);
-        String queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                + " WHERE " + TSBMessageSQLiteHelper.COLUMN_ID + " = '" + uniqueMessageId + "'"
-                + ";";
-        Cursor cursor = messageDB.rawQuery(queryString, null);
-        return cursor.getCount() > 0;
+        String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
+
+        ContentValues values = new ContentValues();
+        values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
+
+        return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
     }
 
 
