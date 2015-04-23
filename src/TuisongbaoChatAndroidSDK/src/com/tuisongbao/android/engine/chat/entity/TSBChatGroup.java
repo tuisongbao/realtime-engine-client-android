@@ -12,6 +12,7 @@ public class TSBChatGroup {
     private boolean userCanInvite;
     private int userCount;
     private int userCountLimit;
+    private String lastActiveAt;
     private List<String> invitedUserIds;
 
     public String getGroupId() {
@@ -84,6 +85,14 @@ public class TSBChatGroup {
 
     public void setInvitedUserIds(List<String> invitedUserIds) {
         this.invitedUserIds = invitedUserIds;
+    }
+
+    public String getLastActiveAt() {
+        return lastActiveAt;
+    }
+
+    public void setLastActiveAt(String lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
     }
 
     @Override
