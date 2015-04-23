@@ -316,10 +316,11 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
         TSBMessageBody body = TSBMessageBody.createMessage(TYPE.IMAGE);
         body.setText(filePath);
         message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
-        TSBChatManager.getInstance().sendImageMessage(message, new TSBEngineCallback<TSBMessage>() {
+        TSBChatManager.getInstance().sendMessage(message, new TSBEngineCallback<TSBMessage>() {
 
             @Override
-            public void onSuccess(TSBMessage t) {
+            public void onSuccess(final TSBMessage t) {
+                mListConversation.add(t);
                 runOnUiThread(new Runnable() {
 
                     @Override

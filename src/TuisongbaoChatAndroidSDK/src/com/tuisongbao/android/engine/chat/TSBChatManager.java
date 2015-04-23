@@ -1,19 +1,28 @@
 package com.tuisongbao.android.engine.chat;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.storage.UploadOptions;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.entity.TSBChatLoginData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLogoutMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageGetMessage;
-import com.tuisongbao.android.engine.chat.message.TSBChatMessageNextMessage;
-import com.tuisongbao.android.engine.chat.message.TSBChatMessageNextResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageResponseMessage.TSBChatMessageResponseMessageCallback;
 import com.tuisongbao.android.engine.chat.message.TSBChatMessageSendMessage;
@@ -27,6 +36,7 @@ import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.http.HttpConstants;
 import com.tuisongbao.android.engine.http.request.BaseRequest;
 import com.tuisongbao.android.engine.http.response.BaseResponse;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.ExecutorUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -126,37 +136,52 @@ public class TSBChatManager extends BaseManager {
      */
     public void sendMessage(final TSBMessage message,
             final TSBEngineCallback<TSBMessage> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
-        }
-        if (message == null) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: message can't not be empty");
-            return;
-        }
-        if (message.getChatType() == null) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: message chat type can't not be empty");
-            return;
-        }
-        if (StrUtil.isEmpty(message.getRecipient())) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: message recipient id can't not be empty");
-            return;
-        }
-        if (message.getBody() == null) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: message body can't not be empty");
-            return;
-        }
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (message == null) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: message can't not be empty");
+                return;
+            }
+            if (message.getChatType() == null) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: message chat type can't not be empty");
+                return;
+            }
+            if (StrUtil.isEmpty(message.getRecipient())) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: message recipient id can't not be empty");
+                return;
+            }
+            if (message.getBody() == null) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: message body can't not be empty");
+                return;
+            }
 
+            TYPE messageType = message.getBody().getType();
+            if (messageType == TYPE.TEXT) {
+                sendTextMessage(message, callback);
+            } else if (mIsCacheEnabled) {
+                sendImageMessage(message, callback);
+            }
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+        }
+    }
+
+    private void sendTextMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
         TSBChatMessageSendMessage request = new TSBChatMessageSendMessage();
         TSBChatMessageSendData data = new TSBChatMessageSendData();
         data.setTo(message.getRecipient());
@@ -171,17 +196,29 @@ public class TSBChatManager extends BaseManager {
         send(request, response);
     }
 
-    public void sendImageMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
-        TSBChatMessageNextMessage request = new TSBChatMessageNextMessage();
-        TSBChatMessageSendData data = new TSBChatMessageSendData();
-        data.setTo(message.getRecipient());
-        data.setType(message.getChatType());
-        data.setContent(message.getBody());
-        request.setData(data);
+    private void sendImageMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
+        String filePath = message.getBody().getText();
+        if (StrUtil.isEmpty(filePath)) {
+            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "File path is not invalid.");
+            return;
+        }
 
-        TSBChatMessageNextResponseMessage response = new TSBChatMessageNextResponseMessage();
-        response.setCallback(callback);
-        send(request, response);
+        UploadManager manager = new UploadManager();
+        String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("x:targetId", message.getRecipient());
+        params.put("x:timestamp", getTimestampString(new Date()));
+        final UploadOptions opt = new UploadOptions(params, null, true, null, null);
+        manager.put(filePath, "test", token, new UpCompletionHandler() {
+
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject responseObject) {
+                LogUtil.info(LogUtil.LOG_TAG_CHAT, "Upload file finished with key: " + key + ", info: " + info);
+                message.getBody().setText("mockkey");
+                sendTextMessage(message, callback);
+            }
+        }, opt);
     }
 
     public void bind(String bindName, TSBEngineBindCallback callback) {
@@ -196,6 +233,20 @@ public class TSBChatManager extends BaseManager {
             return;
         }
         super.unbind(bindName, callback);
+    }
+
+    @Override
+    protected void handleConnect(TSBConnection t) {
+        // when logined, it need to re-login
+        if (isLogin() && mTSBLoginMessage != null) {
+            // 当断掉重连时不需要回调
+            auth(mTSBLoginMessage);
+        }
+    }
+
+    @Override
+    protected void handleDisconnect(int code, String message) {
+        // empty
     }
 
     private void clearCache() {
@@ -354,17 +405,9 @@ public class TSBChatManager extends BaseManager {
         }
     };
 
-    @Override
-    protected void handleConnect(TSBConnection t) {
-        // when logined, it need to re-login
-        if (isLogin() && mTSBLoginMessage != null) {
-            // 当断掉重连时不需要回调
-            auth(mTSBLoginMessage);
-        }
-    }
-
-    @Override
-    protected void handleDisconnect(int code, String message) {
-        // empty
+    private String getTimestampString(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return format.format(date);
     }
 }

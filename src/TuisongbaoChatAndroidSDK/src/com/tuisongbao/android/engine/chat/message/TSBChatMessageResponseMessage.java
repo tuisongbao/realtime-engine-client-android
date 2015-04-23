@@ -91,6 +91,13 @@ public class TSBChatMessageResponseMessage extends
                 json = new JSONObject(getData());
                 long messageId = json.optLong("messageId");
                 message.setMessageId(messageId);
+
+                // image messages
+                JSONObject content = json.optJSONObject("content");
+                if (content != null) {
+                    message.getBody().setText(content.getString("text"));
+                }
+
                 message.setFrom(userId);
                 // Keep message order. the server will also create one, after getMessage called, update this field to keep consistent with server.
                 message.setCreatedAt(StrUtil.getTimeStringIOS8061(new Date()));

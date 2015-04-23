@@ -180,6 +180,7 @@ public class TSBGroupManager extends BaseManager {
             TSBChatGroupGetUsersReponseMessage response = new TSBChatGroupGetUsersReponseMessage();
             response.setCallback(callback);
             send(message, response);
+
         } catch (Exception e) {
             handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);

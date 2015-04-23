@@ -74,18 +74,21 @@ public class TSBGroupDataSource {
         LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + group);
     }
 
-    public List<TSBChatGroup> getList(String groupId, String groupName) {
-        String whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP;
+    public List<TSBChatGroup> getList(String userId, String groupId, String groupName) {
+        String whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
+                + " JOIN " + TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER
+                + " ON " + TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = " + TSBGroupSQLiteHelper.COLUMN_GROUP_ID
+                + " WHERE " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
         Cursor cursor = null;
         String idClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = '" + groupId + "'";
         String nameClause = TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE '" + "%" + groupName + "%" + "'";
 
         if (groupId != null && groupName != null) {
-            whereClause += " WHERE " + idClause + " AND " + nameClause;
+            whereClause += " AND " + idClause + " AND " + nameClause;
         } else if (groupId == null && groupName != null) {
-            whereClause += " WHERE " + nameClause;
+            whereClause += " AND " + nameClause;
         } else if (groupId != null && groupName == null) {
-            whereClause += " WHERE " + idClause;
+            whereClause += " AND " + idClause;
         }
         whereClause += ";";
         cursor = groupDB.rawQuery(whereClause, null);
