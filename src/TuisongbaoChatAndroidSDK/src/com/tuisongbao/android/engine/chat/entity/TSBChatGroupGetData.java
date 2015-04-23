@@ -4,6 +4,7 @@ public class TSBChatGroupGetData {
 
     private String groupId;
     private String name;
+    private String lastActiveAt;
 
     public String getGroupId() {
         return groupId;
@@ -19,5 +20,13 @@ public class TSBChatGroupGetData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastActiveAt() {
+        return lastActiveAt;
+    }
+
+    public void setLastActiveAt(String lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
     }
 }

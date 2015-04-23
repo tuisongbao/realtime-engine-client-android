@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBGroupDataSource {
@@ -31,6 +32,17 @@ public class TSBGroupDataSource {
     public void close() {
         groupSQLiteHelper.close();
         groupUserSQLiteHelper.close();
+    }
+
+    public String getLatestLastActiveAt(String userId) {
+        String sql = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
+                + " ORDER BY datetime(" + TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
+        Cursor cursor = groupDB.rawQuery(sql, null);
+        if (cursor.isAfterLast()) {
+            return null;
+        }
+        cursor.moveToFirst();
+        return cursor.getString(9);
     }
 
     /***
@@ -59,26 +71,26 @@ public class TSBGroupDataSource {
         values.put(TSBGroupSQLiteHelper.COLUMN_GROUP_ID, group.getGroupId());
 
         groupDB.insert(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, null, values);
+        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + group);
     }
 
     public List<TSBChatGroup> getList(String groupId, String groupName) {
-        String whereClause = "";
+        String whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP;
         Cursor cursor = null;
-        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
+        String idClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = '" + groupId + "'";
+        String nameClause = TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE '" + "%" + groupName + "%" + "'";
 
-        if(!StrUtil.isEmpty(groupId)) {
-            whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
-                + " WHERE " + TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?"
-                + " AND " + TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE ?"
-                + ";";
-            cursor = groupDB.rawQuery(whereClause, new String[]{ groupId, "%" + groupName + "%" });
-        } else {
-            whereClause = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
-                    + " WHERE " + TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE ?"
-                    + ";";
-            cursor = groupDB.rawQuery(whereClause, new String[]{ "%" + groupName + "%" });
+        if (groupId != null && groupName != null) {
+            whereClause += " WHERE " + idClause + " AND " + nameClause;
+        } else if (groupId == null && groupName != null) {
+            whereClause += " WHERE " + nameClause;
+        } else if (groupId != null && groupName == null) {
+            whereClause += " WHERE " + idClause;
         }
+        whereClause += ";";
+        cursor = groupDB.rawQuery(whereClause, null);
 
+        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             TSBChatGroup group = createGroup(cursor);
@@ -131,15 +143,16 @@ public class TSBGroupDataSource {
      */
     public void insertUserIfNotExist(String groupId, String userId) {
         String whereClause = "SELECT * FROM " + TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER
-                + " WHERE " + TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ?"
-                + " AND " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
-        Cursor cursor = groupUserDB.rawQuery(whereClause, new String[]{ groupId, userId });
+                + " WHERE " + TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = '" + groupId + "'"
+                + " AND " + TSBGroupUserSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
+        Cursor cursor = groupUserDB.rawQuery(whereClause, null);
 
-        if (cursor.isAfterLast()) {
+        if (cursor.getCount() < 1) {
             ContentValues values = new ContentValues();
             values.put(TSBGroupUserSQLiteHelper.COLUMN_GROUP_ID, groupId);
             values.put(TSBGroupUserSQLiteHelper.COLUMN_USER_ID, userId);
             groupUserDB.insert(TSBGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
+            LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, groupId + " has new member " + userId);
         }
     }
 

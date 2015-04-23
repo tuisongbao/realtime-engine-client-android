@@ -23,7 +23,7 @@ public class TSBConversationSQLiteHelper extends BaseSQLiteHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        String createDatabaseString = "create table "
+        String createDatabaseString = "create table if not exists "
           + TABLE_CHAT_CONVERSATION + "(" + COLUMN_ID
           + " integer primary key autoincrement, "
           + COLUMN_USER_ID + " text not null, "

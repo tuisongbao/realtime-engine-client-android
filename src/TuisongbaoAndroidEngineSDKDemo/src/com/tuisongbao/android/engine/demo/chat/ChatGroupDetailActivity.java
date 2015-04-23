@@ -1,9 +1,7 @@
 package com.tuisongbao.android.engine.demo.chat;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -90,8 +88,6 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     @Override
                     public void onSuccess(TSBMessage t) {
                         t.setFrom(LoginChache.getUserId());
-                        SimpleDateFormat format = new SimpleDateFormat("yyy-MM-dd hh:mm:ss.S");
-                        t.setCreatedAt(format.format(new Date()));
                         mListConversation.add(t);
                         runOnUiThread(new Runnable() {
 

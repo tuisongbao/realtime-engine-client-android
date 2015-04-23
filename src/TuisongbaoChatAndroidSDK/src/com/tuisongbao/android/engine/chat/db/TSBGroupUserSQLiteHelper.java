@@ -13,13 +13,12 @@ import com.tuisongbao.android.engine.log.LogUtil;
  */
 public class TSBGroupUserSQLiteHelper extends BaseSQLiteHelper {
     public static final String TABLE_CHAT_GROUP_USER = "chatGroupUser";
-    private static final String DATABASE_NAME = "chatMessage.db";
+    private static final String DATABASE_NAME = "chatGroupUser.db";
     private static final int DATABASE_VERSION = 1;
     private static final String COLUMN_ID = "_id";
 
     public static final String COLUMN_GROUP_ID = "groupId";
     public static final String COLUMN_USER_ID = "userId";
-    public static final String COLUMN_PRESENCE = "presence";
 
     public TSBGroupUserSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,12 +26,11 @@ public class TSBGroupUserSQLiteHelper extends BaseSQLiteHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        String createDatabaseString = "create table "
+        String createDatabaseString = "create table if not exists "
           + TABLE_CHAT_GROUP_USER + "(" + COLUMN_ID
           + " integer primary key autoincrement, "
           + COLUMN_GROUP_ID + " text not null, "
-          + COLUMN_USER_ID + " text not null "
-          + COLUMN_PRESENCE + " text not null "
+          + COLUMN_USER_ID + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);
         database.execSQL(createDatabaseString);

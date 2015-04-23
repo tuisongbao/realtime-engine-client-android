@@ -1,6 +1,5 @@
 package com.tuisongbao.android.engine.chat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.tuisongbao.android.engine.TSBEngine;
@@ -25,7 +24,9 @@ import com.tuisongbao.android.engine.chat.message.TSBChatGroupRemoveUserMessage;
 import com.tuisongbao.android.engine.common.BaseManager;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBResponseMessage;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBGroupManager extends BaseManager {
@@ -76,39 +77,36 @@ public class TSBGroupManager extends BaseManager {
     public void create(String groupName, String description,
             List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<TSBChatGroup> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (!isIllegalGroupName(groupName)) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: group name can't not be empty or illegal");
+                return;
+            }
+
+            TSBChatGroupCreateMessage message = new TSBChatGroupCreateMessage();
+            TSBChatGroupCreateData data = new TSBChatGroupCreateData();
+            data.setName(groupName);
+            data.setDescription(description);
+            data.setInviteUserIds(members);
+            data.setPublic(isPublic);
+            data.setUserCanInvite(userCanInvite);
+            message.setData(data);
+            TSBChatGroupCreateReponseMessage response = new TSBChatGroupCreateReponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
-        if (!isIllegalGroupName(groupName)) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: group name can't not be empty or illegal");
-            return;
-        }
-
-        TSBChatGroupCreateMessage message = new TSBChatGroupCreateMessage();
-        TSBChatGroupCreateData data = new TSBChatGroupCreateData();
-        data.setName(groupName);
-        data.setDescription(description);
-        data.setInviteUserIds(members);
-        data.setPublic(isPublic);
-        data.setUserCanInvite(userCanInvite);
-        message.setData(data);
-        TSBChatGroupCreateReponseMessage response = new TSBChatGroupCreateReponseMessage();
-        response.setCallback(callback);
-        send(message, response);
-    }
-
-    public List<TSBChatGroup> getList(String groupId, String groupName) {
-        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
-        dataSource.open();
-        groups = dataSource.getList(groupId, groupName);
-        dataSource.close();
-
-        return groups;
     }
 
     /**
@@ -122,21 +120,35 @@ public class TSBGroupManager extends BaseManager {
      * @param callback
      */
     public void getList(String groupId, String groupName, TSBEngineCallback<List<TSBChatGroup>> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+
+            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+            String lastActiveAt = "";
+            dataSource.open();
+            lastActiveAt = dataSource.getLatestLastActiveAt(userId);
+            dataSource.close();
+
+            TSBChatGroupGetMessage message = new TSBChatGroupGetMessage();
+            TSBChatGroupGetData data = new TSBChatGroupGetData();
+            data.setGroupId(groupId);
+            data.setName(groupName);
+            data.setLastActiveAt(lastActiveAt);
+            message.setData(data);
+            TSBChatGroupGetReponseMessage response = new TSBChatGroupGetReponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
 
-        TSBChatGroupGetMessage message = new TSBChatGroupGetMessage();
-        TSBChatGroupGetData data = new TSBChatGroupGetData();
-        data.setGroupId(groupId);
-        data.setName(groupName);
-        message.setData(data);
-        TSBChatGroupGetReponseMessage response = new TSBChatGroupGetReponseMessage();
-        response.setCallback(callback);
-        send(message, response);
     }
 
 
@@ -148,34 +160,30 @@ public class TSBGroupManager extends BaseManager {
      */
     public void getUsers(String groupId,
             TSBEngineCallback<List<TSBChatGroupUser>> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (StrUtil.isEmpty(groupId)) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: group id can't be not empty");
+                return;
+            }
+            TSBChatGroupGetUsersMessage message = new TSBChatGroupGetUsersMessage();
+            TSBChatGroupGetUsersData data = new TSBChatGroupGetUsersData();
+            data.setGroupId(groupId);
+            message.setData(data);
+            TSBChatGroupGetUsersReponseMessage response = new TSBChatGroupGetUsersReponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
-        if (StrUtil.isEmpty(groupId)) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: group id can't be not empty");
-            return;
-        }
-        TSBChatGroupGetUsersMessage message = new TSBChatGroupGetUsersMessage();
-        TSBChatGroupGetUsersData data = new TSBChatGroupGetUsersData();
-        data.setGroupId(groupId);
-        message.setData(data);
-        TSBChatGroupGetUsersReponseMessage response = new TSBChatGroupGetUsersReponseMessage();
-        response.setCallback(callback);
-        send(message, response);
-    }
-
-    public List<TSBChatGroupUser> getUsers(String groupId) {
-        List<TSBChatGroupUser> users = null;
-        dataSource.open();
-        users = dataSource.getUsers(groupId);
-        dataSource.close();
-
-        return users;
     }
 
     /**
@@ -189,27 +197,33 @@ public class TSBGroupManager extends BaseManager {
      */
     public void joinInvitation(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
-        }
-        if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: group id or user ids can't not be empty");
-            return;
-        }
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: group id or user ids can't not be empty");
+                return;
+            }
 
-        TSBChatGroupJoinInvitationMessage message = new TSBChatGroupJoinInvitationMessage();
-        TSBChatGroupJoinInvitationData data = new TSBChatGroupJoinInvitationData();
-        data.setGroupId(groupId);
-        data.setUserIds(userIds);
-        message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
+            TSBChatGroupJoinInvitationMessage message = new TSBChatGroupJoinInvitationMessage();
+            TSBChatGroupJoinInvitationData data = new TSBChatGroupJoinInvitationData();
+            data.setGroupId(groupId);
+            data.setUserIds(userIds);
+            message.setData(data);
+            TSBResponseMessage response = new TSBResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+        }
     }
 
     /**
@@ -223,27 +237,33 @@ public class TSBGroupManager extends BaseManager {
      */
     public void removeUsers(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
-        }
-        if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: group id or user ids can't not be empty");
-            return;
-        }
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: group id or user ids can't not be empty");
+                return;
+            }
 
-        TSBChatGroupRemoveUserMessage message = new TSBChatGroupRemoveUserMessage();
-        TSBChatGroupRemoveUserData data = new TSBChatGroupRemoveUserData();
-        data.setGroupId(groupId);
-        data.setUserIds(userIds);
-        message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
+            TSBChatGroupRemoveUserMessage message = new TSBChatGroupRemoveUserMessage();
+            TSBChatGroupRemoveUserData data = new TSBChatGroupRemoveUserData();
+            data.setGroupId(groupId);
+            data.setUserIds(userIds);
+            message.setData(data);
+            TSBResponseMessage response = new TSBResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+        }
     }
 
     /**
@@ -254,26 +274,31 @@ public class TSBGroupManager extends BaseManager {
      * @param callback
      */
     public void leave(String groupId, TSBEngineCallback<String> callback) {
-        if (!isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                    "permission denny: need to login");
-            return;
-        }
-        if (StrUtil.isEmpty(groupId)) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                    "illegal parameter: group id can't not be empty");
-            return;
-        }
+        try {
+            if (!isLogin()) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
+                        "permission denny: need to login");
+                return;
+            }
+            if (StrUtil.isEmpty(groupId)) {
+                handleErrorMessage(callback,
+                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
+                        "illegal parameter: group id can't not be empty");
+                return;
+            }
 
-        TSBChatGroupLeaveMessage message = new TSBChatGroupLeaveMessage();
-        TSBChatGroupLeaveData data = new TSBChatGroupLeaveData();
-        data.setGroupId(groupId);
-        message.setData(data);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        send(message, response);
+            TSBChatGroupLeaveMessage message = new TSBChatGroupLeaveMessage();
+            TSBChatGroupLeaveData data = new TSBChatGroupLeaveData();
+            data.setGroupId(groupId);
+            message.setData(data);
+            TSBResponseMessage response = new TSBResponseMessage();
+            response.setCallback(callback);
+            send(message, response);
+        } catch (Exception e) {
+            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+        }
     }
 
     private boolean isIllegalGroupName(String groupName) {

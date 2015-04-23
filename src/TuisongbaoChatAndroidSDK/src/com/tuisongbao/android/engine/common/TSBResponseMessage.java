@@ -4,10 +4,14 @@ import java.util.List;
 
 import android.content.Context;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.chat.db.TSBGroupDataSource;
+import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversationData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupJoinInvitationData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupLeaveData;
@@ -18,6 +22,7 @@ import com.tuisongbao.android.engine.chat.message.TSBChatConversationResetUnread
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupJoinInvitationMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupLeaveMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupRemoveUserMessage;
+import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 /**
@@ -43,13 +48,17 @@ public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
         conversationDataSource.open();
 
         TSBChatUser currentUser = TSBChatManager.getInstance().getChatUser();
+
         // 获取response的名称，和request时的名称是一致的
         String requestName = getBindName();
+
         // 获取request的传递参数（在TSBListenerSink的callbackListener方法中传入的）
         Object requestData = getRequestData();
+        Gson gson = new Gson();
+
         // 根据消息的名字进行相关处理
         if (StrUtil.isEqual(requestName, TSBChatGroupJoinInvitationMessage.NAME)) {
-            TSBChatGroupJoinInvitationData joinInvitationData = (TSBChatGroupJoinInvitationData)requestData;
+            TSBChatGroupJoinInvitationData joinInvitationData = gson.fromJson((String)requestData, TSBChatGroupJoinInvitationData.class);
             String groupId = joinInvitationData.getGroupId();
             List<String> userIds = joinInvitationData.getUserIds();
 
@@ -58,27 +67,32 @@ public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
             }
 
         } else if (StrUtil.isEqual(requestName, TSBChatGroupLeaveMessage.NAME)) {
-            TSBChatGroupLeaveData leaveData = (TSBChatGroupLeaveData)requestData;
+            TSBChatGroupLeaveData leaveData = gson.fromJson((String)requestData, TSBChatGroupLeaveData.class);
             if (currentUser == null) {
                 return result;
             }
             groupDataSource.removeUser(leaveData.getGroupId(), currentUser.getUserId());
 
         } else if (StrUtil.isEqual(requestName, TSBChatGroupRemoveUserMessage.NAME)) {
-            TSBChatGroupRemoveUserData removeUserData = (TSBChatGroupRemoveUserData)requestData;
+            TSBChatGroupRemoveUserData removeUserData = gson.fromJson((String)requestData, TSBChatGroupRemoveUserData.class);
             String groupId = removeUserData.getGroupId();
-            List<String> userIds = removeUserData.getUserIds();
 
-            for (String userId : userIds) {
+            for (String userId : removeUserData.getUserIds()) {
                 groupDataSource.removeUser(groupId, userId);
             }
 
         } else if (StrUtil.isEqual(requestName, TSBChatConversationDeleteMessage.NAME)) {
-            TSBChatConversationData conversationData = (TSBChatConversationData)requestData;
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
+            TSBChatConversationData conversationData = gsonBuilder.create().fromJson((String)requestData,
+                    new TypeToken<TSBChatConversationData>() {}.getType());
             conversationDataSource.remove(currentUser.getUserId(), conversationData.getType(), conversationData.getTarget());
 
         } else if (StrUtil.isEqual(requestName, TSBChatConversationResetUnreadMessage.NAME)) {
-            TSBChatConversationData conversationData = (TSBChatConversationData)requestData;
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
+            TSBChatConversationData conversationData = gsonBuilder.create().fromJson((String)requestData,
+                    new TypeToken<TSBChatConversationData>() {}.getType());
             conversationDataSource.resetUnread(currentUser.getUserId(), conversationData.getType(), conversationData.getTarget());
         }
 

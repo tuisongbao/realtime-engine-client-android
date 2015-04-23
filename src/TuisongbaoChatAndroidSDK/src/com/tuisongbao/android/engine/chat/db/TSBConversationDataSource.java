@@ -170,10 +170,10 @@ public class TSBConversationDataSource {
                     + "'))";
         }
         if (startMessageId != null) {
-            queryString += " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " < " + startMessageId;
+            queryString += " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " <= " + startMessageId;
         }
         if (endMessageId != null) {
-            queryString = queryString + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " > " + endMessageId;
+            queryString = queryString + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " >= " + endMessageId;
         }
         queryString = queryString
                 + " ORDER BY " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "

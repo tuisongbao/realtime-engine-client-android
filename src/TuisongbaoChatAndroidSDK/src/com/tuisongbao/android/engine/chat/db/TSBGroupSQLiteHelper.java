@@ -27,7 +27,7 @@ public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        String createDatabaseString = "create table "
+        String createDatabaseString = "create table if not exists "
           + TABLE_CHAT_GROUP + "(" + COLUMN_ID
           + " integer primary key autoincrement, "
           + COLUMN_GROUP_ID + " text not null, "

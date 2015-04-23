@@ -27,7 +27,9 @@ public class TSBChatGroupGetReponseMessage extends
         dataSource.open();
         dataSource.upsert(groups, userId);
 
-        TSBChatGroupGetData requestData = (TSBChatGroupGetData)getRequestData();
+        Gson gson = new Gson();
+        gson.fromJson((String) getRequestData(), TSBChatGroupGetData.class);
+        TSBChatGroupGetData requestData = gson.fromJson((String) getRequestData(), TSBChatGroupGetData.class);
         groups = dataSource.getList(requestData.getGroupId(), requestData.getName());
         dataSource.close();
 

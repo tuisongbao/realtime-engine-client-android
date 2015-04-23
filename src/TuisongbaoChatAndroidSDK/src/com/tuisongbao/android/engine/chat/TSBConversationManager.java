@@ -180,7 +180,7 @@ public class TSBConversationManager extends BaseManager {
                 return;
             }
 
-            // No need to query if startMessageId is less 0
+            // No need to query if startMessageId is less or equal to 0
             if (startMessageId != null && startMessageId <= 0) {
                 callback.onSuccess(new ArrayList<TSBMessage>());
                 return;

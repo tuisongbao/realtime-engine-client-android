@@ -25,7 +25,7 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        String createDatabaseString = "create table "
+        String createDatabaseString = "create table if not exists "
           + TABLE_CHAT_MESSAGE + "(" + COLUMN_ID
           + " text primary key, "
           + COLUMN_MESSAGE_ID + " integersq not null, "
