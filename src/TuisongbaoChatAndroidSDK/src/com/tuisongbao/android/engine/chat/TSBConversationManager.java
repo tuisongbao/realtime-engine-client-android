@@ -89,6 +89,13 @@ public class TSBConversationManager extends BaseManager {
             if (chatType == null || StrUtil.isEmpty(target)) {
                 return;
             }
+
+            // Reset unread event has no response from server, so directly update database.
+            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+            dataSource.open();
+            dataSource.resetUnread(userId, chatType, target);
+            dataSource.close();
+
             TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
             TSBChatConversationData data = new TSBChatConversationData();
             data.setType(chatType);
