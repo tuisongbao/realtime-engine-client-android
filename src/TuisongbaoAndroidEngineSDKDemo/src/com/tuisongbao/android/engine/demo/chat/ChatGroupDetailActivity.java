@@ -363,7 +363,8 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
         public void onReceive(Context context, Intent intent) {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
                 TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                if (message != null) {
+                // Only receive message sent to current conversation
+                if (message != null && message.getRecipient().equals(mTarget)) {
                     mListConversation.add(message);
                     mAdapter.refresh(mListConversation);
                 }

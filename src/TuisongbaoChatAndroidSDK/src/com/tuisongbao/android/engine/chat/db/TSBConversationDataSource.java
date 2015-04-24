@@ -203,7 +203,7 @@ public class TSBConversationDataSource {
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Remove conversation:[type: " + type.getName() + ", target: " + target + "]"
                 + " and " + rowsAffected + " rows affected");
 
-        removeMessages(userId, target);
+        removeMessages(userId, type, target);
     }
 
     public int updateMessage(TSBMessage message) {
@@ -228,12 +228,19 @@ public class TSBConversationDataSource {
         LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation + " with return id " + id);
     }
 
-    private void removeMessages(String userId, String target) {
-        String whereClause = "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)"
-                + " OR (" +  TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)";
-
-        int rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
-                new String[]{ userId, target, target, userId });
+    private void removeMessages(String userId, ChatType type, String target) {
+        String whereClause = "";
+        int rowsAffected = 0;
+        if (type == ChatType.GroupChat) {
+            whereClause = TSBMessageSQLiteHelper.COLUMN_TO + " = ?";
+            rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
+                    new String[]{ target});
+        } else {
+            whereClause = "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)"
+                    + " OR (" +  TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)";
+            rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
+                    new String[]{ userId, target, target, userId });
+        }
         LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Removed " + rowsAffected + " messages between " + userId + " and " + target);
     }
 
