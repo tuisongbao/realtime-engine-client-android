@@ -42,17 +42,17 @@ public class StrUtil
 
     /**
      * If str is null, returns "", or return str.
-     * 
+     *
      * @param str
      * @return
      */
     public static String strNotNull(String str) {
         return isEmpty(str) ? "" : str;
     }
-  
+
     /**
      * Converts byte to hex string
-     * 
+     *
      * @param bytes
      * @return
      */
@@ -72,10 +72,10 @@ public class StrUtil
         }
         return hs;
     }
-    
+
     /**
      * Convert value to long. If convert failed, it will return default value.
-     * 
+     *
      * @param value
      * @param dft
      * @return
@@ -95,7 +95,7 @@ public class StrUtil
         }
         return dft;
     }
-    
+
     /**
      * Convert value to int. If convert failed, it will return default value.
      * @param value
@@ -202,7 +202,7 @@ public class StrUtil
     }
 
     public static String getTimeStringIOS8061(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.format(date);
     }

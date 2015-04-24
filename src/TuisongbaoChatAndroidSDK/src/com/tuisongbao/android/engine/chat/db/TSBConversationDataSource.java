@@ -72,18 +72,6 @@ public class TSBConversationDataSource {
         }
     }
 
-    private void insert(TSBChatConversation conversation, String userId) {
-        ContentValues values = new ContentValues();
-        values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
-        values.put(TSBConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
-        values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
-        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
-        values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
-
-        conversationDB.insert(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
-        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation);
-    }
-
     public List<TSBChatConversation> getList(String userId, ChatType type, String target) {
         String queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
                 + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
@@ -99,6 +87,8 @@ public class TSBConversationDataSource {
         }
         queryString = queryString + ";";
         cursor = conversationDB.rawQuery(queryString, null);
+        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " conversations by user "
+                + userId + " and target " + target);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -151,11 +141,10 @@ public class TSBConversationDataSource {
      * @param target
      * @return List<TSBMessage>
      */
-    public List<TSBMessage> getMessages(ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
+    public List<TSBMessage> getMessages(String userId, ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
         List<TSBMessage> messages = new ArrayList<TSBMessage>();
         Cursor cursor = null;
         String queryString = "";
-        String currentUserId = TSBChatManager.getInstance().getChatUser().getUserId();
         if (type == ChatType.GroupChat) {
             queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
                     + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
@@ -164,9 +153,9 @@ public class TSBConversationDataSource {
             queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
                     + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
                     + " AND "
-                    + "((" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + currentUserId + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target
+                    + "((" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + userId + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target
                     + "') OR "
-                    + "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + target + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + currentUserId
+                    + "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + target + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + userId
                     + "'))";
         }
         if (startMessageId != null) {
@@ -180,6 +169,8 @@ public class TSBConversationDataSource {
                 + " LIMIT " + limit
                 + ";";
         cursor = messageDB.rawQuery(queryString, null);
+        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " messages between "
+                + userId + " and " + target);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -198,22 +189,21 @@ public class TSBConversationDataSource {
                 + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
         ContentValues values = new ContentValues();
         values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, 0);
-        conversationDB.update(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION,
+        int rowsAffected = conversationDB.update(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION,
                 values, whereClause, new String[]{ userId, type.getName(), target });
+        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, rowsAffected + " rows affected when reset unread count between " + userId + " and " + target);
     }
 
     public void remove(String userId, ChatType type, String target) {
         String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
                 + " AND " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = ?"
                 + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
-        conversationDB.delete(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, whereClause,
+        int rowsAffected = conversationDB.delete(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, whereClause,
                 new String[]{ userId, type.getName(), target });
+        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Remove conversation:[type: " + type.getName() + ", target: " + target + "]"
+                + " and " + rowsAffected + " rows affected");
 
-        whereClause = TSBMessageSQLiteHelper.COLUMN_TYPE + " = ?"
-                + " AND " + TSBMessageSQLiteHelper.COLUMN_FROM + " = ?"
-                + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?";
-        messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
-                new String[]{ type.getName(), userId, target });
+        removeMessages(userId, target);
     }
 
     public int updateMessage(TSBMessage message) {
@@ -226,6 +216,26 @@ public class TSBConversationDataSource {
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
     }
 
+    private void insert(TSBChatConversation conversation, String userId) {
+        ContentValues values = new ContentValues();
+        values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
+        values.put(TSBConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
+        values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
+        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
+
+        long id = conversationDB.insert(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
+        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation + " with return id " + id);
+    }
+
+    private void removeMessages(String userId, String target) {
+        String whereClause = "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)"
+                + " OR (" +  TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)";
+
+        int rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
+                new String[]{ userId, target, target, userId });
+        LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Removed " + rowsAffected + " messages between " + userId + " and " + target);
+    }
 
     /***
      *
@@ -243,8 +253,10 @@ public class TSBConversationDataSource {
         values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
         values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
-        return conversationDB.update(TABLE_CONVERSATION, values, whereClause,
+        int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
                 new String[]{ currentUserId, conversation.getTarget() });
+        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update " + conversation + " and " + rowsAffected + " rows affected");
+        return rowsAffected;
     }
 
     private TSBChatConversation createConversation(Cursor cursor) {

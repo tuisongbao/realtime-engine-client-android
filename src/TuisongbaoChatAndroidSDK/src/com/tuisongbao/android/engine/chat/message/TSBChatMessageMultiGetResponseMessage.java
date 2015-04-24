@@ -45,7 +45,7 @@ public class TSBChatMessageMultiGetResponseMessage extends TSBChatMessageGetResp
         }
 
         TSBChatMessageGetData requestData = parseRequestData();
-        messages = dataSource.getMessages(requestData.getType(), requestData.getTarget(), startMessageId, endMessageId
+        messages = dataSource.getMessages(user.getUserId(), requestData.getType(), requestData.getTarget(), startMessageId, endMessageId
                 , requestData.getLimit());
         dataSource.close();
 

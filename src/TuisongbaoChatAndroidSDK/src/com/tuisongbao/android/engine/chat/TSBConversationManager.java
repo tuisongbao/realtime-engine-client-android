@@ -215,9 +215,10 @@ public class TSBConversationManager extends BaseManager {
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
 
+        String currentUserId = TSBChatManager.getInstance().getChatUser().getUserId();
         // Query local data
         dataSource.open();
-        List<TSBMessage> messages = dataSource.getMessages(chatType, target, startMessageId, endMessageId, limit);
+        List<TSBMessage> messages = dataSource.getMessages(currentUserId, chatType, target, startMessageId, endMessageId, limit);
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + messages.size() + " messages");
         dataSource.close();
 
