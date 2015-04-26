@@ -15,8 +15,9 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
     // key word "from" is not allowed, it will cause syntax error
     public static final String COLUMN_FROM = "sender";
     public static final String COLUMN_TO = "receiver";
-    public static final String COLUMN_TYPE = "type";
+    public static final String COLUMN_CHAT_TYPE = "chatType";
     public static final String COLUMN_CONTENT = "content";
+    public static final String COLUMN_CONTENT_TYPE = "contentType";
     public static final String COLUMN_CREATED_AT = "createdAt";
 
     public TSBMessageSQLiteHelper(Context context) {
@@ -31,8 +32,9 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_MESSAGE_ID + " integersq not null, "
           + COLUMN_FROM + " text not null, "
           + COLUMN_TO + " text not null, "
-          + COLUMN_TYPE + " text not null, "
+          + COLUMN_CHAT_TYPE + " text not null, "
           + COLUMN_CONTENT + " text not null, "
+          + COLUMN_CONTENT_TYPE + " text not null, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

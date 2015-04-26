@@ -171,7 +171,7 @@ public class TSBMessage implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
-                , messageId, from, to, type.getName(), content.getText(), createdAt);
+        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, contentType: %s, content: %s, createdAt: %s]"
+                , messageId, from, to, type.getName(), content.getType().getName(), content.getText(), createdAt);
     }
 }

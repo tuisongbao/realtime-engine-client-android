@@ -147,11 +147,11 @@ public class TSBConversationDataSource {
         String queryString = "";
         if (type == ChatType.GroupChat) {
             queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
+                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
                     + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target + "'";
         } else {
             queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'"
+                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
                     + " AND "
                     + "((" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + userId + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target
                     + "') OR "
@@ -278,16 +278,19 @@ public class TSBConversationDataSource {
 
     private TSBMessage createMessage(Cursor cursor) {
         TSBMessage message = new TSBMessage();
-        // TODO: string to long ??
         message.setMessageId(cursor.getLong(1));
         message.setFrom(cursor.getString(2));
         message.setRecipient(cursor.getString(3));
         message.setChatType(ChatType.getType(cursor.getString(4)));
-        // TODO: multiple type body, image, voice and video
+
         TSBMessageBody body = TSBMessageBody.createMessage(TYPE.TEXT);
+        String contentType = cursor.getString(6);
+        if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
+            body = TSBMessageBody.createMessage(TYPE.IMAGE);
+        };
         body.setText(cursor.getString(5));
         message.setBody(body);
-        message.setCreatedAt(cursor.getString(6));
+        message.setCreatedAt(cursor.getString(7));
 
         return message;
     }
@@ -316,8 +319,9 @@ public class TSBConversationDataSource {
         values.put(TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
         values.put(TSBMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
         values.put(TSBMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
-        values.put(TSBMessageSQLiteHelper.COLUMN_TYPE, message.getChatType().getName());
+        values.put(TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
         values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, message.getBody().getText());
+        values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);

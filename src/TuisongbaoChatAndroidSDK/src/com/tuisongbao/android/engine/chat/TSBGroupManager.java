@@ -285,7 +285,7 @@ public class TSBGroupManager extends BaseManager {
             if (StrUtil.isEmpty(groupId)) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group id can't not be empty");
+                        "illegal parameter: group id can not be empty");
                 return;
             }
 
