@@ -1,11 +1,19 @@
 package com.tuisongbao.android.engine.chat.entity;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
+import com.tuisongbao.android.engine.util.BitmapUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBMessage implements Parcelable {
@@ -18,6 +26,7 @@ public class TSBMessage implements Parcelable {
     private String from;
     private String to;
     private TSBMessageBody content;
+    private String resourcePath;
     private String createdAt;
     private Map<String, String> map;
 
@@ -72,6 +81,14 @@ public class TSBMessage implements Parcelable {
     public TSBMessage setBody(TSBMessageBody body) {
         this.content = body;
         return this;
+    }
+
+    public String getResourcePath() {
+        return resourcePath;
+    }
+
+    public void setResourcePath(String resourcePath) {
+        this.resourcePath = resourcePath;
     }
 
     public String getCreatedAt() {
@@ -169,9 +186,50 @@ public class TSBMessage implements Parcelable {
         // empty
     }
 
+    public void downloadResource(final TSBEngineCallback<TSBMessage> callback) {
+        String resourcePath = getResourcePath();
+        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        final String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+        final TSBMessage message = this;
+
+        if (getBody().getType() == TYPE.TEXT) {
+            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Text message has no resource to download");
+            return;
+        }
+
+        try {
+            if (StrUtil.isEmpty(resourcePath)) {
+                String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
+                BitmapUtil.downloadImageIntoLocal(getBody().getText(), fileName, new TSBEngineCallback<String>() {
+
+                    @Override
+                    public void onSuccess(String t) {
+                        message.setResourcePath(t);
+                        dataSource.open();
+                        dataSource.upsertMessage(userId, message);
+                        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message resource path " + message);
+                        dataSource.close();
+
+                        callback.onSuccess(message);
+                    }
+
+                    @Override
+                    public void onError(int code, String message) {
+                        callback.onError(code, message);
+                    }
+                });
+            } else {
+                callback.onSuccess(message);
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+        }
+    }
+
     @Override
     public String toString() {
-        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, contentType: %s, content: %s, createdAt: %s]"
-                , messageId, from, to, type.getName(), content.getType().getName(), content.getText(), createdAt);
+        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, contentType: %s, content: %s, resourcePath: %s, createdAt: %s]"
+                , messageId, from, to, type.getName(), content.getType().getName(), content.getText(), resourcePath, createdAt);
     }
 }

@@ -18,6 +18,10 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_CHAT_TYPE = "chatType";
     public static final String COLUMN_CONTENT = "content";
     public static final String COLUMN_CONTENT_TYPE = "contentType";
+    /**
+     * file path in local
+     */
+    public static final String COLUMN_RESOURCE_PATH = "sourcePath";
     public static final String COLUMN_CREATED_AT = "createdAt";
 
     public TSBMessageSQLiteHelper(Context context) {
@@ -35,6 +39,7 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_CHAT_TYPE + " text not null, "
           + COLUMN_CONTENT + " text not null, "
           + COLUMN_CONTENT_TYPE + " text not null, "
+          + COLUMN_RESOURCE_PATH + " text, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

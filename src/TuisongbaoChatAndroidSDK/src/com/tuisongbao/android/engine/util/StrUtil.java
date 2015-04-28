@@ -247,6 +247,12 @@ public class StrUtil
         return format.format(new Date());
     }
 
+    public static String getTimestampStringOnlyContainNumber(Date date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return format.format(date);
+    }
+
     public static List<String> spliteString(String origin, String separator) {
         try {
             return Arrays.asList(origin.split("\\s*" + separator + "\\s*"));

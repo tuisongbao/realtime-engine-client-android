@@ -208,15 +208,20 @@ public class TSBChatManager extends BaseManager {
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("x:targetId", message.getRecipient());
-        params.put("x:timestamp", getTimestampString(new Date()));
         final UploadOptions opt = new UploadOptions(params, null, true, null, null);
-        manager.put(filePath, "test", token, new UpCompletionHandler() {
+        manager.put(filePath, null, token, new UpCompletionHandler() {
 
             @Override
             public void complete(String key, ResponseInfo info, JSONObject responseObject) {
                 LogUtil.info(LogUtil.LOG_TAG_CHAT, "Upload file finished with key: " + key + ", info: " + info);
-                message.getBody().setText("mockkey");
-                sendTextMessage(message, callback);
+
+                try {
+                    String resourseKey = responseObject.getString("key");
+                    message.getBody().setText(resourseKey);
+                    sendTextMessage(message, callback);
+                } catch (Exception e) {
+                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+                }
             }
         }, opt);
     }

@@ -92,6 +92,7 @@ public class EngineConstants {
     // common code
     public static final int ENGINE_CODE_UNKNOWN = -9001;
     public static final int ENGINE_CODE_SUCCESS = 0;
+    public static final int ENGINE_CODE_INVALID_OPERATION = -9002;
     public static final String ENGINE_MESSAGE_UNKNOWN_ERROR = "TuiSongBao internal error, please contact us";
 
     // connection code

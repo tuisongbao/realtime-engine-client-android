@@ -211,6 +211,10 @@ public class TSBConversationDataSource {
         String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
+        String resourcePath = message.getResourcePath();
+        if (!StrUtil.isEmpty(resourcePath)) {
+            values.put(TSBMessageSQLiteHelper.COLUMN_RESOURCE_PATH, message.getResourcePath());
+        }
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
@@ -290,7 +294,8 @@ public class TSBConversationDataSource {
         };
         body.setText(cursor.getString(5));
         message.setBody(body);
-        message.setCreatedAt(cursor.getString(7));
+        message.setResourcePath(cursor.getString(7));
+        message.setCreatedAt(cursor.getString(8));
 
         return message;
     }
@@ -322,6 +327,7 @@ public class TSBConversationDataSource {
         values.put(TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
         values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, message.getBody().getText());
         values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
+        values.put(TSBMessageSQLiteHelper.COLUMN_RESOURCE_PATH, message.getResourcePath());
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);

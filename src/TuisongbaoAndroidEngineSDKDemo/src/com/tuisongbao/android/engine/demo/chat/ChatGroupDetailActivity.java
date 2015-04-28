@@ -285,6 +285,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                 Collections.reverse(t);
                 t.addAll(mListConversation);
                 mListConversation = t;
+
                 runOnUiThread(new Runnable() {
 
                     @Override
@@ -363,8 +364,16 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
         public void onReceive(Context context, Intent intent) {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
                 TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                Log.i(TAG, "App get " + message.toString() + " to " + message.getRecipient() + " and corrent target is " + mTarget);
+
                 // Only receive message sent to current conversation
-                if (message != null && message.getRecipient().equals(mTarget)) {
+                boolean showMessage = false;
+                if (message.getChatType() == ChatType.SingleChat) {
+                    showMessage = message.getFrom().equals(mTarget);
+                } else if (message.getChatType() == ChatType.GroupChat) {
+                    showMessage = message.getRecipient().equals(mTarget);
+                }
+                if (message != null && showMessage) {
                     mListConversation.add(message);
                     mAdapter.refresh(mListConversation);
                 }
