@@ -1,5 +1,6 @@
 package com.tuisongbao.android.engine.chat.entity;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -198,7 +199,16 @@ public class TSBMessage implements Parcelable {
         }
 
         try {
-            if (StrUtil.isEmpty(resourcePath)) {
+            boolean needDownload = StrUtil.isEmpty(resourcePath);
+            if (!needDownload) {
+                File fileTest = new File(resourcePath);
+                if (!fileTest.exists()) {
+                    needDownload = true;
+                    LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Resource file at " + resourcePath + " is no longer exists, need to download again" );
+                }
+            }
+
+            if (needDownload) {
                 String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
                 BitmapUtil.downloadImageIntoLocal(getBody().getText(), fileName, new TSBEngineCallback<String>() {
 
