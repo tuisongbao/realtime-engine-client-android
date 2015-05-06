@@ -147,7 +147,6 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
         response.setCode(message.getCode());
         response.setErrorMessage(message.getErrorMessge());
         response.setChannel(message.getChannel());
-        response.setData(message.getData());
         response.setName(message.getName());
         response.setData(message.getData());
         response.setBindName(message.getBindName());

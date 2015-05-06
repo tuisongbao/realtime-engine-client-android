@@ -19,9 +19,17 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_CONTENT = "content";
     public static final String COLUMN_CONTENT_TYPE = "contentType";
     /**
-     * file path in local
+     * file properties
      */
-    public static final String COLUMN_RESOURCE_PATH = "sourcePath";
+    public static final String COLUMN_FILE_LOCAL_PATH = "localPath";
+    public static final String COLUMN_FILE_DOWNLOAD_URL = "downloadUrl";
+    public static final String COLUMN_FILE_SIZE = "size";
+    public static final String COLUMN_FILE_MIMETYPE = "mimeType";
+    /**
+     * JSONString format of other file information, like image's width & height, video's duration
+     */
+    public static final String COLUMN_FILE_NOTES = "info";
+
     public static final String COLUMN_CREATED_AT = "createdAt";
 
     public TSBMessageSQLiteHelper(Context context) {
@@ -37,9 +45,13 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_FROM + " text not null, "
           + COLUMN_TO + " text not null, "
           + COLUMN_CHAT_TYPE + " text not null, "
-          + COLUMN_CONTENT + " text not null, "
+          + COLUMN_CONTENT + " text, "
           + COLUMN_CONTENT_TYPE + " text not null, "
-          + COLUMN_RESOURCE_PATH + " text, "
+          + COLUMN_FILE_LOCAL_PATH + " text, "
+          + COLUMN_FILE_DOWNLOAD_URL + " text, "
+          + COLUMN_FILE_SIZE + " text, "
+          + COLUMN_FILE_MIMETYPE + " text, "
+          + COLUMN_FILE_NOTES + " text, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
@@ -17,6 +18,7 @@ import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.entity.TSBChatLoginData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginMessage;
@@ -170,8 +172,8 @@ public class TSBChatManager extends BaseManager {
 
             TYPE messageType = message.getBody().getType();
             if (messageType == TYPE.TEXT) {
-                sendTextMessage(message, callback);
-            } else if (mIsCacheEnabled) {
+                sendMessageRequest(message, callback);
+            } else if (messageType == TYPE.IMAGE) {
                 sendImageMessage(message, callback);
             }
 
@@ -181,7 +183,7 @@ public class TSBChatManager extends BaseManager {
         }
     }
 
-    private void sendTextMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
+    private void sendMessageRequest(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
         TSBChatMessageSendMessage request = new TSBChatMessageSendMessage();
         TSBChatMessageSendData data = new TSBChatMessageSendData();
         data.setTo(message.getRecipient());
@@ -197,9 +199,10 @@ public class TSBChatManager extends BaseManager {
     }
 
     private void sendImageMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
-        String filePath = message.getBody().getText();
+        TSBImageMessageBody imageBody = (TSBImageMessageBody)message.getBody();
+        String filePath = imageBody.getLocalPath();
         if (StrUtil.isEmpty(filePath)) {
-            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "File path is not invalid.");
+            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "File path is invalid.");
             return;
         }
 
@@ -216,9 +219,25 @@ public class TSBChatManager extends BaseManager {
                 LogUtil.info(LogUtil.LOG_TAG_CHAT, "Upload file finished with key: " + key + ", info: " + info);
 
                 try {
-                    String resourseKey = responseObject.getString("key");
-                    message.getBody().setText(resourseKey);
-                    sendTextMessage(message, callback);
+                    LogUtil.info(LogUtil.LOG_TAG_CHAT, "Get response from QINIU " + responseObject.toString(4));
+                    TSBImageMessageBody body = (TSBImageMessageBody) message.getBody();
+
+                    JsonObject file = new JsonObject();
+                    file.addProperty(TSBImageMessageBody.KEY, responseObject.getString("key"));
+                    file.addProperty(TSBImageMessageBody.ETAG, responseObject.getString("etag"));
+                    file.addProperty(TSBImageMessageBody.NAME, responseObject.getString("fname"));
+                    file.addProperty(TSBImageMessageBody.SIZE, responseObject.getString("fsize"));
+                    file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
+
+                    JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
+                    JsonObject imageInfo = new JsonObject();
+                    imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
+                    imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
+                    file.add(TSBImageMessageBody.IMAGE_INFO, imageInfo);
+                    body.setFile(file);
+
+                    message.setBody(body);
+                    sendMessageRequest(message, callback);
                 } catch (Exception e) {
                     LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
                 }

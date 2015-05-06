@@ -8,12 +8,16 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -211,10 +215,15 @@ public class TSBConversationDataSource {
         String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
-        String resourcePath = message.getResourcePath();
-        if (!StrUtil.isEmpty(resourcePath)) {
-            values.put(TSBMessageSQLiteHelper.COLUMN_RESOURCE_PATH, message.getResourcePath());
+        TSBMessageBody body = message.getBody();
+        if (body.getType() == TYPE.IMAGE) {
+            TSBImageMessageBody imageBody = (TSBImageMessageBody)body;
+            String localPath = imageBody.getLocalPath();
+            if (!StrUtil.isEmpty(localPath)) {
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
+            }
         }
+
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
@@ -287,15 +296,28 @@ public class TSBConversationDataSource {
         message.setRecipient(cursor.getString(3));
         message.setChatType(ChatType.getType(cursor.getString(4)));
 
-        TSBMessageBody body = TSBMessageBody.createMessage(TYPE.TEXT);
         String contentType = cursor.getString(6);
-        if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-            body = TSBMessageBody.createMessage(TYPE.IMAGE);
-        };
-        body.setText(cursor.getString(5));
+        TSBMessageBody body = null;
+        if (StrUtil.isEqual(TYPE.TEXT.getName(), contentType)) {
+            TSBTextMessageBody textBody = new TSBTextMessageBody();
+            textBody.setText(cursor.getString(5));
+
+            body = textBody;
+        } else if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
+            TSBImageMessageBody imageBody = new TSBImageMessageBody();
+            imageBody.setLocalPath(cursor.getString(7));
+            imageBody.setDownloadUrl(cursor.getString(8));
+            imageBody.setSize(cursor.getString(9));
+            imageBody.setMimeType(cursor.getString(10));
+
+            Gson gson = new Gson();
+            JsonObject imageInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
+            imageBody.setImageInfo(imageInfo);
+
+            body = imageBody;
+        }
         message.setBody(body);
-        message.setResourcePath(cursor.getString(7));
-        message.setCreatedAt(cursor.getString(8));
+        message.setCreatedAt(cursor.getString(12));
 
         return message;
     }
@@ -325,9 +347,20 @@ public class TSBConversationDataSource {
         values.put(TSBMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
         values.put(TSBMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
         values.put(TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
-        values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, message.getBody().getText());
         values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
-        values.put(TSBMessageSQLiteHelper.COLUMN_RESOURCE_PATH, message.getResourcePath());
+
+        if (message.getBody().getType() == TYPE.TEXT) {
+            TSBTextMessageBody textMessageBody = (TSBTextMessageBody)message.getBody();
+            values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
+        } else if (message.getBody().getType() == TYPE.IMAGE) {
+            TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, body.getLocalPath());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, body.getDownloadUrl());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, body.getSize());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, body.getMimeType());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, body.getImageInfo().toString());
+        }
+
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);

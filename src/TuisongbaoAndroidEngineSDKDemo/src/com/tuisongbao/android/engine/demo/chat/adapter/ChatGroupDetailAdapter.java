@@ -18,6 +18,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
+import com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -25,22 +26,22 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
 
     private static final String TAG = "com.tuisongbao.android.engine.chat.ChatGroupDetailAdapter";
     private Context mContext;
-    private List<TSBMessage> mListConversation;
+    private List<TSBMessage> mMessageList;
 
     public ChatGroupDetailAdapter(List<TSBMessage> listConversation,
             Context context) {
-        mListConversation = listConversation;
+        mMessageList = listConversation;
         mContext = context;
     }
 
     public void refresh(List<TSBMessage> listConversation) {
-        mListConversation = listConversation;
+        mMessageList = listConversation;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return mListConversation == null ? 0 : mListConversation.size();
+        return mMessageList == null ? 0 : mMessageList.size();
     }
 
     @Override
@@ -60,7 +61,7 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_chat_detail, null);
         }
-        TSBMessage message = mListConversation.get(position);
+        TSBMessage message = mMessageList.get(position);
         RelativeLayout layoutSend = (RelativeLayout) convertView
                 .findViewById(R.id.list_item_chat_detail_send);
         RelativeLayout layoutReplay = (RelativeLayout) convertView
@@ -95,21 +96,30 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
     }
 
     private void showContent(final TSBMessage message, View contentView, int textViewId, int imageViewId) {
+        Log.d(TAG, message.toString());
         if (message.getBody().getType() == TYPE.TEXT) {
             TextView mTextViewContent = (TextView) contentView
                     .findViewById(textViewId);
-            mTextViewContent.setText(message.getBody() != null ? message.getBody().getText() : "");
+            mTextViewContent.setText(message.getBody() != null ? message.getText() : "");
 
         } else if (message.getBody().getType() == TYPE.IMAGE) {
             try {
                 final ImageView mImageView = (ImageView) contentView.findViewById(imageViewId);
+                Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
+                mImageView.setImageBitmap(bmp);
                 message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
                     @Override
-                    public void onSuccess(TSBMessage message) {
+                    public void onSuccess(final TSBMessage message) {
                         Log.d(TAG, "Image file path: " + message.getResourcePath());
-                        Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
-                        mImageView.setImageBitmap(bmp);
+                        ((ChatGroupDetailActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
+                                mImageView.setImageBitmap(bmp);
+                            }
+                        });
                     }
 
                     @Override

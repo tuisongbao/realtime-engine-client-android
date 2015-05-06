@@ -27,7 +27,6 @@ public class TSBMessage implements Parcelable {
     private String from;
     private String to;
     private TSBMessageBody content;
-    private String resourcePath;
     private String createdAt;
     private Map<String, String> map;
 
@@ -84,14 +83,6 @@ public class TSBMessage implements Parcelable {
         return this;
     }
 
-    public String getResourcePath() {
-        return resourcePath;
-    }
-
-    public void setResourcePath(String resourcePath) {
-        this.resourcePath = resourcePath;
-    }
-
     public String getCreatedAt() {
         return createdAt;
     }
@@ -99,6 +90,34 @@ public class TSBMessage implements Parcelable {
     public TSBMessage setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
         return this;
+    }
+
+    /***
+     *
+     * @return local path of the resource, like image, video...
+     */
+    public String getResourcePath() {
+        try {
+            TSBMessageBody body = getBody();
+            if (body.getType() == TYPE.IMAGE) {
+                return ((TSBImageMessageBody)body).getLocalPath();
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+        }
+        return "";
+    }
+
+    public String getText() {
+        try {
+            TSBMessageBody body = getBody();
+            if (body.getType() == TYPE.TEXT) {
+                return ((TSBTextMessageBody)body).getText();
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+        }
+        return "";
     }
 
     public static TSBMessage createMessage(TYPE type) {
@@ -188,7 +207,6 @@ public class TSBMessage implements Parcelable {
     }
 
     public void downloadResource(final TSBEngineCallback<TSBMessage> callback) {
-        String resourcePath = getResourcePath();
         final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
         final String userId = TSBChatManager.getInstance().getChatUser().getUserId();
         final TSBMessage message = this;
@@ -198,28 +216,32 @@ public class TSBMessage implements Parcelable {
             return;
         }
 
+        final TSBImageMessageBody body = (TSBImageMessageBody)getBody();
+        String localPath = body.getLocalPath();
+        String downloadUrl = body.getDownloadUrl();
         try {
-            boolean needDownload = StrUtil.isEmpty(resourcePath);
+            boolean needDownload = StrUtil.isEmpty(localPath);
             if (!needDownload) {
-                File fileTest = new File(resourcePath);
+                File fileTest = new File(localPath);
                 if (!fileTest.exists()) {
                     needDownload = true;
-                    LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Resource file at " + resourcePath + " is no longer exists, need to download again" );
+                    LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Local file at " + localPath + " is no longer exists, need to download again" );
                 }
             }
 
             if (needDownload) {
                 String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
-                BitmapUtil.downloadImageIntoLocal(getBody().getText(), fileName, new TSBEngineCallback<String>() {
+                BitmapUtil.downloadImageIntoLocal(downloadUrl, fileName, new TSBEngineCallback<String>() {
 
                     @Override
                     public void onSuccess(String t) {
-                        message.setResourcePath(t);
+                        body.setLocalPath(t);
                         dataSource.open();
                         dataSource.upsertMessage(userId, message);
-                        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message resource path " + message);
+                        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
                         dataSource.close();
 
+                        message.setBody(body);
                         callback.onSuccess(message);
                     }
 
@@ -239,7 +261,7 @@ public class TSBMessage implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, contentType: %s, content: %s, resourcePath: %s, createdAt: %s]"
-                , messageId, from, to, type.getName(), content.getType().getName(), content.getText(), resourcePath, createdAt);
+        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
+                , messageId, from, to, type.getName(), content.toString(), createdAt);
     }
 }

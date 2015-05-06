@@ -11,6 +11,7 @@ import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.serializer.TSBChatMessageBodySerializer;
@@ -95,7 +96,11 @@ public class TSBChatMessageResponseMessage extends
                 // image messages
                 JSONObject content = json.optJSONObject("content");
                 if (content != null) {
-                    message.getBody().setText(content.getString("text"));
+                    JSONObject file = content.getJSONObject("file");
+                    TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
+                    body.setDownloadUrl(file.getString("downloadUrl"));
+
+                    message.setBody(body);
                 }
 
                 message.setFrom(userId);

@@ -23,6 +23,10 @@ public class BitmapUtil {
      */
     public static void downloadImageIntoLocal(final String urlString, final String fileName, final TSBEngineCallback<String> callback) {
         LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begine to download resource from " + urlString + " and save it into local fileName " + fileName);
+        if (StrUtil.isEmpty(urlString)) {
+            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "The image url String is invalid.");
+            return;
+        }
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
 
             @Override

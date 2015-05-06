@@ -34,8 +34,8 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
-import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
@@ -57,7 +57,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
     private Button mImageSelectButton;
     private EditText mContenEditText;
     private ChatGroupDetailAdapter mAdapter;
-    private List<TSBMessage> mListConversation;
+    private List<TSBMessage> mMessageList;
 
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
@@ -70,11 +70,11 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
         mSendButton = (Button) findViewById(R.id.group_detail_text_send_button);
         mImageSelectButton = (Button) findViewById(R.id.group_detail_media_send_button);
         mContenEditText = (EditText) findViewById(R.id.group_detail_message_content_edittext);
-        mListConversation = new ArrayList<TSBMessage>();
+        mMessageList = new ArrayList<TSBMessage>();
         mTarget = getIntent().getStringExtra(EXTRA_CODE_TARGET);
         mChatType = ChatType.getType(getIntent().getStringExtra(EXTRA_CODE_CHAT_TYPE));
 
-        mAdapter = new ChatGroupDetailAdapter(mListConversation, this);
+        mAdapter = new ChatGroupDetailAdapter(mMessageList, this);
         mListViewGroupDetail.setAdapter(mAdapter);
         mSendButton.setOnClickListener(new OnClickListener() {
 
@@ -88,12 +88,12 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     @Override
                     public void onSuccess(TSBMessage t) {
                         t.setFrom(LoginChache.getUserId());
-                        mListConversation.add(t);
+                        mMessageList.add(t);
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
-                                mAdapter.refresh(mListConversation);
+                                mAdapter.refresh(mMessageList);
                                 Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
                             }
                         });
@@ -283,14 +283,14 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                 mStartMessageId = t.get(0).getMessageId();
                 mStartMessageId = mStartMessageId - Long.valueOf(t.size());
                 Collections.reverse(t);
-                t.addAll(mListConversation);
-                mListConversation = t;
+                t.addAll(mMessageList);
+                mMessageList = t;
 
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mListConversation);
+                        mAdapter.refresh(mMessageList);
                     }
                 });
             }
@@ -314,23 +314,22 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
             return;
         }
         TSBMessage message = new TSBMessage();
-        TSBMessageBody body = TSBMessageBody.createMessage(TYPE.IMAGE);
-        body.setText(filePath);
+        TSBImageMessageBody body = new TSBImageMessageBody();
+        body.setLocalPath(filePath);
         message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
         TSBChatManager.getInstance().sendMessage(message, new TSBEngineCallback<TSBMessage>() {
 
             @Override
             public void onSuccess(final TSBMessage t) {
-                mListConversation.add(t);
+                mMessageList.add(t);
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mListConversation);
+                        mAdapter.refresh(mMessageList);
                         Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
                     }
                 });
-
             }
 
             @Override
@@ -339,7 +338,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mListConversation);
+                        mAdapter.refresh(mMessageList);
                         Toast.makeText(ChatGroupDetailActivity.this, "Send failed", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -374,8 +373,8 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     showMessage = message.getRecipient().equals(mTarget);
                 }
                 if (message != null && showMessage) {
-                    mListConversation.add(message);
-                    mAdapter.refresh(mListConversation);
+                    mMessageList.add(message);
+                    mAdapter.refresh(mMessageList);
                 }
             }
         }

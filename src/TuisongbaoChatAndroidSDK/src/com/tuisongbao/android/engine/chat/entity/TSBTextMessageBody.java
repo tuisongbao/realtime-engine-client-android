@@ -6,6 +6,8 @@ import android.os.Parcelable;
 
 public class TSBTextMessageBody extends TSBMessageBody {
 
+    private String text;
+
     public TSBTextMessageBody() {
         super(TSBMessage.TYPE.TEXT);
     }
@@ -15,9 +17,12 @@ public class TSBTextMessageBody extends TSBMessageBody {
         setText(text);
     }
 
-    @Override
+    public String getText() {
+        return text;
+    }
+
     public void setText(String text) {
-        super.setText(text);
+        this.text = text;
     }
 
     @Override
@@ -47,9 +52,13 @@ public class TSBTextMessageBody extends TSBMessageBody {
         }
     };
 
+    @Override
+    public String toString() {
+        return String.format("TSBTextMessageBody[text: %s, type: %s]", text, type.getName());
+    }
+
     private TSBTextMessageBody(Parcel in) {
         super(TSBMessage.TYPE.TEXT);
         readFromParcel(in);
     }
-
 }
