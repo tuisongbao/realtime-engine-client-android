@@ -29,4 +29,9 @@ public class TSBChatUser {
     public void setUploadToken(String uploadToken) {
         this.uploadToken = uploadToken;
     }
+
+    @Override
+    public String toString() {
+        return String.format("TSBChatUser[isNew: %s, userId: %s]", isNew, userId);
+    }
 }

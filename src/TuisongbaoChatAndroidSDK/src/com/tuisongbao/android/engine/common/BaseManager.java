@@ -6,7 +6,7 @@ import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 
 public abstract class BaseManager {
     protected boolean isLogin() {
-        return TSBChatManager.getInstance().isLogin();
+        return TSBChatManager.getInstance().getChatUser() != null;
     }
 
     protected boolean send(ITSBRequestMessage message) {

@@ -5,7 +5,6 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,7 +133,16 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
 
                     @Override
                     public void onError(int code, String message) {
-                        Log.e(TAG, message);
+                        ((ChatGroupDetailActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                TextView textViewContent = (TextView) contentView
+                                        .findViewById(textViewId);
+                                textViewContent.setText("Failed to load image");
+                                textViewContent.setVisibility(View.VISIBLE);
+                            }
+                        });
                     }
                 });
             } catch (Exception e) {

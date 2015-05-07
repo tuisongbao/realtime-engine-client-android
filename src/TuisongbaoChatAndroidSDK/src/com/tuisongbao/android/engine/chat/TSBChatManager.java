@@ -96,11 +96,6 @@ public class TSBChatManager extends BaseManager {
         }
     }
 
-    @Override
-    public boolean isLogin() {
-        return mTSBChatUser != null;
-    }
-
     public TSBChatUser getChatUser() {
         return mTSBChatUser;
     }
@@ -348,17 +343,22 @@ public class TSBChatManager extends BaseManager {
     private TSBEngineCallback<TSBChatUser> mLoginCallback = new TSBEngineCallback<TSBChatUser>() {
         @Override
         public void onSuccess(TSBChatUser t) {
+            LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
             if (!isLogin()) {
-                // 初次登陆时需要回调
+                // Chat user is null
                 mTSBChatUser = t;
-                // TODO: check user data
                 mTSBChatUser.setUserId(mTSBLoginMessage.getData().getUserData());
+                // Call back when the user first login
                 if (mTSBLoginMessage != null && mTSBLoginMessage.getCallback() != null) {
+                    LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
                     mTSBLoginMessage.getCallback().onSuccess(t);
                 }
             } else {
-                // 由于网络原因等重新登陆时不需要需要回调
+                // Chat user is not null, update user's informations, like isNew, uploadToken
                 mTSBChatUser = t;
+                // `userId` field is not set in server response
+                mTSBChatUser.setUserId(mTSBLoginMessage.getData().getUserData());
+                // No need to callback when auto login finished
             }
         }
 
