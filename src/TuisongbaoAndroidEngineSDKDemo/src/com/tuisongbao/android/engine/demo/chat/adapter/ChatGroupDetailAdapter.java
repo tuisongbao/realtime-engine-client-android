@@ -95,29 +95,39 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private void showContent(final TSBMessage message, View contentView, int textViewId, int imageViewId) {
-        Log.d(TAG, message.toString());
+    private void showContent(final TSBMessage message, final View contentView, final int textViewId, final int imageViewId) {
         if (message.getBody().getType() == TYPE.TEXT) {
-            TextView mTextViewContent = (TextView) contentView
+            // clear imageView, as the list item is re-use, the imageView will not be cleared
+            ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
+            imageView.setVisibility(View.GONE);
+
+            TextView textViewContent = (TextView) contentView
                     .findViewById(textViewId);
-            mTextViewContent.setText(message.getBody() != null ? message.getText() : "");
+            textViewContent.setText(message.getBody() != null ? message.getText() : "");
+            textViewContent.setVisibility(View.VISIBLE);
 
         } else if (message.getBody().getType() == TYPE.IMAGE) {
             try {
-                final ImageView mImageView = (ImageView) contentView.findViewById(imageViewId);
-                Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
-                mImageView.setImageBitmap(bmp);
+                // clear textView
+                TextView textView = (TextView) contentView.findViewById(textViewId);
+                textView.setVisibility(View.GONE);
+
+                // Load image is slow, sometimes it will show the old image of the reused item, so hide imageView first
+                ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
+                imageView.setVisibility(View.GONE);
+
                 message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
                     @Override
                     public void onSuccess(final TSBMessage message) {
-                        Log.d(TAG, "Image file path: " + message.getResourcePath());
                         ((ChatGroupDetailActivity)mContext).runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
+                                final ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
                                 Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
-                                mImageView.setImageBitmap(bmp);
+                                imageView.setImageBitmap(bmp);
+                                imageView.setVisibility(View.VISIBLE);
                             }
                         });
                     }

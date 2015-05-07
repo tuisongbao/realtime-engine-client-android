@@ -1,7 +1,9 @@
 package com.tuisongbao.android.engine.chat.entity;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -103,12 +105,35 @@ public class TSBImageMessageBody extends TSBMessageBody {
     }
 
     @Override
-    public void writeToParcel(Parcel arg0, int arg1) {
-        // empty
+    public void writeToParcel(Parcel out, int flag) {
+        out.writeString(file.toString());
     }
+
+    public void readFromParcel(Parcel in) {
+        Gson gson = new Gson();
+        setFile(gson.fromJson(in.readString(), JsonObject.class));
+    }
+
+    public static final Parcelable.Creator<TSBImageMessageBody> CREATOR =
+            new Parcelable.Creator<TSBImageMessageBody>() {
+        @Override
+        public TSBImageMessageBody createFromParcel(Parcel in) {
+            return new TSBImageMessageBody(in);
+        }
+
+        @Override
+        public TSBImageMessageBody[] newArray(int size) {
+            return new TSBImageMessageBody[size];
+        }
+    };
 
     @Override
     public String toString() {
         return String.format("TSBTextMessageBody[file: %s, type: %s]", file.toString(), type.getName());
+    }
+
+    private TSBImageMessageBody(Parcel in) {
+        super(TSBMessage.TYPE.IMAGE);
+        readFromParcel(in);
     }
 }
