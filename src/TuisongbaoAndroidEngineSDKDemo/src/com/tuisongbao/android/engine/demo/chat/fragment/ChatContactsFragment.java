@@ -17,10 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatGroupsActivity;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatListFriendAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
@@ -64,7 +65,7 @@ public class ChatContactsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(),
-                        ChatGroupActivity.class);
+                        ChatGroupsActivity.class);
                 startActivity(intent);
             }
         });
@@ -79,8 +80,12 @@ public class ChatContactsFragment extends Fragment {
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mFriendsList.get(arg2).getUserId());
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, ChatType.SingleChat.getName());
+
+                TSBChatConversation conversation = new TSBChatConversation();
+                conversation.setTarget(mFriendsList.get(arg2).getUserId());
+                conversation.setType(ChatType.SingleChat);
+
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
             }
         });

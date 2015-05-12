@@ -60,7 +60,7 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupActivity"
+            android:name="com.tuisongbao.android.engine.demo.chat.ChatGroupsActivity"
             android:label="@string/app_name" >
         </activity>
         <activity

@@ -62,10 +62,10 @@ public class ChatConversationsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
+                TSBChatConversation conversation = mConversationList.get(arg2);
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, mConversationList.get(arg2).getType().getName());
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mConversationList.get(arg2).getTarget());
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
 
                 resetUnread(mConversationList.get(arg2));

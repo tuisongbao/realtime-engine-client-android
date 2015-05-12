@@ -18,7 +18,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBGroupManager;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
@@ -26,8 +26,9 @@ import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupUserAdapter;
 
 public class ChatGroupMemberActivity extends Activity {
 
-    public static final String EXTRA_KEY_GROUP_ID = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP_ID";
-    private String mGroupId;
+    public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
+
+    private TSBChatGroup mGroup;
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
     private List<TSBContactsUser> mListGroupUser;
@@ -40,7 +41,7 @@ public class ChatGroupMemberActivity extends Activity {
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
         mListGroupUser = new ArrayList<TSBContactsUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
-        mGroupId = getIntent().getStringExtra(EXTRA_KEY_GROUP_ID);
+        mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
 
         mAdapter = new ChatGroupUserAdapter(mListGroupUser, this);
         mListViewGroupUser.setAdapter(mAdapter);
@@ -94,7 +95,7 @@ public class ChatGroupMemberActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member_add) {
             Intent intent = new Intent(this, ChatGroupMemberAddActivity.class);
-            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP_ID, mGroupId);
+            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP, mGroup);
             startActivity(intent);
             return true;
         }
@@ -108,7 +109,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void deleteUser(List<String> list) {
-        TSBGroupManager.getInstance().removeUsers(mGroupId, list, new TSBEngineCallback<String>() {
+        mGroup.removeUsers(list, new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -136,7 +137,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void quit() {
-        TSBGroupManager.getInstance().leave(mGroupId, new TSBEngineCallback<String>() {
+        mGroup.leave(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -164,7 +165,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void request() {
-        TSBGroupManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBContactsUser>>() {
+        mGroup.getUsers(new TSBEngineCallback<List<TSBContactsUser>>() {
 
             @Override
             public void onSuccess(List<TSBContactsUser> t) {

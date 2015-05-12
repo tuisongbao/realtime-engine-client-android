@@ -31,9 +31,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
-import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
@@ -47,18 +47,16 @@ import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CODE_TARGET";
-    public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CODE_CHAT_TYPE";
+    public static final String EXTRA_CONVERSATION = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
     private static final String TAG = "com.tuisongbao.android.engine.demo.ChatConversationActivity";
 
-    private String mTarget;
-    private ChatType mChatType;
     private ListView mMessagesListView;
     private Button mSendButton;
     private Button mImageSelectButton;
     private EditText mContenEditText;
     private ChatMessagesAdapter mAdapter;
     private List<TSBMessage> mMessageList;
+    private TSBChatConversation mConversation;
 
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
@@ -72,8 +70,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         mImageSelectButton = (Button) findViewById(R.id.conversation_media_send_button);
         mContenEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
         mMessageList = new ArrayList<TSBMessage>();
-        mTarget = getIntent().getStringExtra(EXTRA_CODE_TARGET);
-        mChatType = ChatType.getType(getIntent().getStringExtra(EXTRA_CODE_CHAT_TYPE));
+        mConversation = getIntent().getParcelableExtra(EXTRA_CONVERSATION);
 
         mAdapter = new ChatMessagesAdapter(mMessageList, this);
         mMessagesListView.setAdapter(mAdapter);
@@ -81,10 +78,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
             @Override
             public void onClick(View v) {
-                TSBMessage message = TSBMessage.createMessage(TSBMessage.TYPE.TEXT);
                 TSBMessageBody body = new TSBTextMessageBody(mContenEditText.getText().toString());
-                message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
-                TSBChatManager.getInstance().sendMessage(message, new TSBEngineCallback<TSBMessage>() {
+                mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
 
                     @Override
                     public void onSuccess(TSBMessage t) {
@@ -95,6 +90,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                             @Override
                             public void run() {
                                 mAdapter.refresh(mMessageList);
+                                mMessagesListView.setSelection(mMessageList.size() - 1);
                                 Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                             }
                         });
@@ -167,7 +163,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mChatType == ChatType.GroupChat) {
+        if (mConversation.getType() == ChatType.GroupChat) {
             getMenuInflater().inflate(R.menu.group_detail, menu);
         }
         return true;
@@ -176,8 +172,11 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member) {
+            TSBChatGroup group = new TSBChatGroup();
+            group.setGroupId(mConversation.getTarget());
+
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
-            intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP_ID, mTarget);
+            intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);
             startActivity(intent);
             return true;
         }
@@ -273,7 +272,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     }
 
     private void request() {
-        TSBConversationManager.getInstance().getMessages(mChatType, mTarget, mStartMessageId, null, 20, new TSBEngineCallback<List<TSBMessage>>() {
+        mConversation.getMessages(mStartMessageId, null, 20, new TSBEngineCallback<List<TSBMessage>>() {
 
             @Override
             public void onSuccess(final List<TSBMessage> t) {
@@ -314,11 +313,9 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             Toast.makeText(ChatConversationActivity.this, "Send failed, file not exist", Toast.LENGTH_LONG).show();
             return;
         }
-        TSBMessage message = new TSBMessage();
         TSBImageMessageBody body = new TSBImageMessageBody();
         body.setLocalPath(filePath);
-        message.setBody(body).setChatType(mChatType).setRecipient(mTarget);
-        TSBChatManager.getInstance().sendMessage(message, new TSBEngineCallback<TSBMessage>() {
+        mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
 
             @Override
             public void onSuccess(final TSBMessage t) {
@@ -328,6 +325,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     @Override
                     public void run() {
                         mAdapter.refresh(mMessageList);
+                        mMessagesListView.setSelection(mMessageList.size() - 1);
                         Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -340,6 +338,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     @Override
                     public void run() {
                         mAdapter.refresh(mMessageList);
+                        mMessagesListView.setSelection(mMessageList.size() - 1);
                         Toast.makeText(ChatConversationActivity.this, "Send failed", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -363,19 +362,21 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
+                String target = mConversation.getTarget();
                 TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                Log.i(TAG, "App get " + message.toString() + " to " + message.getRecipient() + " and corrent target is " + mTarget);
+                Log.i(TAG, "App get " + message.toString() + " to " + message.getRecipient() + " and corrent target is " + target);
 
                 // Only receive message sent to current conversation
                 boolean showMessage = false;
                 if (message.getChatType() == ChatType.SingleChat) {
-                    showMessage = message.getFrom().equals(mTarget);
+                    showMessage = message.getFrom().equals(target);
                 } else if (message.getChatType() == ChatType.GroupChat) {
-                    showMessage = message.getRecipient().equals(mTarget);
+                    showMessage = message.getRecipient().equals(target);
                 }
                 if (message != null && showMessage) {
                     mMessageList.add(message);
                     mAdapter.refresh(mMessageList);
+                    mMessagesListView.setSelection(mMessageList.size() - 1);
                 }
             }
         }

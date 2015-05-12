@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -12,15 +13,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBGroupManager;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class ChatGroupMemberAddActivity extends Activity {
 
-    public static final String EXTRA_KEY_GROUP_ID = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP_ID";
-    private String mGroupId;
+    public static final String TAG = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity";
+    public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
+
+    private TSBChatGroup mGroup;
+    // TODO: Remove or optimize
     private ListView mListViewMemberAdd;
     private EditText mEditText;
     private Button mButton;
@@ -32,7 +36,8 @@ public class ChatGroupMemberAddActivity extends Activity {
         mListViewMemberAdd = (ListView) findViewById(R.id.group_member_add_listview);
         mEditText = (EditText) findViewById(R.id.group_member_add_edittext);
         mButton = (Button) findViewById(R.id.group_member_add_button);
-        mGroupId = getIntent().getStringExtra(EXTRA_KEY_GROUP_ID);
+        mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
+        Log.d(TAG, mGroup.toString());
     }
 
     @Override
@@ -60,7 +65,7 @@ public class ChatGroupMemberAddActivity extends Activity {
             for (String split : splits) {
                 list.add(split);
             }
-            TSBGroupManager.getInstance().joinInvitation(mGroupId, list, new TSBEngineCallback<String>() {
+            mGroup.joinInvitation(list, new TSBEngineCallback<String>() {
 
                 @Override
                 public void onSuccess(String t) {

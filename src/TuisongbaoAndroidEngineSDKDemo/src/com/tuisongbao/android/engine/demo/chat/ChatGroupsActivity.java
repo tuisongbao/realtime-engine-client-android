@@ -16,12 +16,13 @@ import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBGroupManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupAdapter;
 
-public class ChatGroupActivity extends Activity {
+public class ChatGroupsActivity extends Activity {
 
     private ListView mListViewGroup;
     private ChatGroupAdapter mAdapter;
@@ -40,10 +41,14 @@ public class ChatGroupActivity extends Activity {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 TSBChatGroup group = mListGroup.get(arg2);
-                Intent intent = new Intent(ChatGroupActivity.this,
+
+                TSBChatConversation conversation = new TSBChatConversation();
+                conversation.setTarget(group.getGroupId());
+                conversation.setType(ChatType.GroupChat);
+
+                Intent intent = new Intent(ChatGroupsActivity.this,
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, group.getGroupId());
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, ChatType.GroupChat.getName());
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
             }
         });
@@ -93,7 +98,7 @@ public class ChatGroupActivity extends Activity {
 
                     @Override
                     public void run() {
-                        Toast.makeText(ChatGroupActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatGroupsActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();
                     }
                 });
             }
