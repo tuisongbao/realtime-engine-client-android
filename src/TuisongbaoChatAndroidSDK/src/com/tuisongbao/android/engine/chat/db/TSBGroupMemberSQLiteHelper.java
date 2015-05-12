@@ -11,16 +11,16 @@ import com.tuisongbao.android.engine.log.LogUtil;
  * @author root
  *
  */
-public class TSBGroupUserSQLiteHelper extends BaseSQLiteHelper {
-    public static final String TABLE_CHAT_GROUP_USER = "chatGroupUser";
-    private static final String DATABASE_NAME = "chatGroupUser.db";
+public class TSBGroupMemberSQLiteHelper extends BaseSQLiteHelper {
+    public static final String TABLE_CHAT_GROUP_USER = "chatGroupMember";
+    private static final String DATABASE_NAME = "chatGroupMember.db";
     private static final int DATABASE_VERSION = 1;
     private static final String COLUMN_ID = "_id";
 
     public static final String COLUMN_GROUP_ID = "groupId";
     public static final String COLUMN_USER_ID = "userId";
 
-    public TSBGroupUserSQLiteHelper(Context context) {
+    public TSBGroupMemberSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

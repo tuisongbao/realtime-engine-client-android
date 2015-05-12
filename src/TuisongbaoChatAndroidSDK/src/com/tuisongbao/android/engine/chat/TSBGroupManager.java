@@ -11,7 +11,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatGroupGetUsersData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupJoinInvitationData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupLeaveData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupRemoveUserData;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupCreateMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupCreateReponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatGroupGetMessage;
@@ -159,7 +159,7 @@ public class TSBGroupManager extends BaseManager {
      * @param callback
      */
     public void getUsers(String groupId,
-            TSBEngineCallback<List<TSBChatGroupUser>> callback) {
+            TSBEngineCallback<List<TSBContactsUser>> callback) {
         try {
             if (!isLogin()) {
                 handleErrorMessage(callback,

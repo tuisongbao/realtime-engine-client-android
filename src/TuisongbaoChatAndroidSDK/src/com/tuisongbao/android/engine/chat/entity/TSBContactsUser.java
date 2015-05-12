@@ -1,6 +1,6 @@
 package com.tuisongbao.android.engine.chat.entity;
 
-public class TSBChatGroupUser {
+public class TSBContactsUser {
 
     private String userId;
     /**
