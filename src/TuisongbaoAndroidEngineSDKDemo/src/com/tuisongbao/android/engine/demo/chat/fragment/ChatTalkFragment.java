@@ -24,7 +24,7 @@ import com.tuisongbao.android.engine.chat.TSBConversationManager;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatTalkAdapter;
 
 public class ChatTalkFragment extends Fragment {
@@ -62,9 +62,9 @@ public class ChatTalkFragment extends Fragment {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
-                        ChatGroupDetailActivity.class);
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, mListConversation.get(arg2).getType().getName());
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, mListConversation.get(arg2).getTarget());
+                        ChatConversationActivity.class);
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, mListConversation.get(arg2).getType().getName());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mListConversation.get(arg2).getTarget());
                 startActivity(intent);
                 resetUnread(mListConversation.get(arg2));
             }

@@ -21,7 +21,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatListFriendAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
@@ -79,9 +79,9 @@ public class ChatListFragment extends Fragment {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
-                        ChatGroupDetailActivity.class);
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, mListUser.get(arg2).getUserId());
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, ChatType.SingleChat.getName());
+                        ChatConversationActivity.class);
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mListUser.get(arg2).getUserId());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, ChatType.SingleChat.getName());
                 startActivity(intent);
             }
         });

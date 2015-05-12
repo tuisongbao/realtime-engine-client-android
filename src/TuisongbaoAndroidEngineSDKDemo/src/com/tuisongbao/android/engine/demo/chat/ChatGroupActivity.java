@@ -41,9 +41,9 @@ public class ChatGroupActivity extends Activity {
                     long arg3) {
                 TSBChatGroup group = mListGroup.get(arg2);
                 Intent intent = new Intent(ChatGroupActivity.this,
-                        ChatGroupDetailActivity.class);
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, group.getGroupId());
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, ChatType.GroupChat.getName());
+                        ChatConversationActivity.class);
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, group.getGroupId());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, ChatType.GroupChat.getName());
                 startActivity(intent);
             }
         });

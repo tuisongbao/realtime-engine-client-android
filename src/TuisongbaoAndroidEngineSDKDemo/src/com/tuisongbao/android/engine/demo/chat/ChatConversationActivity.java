@@ -45,7 +45,7 @@ import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 
 @SuppressLint("NewApi")
-public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_TARGET";
     public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE";
@@ -65,7 +65,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_detail);
+        setContentView(R.layout.activity_conversation);
         mListViewGroupDetail = (ListView) findViewById(R.id.group_detail_list_view);
         mSendButton = (Button) findViewById(R.id.group_detail_text_send_button);
         mImageSelectButton = (Button) findViewById(R.id.group_detail_media_send_button);
@@ -94,7 +94,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                             @Override
                             public void run() {
                                 mAdapter.refresh(mMessageList);
-                                Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
+                                Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -106,7 +106,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
 
                             @Override
                             public void run() {
-                                Toast.makeText(ChatGroupDetailActivity.this, "Send failure [code=" + code + ";msg=" + message + "]", Toast.LENGTH_LONG).show();
+                                Toast.makeText(ChatConversationActivity.this, "Send failure [code=" + code + ";msg=" + message + "]", Toast.LENGTH_LONG).show();
                             }
                         });
                     }
@@ -226,7 +226,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
                     MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
 
-            CursorLoader cursorLoader = new CursorLoader(ChatGroupDetailActivity.this, uri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            CursorLoader cursorLoader = new CursorLoader(ChatConversationActivity.this, uri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
             return cursorLoader;
 
         } else {
@@ -234,7 +234,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
                     MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
 
-            CursorLoader cursorLoader = new CursorLoader(ChatGroupDetailActivity.this, mImageUri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            CursorLoader cursorLoader = new CursorLoader(ChatConversationActivity.this, mImageUri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
             return cursorLoader;
         }
     }
@@ -301,7 +301,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
 
                     @Override
                     public void run() {
-                        Toast.makeText(ChatGroupDetailActivity.this, "获取消息失败，请稍后再试", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatConversationActivity.this, "获取消息失败，请稍后再试", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -310,7 +310,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
 
     private void sendImageMessage(String filePath) {
         if (filePath == null || filePath.length() < 1) {
-            Toast.makeText(ChatGroupDetailActivity.this, "Send failed, file not exist", Toast.LENGTH_LONG).show();
+            Toast.makeText(ChatConversationActivity.this, "Send failed, file not exist", Toast.LENGTH_LONG).show();
             return;
         }
         TSBMessage message = new TSBMessage();
@@ -327,7 +327,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     @Override
                     public void run() {
                         mAdapter.refresh(mMessageList);
-                        Toast.makeText(ChatGroupDetailActivity.this, "Send success", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -339,7 +339,7 @@ public class ChatGroupDetailActivity extends Activity implements LoaderCallbacks
                     @Override
                     public void run() {
                         mAdapter.refresh(mMessageList);
-                        Toast.makeText(ChatGroupDetailActivity.this, "Send failed", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatConversationActivity.this, "Send failed", Toast.LENGTH_LONG).show();
                     }
                 });
 

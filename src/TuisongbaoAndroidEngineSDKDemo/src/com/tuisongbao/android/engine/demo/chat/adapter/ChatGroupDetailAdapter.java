@@ -17,7 +17,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -119,7 +119,7 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
 
                     @Override
                     public void onSuccess(final TSBMessage message) {
-                        ((ChatGroupDetailActivity)mContext).runOnUiThread(new Runnable() {
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
@@ -133,7 +133,7 @@ public class ChatGroupDetailAdapter extends BaseAdapter {
 
                     @Override
                     public void onError(int code, String message) {
-                        ((ChatGroupDetailActivity)mContext).runOnUiThread(new Runnable() {
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
