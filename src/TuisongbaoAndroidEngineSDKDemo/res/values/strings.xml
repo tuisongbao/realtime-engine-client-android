@@ -28,7 +28,6 @@
     <string name="dashboard_item_setting">设置</string>
 
     <!-- fragment list -->
-    <string name="chat_list_group">群组</string>
-
-    <string name="chat_group_quit">退出改组</string>
+    <string name="chat_contacts_group">群组</string>
+    <string name="chat_group_quit">退出群组</string>
 </resources>

@@ -17,28 +17,27 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.tuisongbao.android.engine.chat.entity.ChatType;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
+import com.tuisongbao.android.engine.demo.chat.ChatGroupActivity;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatListFriendAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
-public class ChatListFragment extends Fragment {
-    private static ChatListFragment mChatListFragment;
+public class ChatContactsFragment extends Fragment {
+    private static ChatContactsFragment mChatContactsFragment;
 
     private View mRootView;
-    private LinearLayout mLayoutGroup;
-    private ListView mListViewFriend;
-    private ChatListFriendAdapter mAdapterFriend;
-    private List<TSBChatGroupUser> mListUser;
+    private LinearLayout mGroupLayout;
+    private ListView mFriendsListView;
+    private ChatListFriendAdapter mFriendsAdapter;
+    private List<TSBContactsUser> mFriendsList;
 
-    public static ChatListFragment getInstance() {
-        if (null == mChatListFragment) {
-            mChatListFragment = new ChatListFragment();
+    public static ChatContactsFragment getInstance() {
+        if (null == mChatContactsFragment) {
+            mChatContactsFragment = new ChatContactsFragment();
         }
-        return mChatListFragment;
+        return mChatContactsFragment;
     }
 
     @Override
@@ -54,13 +53,13 @@ public class ChatListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_chat_list, container,
+        mRootView = inflater.inflate(R.layout.fragment_contacts, container,
                 false);
-        mListViewFriend = (ListView) mRootView
-                .findViewById(R.id.fragment_chat_list_listview);
-        mLayoutGroup = (LinearLayout) mRootView
-                .findViewById(R.id.fragment_chat_list_group);
-        mLayoutGroup.setOnClickListener(new OnClickListener() {
+        mFriendsListView = (ListView) mRootView
+                .findViewById(R.id.fragment_contacts_friends_listview);
+        mGroupLayout = (LinearLayout) mRootView
+                .findViewById(R.id.fragment_contacts_group);
+        mGroupLayout.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -70,34 +69,32 @@ public class ChatListFragment extends Fragment {
             }
         });
 
-        mListUser = new ArrayList<TSBChatGroupUser>(LoginChache.getAddedUserList());
-        mAdapterFriend = new ChatListFriendAdapter(mListUser, getActivity());
-        mListViewFriend.setAdapter(mAdapterFriend);
-        mListViewFriend.setOnItemClickListener(new OnItemClickListener() {
+        mFriendsList = new ArrayList<TSBContactsUser>(LoginChache.getAddedUserList());
+        mFriendsAdapter = new ChatListFriendAdapter(mFriendsList, getActivity());
+        mFriendsListView.setAdapter(mFriendsAdapter);
+        mFriendsListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mListUser.get(arg2).getUserId());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mFriendsList.get(arg2).getUserId());
                 intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, ChatType.SingleChat.getName());
                 startActivity(intent);
             }
         });
-        
 
         return mRootView;
     }
-    
+
     public void refresh() {
-        mListUser = new ArrayList<TSBChatGroupUser>(LoginChache.getAddedUserList());
-        mAdapterFriend.refresh(mListUser);
+        mFriendsList = new ArrayList<TSBContactsUser>(LoginChache.getAddedUserList());
+        mFriendsAdapter.refresh(mFriendsList);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
-
 }

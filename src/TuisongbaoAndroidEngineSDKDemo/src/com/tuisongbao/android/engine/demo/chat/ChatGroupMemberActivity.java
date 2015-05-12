@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBGroupManager;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupUserAdapter;
@@ -30,7 +30,7 @@ public class ChatGroupMemberActivity extends Activity {
     private String mGroupId;
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
-    private List<TSBChatGroupUser> mListGroupUser;
+    private List<TSBContactsUser> mListGroupUser;
     private Button mButtonQuit;
 
     @Override
@@ -38,7 +38,7 @@ public class ChatGroupMemberActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_member);
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
-        mListGroupUser = new ArrayList<TSBChatGroupUser>();
+        mListGroupUser = new ArrayList<TSBContactsUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
         mGroupId = getIntent().getStringExtra(EXTRA_KEY_GROUP_ID);
 
@@ -164,10 +164,10 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void request() {
-        TSBGroupManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBChatGroupUser>>() {
+        TSBGroupManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBContactsUser>>() {
 
             @Override
-            public void onSuccess(List<TSBChatGroupUser> t) {
+            public void onSuccess(List<TSBContactsUser> t) {
                 mListGroupUser = t;
                 runOnUiThread(new Runnable() {
 

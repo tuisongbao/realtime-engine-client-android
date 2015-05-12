@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:layout_marginLeft="10dp"
-            android:text="@string/chat_list_group" />
+            android:text="@string/chat_contacts_group" />
     </LinearLayout>
 
 </RelativeLayout>

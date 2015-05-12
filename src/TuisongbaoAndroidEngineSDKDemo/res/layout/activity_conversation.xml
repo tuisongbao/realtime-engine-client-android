@@ -4,36 +4,36 @@
     android:layout_height="match_parent" >
 
     <LinearLayout
-        android:id="@+id/group_detail_send"
+        android:id="@+id/conversation_message_send"
         android:layout_width="match_parent"
         android:layout_height="@dimen/common_item_height"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
 
         <EditText
-            android:id="@+id/group_detail_message_content_edittext"
+            android:id="@+id/conversation_message_content_edittext"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/group_detail_text_send_button"
+            android:id="@+id/conversation_text_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/send" />
         
         <Button
-            android:id="@+id/group_detail_media_send_button"
+            android:id="@+id/conversation_media_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/media" />
     </LinearLayout>
 
     <ListView
-        android:id="@+id/group_detail_list_view"
+        android:id="@+id/conversation_messages_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/group_detail_send" >
+        android:layout_above="@id/conversation_message_send" >
     </ListView>
 
 </RelativeLayout>

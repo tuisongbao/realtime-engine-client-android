@@ -21,13 +21,13 @@ import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.util.StrUtil;
 
-public class ChatGroupDetailAdapter extends BaseAdapter {
+public class ChatMessagesAdapter extends BaseAdapter {
 
-    private static final String TAG = "com.tuisongbao.android.engine.chat.ChatGroupDetailAdapter";
+    private static final String TAG = "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
     private Context mContext;
     private List<TSBMessage> mMessageList;
 
-    public ChatGroupDetailAdapter(List<TSBMessage> listConversation,
+    public ChatMessagesAdapter(List<TSBMessage> listConversation,
             Context context) {
         mMessageList = listConversation;
         mContext = context;

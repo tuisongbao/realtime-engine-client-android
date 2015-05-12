@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@+id/fragment_chat_talk_listview"
+        android:id="@+id/fragment_conversations_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
     </ListView>

@@ -15,15 +15,15 @@ import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.LoginActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 
-public class ChatSettingFragment extends Fragment {
+public class ChatSettingsFragment extends Fragment {
 
-    private static ChatSettingFragment mChatSettingFragment;
+    private static ChatSettingsFragment mChatSettingFragment;
     private Button mLogoutButton;
     private View mRootView;
 
-    public static ChatSettingFragment getInstance() {
+    public static ChatSettingsFragment getInstance() {
         if (null == mChatSettingFragment) {
-            mChatSettingFragment = new ChatSettingFragment();
+            mChatSettingFragment = new ChatSettingsFragment();
         }
         return mChatSettingFragment;
     }
@@ -31,7 +31,7 @@ public class ChatSettingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_chat_setting, container,
+        mRootView = inflater.inflate(R.layout.fragment_settings, container,
                 false);
         mLogoutButton = (Button)mRootView.findViewById(R.id.chat_setting_logout);
         mLogoutButton.setOnClickListener(new OnClickListener() {

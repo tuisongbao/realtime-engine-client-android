@@ -25,51 +25,54 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
-import com.tuisongbao.android.engine.demo.chat.adapter.ChatTalkAdapter;
+import com.tuisongbao.android.engine.demo.chat.adapter.ChatConversationsAdapter;
 
-public class ChatTalkFragment extends Fragment {
+public class ChatConversationsFragment extends Fragment {
 
-    private static ChatTalkFragment mChatTalkFragment;
-    private static final String TAG = "com.tuisongbao.engine.demo.ChatTalkFragment";
+    private static ChatConversationsFragment mConversationsFragment;
+    private static final String TAG = "com.tuisongbao.engine.demo.ChatConversationsFragment";
 
     private View mRootView;
-    private ListView mListViewTalk;
-    private List<TSBChatConversation> mListConversation;
-    private ChatTalkAdapter mAdapterChatTalk;
+    private ListView mConversationsListView;
+    private List<TSBChatConversation> mConversationList;
+    private ChatConversationsAdapter mConversationsAdapter;
 
-    public static ChatTalkFragment getInstance() {
-        if (null == mChatTalkFragment) {
-            mChatTalkFragment = new ChatTalkFragment();
+    public static ChatConversationsFragment getInstance() {
+        if (null == mConversationsFragment) {
+            mConversationsFragment = new ChatConversationsFragment();
         }
-        return mChatTalkFragment;
+        return mConversationsFragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.fragment_chat_talk, container,
+        // inflater: 打气筒， inflate：充气，very reasonable.
+        mRootView = inflater.inflate(R.layout.fragment_conversations, container,
                 false);
-        mListViewTalk = (ListView) mRootView
-                .findViewById(R.id.fragment_chat_talk_listview);
+        mConversationsListView = (ListView) mRootView
+                .findViewById(R.id.fragment_conversations_listview);
 
-        mListConversation = new ArrayList<TSBChatConversation>();
+        mConversationList = new ArrayList<TSBChatConversation>();
 
-        mAdapterChatTalk = new ChatTalkAdapter(mListConversation, getActivity());
-        mListViewTalk.setAdapter(mAdapterChatTalk);
-        mListViewTalk.setOnItemClickListener(new OnItemClickListener() {
+        mConversationsAdapter = new ChatConversationsAdapter(mConversationList, getActivity());
+        mConversationsListView.setAdapter(mConversationsAdapter);
+        mConversationsListView.setOnItemClickListener(new OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, mListConversation.get(arg2).getType().getName());
-                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mListConversation.get(arg2).getTarget());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_CHAT_TYPE, mConversationList.get(arg2).getType().getName());
+                intent.putExtra(ChatConversationActivity.EXTRA_CODE_TARGET, mConversationList.get(arg2).getTarget());
                 startActivity(intent);
-                resetUnread(mListConversation.get(arg2));
+
+                resetUnread(mConversationList.get(arg2));
             }
         });
-        mListViewTalk.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+        mConversationsListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
@@ -81,7 +84,7 @@ public class ChatTalkFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog,
                                 int which) {
-                            deleteConversation(mListConversation.get(arg2));
+                            deleteConversation(mConversationList.get(arg2));
                         }
                     })
                     .setNegativeButton("取消", new OnClickListener() {
@@ -112,7 +115,7 @@ public class ChatTalkFragment extends Fragment {
 
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
-                mListConversation = t;
+                mConversationList = t;
                 Log.d(TAG, "Get " + t.size() + " conversations");
                 Activity activity = getActivity();
                 if (activity == null) {
@@ -122,7 +125,7 @@ public class ChatTalkFragment extends Fragment {
 
                     @Override
                     public void run() {
-                        mAdapterChatTalk.refresh(mListConversation);
+                        mConversationsAdapter.refresh(mConversationList);
                     }
                 });
 

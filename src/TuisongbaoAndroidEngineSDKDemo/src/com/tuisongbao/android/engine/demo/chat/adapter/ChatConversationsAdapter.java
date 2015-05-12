@@ -12,12 +12,12 @@ import android.widget.TextView;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.demo.R;
 
-public class ChatTalkAdapter extends BaseAdapter {
+public class ChatConversationsAdapter extends BaseAdapter {
 
     private Context mContext;
     private List<TSBChatConversation> mListConversation;
 
-    public ChatTalkAdapter(List<TSBChatConversation> listConversation, Context context) {
+    public ChatConversationsAdapter(List<TSBChatConversation> listConversation, Context context) {
         mListConversation = listConversation;
         mContext = context;
     }

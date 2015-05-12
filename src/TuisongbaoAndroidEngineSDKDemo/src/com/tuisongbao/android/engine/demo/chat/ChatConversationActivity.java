@@ -40,23 +40,24 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
-import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupDetailAdapter;
+import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_TARGET";
-    public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE";
-    private static final String TAG = "com.tuisongbao.android.engine.demo.ChatGroupDetailActivity";
+    public static final String EXTRA_CODE_TARGET = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CODE_TARGET";
+    public static final String EXTRA_CODE_CHAT_TYPE = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CODE_CHAT_TYPE";
+    private static final String TAG = "com.tuisongbao.android.engine.demo.ChatConversationActivity";
+
     private String mTarget;
     private ChatType mChatType;
-    private ListView mListViewGroupDetail;
+    private ListView mMessagesListView;
     private Button mSendButton;
     private Button mImageSelectButton;
     private EditText mContenEditText;
-    private ChatGroupDetailAdapter mAdapter;
+    private ChatMessagesAdapter mAdapter;
     private List<TSBMessage> mMessageList;
 
     private Uri mImageUri = null;
@@ -66,16 +67,16 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        mListViewGroupDetail = (ListView) findViewById(R.id.group_detail_list_view);
-        mSendButton = (Button) findViewById(R.id.group_detail_text_send_button);
-        mImageSelectButton = (Button) findViewById(R.id.group_detail_media_send_button);
-        mContenEditText = (EditText) findViewById(R.id.group_detail_message_content_edittext);
+        mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
+        mSendButton = (Button) findViewById(R.id.conversation_text_send_button);
+        mImageSelectButton = (Button) findViewById(R.id.conversation_media_send_button);
+        mContenEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
         mMessageList = new ArrayList<TSBMessage>();
         mTarget = getIntent().getStringExtra(EXTRA_CODE_TARGET);
         mChatType = ChatType.getType(getIntent().getStringExtra(EXTRA_CODE_CHAT_TYPE));
 
-        mAdapter = new ChatGroupDetailAdapter(mMessageList, this);
-        mListViewGroupDetail.setAdapter(mAdapter);
+        mAdapter = new ChatMessagesAdapter(mMessageList, this);
+        mMessagesListView.setAdapter(mAdapter);
         mSendButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -132,7 +133,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             }
         });
 
-        mListViewGroupDetail.setOnScrollListener(new OnScrollListener() {
+        mMessagesListView.setOnScrollListener(new OnScrollListener() {
 
             int currentFirstVisibleItem;
             @Override
