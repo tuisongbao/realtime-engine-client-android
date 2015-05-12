@@ -15,7 +15,7 @@ public class TSBImageMessageBody extends TSBMessageBody {
     public static final String NAME = "name";
     public static final String SIZE = "size";
     public static final String MIME_TYPE = "mimeType";
-    public static final String IMAGE_INFO = "imageInfo";
+    public static final String IMAGE_INFO = "image";
 
     public static final String IMAGE_INFO_WIDTH = "width";
     public static final String IMAGE_INFO_HEIGHT = "height";
