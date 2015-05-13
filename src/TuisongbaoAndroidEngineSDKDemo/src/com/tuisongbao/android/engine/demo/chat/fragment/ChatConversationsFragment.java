@@ -68,7 +68,7 @@ public class ChatConversationsFragment extends Fragment {
                 intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
 
-                resetUnread(mConversationList.get(arg2));
+                resetUnread(conversation);
             }
         });
 
@@ -149,7 +149,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void deleteConversation(TSBChatConversation conversation) {
-        TSBConversationManager.getInstance().delete(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
+        conversation.delete(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -185,7 +185,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void resetUnread(TSBChatConversation conversation) {
-        TSBConversationManager.getInstance().resetUnread(conversation.getType(), conversation.getTarget(), new TSBEngineCallback<String>() {
+        conversation.resetUnread(new TSBEngineCallback<String>() {
             @Override
             public void onSuccess(String t) {
                 Toast.makeText(getActivity(), "重置未读消息成功", Toast.LENGTH_LONG).show();

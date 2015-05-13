@@ -76,11 +76,11 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public void onPageSelected(int arg0) {
                 if (arg0 == 0) {
-                    updateBottomBackground(R.id.dashboard_textview_conversations);
+                    updateBackground(R.id.dashboard_textview_conversations);
                 } else if (arg0 == 1) {
-                    updateBottomBackground(R.id.dashboard_textview_contacts);
+                    updateBackground(R.id.dashboard_textview_contacts);
                 } else {
-                    updateBottomBackground(R.id.dashboard_textview_settings);
+                    updateBackground(R.id.dashboard_textview_settings);
                 }
             }
 
@@ -198,10 +198,10 @@ public class DashboardActivity extends FragmentActivity {
             mViewPager.setCurrentItem(2);
             break;
         }
-        updateBottomBackground(textViewId);
+        updateBackground(textViewId);
     }
 
-    private void updateBottomBackground(int textViewId) {
+    private void updateBackground(int textViewId) {
         mConversationTextView.setBackgroundColor(getResources().getColor(R.color.gray));
         mContactsTextView.setBackgroundColor(getResources().getColor(R.color.gray));
         mSettingsTextView.setBackgroundColor(getResources().getColor(
