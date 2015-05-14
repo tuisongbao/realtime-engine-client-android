@@ -4,7 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
@@ -31,6 +36,7 @@ import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatContactsFragment;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatConversationsFragment;
 import com.tuisongbao.android.engine.demo.chat.fragment.ChatSettingsFragment;
+import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -41,6 +47,7 @@ public class DashboardActivity extends FragmentActivity {
     private ChatConversationsFragment mConversationsFragment;
     private ChatContactsFragment mContactsFragment;
     private ChatSettingsFragment mSettingsFragment;
+    private int mCurrentPage = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +82,7 @@ public class DashboardActivity extends FragmentActivity {
 
             @Override
             public void onPageSelected(int arg0) {
+                mCurrentPage = arg0;
                 if (arg0 == 0) {
                     updateBackground(R.id.dashboard_textview_conversations);
                 } else if (arg0 == 1) {
@@ -175,6 +183,8 @@ public class DashboardActivity extends FragmentActivity {
                 });
             }
         });
+
+        registerBroadcast();
     }
 
     private void initFragment() {
@@ -211,6 +221,7 @@ public class DashboardActivity extends FragmentActivity {
         case R.id.dashboard_textview_conversations:
             mConversationTextView.setBackgroundColor(getResources().getColor(
                     R.color.blue));
+            mConversationTextView.setTextColor(getResources().getColor(R.color.black));
             break;
 
         case R.id.dashboard_textview_contacts:
@@ -222,6 +233,12 @@ public class DashboardActivity extends FragmentActivity {
             mSettingsTextView.setBackgroundColor(getResources().getColor(
                     R.color.blue));
             break;
+        }
+    }
+
+    private void markNewMessage() {
+        if (mCurrentPage != 0) {
+            mConversationTextView.setTextColor(getResources().getColor(R.color.red));
         }
     }
 
@@ -238,6 +255,13 @@ public class DashboardActivity extends FragmentActivity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterBroadcast();
     }
 
     private void showAddUserDialog() {
@@ -266,5 +290,27 @@ public class DashboardActivity extends FragmentActivity {
                     }
                 }).show();
     }
+
+    private void registerBroadcast() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    private void unregisterBroadcast() {
+        unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
+                markNewMessage();
+                TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                mConversationsFragment.markUnreadCount(message);
+            }
+        }
+    };
 
 }

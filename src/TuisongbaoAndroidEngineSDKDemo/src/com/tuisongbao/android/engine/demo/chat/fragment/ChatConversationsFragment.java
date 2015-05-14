@@ -1,6 +1,8 @@
 package com.tuisongbao.android.engine.demo.chat.fragment;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
@@ -21,7 +23,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.TSBConversationManager;
+import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
@@ -36,6 +40,8 @@ public class ChatConversationsFragment extends Fragment {
     private ListView mConversationsListView;
     private List<TSBChatConversation> mConversationList;
     private ChatConversationsAdapter mConversationsAdapter;
+    private HashMap<String, TSBChatConversation> mConversationHashMap = new HashMap<String, TSBChatConversation>();
+    private TSBChatConversation mClickedConversation;
 
     public static ChatConversationsFragment getInstance() {
         if (null == mConversationsFragment) {
@@ -62,13 +68,13 @@ public class ChatConversationsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
-                TSBChatConversation conversation = mConversationList.get(arg2);
+                mClickedConversation = mConversationList.get(arg2);
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedConversation);
                 startActivity(intent);
 
-                resetUnread(conversation);
+                resetUnread(mClickedConversation);
             }
         });
 
@@ -107,7 +113,28 @@ public class ChatConversationsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        mClickedConversation = null;
         request();
+    }
+
+    public void markUnreadCount(TSBMessage message) {
+        String target = "";
+        if (message.getChatType() == ChatType.SingleChat) {
+            target = message.getFrom();
+        } else {
+            target = message.getRecipient();
+        }
+        TSBChatConversation conversation = mConversationHashMap.get(message.getChatType().getName() + target);
+        if (conversation != null && conversation != mClickedConversation) {
+            int unreadMessageCount = conversation.getUnreadMessageCount();
+            unreadMessageCount++;
+            conversation.setUnreadMessageCount(unreadMessageCount);
+        }
+
+        Collection<TSBChatConversation> collection = mConversationHashMap.values();
+        mConversationList = new ArrayList<TSBChatConversation>();
+        mConversationList.addAll(collection);
+        mConversationsAdapter.refresh(mConversationList);
     }
 
     private void request() {
@@ -115,8 +142,13 @@ public class ChatConversationsFragment extends Fragment {
 
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {
-                mConversationList = t;
                 Log.d(TAG, "Get " + t.size() + " conversations");
+
+                mergeConversationsToKeepUnread(t);
+                Collection<TSBChatConversation> collection = mConversationHashMap.values();
+                mConversationList = new ArrayList<TSBChatConversation>();
+                mConversationList.addAll(collection);
+
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
@@ -185,6 +217,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void resetUnread(TSBChatConversation conversation) {
+        conversation.setUnreadMessageCount(0);
         conversation.resetUnread(new TSBEngineCallback<String>() {
             @Override
             public void onSuccess(String t) {
@@ -196,5 +229,22 @@ public class ChatConversationsFragment extends Fragment {
                 Toast.makeText(getActivity(), "重置未读消息失败，请稍后再试", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void mergeConversationsToKeepUnread(List<TSBChatConversation> conversations) {
+        HashMap<String, TSBChatConversation> newConversations = new HashMap<String, TSBChatConversation>();
+        for (TSBChatConversation conversation : conversations) {
+            String keyString = getKeyString(conversation);
+            TSBChatConversation localConversation = mConversationHashMap.get(keyString);
+            if (localConversation != null) {
+                conversation.setUnreadMessageCount(conversation.getUnreadMessageCount() + localConversation.getUnreadMessageCount());
+            }
+            newConversations.put(keyString, conversation);
+        }
+        mConversationHashMap = newConversations;
+    }
+
+    private String getKeyString(TSBChatConversation conversation) {
+        return conversation.getType().getName() + conversation.getTarget();
     }
 }
