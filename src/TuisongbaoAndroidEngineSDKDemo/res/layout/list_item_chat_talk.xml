@@ -2,28 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/gray"
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin" >
-
-    <TextView
-        android:id="@+id/list_item_chat_talk_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/list_item_chat_talk_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/list_item_chat_talk_content"
+    
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true" />
+        android:orientation="horizontal" >
+    
+        <TextView
+            android:id="@+id/list_item_conversation_unread"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        
+        <TextView
+            android:id="@+id/list_item_conversation_target"
+            android:layout_weight="10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/list_item_chat_talk_time"
+        android:id="@+id/list_item_conversation_latest_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

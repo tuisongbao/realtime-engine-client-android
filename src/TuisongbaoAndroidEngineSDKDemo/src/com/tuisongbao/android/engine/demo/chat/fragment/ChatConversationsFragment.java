@@ -30,6 +30,7 @@ import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatConversationsAdapter;
+import com.tuisongbao.android.engine.demo.chat.entity.ConversationWrapper;
 
 public class ChatConversationsFragment extends Fragment {
 
@@ -38,9 +39,9 @@ public class ChatConversationsFragment extends Fragment {
 
     private View mRootView;
     private ListView mConversationsListView;
-    private List<TSBChatConversation> mConversationList;
+    private List<ConversationWrapper> mConversationList;
     private ChatConversationsAdapter mConversationsAdapter;
-    private HashMap<String, TSBChatConversation> mConversationHashMap = new HashMap<String, TSBChatConversation>();
+    private HashMap<String, ConversationWrapper> mConversationHashMap = new HashMap<String, ConversationWrapper>();
     private TSBChatConversation mClickedConversation;
 
     public static ChatConversationsFragment getInstance() {
@@ -59,7 +60,7 @@ public class ChatConversationsFragment extends Fragment {
         mConversationsListView = (ListView) mRootView
                 .findViewById(R.id.fragment_conversations_listview);
 
-        mConversationList = new ArrayList<TSBChatConversation>();
+        mConversationList = new ArrayList<ConversationWrapper>();
 
         mConversationsAdapter = new ChatConversationsAdapter(mConversationList, getActivity());
         mConversationsListView.setAdapter(mConversationsAdapter);
@@ -68,7 +69,7 @@ public class ChatConversationsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
-                mClickedConversation = mConversationList.get(arg2);
+                mClickedConversation = mConversationList.get(arg2).getConversation();
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
                 intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedConversation);
@@ -90,7 +91,7 @@ public class ChatConversationsFragment extends Fragment {
                         @Override
                         public void onClick(DialogInterface dialog,
                                 int which) {
-                            deleteConversation(mConversationList.get(arg2));
+                            deleteConversation(mConversationList.get(arg2).getConversation());
                         }
                     })
                     .setNegativeButton("取消", new OnClickListener() {
@@ -117,23 +118,23 @@ public class ChatConversationsFragment extends Fragment {
         request();
     }
 
-    public void markUnreadCount(TSBMessage message) {
+    public void newMessageReceived(TSBMessage message) {
         String target = "";
         if (message.getChatType() == ChatType.SingleChat) {
             target = message.getFrom();
         } else {
             target = message.getRecipient();
         }
-        TSBChatConversation conversation = mConversationHashMap.get(message.getChatType().getName() + target);
+        ConversationWrapper wrapper = mConversationHashMap.get(message.getChatType().getName() + target);
+        wrapper.setLatestMessage(message);
+
+        TSBChatConversation conversation = wrapper.getConversation();
         if (conversation != null && conversation != mClickedConversation) {
             int unreadMessageCount = conversation.getUnreadMessageCount();
             unreadMessageCount++;
             conversation.setUnreadMessageCount(unreadMessageCount);
         }
-
-        Collection<TSBChatConversation> collection = mConversationHashMap.values();
-        mConversationList = new ArrayList<TSBChatConversation>();
-        mConversationList.addAll(collection);
+        refreshConversationList();
         mConversationsAdapter.refresh(mConversationList);
     }
 
@@ -144,11 +145,8 @@ public class ChatConversationsFragment extends Fragment {
             public void onSuccess(final List<TSBChatConversation> t) {
                 Log.d(TAG, "Get " + t.size() + " conversations");
 
-                mergeConversationsToKeepUnread(t);
-                Collection<TSBChatConversation> collection = mConversationHashMap.values();
-                mConversationList = new ArrayList<TSBChatConversation>();
-                mConversationList.addAll(collection);
-
+                refreshConversationHashMap(t);
+                refreshConversationList();
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
@@ -160,7 +158,6 @@ public class ChatConversationsFragment extends Fragment {
                         mConversationsAdapter.refresh(mConversationList);
                     }
                 });
-
             }
 
             @Override
@@ -231,20 +228,32 @@ public class ChatConversationsFragment extends Fragment {
         });
     }
 
-    private void mergeConversationsToKeepUnread(List<TSBChatConversation> conversations) {
-        HashMap<String, TSBChatConversation> newConversations = new HashMap<String, TSBChatConversation>();
+    private void refreshConversationHashMap(List<TSBChatConversation> conversations) {
+        HashMap<String, ConversationWrapper> newConversations = new HashMap<String, ConversationWrapper>();
         for (TSBChatConversation conversation : conversations) {
             String keyString = getKeyString(conversation);
-            TSBChatConversation localConversation = mConversationHashMap.get(keyString);
-            if (localConversation != null) {
+            ConversationWrapper wrapper = mConversationHashMap.get(keyString);
+            if (wrapper != null) {
+                TSBChatConversation localConversation = wrapper.getConversation();
                 conversation.setUnreadMessageCount(conversation.getUnreadMessageCount() + localConversation.getUnreadMessageCount());
+            } else {
+                wrapper = new ConversationWrapper();
             }
-            newConversations.put(keyString, conversation);
+            wrapper.setConversation(conversation);
+
+            wrapper.loadLatestMessage(null);
+            newConversations.put(getKeyString(conversation), wrapper);
         }
         mConversationHashMap = newConversations;
     }
 
     private String getKeyString(TSBChatConversation conversation) {
         return conversation.getType().getName() + conversation.getTarget();
+    }
+
+    private void refreshConversationList() {
+        Collection<ConversationWrapper> collection = mConversationHashMap.values();
+        mConversationList = new ArrayList<ConversationWrapper>();
+        mConversationList.addAll(collection);
     }
 }

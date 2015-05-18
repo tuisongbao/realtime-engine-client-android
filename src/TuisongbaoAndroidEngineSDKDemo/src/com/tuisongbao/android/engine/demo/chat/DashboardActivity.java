@@ -308,7 +308,7 @@ public class DashboardActivity extends FragmentActivity {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
                 markNewMessage();
                 TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                mConversationsFragment.markUnreadCount(message);
+                mConversationsFragment.newMessageReceived(message);
             }
         }
     };
