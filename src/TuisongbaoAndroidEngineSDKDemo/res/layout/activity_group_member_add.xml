@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:hint="请输入用户名，多个用户用【,】隔开" />
+            android:hint="请输入用户名，多个用户用英文“,”隔开" />
 
         <Button
             android:id="@+id/group_member_add_button"

@@ -165,6 +165,9 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     public boolean onCreateOptionsMenu(Menu menu) {
         if (mConversation.getType() == ChatType.GroupChat) {
             getMenuInflater().inflate(R.menu.group_detail, menu);
+            getActionBar().setTitle(mConversation.getGroupName());
+        } else {
+            getActionBar().setTitle(mConversation.getTarget());
         }
         return true;
     }

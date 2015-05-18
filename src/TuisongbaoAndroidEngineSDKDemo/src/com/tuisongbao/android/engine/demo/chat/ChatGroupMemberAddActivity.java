@@ -5,12 +5,9 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
@@ -24,20 +21,14 @@ public class ChatGroupMemberAddActivity extends Activity {
     public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
 
     private TSBChatGroup mGroup;
-    // TODO: Remove or optimize
-    private ListView mListViewMemberAdd;
     private EditText mEditText;
-    private Button mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_member_add);
-        mListViewMemberAdd = (ListView) findViewById(R.id.group_member_add_listview);
         mEditText = (EditText) findViewById(R.id.group_member_add_edittext);
-        mButton = (Button) findViewById(R.id.group_member_add_button);
         mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
-        Log.d(TAG, mGroup.toString());
     }
 
     @Override
