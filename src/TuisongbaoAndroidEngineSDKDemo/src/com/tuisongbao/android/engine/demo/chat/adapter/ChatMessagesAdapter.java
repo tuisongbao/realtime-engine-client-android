@@ -19,6 +19,7 @@ import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
+import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class ChatMessagesAdapter extends BaseAdapter {
@@ -72,7 +73,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             TextView mTextViewTime = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_send_time);
-            mTextViewTime.setText(message.getCreatedAt());
+            mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
 
             showContent(message, convertView, R.id.list_item_chat_detail_send_content, R.id.list_item_chat_detail_send_content_image);
 
@@ -86,7 +87,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             TextView mTextViewTime = (TextView) convertView
                     .findViewById(R.id.list_item_chat_detail_reply_time);
-            mTextViewTime.setText(message.getCreatedAt());
+            mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
 
             showContent(message, convertView, R.id.list_item_chat_detail_reply_content, R.id.list_item_chat_detail_reply_content_image);
         }
@@ -103,6 +104,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             TextView textViewContent = (TextView) contentView
                     .findViewById(textViewId);
             textViewContent.setText(message.getBody() != null ? message.getText() : "");
+            textViewContent.setTextSize(17);
             textViewContent.setVisibility(View.VISIBLE);
 
         } else if (message.getBody().getType() == TYPE.IMAGE) {

@@ -37,12 +37,13 @@ public class ConversationWrapper {
                 if (t != null && t.size() > 0) {
                     latestMessage = t.get(0);
                 }
-                callback.onSuccess("OK");
+                if (callback != null) {
+                    callback.onSuccess("OK");
+                }
             }
 
             @Override
             public void onError(int code, String message) {
-                // TODO Auto-generated method stub
 
             }
         });

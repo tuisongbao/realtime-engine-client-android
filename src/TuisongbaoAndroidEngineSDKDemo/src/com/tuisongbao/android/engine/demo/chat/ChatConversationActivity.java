@@ -280,6 +280,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                 if (t.size() < 1) {
                     return;
                 }
+                final int selectionPosition = t.size();
                 mStartMessageId = t.get(0).getMessageId();
                 mStartMessageId = mStartMessageId - Long.valueOf(t.size());
                 Collections.reverse(t);
@@ -291,6 +292,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     @Override
                     public void run() {
                         mAdapter.refresh(mMessageList);
+                        mMessagesListView.setSelection(selectionPosition);
                     }
                 });
             }
