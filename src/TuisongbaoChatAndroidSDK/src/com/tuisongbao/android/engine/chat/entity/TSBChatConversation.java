@@ -14,6 +14,10 @@ public class TSBChatConversation implements Parcelable {
     private String target;
     private int unreadMessageCount;
     private String lastActiveAt;
+    /***
+     * Only valid when conversation's type is group
+     */
+    private String groupName;
 
     public TSBChatConversation() {
 
@@ -49,6 +53,14 @@ public class TSBChatConversation implements Parcelable {
 
     public void setLastActiveAt(String lastActiveAt) {
         this.lastActiveAt = lastActiveAt;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     /**
@@ -103,13 +115,12 @@ public class TSBChatConversation implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("TSBChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s]"
-                , type.getName(), target, unreadMessageCount, lastActiveAt);
+        return String.format("TSBChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s, groupName: %s]"
+                , type.getName(), target, unreadMessageCount, lastActiveAt, groupName);
     }
 
     @Override
     public int describeContents() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -119,6 +130,7 @@ public class TSBChatConversation implements Parcelable {
         out.writeString(target);
         out.writeInt(unreadMessageCount);
         out.writeString(lastActiveAt);
+        out.writeString(groupName);
     }
 
     private TSBChatConversation(Parcel in) {
@@ -126,6 +138,7 @@ public class TSBChatConversation implements Parcelable {
         setTarget(in.readString());
         setUnreadMessageCount(in.readInt());
         setLastActiveAt(in.readString());
+        setGroupName(in.readString());
     }
 
     public static final Parcelable.Creator<TSBChatConversation> CREATOR =

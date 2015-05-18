@@ -16,6 +16,7 @@ public class TSBConversationSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_UNREAD_MESSAGE_COUNT = "unreadMessageCount";
     public static final String COLUMN_LAST_ACTIVE_AT = "lastActiveAt";
+    public static final String COLUMN_GROUP_NAME = "groupName";
 
     public TSBConversationSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,7 +31,8 @@ public class TSBConversationSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_TARGET + " text not null, "
           + COLUMN_TYPE + " text not null, "
           + COLUMN_UNREAD_MESSAGE_COUNT + " integer, "
-          + COLUMN_LAST_ACTIVE_AT + " text"
+          + COLUMN_LAST_ACTIVE_AT + " text, "
+          + COLUMN_GROUP_NAME + " text"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);
         database.execSQL(createDatabaseString);
