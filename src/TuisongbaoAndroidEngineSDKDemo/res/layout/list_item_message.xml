@@ -56,8 +56,7 @@
             android:id="@+id/list_item_chat_detail_reply_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_chat_detail_reply_user"
-            android:text="rico" />
+            android:layout_toRightOf="@id/list_item_chat_detail_reply_user" />
         
         <ImageView
             android:id="@+id/list_item_chat_detail_reply_content_image"
@@ -70,10 +69,8 @@
             android:id="@+id/list_item_chat_detail_reply_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/list_item_chat_detail_reply_user"
-            android:layout_below="@id/list_item_chat_detail_reply_time"
+            android:layout_below="@id/list_item_chat_detail_reply_user"
             android:layout_alignParentBottom="true"
-            android:text="2014"
             android:layout_marginTop="@dimen/activity_horizontal_margin" />
     </RelativeLayout>
 

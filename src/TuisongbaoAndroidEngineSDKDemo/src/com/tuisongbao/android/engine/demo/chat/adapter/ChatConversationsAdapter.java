@@ -52,7 +52,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(
-                    R.layout.list_item_chat_talk, null);
+                    R.layout.list_item_conversation, null);
         }
         final ConversationWrapper wrapper = mListConversation.get(position);
         final TSBChatConversation tsbConversation = wrapper.getConversation();

@@ -57,7 +57,7 @@ public class LoginActivity extends Activity {
 
                                 @Override
                                 public void run() {
-                                    Toast.makeText(LoginActivity.this, "登陆失败", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_LONG).show();
                                 }
                             });
                         }

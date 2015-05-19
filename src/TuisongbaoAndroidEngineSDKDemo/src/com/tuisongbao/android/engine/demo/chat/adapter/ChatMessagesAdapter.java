@@ -59,7 +59,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(
-                    R.layout.list_item_chat_detail, null);
+                    R.layout.list_item_message, null);
         }
         TSBMessage message = mMessageList.get(position);
         RelativeLayout layoutSend = (RelativeLayout) convertView

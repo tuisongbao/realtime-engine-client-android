@@ -125,7 +125,18 @@ public class ChatConversationsFragment extends Fragment {
         } else {
             target = message.getRecipient();
         }
-        ConversationWrapper wrapper = mConversationHashMap.get(message.getChatType().getName() + target);
+
+        String key = message.getChatType().getName() + target;
+        ConversationWrapper wrapper = mConversationHashMap.get(key);
+        if (wrapper == null) {
+            wrapper = new ConversationWrapper();
+            mConversationHashMap.put(key, wrapper);
+
+            TSBChatConversation conversation = new TSBChatConversation();
+            conversation.setType(message.getChatType());
+            conversation.setTarget(target);
+            wrapper.setConversation(conversation);
+        }
         wrapper.setLatestMessage(message);
 
         TSBChatConversation conversation = wrapper.getConversation();
