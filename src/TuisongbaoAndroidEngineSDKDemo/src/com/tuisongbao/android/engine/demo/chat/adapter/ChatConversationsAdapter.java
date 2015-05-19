@@ -2,6 +2,7 @@ package com.tuisongbao.android.engine.demo.chat.adapter;
 
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.entity.ConversationWrapper;
+import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
 
 public class ChatConversationsAdapter extends BaseAdapter {
 
@@ -48,6 +50,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
         return 0;
     }
 
+    @SuppressLint("NewApi")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -72,6 +75,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
         }
         unreadCountTextView.setText(showNumber);
         unreadCountTextView.setTextSize(20);
+        unreadCountTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
 
         // Target info
         String target = tsbConversation.getTarget();
@@ -82,6 +86,10 @@ public class ChatConversationsAdapter extends BaseAdapter {
                 .findViewById(R.id.list_item_conversation_target);
         targetTextView.setText("" + target);
         targetTextView.setTextSize(20);
+
+        // last update time
+        TextView lastUpdateTimeTextView = (TextView)convertView.findViewById(R.id.list_item_conversation_last_update_time);
+        lastUpdateTimeTextView.setText(ToolUtils.getDisplayTime(tsbConversation.getLastActiveAt()));
 
         // Show the latest message
         final TextView messageTextView = (TextView) convertView
