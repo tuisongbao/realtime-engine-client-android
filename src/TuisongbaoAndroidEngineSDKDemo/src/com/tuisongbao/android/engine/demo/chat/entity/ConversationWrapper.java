@@ -7,6 +7,8 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 
 public class ConversationWrapper {
+    public int localUnreadCount = 0;
+
     private TSBChatConversation conversation;
     private TSBMessage latestMessage;
 

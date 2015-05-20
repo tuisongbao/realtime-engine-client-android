@@ -306,9 +306,11 @@ public class DashboardActivity extends FragmentActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
-                markNewMessage();
-                TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                mConversationsFragment.newMessageReceived(message);
+                if (LoginChache.isLogin()) {
+                    markNewMessage();
+                    TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                    mConversationsFragment.newMessageReceived(message);
+                }
             }
         }
     };

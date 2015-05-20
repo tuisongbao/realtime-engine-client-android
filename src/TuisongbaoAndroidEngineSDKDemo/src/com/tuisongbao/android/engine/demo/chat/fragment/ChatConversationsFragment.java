@@ -42,7 +42,7 @@ public class ChatConversationsFragment extends Fragment {
     private List<ConversationWrapper> mConversationList;
     private ChatConversationsAdapter mConversationsAdapter;
     private HashMap<String, ConversationWrapper> mConversationHashMap = new HashMap<String, ConversationWrapper>();
-    private TSBChatConversation mClickedConversation;
+    private ConversationWrapper mClickedConversationWrapper;
 
     public static ChatConversationsFragment getInstance() {
         if (null == mConversationsFragment) {
@@ -69,13 +69,15 @@ public class ChatConversationsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
-                mClickedConversation = mConversationList.get(arg2).getConversation();
+                mClickedConversationWrapper = mConversationList.get(arg2);
+                mClickedConversationWrapper.localUnreadCount = 0;
+                TSBChatConversation conversation = mClickedConversationWrapper.getConversation();
+                resetUnread(conversation);
+
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedConversation);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
-
-                resetUnread(mClickedConversation);
             }
         });
 
@@ -114,7 +116,7 @@ public class ChatConversationsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mClickedConversation = null;
+        mClickedConversationWrapper = null;
         request();
     }
 
@@ -128,6 +130,7 @@ public class ChatConversationsFragment extends Fragment {
 
         String key = message.getChatType().getName() + target;
         ConversationWrapper wrapper = mConversationHashMap.get(key);
+        // No local conversation, create a new one.
         if (wrapper == null) {
             wrapper = new ConversationWrapper();
             mConversationHashMap.put(key, wrapper);
@@ -139,10 +142,10 @@ public class ChatConversationsFragment extends Fragment {
         }
         wrapper.setLatestMessage(message);
 
-        TSBChatConversation conversation = wrapper.getConversation();
-        if (conversation != null && conversation != mClickedConversation) {
-            int unreadMessageCount = conversation.getUnreadMessageCount();
-            unreadMessageCount++;
+        if (wrapper != mClickedConversationWrapper) {
+            wrapper.localUnreadCount++;
+            TSBChatConversation conversation = wrapper.getConversation();
+            int unreadMessageCount = conversation.getUnreadMessageCount() + wrapper.localUnreadCount;
             conversation.setUnreadMessageCount(unreadMessageCount);
         }
         refreshConversationList();
@@ -245,8 +248,7 @@ public class ChatConversationsFragment extends Fragment {
             String keyString = getKeyString(conversation);
             ConversationWrapper wrapper = mConversationHashMap.get(keyString);
             if (wrapper != null) {
-                TSBChatConversation localConversation = wrapper.getConversation();
-                conversation.setUnreadMessageCount(conversation.getUnreadMessageCount() + localConversation.getUnreadMessageCount());
+                conversation.setUnreadMessageCount(conversation.getUnreadMessageCount() + wrapper.localUnreadCount);
             } else {
                 wrapper = new ConversationWrapper();
             }
