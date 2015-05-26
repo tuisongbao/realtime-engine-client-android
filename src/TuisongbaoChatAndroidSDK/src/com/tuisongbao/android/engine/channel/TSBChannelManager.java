@@ -40,33 +40,6 @@ public class TSBChannelManager extends BaseManager {
     }
 
     /**
-     * 订阅公用channel并绑定渠道事件
-     *
-     * @param channel
-     */
-    public TSBChannel subscribePublicChannel(String channel) {
-        return subscribe(channel, null);
-    }
-
-    /**
-     * 订阅 private channel并绑定渠道事件, 名字必须使用 private- 前缀
-     *
-     * @param channel
-     */
-    public TSBChannel subscribePrivateChannel(String channel) {
-        return subscribe(channel, null);
-    }
-    /**
-     * 订阅 presence channel并绑定渠道事件, 名字必须使用 presence- 前缀
-     *
-     * @param channel
-     * @param authData 用户信息
-     */
-    public TSBChannel subscribePresenceChannel(String channel, String authData) {
-        return subscribe(channel, authData);
-    }
-
-    /**
      * 用于订阅channel，如需要订阅Private Channel，名字必须使用 private- 前缀
      * {@link TSBEngineConstants#TSBENGINE_CHANNEL_PREFIX_PRIVATE}，如需要订阅Presence
      * Channel，名字必须使用 presence- 前缀
@@ -74,9 +47,8 @@ public class TSBChannelManager extends BaseManager {
      *
      * @param channel
      * @param authData
-     * @param callback
      */
-    private TSBChannel subscribe(String channelName, String authData) {
+    public TSBChannel subscribe(String channelName, String authData) {
         try {
             // unique instance return if the channel's name is same.
             TSBChannel channel = mChannelMap.get(channelName);

@@ -14,6 +14,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
+import com.tuisongbao.android.engine.demo.pubsub.PubSubActivity;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class LoginActivity extends Activity {

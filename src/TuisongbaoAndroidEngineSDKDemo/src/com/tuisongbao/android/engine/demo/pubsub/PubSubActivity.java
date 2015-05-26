@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.demo.chat;
+package com.tuisongbao.android.engine.demo.pubsub;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                TSBChannel channel = TSBChannelManager.getInstance().subscribePrivateChannel(channelName);
+                TSBChannel channel = TSBChannelManager.getInstance().subscribe(channelName, null);
                 channel.bind("engine:subscription_succeeded", new TSBEngineBindCallback() {
 
                     @Override
