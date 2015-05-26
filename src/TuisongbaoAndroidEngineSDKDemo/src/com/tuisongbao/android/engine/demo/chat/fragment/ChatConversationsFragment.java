@@ -74,6 +74,8 @@ public class ChatConversationsFragment extends Fragment {
                 TSBChatConversation conversation = mClickedConversationWrapper.getConversation();
                 resetUnread(conversation);
 
+                mConversationsAdapter.refresh(mConversationList);
+
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
                 intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
@@ -117,7 +119,6 @@ public class ChatConversationsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mClickedConversationWrapper = null;
-        request();
     }
 
     public void newMessageReceived(TSBMessage message) {
@@ -144,9 +145,6 @@ public class ChatConversationsFragment extends Fragment {
 
         if (wrapper != mClickedConversationWrapper) {
             wrapper.localUnreadCount++;
-            TSBChatConversation conversation = wrapper.getConversation();
-            int unreadMessageCount = conversation.getUnreadMessageCount() + wrapper.localUnreadCount;
-            conversation.setUnreadMessageCount(unreadMessageCount);
         }
         refreshConversationList();
         mConversationsAdapter.refresh(mConversationList);
@@ -247,13 +245,10 @@ public class ChatConversationsFragment extends Fragment {
         for (TSBChatConversation conversation : conversations) {
             String keyString = getKeyString(conversation);
             ConversationWrapper wrapper = mConversationHashMap.get(keyString);
-            if (wrapper != null) {
-                conversation.setUnreadMessageCount(conversation.getUnreadMessageCount() + wrapper.localUnreadCount);
-            } else {
+            if (wrapper == null) {
                 wrapper = new ConversationWrapper();
             }
             wrapper.setConversation(conversation);
-
             wrapper.loadLatestMessage(null);
             newConversations.put(getKeyString(conversation), wrapper);
         }

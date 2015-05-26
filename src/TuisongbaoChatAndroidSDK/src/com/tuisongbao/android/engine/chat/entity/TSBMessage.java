@@ -29,6 +29,7 @@ public class TSBMessage implements Parcelable {
     private TSBMessageBody content;
     private String createdAt;
     private Map<String, String> map;
+    private boolean downloading = false;
 
     public TSBMessage set(String key, String value) {
         if (this.map == null) {
@@ -216,6 +217,11 @@ public class TSBMessage implements Parcelable {
             return;
         }
 
+        if (downloading) {
+            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Downloading is in process!");
+            return;
+        }
+
         final TSBImageMessageBody body = (TSBImageMessageBody)getBody();
         String localPath = body.getLocalPath();
         String downloadUrl = body.getDownloadUrl();
@@ -230,11 +236,13 @@ public class TSBMessage implements Parcelable {
             }
 
             if (needDownload) {
+                downloading = true;
                 String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
                 BitmapUtil.downloadImageIntoLocal(downloadUrl, fileName, new TSBEngineCallback<String>() {
 
                     @Override
                     public void onSuccess(String t) {
+                        downloading = false;
                         body.setLocalPath(t);
                         dataSource.open();
                         dataSource.upsertMessage(userId, message);
@@ -247,6 +255,7 @@ public class TSBMessage implements Parcelable {
 
                     @Override
                     public void onError(int code, String message) {
+                        downloading = false;
                         callback.onError(code, message);
                     }
                 });

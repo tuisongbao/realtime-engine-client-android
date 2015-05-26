@@ -9,25 +9,23 @@ import java.util.TimeZone;
 public class ToolUtils {
 
     public static String getDisplayTime(String timeString) {
-        if (timeString == null) {
-            return "";
-        }
-
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = null;
-        try {
-            date = format.parse(timeString);
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        Date date = new Date();
+        if (timeString != null) {
+            try {
+                date = format.parse(timeString);
+            } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         if (isToday(date)) {
             format = new SimpleDateFormat("今天 HH:mm:ss");
         } else if (isYesterday(date)) {
             format = new SimpleDateFormat("昨天 HH:mm:ss");
         } else {
-            format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            format = new SimpleDateFormat("MM-dd HH:mm:ss");
         }
 
         return format.format(date);

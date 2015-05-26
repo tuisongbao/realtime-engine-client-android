@@ -63,7 +63,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
         // Unread message Count
         TextView unreadCountTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_unread);
-        int unreadCount = tsbConversation.getUnreadMessageCount();
+        int unreadCount = tsbConversation.getUnreadMessageCount() + wrapper.localUnreadCount;
         String showNumber = "(" + unreadCount + ")";
         if (unreadCount > 0) {
             unreadCountTextView.setTextColor(mContext.getResources().getColor(R.color.red));
@@ -75,7 +75,6 @@ public class ChatConversationsAdapter extends BaseAdapter {
         }
         unreadCountTextView.setText(showNumber);
         unreadCountTextView.setTextSize(20);
-        unreadCountTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
 
         // Target info
         String target = tsbConversation.getTarget();
