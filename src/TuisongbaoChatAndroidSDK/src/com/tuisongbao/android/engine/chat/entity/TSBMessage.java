@@ -1,14 +1,27 @@
 package com.tuisongbao.android.engine.chat.entity;
 
+import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
+import com.tuisongbao.android.engine.util.BitmapUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBMessage implements Parcelable {
+    /***
+     * This value is not unique, it is the message's order number in a conversation,
+     * A different conversation may has a message which has a same messageId.
+     */
     private long messageId;
     private ChatType type = ChatType.SingleChat;
     private String from;
@@ -16,6 +29,7 @@ public class TSBMessage implements Parcelable {
     private TSBMessageBody content;
     private String createdAt;
     private Map<String, String> map;
+    private boolean downloading = false;
 
     public TSBMessage set(String key, String value) {
         if (this.map == null) {
@@ -79,6 +93,34 @@ public class TSBMessage implements Parcelable {
         return this;
     }
 
+    /***
+     *
+     * @return local path of the resource, like image, video...
+     */
+    public String getResourcePath() {
+        try {
+            TSBMessageBody body = getBody();
+            if (body.getType() == TYPE.IMAGE) {
+                return ((TSBImageMessageBody)body).getLocalPath();
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+        }
+        return "";
+    }
+
+    public String getText() {
+        try {
+            TSBMessageBody body = getBody();
+            if (body.getType() == TYPE.TEXT) {
+                return ((TSBTextMessageBody)body).getText();
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+        }
+        return "";
+    }
+
     public static TSBMessage createMessage(TYPE type) {
         TSBMessage message = new TSBMessage();
         message.setBody(TSBMessageBody.createMessage(type));
@@ -86,7 +128,9 @@ public class TSBMessage implements Parcelable {
     }
 
     public static enum TYPE {
-        TEXT("text", 1);
+        TEXT("text", 1),
+        IMAGE("image", 2);
+
         private String name;
         private int index;
 
@@ -161,5 +205,72 @@ public class TSBMessage implements Parcelable {
 
     public TSBMessage() {
         // empty
+    }
+
+    public void downloadResource(final TSBEngineCallback<TSBMessage> callback) {
+        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        final String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+        final TSBMessage message = this;
+
+        if (getBody().getType() == TYPE.TEXT) {
+            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Text message has no resource to download");
+            return;
+        }
+
+        if (downloading) {
+            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Downloading is in process!");
+            return;
+        }
+
+        final TSBImageMessageBody body = (TSBImageMessageBody)getBody();
+        String localPath = body.getLocalPath();
+        String downloadUrl = body.getDownloadUrl();
+        try {
+            boolean needDownload = StrUtil.isEmpty(localPath);
+            if (!needDownload) {
+                File fileTest = new File(localPath);
+                if (!fileTest.exists()) {
+                    needDownload = true;
+                    LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Local file at " + localPath + " is no longer exists, need to download again" );
+                }
+            }
+
+            if (needDownload) {
+                downloading = true;
+                String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
+                BitmapUtil.downloadImageIntoLocal(downloadUrl, fileName, new TSBEngineCallback<String>() {
+
+                    @Override
+                    public void onSuccess(String t) {
+                        downloading = false;
+                        body.setLocalPath(t);
+                        dataSource.open();
+                        dataSource.upsertMessage(userId, message);
+                        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
+                        dataSource.close();
+
+                        message.setBody(body);
+                        callback.onSuccess(message);
+                    }
+
+                    @Override
+                    public void onError(int code, String message) {
+                        downloading = false;
+                        callback.onError(code, message);
+                    }
+                });
+            } else {
+                callback.onSuccess(message);
+            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
+                , messageId, from, to, type.getName(), content.toString(), createdAt);
     }
 }

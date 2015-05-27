@@ -18,19 +18,20 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupUserAdapter;
 
 public class ChatGroupMemberActivity extends Activity {
 
-    public static final String EXTRA_KEY_GROUP_ID = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP_ID";
-    private String mGroupId;
+    public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
+
+    private TSBChatGroup mGroup;
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
-    private List<TSBChatGroupUser> mListGroupUser;
+    private List<TSBContactsUser> mListGroupUser;
     private Button mButtonQuit;
 
     @Override
@@ -38,9 +39,9 @@ public class ChatGroupMemberActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_member);
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
-        mListGroupUser = new ArrayList<TSBChatGroupUser>();
+        mListGroupUser = new ArrayList<TSBContactsUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
-        mGroupId = getIntent().getStringExtra(EXTRA_KEY_GROUP_ID);
+        mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
 
         mAdapter = new ChatGroupUserAdapter(mListGroupUser, this);
         mListViewGroupUser.setAdapter(mAdapter);
@@ -75,7 +76,7 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
         mButtonQuit.setOnClickListener(new View.OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 quit();
@@ -94,26 +95,26 @@ public class ChatGroupMemberActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member_add) {
             Intent intent = new Intent(this, ChatGroupMemberAddActivity.class);
-            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP_ID, mGroupId);
+            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP, mGroup);
             startActivity(intent);
             return true;
         }
         return false;
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
         request();
     }
-    
+
     private void deleteUser(List<String> list) {
-        TSBChatManager.getInstance().removeUsers(mGroupId, list, new TSBEngineCallback<String>() {
+        mGroup.removeUsers(list, new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "删除成功", Toast.LENGTH_LONG).show();
@@ -125,7 +126,7 @@ public class ChatGroupMemberActivity extends Activity {
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "删除失败", Toast.LENGTH_LONG).show();
@@ -134,14 +135,14 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
     }
-    
+
     private void quit() {
-        TSBChatManager.getInstance().leaveGroup(mGroupId, new TSBEngineCallback<String>() {
-            
+        mGroup.leave(new TSBEngineCallback<String>() {
+
             @Override
             public void onSuccess(String t) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "你已退出该群", Toast.LENGTH_LONG).show();
@@ -149,11 +150,11 @@ public class ChatGroupMemberActivity extends Activity {
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "退出失败", Toast.LENGTH_LONG).show();
@@ -162,32 +163,32 @@ public class ChatGroupMemberActivity extends Activity {
             }
         });
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getUsers(mGroupId, new TSBEngineCallback<List<TSBChatGroupUser>>() {
-            
+        mGroup.getUsers(new TSBEngineCallback<List<TSBContactsUser>>() {
+
             @Override
-            public void onSuccess(List<TSBChatGroupUser> t) {
+            public void onSuccess(List<TSBContactsUser> t) {
                 mListGroupUser = t;
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapter.refresh(mListGroupUser);
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Toast.makeText(ChatGroupMemberActivity.this, "获取成员列表失败，请稍后再试", Toast.LENGTH_LONG).show();
                     }
                 });
-                
+
             }
         });
     }

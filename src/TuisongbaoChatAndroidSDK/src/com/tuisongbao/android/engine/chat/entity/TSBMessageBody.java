@@ -13,8 +13,7 @@ public abstract class TSBMessageBody implements Parcelable {
     public TSBMessageBody() {
     }
 
-    private TYPE type;
-    private String text;
+    protected TYPE type;
 
     public TYPE getType() {
         return type;
@@ -24,23 +23,16 @@ public abstract class TSBMessageBody implements Parcelable {
         this.type = type;
     }
 
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
     public static TSBMessageBody createMessage(TYPE type) {
         TSBMessageBody body = null;
         if (type == null) {
             body = new TSBTextMessageBody();
         }
-        if (type.getIndex() == TYPE.TEXT.getIndex()) {
+        if (type == TYPE.TEXT) {
             body = new TSBTextMessageBody();
-        } else {
-            body = new TSBTextMessageBody();
+        } else if (type == TYPE.IMAGE) {
+            body = new TSBImageMessageBody();
+            body.setType(TYPE.IMAGE);
         }
         return body;
     }

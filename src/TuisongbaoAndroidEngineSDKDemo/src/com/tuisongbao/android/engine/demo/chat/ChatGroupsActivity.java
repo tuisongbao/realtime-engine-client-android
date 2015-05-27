@@ -14,14 +14,15 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.android.engine.chat.TSBChatManager;
+import com.tuisongbao.android.engine.chat.TSBGroupManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
+import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatGroupAdapter;
 
-public class ChatGroupActivity extends Activity {
+public class ChatGroupsActivity extends Activity {
 
     private ListView mListViewGroup;
     private ChatGroupAdapter mAdapter;
@@ -40,16 +41,20 @@ public class ChatGroupActivity extends Activity {
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
                 TSBChatGroup group = mListGroup.get(arg2);
-                Intent intent = new Intent(ChatGroupActivity.this,
-                        ChatGroupDetailActivity.class);
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_TARGET, group.getGroupId());
-                intent.putExtra(ChatGroupDetailActivity.EXTRA_CODE_CHAT_TYPE, ChatType.GroupChat.getName());
+
+                TSBChatConversation conversation = new TSBChatConversation();
+                conversation.setTarget(group.getGroupId());
+                conversation.setType(ChatType.GroupChat);
+
+                Intent intent = new Intent(ChatGroupsActivity.this,
+                        ChatConversationActivity.class);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
                 startActivity(intent);
             }
         });
         request();
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -71,29 +76,29 @@ public class ChatGroupActivity extends Activity {
         }
         return false;
     }
-    
+
     private void request() {
-        TSBChatManager.getInstance().getGroups(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
-            
+        TSBGroupManager.getInstance().getList(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
+
             @Override
             public void onSuccess(List<TSBChatGroup> t) {
                 mListGroup  = t;
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         mAdapter.refresh(mListGroup);
                     }
                 });
             }
-            
+
             @Override
             public void onError(int code, String message) {
                 runOnUiThread(new Runnable() {
-                    
+
                     @Override
                     public void run() {
-                        Toast.makeText(ChatGroupActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatGroupsActivity.this, "获取群组失败，请稍后再试", Toast.LENGTH_LONG).show();
                     }
                 });
             }

@@ -42,43 +42,52 @@ public final class TSBEngine {
 
     /**
      * Initialize engine and start engine service.
-     * 
+     *
      * @param context application conetext
-     * @param options 
+     * @param options
      */
     public static void init(Context context, TSBEngineOptions options) {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
         try {
-            if (options == null || StrUtil.isEmpty(options.getAppId())
-                    || StrUtil.isEmpty(options.getAuthEndpoint())
-                    || options.getChatIntentService() == null) {
+            if (options == null || StrUtil.isEmpty(options.getAppId())) {
+                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                        , "No AppId, you do not have permission to use cool engine!");
                 return;
+            } else if (StrUtil.isEmpty(options.getAuthEndpoint())) {
+                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                        , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
+                return;
+            } else if (options.getChatIntentService() == null) {
+                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                        , "No Intent service for receiving chat messages specified, " +
+                            "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
+                return;
+                // The developer only want the Pub/Sub feature.
             } else {
                 LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
-                        "Successfully load configurations.");
+                        "Successfully load configurations for chat.");
             }
             mTSBEngineOptions = options;
-            // 初始化实时引擎
             initEngine();
 
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
-    
+
     public static Context getContext() {
         return mApplicationContext;
     }
-    
+
     public static TSBEngineOptions getTSBEngineOptions() {
         return mTSBEngineOptions;
     }
 
     /**
      * Checks whether engine is connected
-     * 
+     *
      * @return
      */
     public static boolean isConnected () {
@@ -87,7 +96,7 @@ public final class TSBEngine {
 
     /**
      * Returns Connection socket id
-     * 
+     *
      * @return
      */
     public static String getSocketId() {
@@ -96,7 +105,7 @@ public final class TSBEngine {
 
     /**
      * Sends message to engine service.
-     * 
+     *
      * @param message
      * @return
      */
@@ -126,7 +135,7 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
 
     public static void unbind(String bindName) {
@@ -141,7 +150,7 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
 
     public static void unbind(String bindName, ITSBResponseMessage response) {
@@ -156,9 +165,9 @@ public final class TSBEngine {
         } else {
             // empty
         }
-        
+
     }
-    
+
     private static boolean isIntialized() {
         return mTSBEngineOptions != null;
     }
@@ -195,7 +204,7 @@ public final class TSBEngine {
             } else {
                 // delay 30s and retry
                 ExecutorUtil.getTimers().schedule(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         loadPushConfig();
@@ -204,13 +213,13 @@ public final class TSBEngine {
                 }, 1000 * 30, TimeUnit.MILLISECONDS);
             }
         } else {
-            // empty, not integrate with push 
+            // empty, not integrate with push
         }
     }
 
     /**
      * Returns whether the app is integrate with push
-     * 
+     *
      * @return true if the app is integrate with push, or false
      */
     private static boolean loadPushConfig() {
@@ -297,7 +306,7 @@ public final class TSBEngine {
 
         @Override
         public void onError(int code, String message) {
-            
+
         }
     };
 }

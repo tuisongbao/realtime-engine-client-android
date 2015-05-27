@@ -10,6 +10,7 @@ public class TSBChatConversationData {
      * 可选，跟谁， userId 或 groupId
      */
     private String target;
+    private String lastActiveAt;
 
     public ChatType getType() {
         return type;
@@ -25,5 +26,13 @@ public class TSBChatConversationData {
 
     public void setTarget(String target) {
         this.target = target;
+    }
+
+    public void setLastActiveAt(String lastActiveAt) {
+        this.lastActiveAt = lastActiveAt;
+    }
+
+    public String getLastActiveAt() {
+        return lastActiveAt;
     }
 }

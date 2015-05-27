@@ -9,21 +9,21 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.android.engine.demo.R;
 
 public class ChatGroupUserAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<TSBChatGroupUser> mListGroupUser;
+    private List<TSBContactsUser> mListGroupUser;
 
-    public ChatGroupUserAdapter(List<TSBChatGroupUser> listGroupUser,
+    public ChatGroupUserAdapter(List<TSBContactsUser> listGroupUser,
             Context context) {
         mListGroupUser = listGroupUser;
         mContext = context;
     }
-    
-    public void refresh(List<TSBChatGroupUser> listGroupUser) {
+
+    public void refresh(List<TSBContactsUser> listGroupUser) {
         mListGroupUser = listGroupUser;
         notifyDataSetChanged();
     }

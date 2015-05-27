@@ -63,5 +63,4 @@ public class TSBChatMessageGetResponseMessage extends BaseTSBResponseMessage<Lis
         }
         return list;
     }
-
 }

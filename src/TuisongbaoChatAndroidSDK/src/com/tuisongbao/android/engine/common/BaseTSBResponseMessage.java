@@ -1,6 +1,7 @@
 package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.engineio.EngineConstants;
+import com.tuisongbao.android.engine.log.LogUtil;
 
 
 public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
@@ -11,6 +12,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     private String mData;
     private String mChannel;
     private String mBindName;
+    private Object mRequestData;
     private long mServerRequestId;
     private ITSBEngineCallback mCallback;
 
@@ -41,12 +43,16 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     public long getServerRequestId() {
         return mServerRequestId;
     }
-    
+
+    public Object getRequestData() {
+        return mRequestData;
+    }
+
     @Override
     public void setCallback(ITSBEngineCallback callback) {
         mCallback = callback;
     }
-    
+
     @Override
     public ITSBEngineCallback getCallback() {
         return mCallback;
@@ -65,7 +71,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     @Override
     public void setName(String name) {
         mName = name;
-        
+
     }
 
     @Override
@@ -89,41 +95,61 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     }
 
     @Override
+    public void setRequestData(Object data) {
+        mRequestData = data;
+    }
+
+    @Override
     public boolean isSuccess() {
         return mCode == 0;
     }
 
     abstract public T parse();
 
+    /**
+     * Called before callback event
+     *
+     * do things like persistent data.
+     * @return TODO
+     */
+    protected T prepareCallBackData() {
+        return parse();
+    }
+
     @Override
     public void callBack() {
-        ITSBEngineCallback callBack = getCallback();
-        if (isSuccess()) {
-            if (callBack != null) {
-                if (callBack instanceof TSBEngineBindCallback) {
-                    String data = getData();
-                    if (data == null) {
-                        data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+        try {
+            ITSBEngineCallback callBack = getCallback();
+            if (isSuccess()) {
+                if (callBack != null) {
+                    if (callBack instanceof TSBEngineBindCallback) {
+                        String data = getData();
+                        if (data == null) {
+                            data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                        }
+                        ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
                     }
-                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
+                    if (callBack instanceof TSBEngineCallback) {
+                        ((TSBEngineCallback)callBack).onSuccess(prepareCallBackData());
+                    }
                 }
-                if (callBack instanceof TSBEngineCallback) {
-                    ((TSBEngineCallback)callBack).onSuccess(parse());
+            } else {
+                if (callBack != null) {
+                    if (callBack instanceof TSBEngineBindCallback) {
+                        String data = getData();
+                        if (data == null) {
+                            data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                        }
+                        ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
+                    }
+                    if (callBack instanceof TSBEngineCallback) {
+                        ((TSBEngineCallback)callBack).onError(getCode(), getErrorMessage());
+                    }
                 }
             }
-        } else {
-            if (callBack != null) {
-                if (callBack instanceof TSBEngineBindCallback) {
-                    String data = getData();
-                    if (data == null) {
-                        data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
-                    }
-                    ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
-                }
-                if (callBack instanceof TSBEngineCallback) {
-                    ((TSBEngineCallback)callBack).onError(getCode(), getErrorMessage());
-                }
-            }
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
         }
+
     }
 }

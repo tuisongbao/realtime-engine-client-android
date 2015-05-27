@@ -14,45 +14,26 @@
         android:hint="@string/login_account" />
 
     <Button
-        android:id="@+id/login_textview_login"
+        android:id="@+id/login_button_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/login_edittext_account"
         android:gravity="center"
         android:text="@string/login_login" />
     
-    <LinearLayout
-        android:id="@+id/layout_channel"
-        android:orientation="vertical"
+    <Button
+        android:id="@+id/login_button_pubsub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_textview_login" >
-        
-        <EditText
-        android:id="@+id/login_edittext_channel_subscribe"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/login_channel_subscribe_hint" />
-        
-        <Button
-           android:id="@+id/login_button_channel_subscribe"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:gravity="center"
-           android:text="@string/login_channel_subscribe_button" />
-        
-        <EditText
-	       android:id="@+id/login_edittext_channel_unsubscribe"
-	       android:layout_width="match_parent"
-	       android:layout_height="wrap_content"
-	       android:hint="@string/login_channel_unsubscribe_button" />
+        android:layout_below="@id/login_button_login"
+        android:gravity="center"
+        android:text="@string/login_pubsub" />
     
-        <Button
-            android:id="@+id/login_button_channel_unsubscribe"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/login_channel_unsubscribe_button" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/login_textview_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_note"
+        android:layout_below="@id/login_button_pubsub" />
 
 </RelativeLayout>

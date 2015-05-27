@@ -21,7 +21,7 @@ public class ChatGroupAdapter extends BaseAdapter {
         mListGroup = listGroup;
         mContext = context;
     }
-    
+
     public void refresh(List<TSBChatGroup> listGroup) {
         mListGroup = listGroup;
         notifyDataSetChanged();
@@ -52,13 +52,13 @@ public class ChatGroupAdapter extends BaseAdapter {
         TSBChatGroup group = mListGroup.get(position);
         TextView textViewGroupId = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_id);
-        textViewGroupId.setText("组id：" + group.getGroupId());
+        textViewGroupId.setText("groupId：" + group.getGroupId());
         TextView textViewName = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_name);
         textViewName.setText("组名：" + group.getName());
         TextView textViewOwner = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_owner);
-        textViewOwner.setText("楼主：" + group.getOwner());
+        textViewOwner.setText("Owner：" + group.getOwner());
         TextView textViewDesc = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_desc);
         textViewDesc.setText(group.getDescription());

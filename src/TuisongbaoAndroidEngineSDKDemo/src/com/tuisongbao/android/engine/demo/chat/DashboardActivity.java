@@ -4,7 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -22,36 +26,37 @@ import android.widget.Toast;
 
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
-import com.tuisongbao.android.engine.chat.entity.TSBChatGroupUser;
+import com.tuisongbao.android.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
-import com.tuisongbao.android.engine.demo.chat.fragment.ChatListFragment;
-import com.tuisongbao.android.engine.demo.chat.fragment.ChatSettingFragment;
-import com.tuisongbao.android.engine.demo.chat.fragment.ChatTalkFragment;
+import com.tuisongbao.android.engine.demo.chat.fragment.ChatContactsFragment;
+import com.tuisongbao.android.engine.demo.chat.fragment.ChatConversationsFragment;
+import com.tuisongbao.android.engine.demo.chat.fragment.ChatSettingsFragment;
+import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class DashboardActivity extends FragmentActivity {
-    private TextView mTextViewTalk;
-    private TextView mTextViewList;
-    private TextView mTextViewSetting;
+    private TextView mConversationTextView, mContactsTextView, mSettingsTextView;
     private ViewPager mViewPager;
     private FragmentPagerAdapter mAdapter;
-    private ChatTalkFragment mFragmentChatTalk;
-    private ChatListFragment mFragmentChatList;
-    private ChatSettingFragment mFragmentChatSetting;
+    private ChatConversationsFragment mConversationsFragment;
+    private ChatContactsFragment mContactsFragment;
+    private ChatSettingsFragment mSettingsFragment;
+    private int mCurrentPage = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        mTextViewTalk = (TextView) findViewById(R.id.dashboard_textview_talk);
-        mTextViewList = (TextView) findViewById(R.id.dashboard_textview_list);
-        mTextViewSetting = (TextView) findViewById(R.id.dashboard_textview_setting);
+        mConversationTextView = (TextView) findViewById(R.id.dashboard_textview_conversations);
+        mContactsTextView = (TextView) findViewById(R.id.dashboard_textview_contacts);
+        mSettingsTextView = (TextView) findViewById(R.id.dashboard_textview_settings);
         mViewPager = (ViewPager) findViewById(R.id.dashboard_view_pager);
 
         initFragment();
@@ -64,11 +69,11 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public Fragment getItem(int arg0) {
                 if (arg0 == 0) {
-                    return mFragmentChatTalk;
+                    return mConversationsFragment;
                 } else if (arg0 == 1) {
-                    return mFragmentChatList;
+                    return mContactsFragment;
                 }
-                return mFragmentChatSetting;
+                return mSettingsFragment;
             }
         };
 
@@ -77,12 +82,13 @@ public class DashboardActivity extends FragmentActivity {
 
             @Override
             public void onPageSelected(int arg0) {
+                mCurrentPage = arg0;
                 if (arg0 == 0) {
-                    updateBottomBackground(R.id.dashboard_textview_talk);
+                    updateBackground(R.id.dashboard_textview_conversations);
                 } else if (arg0 == 1) {
-                    updateBottomBackground(R.id.dashboard_textview_list);
+                    updateBackground(R.id.dashboard_textview_contacts);
                 } else {
-                    updateBottomBackground(R.id.dashboard_textview_setting);
+                    updateBackground(R.id.dashboard_textview_settings);
                 }
             }
 
@@ -95,26 +101,27 @@ public class DashboardActivity extends FragmentActivity {
             }
         });
 
-        showFragment(R.id.dashboard_textview_list);
+        showFragment(R.id.dashboard_textview_contacts);
 
-        mTextViewTalk.setOnClickListener(new OnClickListener() {
+        mConversationTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFragment(R.id.dashboard_textview_talk);
+                showFragment(R.id.dashboard_textview_conversations);
             }
         });
-        mTextViewList.setOnClickListener(new OnClickListener() {
+        mContactsTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFragment(R.id.dashboard_textview_list);
+                showFragment(R.id.dashboard_textview_contacts);
             }
         });
-        mTextViewSetting.setOnClickListener(new OnClickListener() {
+        mSettingsTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFragment(R.id.dashboard_textview_setting);
+                showFragment(R.id.dashboard_textview_settings);
             }
         });
+
         TSBChatManager.getInstance().bind(
                 TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
                 new TSBEngineBindCallback() {
@@ -176,53 +183,62 @@ public class DashboardActivity extends FragmentActivity {
                 });
             }
         });
+
+        registerBroadcast();
     }
 
     private void initFragment() {
-        mFragmentChatTalk = ChatTalkFragment.getInstance();
-        mFragmentChatList = ChatListFragment.getInstance();
-        mFragmentChatSetting = ChatSettingFragment.getInstance();
+        mConversationsFragment = ChatConversationsFragment.getInstance();
+        mContactsFragment = ChatContactsFragment.getInstance();
+        mSettingsFragment = ChatSettingsFragment.getInstance();
     }
 
     private void showFragment(int textViewId) {
 
         switch (textViewId) {
-        case R.id.dashboard_textview_talk:
+        case R.id.dashboard_textview_conversations:
             mViewPager.setCurrentItem(0);
             break;
 
-        case R.id.dashboard_textview_list:
+        case R.id.dashboard_textview_contacts:
             mViewPager.setCurrentItem(1);
             break;
 
-        case R.id.dashboard_textview_setting:
+        case R.id.dashboard_textview_settings:
             mViewPager.setCurrentItem(2);
             break;
         }
-        updateBottomBackground(textViewId);
+        updateBackground(textViewId);
     }
 
-    private void updateBottomBackground(int textViewId) {
-        mTextViewTalk.setBackgroundColor(getResources().getColor(R.color.gray));
-        mTextViewList.setBackgroundColor(getResources().getColor(R.color.gray));
-        mTextViewSetting.setBackgroundColor(getResources().getColor(
+    private void updateBackground(int textViewId) {
+        mConversationTextView.setBackgroundColor(getResources().getColor(R.color.gray));
+        mContactsTextView.setBackgroundColor(getResources().getColor(R.color.gray));
+        mSettingsTextView.setBackgroundColor(getResources().getColor(
                 R.color.gray));
 
         switch (textViewId) {
-        case R.id.dashboard_textview_talk:
-            mTextViewTalk.setBackgroundColor(getResources().getColor(
+        case R.id.dashboard_textview_conversations:
+            mConversationTextView.setBackgroundColor(getResources().getColor(
+                    R.color.blue));
+            mConversationTextView.setTextColor(getResources().getColor(R.color.black));
+            break;
+
+        case R.id.dashboard_textview_contacts:
+            mContactsTextView.setBackgroundColor(getResources().getColor(
                     R.color.blue));
             break;
 
-        case R.id.dashboard_textview_list:
-            mTextViewList.setBackgroundColor(getResources().getColor(
+        case R.id.dashboard_textview_settings:
+            mSettingsTextView.setBackgroundColor(getResources().getColor(
                     R.color.blue));
             break;
+        }
+    }
 
-        case R.id.dashboard_textview_setting:
-            mTextViewSetting.setBackgroundColor(getResources().getColor(
-                    R.color.blue));
-            break;
+    private void markNewMessage() {
+        if (mCurrentPage != 0) {
+            mConversationTextView.setTextColor(getResources().getColor(R.color.red));
         }
     }
 
@@ -241,6 +257,13 @@ public class DashboardActivity extends FragmentActivity {
         return false;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unregisterBroadcast();
+    }
+
     private void showAddUserDialog() {
         LayoutInflater factory = LayoutInflater.from(this);
         final View textEntryView = factory.inflate(
@@ -252,10 +275,10 @@ public class DashboardActivity extends FragmentActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String userId = ((EditText)textEntryView.findViewById(R.id.dialog_input_edittext)).getText().toString();
                         if (!StrUtil.isEmpty(userId)) {
-                            TSBChatGroupUser user = new TSBChatGroupUser();
+                            TSBContactsUser user = new TSBContactsUser();
                             user.setUserId(userId);
                             LoginChache.addUser(user);
-                            mFragmentChatList.refresh();
+                            mContactsFragment.refresh();
                         }
                     }
                 })
@@ -267,5 +290,29 @@ public class DashboardActivity extends FragmentActivity {
                     }
                 }).show();
     }
+
+    private void registerBroadcast() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    private void unregisterBroadcast() {
+        unregisterReceiver(mBroadcastReceiver);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
+                if (LoginChache.isLogin()) {
+                    markNewMessage();
+                    TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                    mConversationsFragment.newMessageReceived(message);
+                }
+            }
+        }
+    };
 
 }

@@ -7,8 +7,11 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 
 public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessageBody> {
 
@@ -19,12 +22,22 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
         TSBMessage.TYPE type = TSBMessage.TYPE.TEXT;
         String text = "";
         if (bodyJson != null) {
-            type = TSBMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type") .getAsString() : null);
+            type = TSBMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type").getAsString() : null);
             text = bodyJson.get("text") != null ? bodyJson.get("text") .getAsString() : "";
         }
-        TSBMessageBody body = TSBMessageBody.createMessage(type);
-        body.setText(text);
-        return body;
+
+        TSBMessageBody messageBody = null;
+        if (type == TYPE.TEXT) {
+            TSBTextMessageBody textBody = new TSBTextMessageBody();
+            textBody.setText(text);
+
+            messageBody = textBody;
+        } else if (type == TYPE.IMAGE) {
+            TSBImageMessageBody imageBody = new TSBImageMessageBody();
+            imageBody.setFile(bodyJson.get("file").getAsJsonObject());
+            messageBody = imageBody;
+        }
+        return messageBody;
     }
 
 }

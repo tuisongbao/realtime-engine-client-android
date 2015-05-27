@@ -1,9 +1,13 @@
 package com.tuisongbao.android.engine.common;
 
 import com.tuisongbao.android.engine.TSBEngine;
+import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.connection.entity.TSBConnection;
 
 public abstract class BaseManager {
+    protected boolean isLogin() {
+        return TSBChatManager.getInstance().getChatUser() != null;
+    }
 
     protected boolean send(ITSBRequestMessage message) {
         return send(message, null);
@@ -57,6 +61,11 @@ public abstract class BaseManager {
             handleDisconnect(code, message);
         }
     };
+
+    protected <T> void handleErrorMessage(TSBEngineCallback<T> callback,
+            int code, String message) {
+        callback.onError(code, message);
+    }
 
     protected void handleConnect(TSBConnection t) {
         // empty
