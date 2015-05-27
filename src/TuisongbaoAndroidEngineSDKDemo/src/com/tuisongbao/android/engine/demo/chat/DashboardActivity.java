@@ -41,6 +41,7 @@ import com.tuisongbao.android.engine.entity.TSBEngineConstants;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class DashboardActivity extends FragmentActivity {
+    private static final String TAG = "com.tuisongbao.engine.demo.DashboardActivity";
     private TextView mConversationTextView, mContactsTextView, mSettingsTextView;
     private ViewPager mViewPager;
     private FragmentPagerAdapter mAdapter;
@@ -294,6 +295,7 @@ public class DashboardActivity extends FragmentActivity {
     private void registerBroadcast() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        filter.addAction(ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT);
         registerReceiver(mBroadcastReceiver, filter);
     }
 
@@ -305,12 +307,17 @@ public class DashboardActivity extends FragmentActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
-                if (LoginChache.isLogin()) {
-                    markNewMessage();
-                    TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                    mConversationsFragment.newMessageReceived(message);
-                }
+            if (!LoginChache.isLogin()) {
+                return;
+            }
+            String action = intent.getAction();
+            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(action)) {
+                markNewMessage();
+                TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                mConversationsFragment.onMessageReceived(message);
+            } else if (ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT.equals(action)) {
+                TSBMessage message = intent.getParcelableExtra(ChatConversationActivity.BROADCAST_EXTRA_KEY_MESSAGE);
+                mConversationsFragment.onMessageSent(message);
             }
         }
     };

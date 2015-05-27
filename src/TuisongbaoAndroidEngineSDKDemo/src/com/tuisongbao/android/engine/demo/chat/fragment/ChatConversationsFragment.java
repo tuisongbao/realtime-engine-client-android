@@ -121,7 +121,12 @@ public class ChatConversationsFragment extends Fragment {
         mClickedConversationWrapper = null;
     }
 
-    public void newMessageReceived(TSBMessage message) {
+    public void onMessageSent(TSBMessage message) {
+        updateLatestMessageOfConversation(message, message.getRecipient());
+        refreshConversationList();
+    }
+
+    public void onMessageReceived(TSBMessage message) {
         String target = "";
         if (message.getChatType() == ChatType.SingleChat) {
             target = message.getFrom();
@@ -129,6 +134,14 @@ public class ChatConversationsFragment extends Fragment {
             target = message.getRecipient();
         }
 
+        ConversationWrapper wrapper = updateLatestMessageOfConversation(message, target);
+        if (wrapper != mClickedConversationWrapper) {
+            wrapper.localUnreadCount++;
+        }
+        refreshConversationList();
+    }
+
+    private ConversationWrapper updateLatestMessageOfConversation(TSBMessage message, String target) {
         String key = message.getChatType().getName() + target;
         ConversationWrapper wrapper = mConversationHashMap.get(key);
         // No local conversation, create a new one.
@@ -143,11 +156,7 @@ public class ChatConversationsFragment extends Fragment {
         }
         wrapper.setLatestMessage(message);
 
-        if (wrapper != mClickedConversationWrapper) {
-            wrapper.localUnreadCount++;
-        }
-        refreshConversationList();
-        mConversationsAdapter.refresh(mConversationList);
+        return wrapper;
     }
 
     private void request() {
@@ -158,7 +167,6 @@ public class ChatConversationsFragment extends Fragment {
                 Log.d(TAG, "Get " + t.size() + " conversations");
 
                 refreshConversationHashMap(t);
-                refreshConversationList();
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
@@ -167,7 +175,7 @@ public class ChatConversationsFragment extends Fragment {
 
                     @Override
                     public void run() {
-                        mConversationsAdapter.refresh(mConversationList);
+                        refreshConversationList();
                     }
                 });
             }
@@ -263,5 +271,6 @@ public class ChatConversationsFragment extends Fragment {
         Collection<ConversationWrapper> collection = mConversationHashMap.values();
         mConversationList = new ArrayList<ConversationWrapper>();
         mConversationList.addAll(collection);
+        mConversationsAdapter.refresh(mConversationList);
     }
 }

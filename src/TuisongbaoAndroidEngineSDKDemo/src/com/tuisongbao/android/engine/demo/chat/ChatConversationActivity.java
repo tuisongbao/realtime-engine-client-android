@@ -47,6 +47,8 @@ import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
 
+    public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.android.engine.demo.ChatConversationActivity.MessageSent";
+    public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.demo.ChatConversationActivity.ExtraMessage";
     public static final String EXTRA_CONVERSATION = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
     private static final String TAG = "com.tuisongbao.android.engine.demo.ChatConversationActivity";
 
@@ -85,6 +87,11 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     public void onSuccess(TSBMessage t) {
                         t.setFrom(LoginChache.getUserId());
                         mMessageList.add(t);
+
+                        Intent intent = new Intent(BROADCAST_ACTION_MESSAGE_SENT);
+                        intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
+                        sendBroadcast(intent);
+
                         runOnUiThread(new Runnable() {
 
                             @Override
