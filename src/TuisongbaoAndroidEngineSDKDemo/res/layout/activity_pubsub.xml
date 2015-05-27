@@ -11,10 +11,16 @@
         android:layout_height="wrap_content" />
     
     <EditText
-	    android:id="@+id/pubsub_edittext_channel_subscribe"
+	    android:id="@+id/pubsub_edittext_channel_name"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:hint="@string/pubsub_channel_subscribe_hint" />
+	    android:hint="@string/pubsub_channel_name_hint" />
+    
+    <EditText
+        android:id="@+id/pubsub_edittext_channel_authData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/pubsub_channel_authData_hint" />
     
     <Button
        android:id="@+id/pubsub_button_channel_subscribe"
@@ -27,7 +33,7 @@
        android:id="@+id/pubsub_edittext_channel_unsubscribe"
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:hint="@string/pubsub_channel_unsubscribe_button" />
+       android:hint="@string/pubsub_channel_name_hint" />
 
     <Button
         android:id="@+id/pubsub_button_channel_unsubscribe"

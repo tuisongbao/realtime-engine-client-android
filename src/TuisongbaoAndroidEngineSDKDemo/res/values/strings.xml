@@ -19,7 +19,8 @@
     <string name="login_note">体验Chat相关功能时，需要输入个人账号并登录；体验Pub/Sub相关功能请直接点击Pub/Sub按钮。</string>
     <string name="login_pubsub">Pub/Sub</string>
     
-    <string name="pubsub_channel_subscribe_hint">input channel name</string>
+    <string name="pubsub_channel_name_hint">input channel name</string>
+    <string name="pubsub_channel_authData_hint">input authData when subscribe a presence channel</string>
     <string name="pubsub_channel_subscribe_button">Subscribe</string>
     <string name="pubsub_channel_unsubscribe_button">Unsubscribe</string>
 

@@ -129,7 +129,7 @@ public class TSBChannel {
         // Remove listeners on engineIO layer
         TSBEngine.unbind(channel);
 
-        eventHandlers = null;
+        eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
     }
 
     public void sendSubscribeRequest() {
