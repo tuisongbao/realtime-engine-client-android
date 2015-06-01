@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -62,11 +63,14 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     R.layout.list_item_message, null);
         }
         TSBMessage message = mMessageList.get(position);
+
         RelativeLayout layoutSend = (RelativeLayout) convertView
                 .findViewById(R.id.list_item_chat_detail_send);
         RelativeLayout layoutReplay = (RelativeLayout) convertView
                 .findViewById(R.id.list_item_chat_detail_reply);
-        if (StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId())) {
+
+        boolean sentByLoginUser = StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId());
+        if (sentByLoginUser) {
 
             layoutSend.setVisibility(View.VISIBLE);
             layoutReplay.setVisibility(View.GONE);
@@ -75,7 +79,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     .findViewById(R.id.list_item_chat_detail_send_time);
             mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
 
-            showContent(message, convertView, R.id.list_item_chat_detail_send_content, R.id.list_item_chat_detail_send_content_image);
+            displayMessageContent(message, convertView, sentByLoginUser);
 
         } else {
             layoutSend.setVisibility(View.GONE);
@@ -89,10 +93,89 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     .findViewById(R.id.list_item_chat_detail_reply_time);
             mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
 
-            showContent(message, convertView, R.id.list_item_chat_detail_reply_content, R.id.list_item_chat_detail_reply_content_image);
+            displayMessageContent(message, convertView, sentByLoginUser);
         }
 
         return convertView;
+    }
+
+    private void displayMessageContent(TSBMessage message, View convertView, boolean sentByLoginUser) {
+        TextView textView = null;
+        ImageView imageView = null;
+        Button voiceButton = null;
+
+        if (sentByLoginUser) {
+            textView = (TextView) convertView.findViewById(R.id.list_item_chat_detail_send_content);
+            imageView = (ImageView) convertView.findViewById(R.id.list_item_chat_detail_send_content_image);
+            voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_send_content_voice);
+        } else {
+            textView = (TextView) convertView.findViewById(R.id.list_item_chat_detail_reply_content);
+            imageView = (ImageView) convertView.findViewById(R.id.list_item_chat_detail_reply_content_image);
+            voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_reply_content_voice);
+        }
+
+        if (message.getBody().getType() == TYPE.TEXT) {
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
+            voiceButton.setVisibility(View.GONE);
+
+            textView.setText(message.getBody() != null ? message.getText() : "");
+            textView.setTextSize(17);
+
+        } else if (message.getBody().getType() == TYPE.IMAGE) {
+            textView.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+            voiceButton.setVisibility(View.GONE);
+
+            showImageMessage(message, convertView, imageView, textView);
+
+        } else if (message.getBody().getType() == TYPE.VOICE) {
+            textView.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
+            voiceButton.setVisibility(View.VISIBLE);
+
+            showVoiceMessage(message, convertView, voiceButton);
+        }
+    }
+
+    private void showVoiceMessage(TSBMessage message, View convertView, Button voiceButton) {
+//        voiceButton.setLayoutParams(new LayoutParams(30, 30));
+    }
+
+    private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
+
+        try {
+            message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+
+                @Override
+                public void onSuccess(final TSBMessage message) {
+                    ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
+                            imageView.setImageBitmap(bmp);
+                            imageView.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(int code, String message) {
+                    ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            textView.setText("Failed to load image");
+                            textView.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void showContent(final TSBMessage message, final View contentView, final int textViewId, final int imageViewId) {

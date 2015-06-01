@@ -9,24 +9,38 @@
         android:layout_height="@dimen/common_item_height"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
+        
+        <Button
+            android:id="@+id/conversation_voice_text_switch_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/voice" />
 
         <EditText
             android:id="@+id/conversation_message_content_edittext"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:hint="@string/conversation_send_text_hint"
             android:layout_weight="1" />
+        
+        <Button
+            android:id="@+id/conversation_voice_recorder_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/record" />
+        
+        <Button
+            android:id="@+id/conversation_more_send_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/more" />
 
         <Button
             android:id="@+id/conversation_text_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/send" />
-        
-        <Button
-            android:id="@+id/conversation_media_send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/media" />
     </LinearLayout>
 
     <ListView

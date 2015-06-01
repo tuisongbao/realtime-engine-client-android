@@ -18,11 +18,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -35,14 +39,17 @@ import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaRecorder;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
+import com.tuisongbao.android.engine.log.LogUtil;
 
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
@@ -54,33 +61,71 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
     private ListView mMessagesListView;
     private Button mSendButton;
-    private Button mImageSelectButton;
-    private EditText mContenEditText;
-    private ChatMessagesAdapter mAdapter;
+    private Button mMoreButton;
+    private Button mVoiceTextSwitchButton;
+    private Button mVoiceRecorderButton;
+    private EditText mContentEditText;
+    private ChatMessagesAdapter mMessagesAdapter;
     private List<TSBMessage> mMessageList;
     private TSBChatConversation mConversation;
 
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
+    private TSBMediaRecorder mRecorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
-        mSendButton = (Button) findViewById(R.id.conversation_text_send_button);
-        mImageSelectButton = (Button) findViewById(R.id.conversation_media_send_button);
-        mContenEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
-        mMessageList = new ArrayList<TSBMessage>();
         mConversation = getIntent().getParcelableExtra(EXTRA_CONVERSATION);
 
-        mAdapter = new ChatMessagesAdapter(mMessageList, this);
-        mMessagesListView.setAdapter(mAdapter);
+        mMessagesListView = (ListView)findViewById(R.id.conversation_messages_list_view);
+        mContentEditText = (EditText)findViewById(R.id.conversation_message_content_edittext);
+        mSendButton = (Button)findViewById(R.id.conversation_text_send_button);
+        mMoreButton = (Button)findViewById(R.id.conversation_more_send_button);
+        mVoiceTextSwitchButton = (Button)findViewById(R.id.conversation_voice_text_switch_button);
+        mVoiceRecorderButton = (Button)findViewById(R.id.conversation_voice_recorder_button);
+
+        mContentEditText.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence arg0, int start, int before, int count) {
+                // start位置的before个字符变成count个
+                LogUtil.verbose(TAG, "onTextChanged " + arg0 + "," + start + "," + before + "," + count);
+                if (start + count > 0) {
+                    // Show send button
+                    mSendButton.setVisibility(View.VISIBLE);
+                    mMoreButton.setVisibility(View.GONE);
+
+                } else {
+                    // Show more button
+                    mSendButton.setVisibility(View.GONE);
+                    mMoreButton.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int start, int count, int after) {
+                // start位置的count个字符变成after个
+                LogUtil.verbose(TAG, "beforeTextChanged " + arg0 + "," + start + "," + count + "," + after);
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                LogUtil.verbose(TAG, "afterTextChanged " + arg0);
+            }
+        });
+
+        mMessageList = new ArrayList<TSBMessage>();
+        mMessagesAdapter = new ChatMessagesAdapter(mMessageList, this);
+        mMessagesListView.setAdapter(mMessagesAdapter);
+
+        mSendButton.setVisibility(View.GONE);
         mSendButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                TSBMessageBody body = new TSBTextMessageBody(mContenEditText.getText().toString());
+                TSBMessageBody body = new TSBTextMessageBody(mContentEditText.getText().toString());
                 mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
 
                     @Override
@@ -96,7 +141,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
                             @Override
                             public void run() {
-                                mAdapter.refresh(mMessageList);
+                                mMessagesAdapter.refresh(mMessageList);
                                 mMessagesListView.setSelection(mMessageList.size() - 1);
                                 Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                             }
@@ -115,7 +160,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                         });
                     }
                 });
-                mContenEditText.setText("");
+                mContentEditText.setText("");
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                       // imm.hideSoftInputFromWindow(myEditText.getWindowToken(), 0);
                 if (imm.isActive()) // 一直是true
@@ -125,7 +170,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         });
 
         // Select a image
-        mImageSelectButton.setOnClickListener(new OnClickListener() {
+        mMoreButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
@@ -133,6 +178,81 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(intent, 1);
+            }
+        });
+
+        mVoiceTextSwitchButton.setText("文本");
+        mVoiceTextSwitchButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                if (mVoiceTextSwitchButton.getText().equals("语音")) {
+                    mVoiceTextSwitchButton.setText("文本");
+
+                    mContentEditText.setVisibility(View.VISIBLE);
+                    mVoiceRecorderButton.setVisibility(View.GONE);
+
+                    // Switch to send button if the edit text is not empty.
+                    mContentEditText.requestFocus();
+                    // Show keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+                    if (mContentEditText.getText().toString().length() > 0) {
+                        mSendButton.setVisibility(View.VISIBLE);
+                        mMoreButton.setVisibility(View.GONE);
+                    }
+                } else {
+                    mVoiceTextSwitchButton.setText("语音");
+                    mContentEditText.setVisibility(View.GONE);
+                    mVoiceRecorderButton.setVisibility(View.VISIBLE);
+
+                    // Show more button
+                    mSendButton.setVisibility(View.GONE);
+                    mMoreButton.setVisibility(View.VISIBLE);
+
+                    // Hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                }
+
+            }
+        });
+
+        mVoiceRecorderButton.setVisibility(View.GONE);
+        mVoiceRecorderButton.setOnTouchListener(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View arg0, MotionEvent event) {
+                int actionCode = event.getActionMasked();
+                LogUtil.verbose(TAG, "onTouch " + actionCode);
+                if (actionCode == MotionEvent.ACTION_DOWN) {
+                    // Press record button
+                    onRecordStart();
+                    return true;
+
+                } else if (actionCode == MotionEvent.ACTION_UP) {
+                    // Release record button
+                    Object tag = mVoiceRecorderButton.getTag();
+                    if (tag != null && tag.equals("cancel")) {
+                        LogUtil.info(TAG, "Voice operation has been canceled");
+                        mVoiceRecorderButton.setTag("normal");
+                        mRecorder.cancel();
+                        return true;
+                    }
+
+                    onRecordFinished();
+                    return true;
+                } else {
+                    LogUtil.verbose(TAG, "X:" + event.getX() + ", Y:" + event.getY());
+                    // Moving up by 150px will cancel sending voice message
+                    if (event.getY() < -150) {
+                        mVoiceRecorderButton.setTag("cancel");
+                    } else {
+                        mVoiceRecorderButton.setTag("normal");
+                    }
+                }
+                return false;
             }
         });
 
@@ -156,6 +276,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
         // Request the latest messages.
         request();
+
+        mRecorder = new TSBMediaRecorder();
     }
 
     @Override
@@ -223,6 +345,37 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     public void onLoaderReset(Loader<Cursor> arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    private void onRecordStart() {
+        LogUtil.info(TAG, "Recording.....");
+        mRecorder.start();
+    }
+
+    private void onRecordFinished() {
+        LogUtil.info(TAG, "Record finished");
+        String filePath = mRecorder.finish();
+
+        onVoiceMessageSent(filePath);
+    }
+
+    private void onVoiceMessageSent(String filePath) {
+        TSBVoiceMessageBody body = new TSBVoiceMessageBody();
+        body.setLocalPath(filePath);
+        mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
+
+            @Override
+            public void onSuccess(TSBMessage t) {
+                mMessageList.add(t);
+                mMessagesAdapter.refresh(mMessageList);
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                // TODO Auto-generated method stub
+
+            }
+        });
     }
 
     private Loader<Cursor> getAppropriateLoader() {
@@ -301,7 +454,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mMessageList);
+                        mMessagesAdapter.refresh(mMessageList);
                         mMessagesListView.setSelection(selectionPosition);
                     }
                 });
@@ -336,7 +489,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mMessageList);
+                        mMessagesAdapter.refresh(mMessageList);
                         mMessagesListView.setSelection(mMessageList.size() - 1);
                         Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
                     }
@@ -349,7 +502,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
                     @Override
                     public void run() {
-                        mAdapter.refresh(mMessageList);
+                        mMessagesAdapter.refresh(mMessageList);
                         mMessagesListView.setSelection(mMessageList.size() - 1);
                         Toast.makeText(ChatConversationActivity.this, "Send failed", Toast.LENGTH_LONG).show();
                     }
@@ -387,7 +540,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                 }
                 if (message != null && showMessage) {
                     mMessageList.add(message);
-                    mAdapter.refresh(mMessageList);
+                    mMessagesAdapter.refresh(mMessageList);
                     mMessagesListView.setSelection(mMessageList.size() - 1);
                 }
             }

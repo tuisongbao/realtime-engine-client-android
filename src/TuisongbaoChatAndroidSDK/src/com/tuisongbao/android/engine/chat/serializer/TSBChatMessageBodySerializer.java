@@ -12,6 +12,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 
 public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessageBody> {
 
@@ -36,6 +37,11 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
             TSBImageMessageBody imageBody = new TSBImageMessageBody();
             imageBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = imageBody;
+        } else if (type == TYPE.VOICE) {
+            TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
+            voiceBody.setFile(bodyJson.get("file").getAsJsonObject());
+
+            messageBody = voiceBody;
         }
         return messageBody;
     }

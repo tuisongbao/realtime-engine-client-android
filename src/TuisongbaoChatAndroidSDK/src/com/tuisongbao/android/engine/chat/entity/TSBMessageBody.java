@@ -33,6 +33,9 @@ public abstract class TSBMessageBody implements Parcelable {
         } else if (type == TYPE.IMAGE) {
             body = new TSBImageMessageBody();
             body.setType(TYPE.IMAGE);
+        } else if (type == TYPE.VOICE) {
+            body = new TSBVoiceMessageBody();
+            body.setType(TYPE.VOICE);
         }
         return body;
     }

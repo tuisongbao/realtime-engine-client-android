@@ -170,6 +170,8 @@ public class TSBChatManager extends BaseManager {
                 sendMessageRequest(message, callback);
             } else if (messageType == TYPE.IMAGE) {
                 sendImageMessage(message, callback);
+            } else if (messageType == TYPE.VOICE) {
+                sendVoiceMessage(message, callback);
             }
 
         } catch (Exception e) {
@@ -238,6 +240,10 @@ public class TSBChatManager extends BaseManager {
                 }
             }
         }, opt);
+    }
+
+    public void sendVoiceMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
+        callback.onSuccess(message);
     }
 
     public void bind(String bindName, TSBEngineBindCallback callback) {

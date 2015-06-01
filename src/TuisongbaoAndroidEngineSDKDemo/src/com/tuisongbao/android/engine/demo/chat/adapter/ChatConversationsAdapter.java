@@ -106,6 +106,8 @@ public class ChatConversationsAdapter extends BaseAdapter {
                             String simplifiedMessage = message.getText();
                             if (message.getBody().getType() == TYPE.IMAGE) {
                                 simplifiedMessage = "[图片]";
+                            } else if (message.getBody().getType() == TYPE.VOICE) {
+                                simplifiedMessage = "[语音]";
                             }
                             messageTextView.setText(simplifiedMessage);
                             messageTextView.setTextColor(mContext.getResources().getColor(R.color.gray));

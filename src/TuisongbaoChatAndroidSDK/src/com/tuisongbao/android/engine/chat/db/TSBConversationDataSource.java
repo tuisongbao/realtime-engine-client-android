@@ -14,10 +14,12 @@ import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
@@ -216,9 +218,9 @@ public class TSBConversationDataSource {
 
         ContentValues values = new ContentValues();
         TSBMessageBody body = message.getBody();
-        if (body.getType() == TYPE.IMAGE) {
-            TSBImageMessageBody imageBody = (TSBImageMessageBody)body;
-            String localPath = imageBody.getLocalPath();
+        if (body != null && isMediaMessage(message)) {
+            TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)body;
+            String localPath = mediaBody.getLocalPath();
             if (!StrUtil.isEmpty(localPath)) {
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
             }
@@ -306,18 +308,25 @@ public class TSBConversationDataSource {
             textBody.setText(cursor.getString(5));
 
             body = textBody;
-        } else if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-            TSBImageMessageBody imageBody = new TSBImageMessageBody();
-            imageBody.setLocalPath(cursor.getString(7));
-            imageBody.setDownloadUrl(cursor.getString(8));
-            imageBody.setSize(cursor.getString(9));
-            imageBody.setMimeType(cursor.getString(10));
+        } else {
+            TSBMediaMessageBody mediaBody = null;
+            if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
+                TSBImageMessageBody imageBody = new TSBImageMessageBody();
 
-            Gson gson = new Gson();
-            JsonObject imageInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
-            imageBody.setImageInfo(imageInfo);
+                Gson gson = new Gson();
+                JsonObject imageInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
+                imageBody.setImageInfo(imageInfo);
 
-            body = imageBody;
+                mediaBody = imageBody;
+            } else if (StrUtil.isEqual(TYPE.VOICE.getName(), contentType)) {
+                mediaBody = new TSBVoiceMessageBody();
+            }
+            mediaBody.setLocalPath(cursor.getString(7));
+            mediaBody.setDownloadUrl(cursor.getString(8));
+            mediaBody.setSize(cursor.getString(9));
+            mediaBody.setMimeType(cursor.getString(10));
+
+            body = mediaBody;
         }
         message.setBody(body);
         message.setCreatedAt(cursor.getString(12));
@@ -355,17 +364,29 @@ public class TSBConversationDataSource {
         if (message.getBody().getType() == TYPE.TEXT) {
             TSBTextMessageBody textMessageBody = (TSBTextMessageBody)message.getBody();
             values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
-        } else if (message.getBody().getType() == TYPE.IMAGE) {
-            TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
+        } else if (isMediaMessage(message)) {
+            TSBMediaMessageBody body = null;
+            if (message.getBody().getType() == TYPE.IMAGE) {
+                TSBImageMessageBody imageBody = (TSBImageMessageBody)message.getBody();
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, imageBody.getImageInfo().toString());
+
+                body = imageBody;
+            } else if (message.getBody().getType() == TYPE.VOICE) {
+                body = (TSBVoiceMessageBody)message.getBody();
+            }
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, body.getLocalPath());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, body.getDownloadUrl());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, body.getSize());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, body.getMimeType());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, body.getImageInfo().toString());
         }
 
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
+    }
+
+    private boolean isMediaMessage(TSBMessage message) {
+        TYPE type = message.getBody().getType();
+        return type  == TYPE.IMAGE || type == TYPE.VOICE;
     }
 }
