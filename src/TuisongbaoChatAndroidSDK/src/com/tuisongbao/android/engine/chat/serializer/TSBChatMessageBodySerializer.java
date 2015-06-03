@@ -31,16 +31,16 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
         if (type == TYPE.TEXT) {
             TSBTextMessageBody textBody = new TSBTextMessageBody();
             textBody.setText(text);
-
             messageBody = textBody;
+
         } else if (type == TYPE.IMAGE) {
             TSBImageMessageBody imageBody = new TSBImageMessageBody();
             imageBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = imageBody;
+
         } else if (type == TYPE.VOICE) {
             TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
             voiceBody.setFile(bodyJson.get("file").getAsJsonObject());
-
             messageBody = voiceBody;
         }
         return messageBody;

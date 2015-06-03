@@ -7,6 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class TSBVoiceMessageBody extends TSBMediaMessageBody {
+    public static final String VOICE_INFO = "voice";
+    public static final String VOICE_INFO_DURATION = "duration";
+    public static final String VOICE_INFO_FORMAT = "format";
 
     public TSBVoiceMessageBody() {
         super(TSBMessage.TYPE.VOICE);
@@ -44,5 +47,15 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
     private TSBVoiceMessageBody(Parcel in) {
         super(TSBMessage.TYPE.IMAGE);
         readFromParcel(in);
+    }
+
+    @Override
+    public JsonObject getMediaInfo() {
+        return file.get(VOICE_INFO).getAsJsonObject();
+    }
+
+    @Override
+    public void setMediaInfo(JsonObject infoObject) {
+        file.add(VOICE_INFO, infoObject);
     }
 }

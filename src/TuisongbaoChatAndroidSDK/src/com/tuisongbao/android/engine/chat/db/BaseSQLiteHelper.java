@@ -18,9 +18,9 @@ public abstract class BaseSQLiteHelper extends SQLiteOpenHelper {
 // TODO: In order to see content of DB, put db into external storage. the internal storage can not be seen if the device has not been rooted.
 // Find a way to make this better.
 //        super(context, Environment
-//                -                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-//                -                + File.separator + "/tuisongbao/" + File.separator
-//                -                + name, new CursorFactory() {
+//                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+//                                + File.separator + "/tuisongbao/" + File.separator
+//                                + name, new CursorFactory() {
 
         super(context, name, new CursorFactory() {
 

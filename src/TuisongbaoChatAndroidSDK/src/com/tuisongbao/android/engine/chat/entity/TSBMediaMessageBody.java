@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 
-public class TSBMediaMessageBody extends TSBMessageBody {
+public abstract class TSBMediaMessageBody extends TSBMessageBody {
 
     public static final String KEY = "key";
     public static final String DOWNLOAD_URL = "downloadUrl";
@@ -22,6 +22,9 @@ public class TSBMediaMessageBody extends TSBMessageBody {
         super(type);
         file = new JsonObject();
     }
+
+    abstract public JsonObject getMediaInfo();
+    abstract public void setMediaInfo(JsonObject infoObject);
 
     public void setLocalPath(String path) {
         file.addProperty(LOCAL_PATH, path);

@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -14,10 +17,10 @@ import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
-import com.tuisongbao.android.engine.util.BitmapUtil;
+import com.tuisongbao.android.engine.util.DownloadUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
-public class TSBMessage implements Parcelable {
+public class TSBMessage implements Parcelable, OnPreparedListener {
     /***
      * This value is not unique, it is the message's order number in a conversation,
      * A different conversation may has a message which has a same messageId.
@@ -30,6 +33,7 @@ public class TSBMessage implements Parcelable {
     private String createdAt;
     private Map<String, String> map;
     private boolean downloading = false;
+    protected transient MediaPlayer mediaPlayer;
 
     public TSBMessage set(String key, String value) {
         if (this.map == null) {
@@ -100,8 +104,8 @@ public class TSBMessage implements Parcelable {
     public String getResourcePath() {
         try {
             TSBMessageBody body = getBody();
-            if (body.getType() == TYPE.IMAGE) {
-                return ((TSBImageMessageBody)body).getLocalPath();
+            if (isMediaMessage()) {
+                return ((TSBMediaMessageBody)body).getLocalPath();
             }
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
@@ -223,7 +227,7 @@ public class TSBMessage implements Parcelable {
             return;
         }
 
-        final TSBImageMessageBody body = (TSBImageMessageBody)getBody();
+        final TSBMediaMessageBody body = (TSBMediaMessageBody)getBody();
         String localPath = body.getLocalPath();
         String downloadUrl = body.getDownloadUrl();
         try {
@@ -239,7 +243,7 @@ public class TSBMessage implements Parcelable {
             if (needDownload) {
                 downloading = true;
                 String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
-                BitmapUtil.downloadImageIntoLocal(downloadUrl, fileName, new TSBEngineCallback<String>() {
+                DownloadUtil.downloadResourceIntoLocal(downloadUrl, fileName, body.getType().getName(), new TSBEngineCallback<String>() {
 
                     @Override
                     public void onSuccess(String t) {
@@ -269,9 +273,56 @@ public class TSBMessage implements Parcelable {
         }
     }
 
+    /***
+     * Download resource and prepare MediaPlayer
+     *
+     * @param listener
+     */
+    public void startPlayMedia() {
+        final TSBMessage message = this;
+        downloadResource(new TSBEngineCallback<TSBMessage>() {
+
+            @Override
+            public void onSuccess(TSBMessage t) {
+                try {
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mediaPlayer.setDataSource(getResourcePath());
+                    mediaPlayer.setOnPreparedListener(message);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (Exception e) {
+                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+                }
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                LogUtil.error(LogUtil.LOG_TAG_CHAT, message);
+            }
+        });
+    }
+
+    public void stopPlayMedia() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer player) {
+        mediaPlayer = player;
+        mediaPlayer.start();
+    }
+
     @Override
     public String toString() {
         return String.format("TSBMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
                 , messageId, from, to, type.getName(), content.toString(), createdAt);
+    }
+
+    private boolean isMediaMessage() {
+        TYPE bodyType = getBody().getType();
+        return bodyType == TYPE.IMAGE || bodyType == TYPE.VOICE;
     }
 }

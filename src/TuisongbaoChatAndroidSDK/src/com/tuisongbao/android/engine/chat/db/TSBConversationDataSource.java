@@ -311,16 +311,15 @@ public class TSBConversationDataSource {
         } else {
             TSBMediaMessageBody mediaBody = null;
             if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-                TSBImageMessageBody imageBody = new TSBImageMessageBody();
-
-                Gson gson = new Gson();
-                JsonObject imageInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
-                imageBody.setImageInfo(imageInfo);
-
-                mediaBody = imageBody;
+                mediaBody = new TSBImageMessageBody();
             } else if (StrUtil.isEqual(TYPE.VOICE.getName(), contentType)) {
                 mediaBody = new TSBVoiceMessageBody();
             }
+
+            Gson gson = new Gson();
+            JsonObject mediaInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
+            mediaBody.setMediaInfo(mediaInfo);
+
             mediaBody.setLocalPath(cursor.getString(7));
             mediaBody.setDownloadUrl(cursor.getString(8));
             mediaBody.setSize(cursor.getString(9));
@@ -366,14 +365,11 @@ public class TSBConversationDataSource {
             values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
         } else if (isMediaMessage(message)) {
             TSBMediaMessageBody body = null;
-            if (message.getBody().getType() == TYPE.IMAGE) {
-                TSBImageMessageBody imageBody = (TSBImageMessageBody)message.getBody();
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, imageBody.getImageInfo().toString());
+            TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)message.getBody();
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, mediaBody.getMediaInfo().toString());
 
-                body = imageBody;
-            } else if (message.getBody().getType() == TYPE.VOICE) {
-                body = (TSBVoiceMessageBody)message.getBody();
-            }
+            body = mediaBody;
+
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, body.getLocalPath());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, body.getDownloadUrl());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, body.getSize());

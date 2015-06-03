@@ -19,8 +19,10 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatLoginData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLoginResponseMessage;
 import com.tuisongbao.android.engine.chat.message.TSBChatLogoutMessage;
@@ -168,16 +170,42 @@ public class TSBChatManager extends BaseManager {
             TYPE messageType = message.getBody().getType();
             if (messageType == TYPE.TEXT) {
                 sendMessageRequest(message, callback);
-            } else if (messageType == TYPE.IMAGE) {
-                sendImageMessage(message, callback);
-            } else if (messageType == TYPE.VOICE) {
-                sendVoiceMessage(message, callback);
+            } else {
+                sendMediaMessage(message, callback);
             }
 
         } catch (Exception e) {
             handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
+    }
+
+    public void bind(String bindName, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(bindName) || callback == null) {
+            return;
+        }
+        super.bind(bindName, callback);
+    }
+
+    public void unbind(String bindName, TSBEngineBindCallback callback) {
+        if (StrUtil.isEmpty(bindName) || callback == null) {
+            return;
+        }
+        super.unbind(bindName, callback);
+    }
+
+    @Override
+    protected void handleConnect(TSBConnection t) {
+        // when logined, it need to re-login
+        if (isLogin() && mTSBLoginMessage != null) {
+            // 当断掉重连时不需要回调
+            auth(mTSBLoginMessage);
+        }
+    }
+
+    @Override
+    protected void handleDisconnect(int code, String message) {
+        // empty
     }
 
     private void sendMessageRequest(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
@@ -242,36 +270,84 @@ public class TSBChatManager extends BaseManager {
         }, opt);
     }
 
-    public void sendVoiceMessage(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
-        callback.onSuccess(message);
-    }
 
-    public void bind(String bindName, TSBEngineBindCallback callback) {
-        if (StrUtil.isEmpty(bindName) || callback == null) {
-            return;
-        }
-        super.bind(bindName, callback);
-    }
-
-    public void unbind(String bindName, TSBEngineBindCallback callback) {
-        if (StrUtil.isEmpty(bindName) || callback == null) {
-            return;
-        }
-        super.unbind(bindName, callback);
-    }
-
-    @Override
-    protected void handleConnect(TSBConnection t) {
-        // when logined, it need to re-login
-        if (isLogin() && mTSBLoginMessage != null) {
-            // 当断掉重连时不需要回调
-            auth(mTSBLoginMessage);
+    private void sendMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
+        TSBEngineCallback<JSONObject> handlerCallback = getResponseHandlerOfMediaMessage(message, callback);
+        if (!uploadMessageResourceToQiniu(message, handlerCallback)) {
+            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Failed to get resource of the message.");
         }
     }
 
-    @Override
-    protected void handleDisconnect(int code, String message) {
-        // empty
+    private boolean uploadMessageResourceToQiniu(TSBMessage message, final TSBEngineCallback<JSONObject> responseHandler) {
+        TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)message.getBody();
+        String filePath = mediaBody.getLocalPath();
+        if (StrUtil.isEmpty(filePath)) {
+            return false;
+        }
+
+        UploadManager manager = new UploadManager();
+        String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("x:targetId", message.getRecipient());
+        final UploadOptions opt = new UploadOptions(params, null, true, null, null);
+        manager.put(filePath, null, token, new UpCompletionHandler() {
+
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject responseObject) {
+                responseHandler.onSuccess(responseObject);
+            }
+        }, opt);
+        return true;
+    }
+
+    private TSBEngineCallback<JSONObject> getResponseHandlerOfMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
+        TSBEngineCallback<JSONObject> responseHandler = new TSBEngineCallback<JSONObject>() {
+
+            @Override
+            public void onSuccess(JSONObject responseObject) {
+                try {
+
+                    LogUtil.info(LogUtil.LOG_TAG_CHAT, "Get response from QINIU " + responseObject.toString(4));
+                    TSBMediaMessageBody body = (TSBMediaMessageBody) message.getBody();
+
+                    JsonObject file = new JsonObject();
+                    file.addProperty(TSBImageMessageBody.KEY, responseObject.getString("key"));
+                    file.addProperty(TSBImageMessageBody.ETAG, responseObject.getString("etag"));
+                    file.addProperty(TSBImageMessageBody.NAME, responseObject.getString("fname"));
+                    file.addProperty(TSBImageMessageBody.SIZE, responseObject.getString("fsize"));
+                    file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
+
+                    TYPE messageType = body.getType();
+                    if (messageType == TYPE.IMAGE) {
+                        JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
+                        JsonObject imageInfo = new JsonObject();
+                        imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
+                        imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
+                        file.add(TSBImageMessageBody.IMAGE_INFO, imageInfo);
+                        body.setFile(file);
+                    } else if (messageType == TYPE.VOICE) {
+                        JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
+                        JsonObject audioInfo = new JsonObject();
+                        audioInfo.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
+                        audioInfo.addProperty(TSBVoiceMessageBody.VOICE_INFO_FORMAT, formatInfoInResponse.getString("format_name"));
+                        file.add(TSBVoiceMessageBody.VOICE_INFO, audioInfo);
+                        body.setFile(file);
+                    }
+
+                    message.setBody(body);
+                    sendMessageRequest(message, callback);
+                } catch (Exception e) {
+                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+                }
+            }
+
+            @Override
+            public void onError(int code, String message) {
+
+            }
+        };
+        return responseHandler;
     }
 
     private void clearCache() {

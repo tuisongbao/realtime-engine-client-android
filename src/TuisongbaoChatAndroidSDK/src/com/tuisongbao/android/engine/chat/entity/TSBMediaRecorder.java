@@ -1,5 +1,6 @@
 package com.tuisongbao.android.engine.chat.entity;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -17,31 +18,36 @@ public class TSBMediaRecorder {
     private STATE mState = STATE.STOP;
 
     public TSBMediaRecorder() {
-        mRecorder = new MediaRecorder();
+
     }
 
     public void start() {
-        mRecorder.reset();
-
-        mCurrentVoiceFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mCurrentVoiceFileName += StrUtil.getTimestampStringOnlyContainNumber(new Date()) + ".amr";
-
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-        mRecorder.setOutputFile(mCurrentVoiceFileName);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
         try {
+            mCurrentVoiceFileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tuisongbao/voices/";
+            mCurrentVoiceFileName += StrUtil.getTimestampStringOnlyContainNumber(new Date()) + ".3gp";
+            File file = new File(mCurrentVoiceFileName);
+            file.getParentFile().mkdirs();
+
+            mRecorder = new MediaRecorder();
+            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mRecorder.setOutputFile(mCurrentVoiceFileName);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
             mRecorder.prepare();
+            mRecorder.start();
         } catch (IOException e) {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
         }
-        mRecorder.start();
     }
 
     public String finish() {
-        mRecorder.stop();
-        mRecorder.release();
+        try {
+            mRecorder.stop();
+            mRecorder.release();
+        } catch (Exception e) {
+            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+        }
 
         return mCurrentVoiceFileName;
     }

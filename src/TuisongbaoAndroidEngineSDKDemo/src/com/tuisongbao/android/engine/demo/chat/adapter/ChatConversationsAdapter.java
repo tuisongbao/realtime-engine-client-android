@@ -21,7 +21,7 @@ import com.tuisongbao.android.engine.demo.chat.entity.ConversationWrapper;
 import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
 
 public class ChatConversationsAdapter extends BaseAdapter {
-
+    private static final String TAG = "com.tuisongbao.android.engine.chat.ChatConversationsAdapter";
     private Context mContext;
     private List<ConversationWrapper> mListConversation;
 

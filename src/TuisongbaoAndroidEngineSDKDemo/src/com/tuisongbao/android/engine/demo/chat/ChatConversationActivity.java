@@ -365,9 +365,14 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
 
             @Override
-            public void onSuccess(TSBMessage t) {
-                mMessageList.add(t);
-                mMessagesAdapter.refresh(mMessageList);
+            public void onSuccess(final TSBMessage t) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMessageList.add(t);
+                        mMessagesAdapter.refresh(mMessageList);
+                    }
+                });
             }
 
             @Override

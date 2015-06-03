@@ -41,7 +41,6 @@
         
         <Button
             android:id="@+id/list_item_chat_detail_send_content_voice"
-            android:background="@color/red"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/list_item_chat_detail_send_time"

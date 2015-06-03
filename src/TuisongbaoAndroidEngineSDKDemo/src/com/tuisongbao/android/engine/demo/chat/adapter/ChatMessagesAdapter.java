@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -57,45 +58,44 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_message, null);
         }
-        TSBMessage message = mMessageList.get(position);
+        try {
+            TSBMessage message = mMessageList.get(position);
 
-        RelativeLayout layoutSend = (RelativeLayout) convertView
-                .findViewById(R.id.list_item_chat_detail_send);
-        RelativeLayout layoutReplay = (RelativeLayout) convertView
-                .findViewById(R.id.list_item_chat_detail_reply);
+            RelativeLayout layoutSend = (RelativeLayout) convertView
+                    .findViewById(R.id.list_item_chat_detail_send);
+            RelativeLayout layoutReplay = (RelativeLayout) convertView
+                    .findViewById(R.id.list_item_chat_detail_reply);
 
-        boolean sentByLoginUser = StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId());
-        if (sentByLoginUser) {
+            boolean sentByLoginUser = StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId());
+            if (sentByLoginUser) {
 
-            layoutSend.setVisibility(View.VISIBLE);
-            layoutReplay.setVisibility(View.GONE);
+                layoutSend.setVisibility(View.VISIBLE);
+                layoutReplay.setVisibility(View.GONE);
 
-            TextView mTextViewTime = (TextView) convertView
-                    .findViewById(R.id.list_item_chat_detail_send_time);
-            mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
+                TextView mTextViewTime = (TextView) convertView
+                        .findViewById(R.id.list_item_chat_detail_send_time);
+                mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
+            } else {
+                layoutSend.setVisibility(View.GONE);
+                layoutReplay.setVisibility(View.VISIBLE);
 
+                TextView mTextViewReplyUser = (TextView) convertView
+                        .findViewById(R.id.list_item_chat_detail_reply_user);
+                mTextViewReplyUser.setText(message.getFrom());
+
+                TextView mTextViewTime = (TextView) convertView
+                        .findViewById(R.id.list_item_chat_detail_reply_time);
+                mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
+            }
             displayMessageContent(message, convertView, sentByLoginUser);
 
-        } else {
-            layoutSend.setVisibility(View.GONE);
-            layoutReplay.setVisibility(View.VISIBLE);
-
-            TextView mTextViewReplyUser = (TextView) convertView
-                    .findViewById(R.id.list_item_chat_detail_reply_user);
-            mTextViewReplyUser.setText(message.getFrom());
-
-            TextView mTextViewTime = (TextView) convertView
-                    .findViewById(R.id.list_item_chat_detail_reply_time);
-            mTextViewTime.setText(ToolUtils.getDisplayTime(message.getCreatedAt()));
-
-            displayMessageContent(message, convertView, sentByLoginUser);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
         return convertView;
     }
 
@@ -138,101 +138,46 @@ public class ChatMessagesAdapter extends BaseAdapter {
         }
     }
 
-    private void showVoiceMessage(TSBMessage message, View convertView, Button voiceButton) {
-//        voiceButton.setLayoutParams(new LayoutParams(30, 30));
+    private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
+        // TODO: show duration of voice besides this button
+
+        OnClickListener listener = new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                message.startPlayMedia();
+            }
+        };
+        voiceButton.setOnClickListener(listener);
     }
 
     private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
+        message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
-        try {
-            message.downloadResource(new TSBEngineCallback<TSBMessage>() {
-
-                @Override
-                public void onSuccess(final TSBMessage message) {
-                    ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
-                            imageView.setImageBitmap(bmp);
-                            imageView.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
-
-                @Override
-                public void onError(int code, String message) {
-                    ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            textView.setText("Failed to load image");
-                            textView.setVisibility(View.VISIBLE);
-                        }
-                    });
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    private void showContent(final TSBMessage message, final View contentView, final int textViewId, final int imageViewId) {
-        if (message.getBody().getType() == TYPE.TEXT) {
-            // clear imageView, as the list item is re-use, the imageView will not be cleared
-            ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
-            imageView.setVisibility(View.GONE);
-
-            TextView textViewContent = (TextView) contentView
-                    .findViewById(textViewId);
-            textViewContent.setText(message.getBody() != null ? message.getText() : "");
-            textViewContent.setTextSize(17);
-            textViewContent.setVisibility(View.VISIBLE);
-
-        } else if (message.getBody().getType() == TYPE.IMAGE) {
-            try {
-                // clear textView
-                TextView textView = (TextView) contentView.findViewById(textViewId);
-                textView.setVisibility(View.GONE);
-
-                // Load image is slow, sometimes it will show the old image of the reused item, so hide imageView first
-                ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
-                imageView.setVisibility(View.GONE);
-
-                message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+            @Override
+            public void onSuccess(final TSBMessage message) {
+                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
 
                     @Override
-                    public void onSuccess(final TSBMessage message) {
-                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                final ImageView imageView = (ImageView) contentView.findViewById(imageViewId);
-                                Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
-                                imageView.setImageBitmap(bmp);
-                                imageView.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(int code, String message) {
-                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                TextView textViewContent = (TextView) contentView
-                                        .findViewById(textViewId);
-                                textViewContent.setText("Failed to load image");
-                                textViewContent.setVisibility(View.VISIBLE);
-                            }
-                        });
+                    public void run() {
+                        Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
+                        imageView.setImageBitmap(bmp);
+                        imageView.setVisibility(View.VISIBLE);
                     }
                 });
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
+
+            @Override
+            public void onError(int code, String message) {
+                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        textView.setText("Failed to load image");
+                        textView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        });
     }
 }

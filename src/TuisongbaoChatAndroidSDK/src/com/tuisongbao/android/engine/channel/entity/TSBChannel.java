@@ -21,7 +21,7 @@ public class TSBChannel {
      * This field must be channel, because when serialize message, this will be parse into it's name string.
      */
     String channel;
-    ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
+    transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
     TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
 
         @Override

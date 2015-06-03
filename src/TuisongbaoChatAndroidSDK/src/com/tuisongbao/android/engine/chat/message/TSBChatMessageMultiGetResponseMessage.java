@@ -24,15 +24,14 @@ public class TSBChatMessageMultiGetResponseMessage extends TSBChatMessageGetResp
     }
 
     public void incRequestCount() {
-        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, this + " already has " + requestCount + " requests");
         this.requestCount++;
+        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, this + " has " + requestCount + " requests");
     }
 
     public void setMessageIdSpan(Long startMessageId, Long endMessageId) {
         this.startMessageId = startMessageId;
         this.endMessageId = endMessageId;
     }
-
 
     @Override
     protected List<TSBMessage> prepareCallBackData() {
