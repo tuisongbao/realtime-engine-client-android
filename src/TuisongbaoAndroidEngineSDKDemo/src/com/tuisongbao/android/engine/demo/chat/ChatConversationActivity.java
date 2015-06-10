@@ -2,6 +2,7 @@ package com.tuisongbao.android.engine.demo.chat;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -72,6 +73,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
     private TSBMediaRecorder mRecorder;
+    private long mRecordStartTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +93,6 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             @Override
             public void onTextChanged(CharSequence arg0, int start, int before, int count) {
                 // start位置的before个字符变成count个
-                LogUtil.verbose(TAG, "onTextChanged " + arg0 + "," + start + "," + before + "," + count);
                 if (start + count > 0) {
                     // Show send button
                     mSendButton.setVisibility(View.VISIBLE);
@@ -107,12 +108,10 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             @Override
             public void beforeTextChanged(CharSequence arg0, int start, int count, int after) {
                 // start位置的count个字符变成after个
-                LogUtil.verbose(TAG, "beforeTextChanged " + arg0 + "," + start + "," + count + "," + after);
             }
 
             @Override
             public void afterTextChanged(Editable arg0) {
-                LogUtil.verbose(TAG, "afterTextChanged " + arg0);
             }
         });
 
@@ -181,13 +180,13 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             }
         });
 
-        mVoiceTextSwitchButton.setText("文本");
+        mVoiceTextSwitchButton.setText("语音");
         mVoiceTextSwitchButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                if (mVoiceTextSwitchButton.getText().equals("语音")) {
-                    mVoiceTextSwitchButton.setText("文本");
+                if (mVoiceTextSwitchButton.getText().equals("文本")) {
+                    mVoiceTextSwitchButton.setText("语音");
 
                     mContentEditText.setVisibility(View.VISIBLE);
                     mVoiceRecorderButton.setVisibility(View.GONE);
@@ -203,7 +202,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                         mMoreButton.setVisibility(View.GONE);
                     }
                 } else {
-                    mVoiceTextSwitchButton.setText("语音");
+                    mVoiceTextSwitchButton.setText("文本");
                     mContentEditText.setVisibility(View.GONE);
                     mVoiceRecorderButton.setVisibility(View.VISIBLE);
 
@@ -225,31 +224,42 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             @Override
             public boolean onTouch(View arg0, MotionEvent event) {
                 int actionCode = event.getActionMasked();
-                LogUtil.verbose(TAG, "onTouch " + actionCode);
                 if (actionCode == MotionEvent.ACTION_DOWN) {
                     // Press record button
+                    mRecordStartTime = new Date().getTime();
                     onRecordStart();
+                    mVoiceRecorderButton.setText("松开 发送");
                     return true;
 
                 } else if (actionCode == MotionEvent.ACTION_UP) {
                     // Release record button
-                    Object tag = mVoiceRecorderButton.getTag();
-                    if (tag != null && tag.equals("cancel")) {
-                        LogUtil.info(TAG, "Voice operation has been canceled");
-                        mVoiceRecorderButton.setTag("normal");
-                        mRecorder.cancel();
-                        return true;
-                    }
+                    long recordEndTime = new Date().getTime();
+                    if (recordEndTime - mRecordStartTime > 2000) {
 
-                    onRecordFinished();
+                        Object tag = mVoiceRecorderButton.getTag();
+                        // User has cancel this operation
+                        if (tag != null && tag.equals("cancel")) {
+                            LogUtil.info(TAG, "Voice operation has been canceled");
+                            mRecorder.cancel();
+                        } else {
+                            onRecordFinished();
+                        }
+                    } else {
+                        // if the duration is shorter than 2 seconds, ignore this operation.
+                        mRecorder.cancel();
+                    }
+                    mVoiceRecorderButton.setTag("normal");
+                    mVoiceRecorderButton.setText("按住 说话");
+
                     return true;
                 } else {
-                    LogUtil.verbose(TAG, "X:" + event.getX() + ", Y:" + event.getY());
                     // Moving up by 150px will cancel sending voice message
                     if (event.getY() < -150) {
                         mVoiceRecorderButton.setTag("cancel");
+                        mVoiceRecorderButton.setText("松开手指 取消发送");
                     } else {
                         mVoiceRecorderButton.setTag("normal");
+                        mVoiceRecorderButton.setText("松开 发送");
                     }
                 }
                 return false;

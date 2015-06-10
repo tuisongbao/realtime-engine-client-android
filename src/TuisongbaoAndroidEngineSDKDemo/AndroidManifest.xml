@@ -39,6 +39,8 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.tuisongbao.android.engine.demo.permission.PUSH" />
+    
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:name="com.tuisongbao.android.engine.demo.DemoApplication"
