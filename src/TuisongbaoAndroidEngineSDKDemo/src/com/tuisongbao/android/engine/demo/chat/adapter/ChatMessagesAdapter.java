@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -15,8 +16,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.gson.JsonObject;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer.OnErrorListener;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer.OnStopListener;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
@@ -139,13 +145,57 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
-        // TODO: show duration of voice besides this button
+        TSBVoiceMessageBody body = (TSBVoiceMessageBody)message.getBody();
+        JsonObject mediaInfo = body.getMediaInfo();
+        int duration = (int)mediaInfo.get(TSBVoiceMessageBody.VOICE_INFO_DURATION).getAsDouble();
+        voiceButton.setText(duration + "'");
 
+        // TODO: set different width measured by duration.
+
+        voiceButton.setTag("idle");
         OnClickListener listener = new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                message.startPlayMedia();
+                Log.d(TAG, "onClick");
+                String status = voiceButton.getTag().toString();
+                if (status == "playing") {
+                    return;
+                }
+
+                voiceButton.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
+                voiceButton.setTag("playing");
+
+                TSBMediaPlayer player = TSBMediaPlayer.getInstance();
+                player.start(message, new OnStopListener() {
+
+                    @Override
+                    public void onStop() {
+                        Log.d(TAG, "onStop");
+                        voiceButton.setTag("idle");
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                voiceButton.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
+
+                            }
+                        });
+                    }
+                }, new OnErrorListener() {
+
+                    @Override
+                    public void onError(String error) {
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                voiceButton.setBackgroundColor(mContext.getResources().getColor(R.color.red));
+                                voiceButton.setEnabled(false);
+                            }
+                        });
+                    }
+                });
             }
         };
         voiceButton.setOnClickListener(listener);

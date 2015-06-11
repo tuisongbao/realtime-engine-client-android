@@ -2,12 +2,7 @@ package com.tuisongbao.android.engine.chat.entity;
 
 import java.io.File;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -20,7 +15,7 @@ import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.DownloadUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
-public class TSBMessage implements Parcelable, OnPreparedListener {
+public class TSBMessage implements Parcelable {
     /***
      * This value is not unique, it is the message's order number in a conversation,
      * A different conversation may has a message which has a same messageId.
@@ -31,17 +26,7 @@ public class TSBMessage implements Parcelable, OnPreparedListener {
     private String to;
     private TSBMessageBody content;
     private String createdAt;
-    private Map<String, String> map;
     private boolean downloading = false;
-    protected transient MediaPlayer mediaPlayer;
-
-    public TSBMessage set(String key, String value) {
-        if (this.map == null) {
-            map = new HashMap<String, String>();
-        }
-        map.put(key, value);
-        return this;
-    }
 
     public ChatType getChatType() {
         return type;
@@ -177,7 +162,6 @@ public class TSBMessage implements Parcelable, OnPreparedListener {
         dest.writeString(to);
         dest.writeString(createdAt);
         dest.writeParcelable(content, flags);
-        dest.writeMap(map);
     }
 
     public void readFromParcel(Parcel in) {
@@ -188,7 +172,6 @@ public class TSBMessage implements Parcelable, OnPreparedListener {
         to = in.readString();
         createdAt = in.readString();
         content = in.readParcelable(TSBMessageBody.class.getClassLoader());
-        map = in.readHashMap(HashMap.class.getClassLoader());
     }
 
     public static final Parcelable.Creator<TSBMessage> CREATOR =
@@ -271,48 +254,6 @@ public class TSBMessage implements Parcelable, OnPreparedListener {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
             callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
         }
-    }
-
-    /***
-     * Download resource and prepare MediaPlayer
-     *
-     * @param listener
-     */
-    public void startPlayMedia() {
-        final TSBMessage message = this;
-        downloadResource(new TSBEngineCallback<TSBMessage>() {
-
-            @Override
-            public void onSuccess(TSBMessage t) {
-                try {
-                    mediaPlayer = new MediaPlayer();
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mediaPlayer.setDataSource(getResourcePath());
-                    mediaPlayer.setOnPreparedListener(message);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-                } catch (Exception e) {
-                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
-                }
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                LogUtil.error(LogUtil.LOG_TAG_CHAT, message);
-            }
-        });
-    }
-
-    public void stopPlayMedia() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-        }
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer player) {
-        mediaPlayer = player;
-        mediaPlayer.start();
     }
 
     @Override

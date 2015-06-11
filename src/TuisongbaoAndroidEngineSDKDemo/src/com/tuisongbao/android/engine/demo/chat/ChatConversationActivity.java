@@ -40,6 +40,7 @@ import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer;
 import com.tuisongbao.android.engine.chat.entity.TSBMediaRecorder;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
@@ -333,6 +334,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     @Override
     protected void onPause() {
         super.onPause();
+
+        TSBMediaPlayer.getInstance().stop();
     }
 
     @Override
