@@ -113,7 +113,7 @@ public class TSBConversationDataSource {
      *
      * @param message
      */
-    public void upsertMessage(String userId, TSBMessage message) {
+    public void upsertMessage(String userId, final TSBMessage message) {
         // TODO: transaction
         if (updateMessage(message) > 0) {
             return;

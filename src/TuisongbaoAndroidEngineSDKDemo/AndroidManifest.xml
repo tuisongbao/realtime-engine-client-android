@@ -33,6 +33,10 @@
     <!-- 可选，建议配置，推送宝会跟踪用户的地理位置，开发者则可以进行基于区域的推送 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- push 权限 end -->
+    
+    <!-- 语音消息和视频消息 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <permission
         android:name="com.tuisongbao.android.engine.demo.permission.PUSH"
@@ -40,8 +44,6 @@
 
     <uses-permission android:name="com.tuisongbao.android.engine.demo.permission.PUSH" />
     
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
     <application
         android:name="com.tuisongbao.android.engine.demo.DemoApplication"
         android:allowBackup="true"

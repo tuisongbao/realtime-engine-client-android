@@ -28,11 +28,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -71,6 +73,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     private List<TSBMessage> mMessageList;
     private TSBChatConversation mConversation;
 
+    private LinearLayout mMediaMessageOptionsLayout;
+
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
     private TSBMediaRecorder mRecorder;
@@ -89,8 +93,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         mVoiceTextSwitchButton = (Button)findViewById(R.id.conversation_voice_text_switch_button);
         mVoiceRecorderButton = (Button)findViewById(R.id.conversation_voice_recorder_button);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         mContentEditText.addTextChangedListener(new TextWatcher() {
-
             @Override
             public void onTextChanged(CharSequence arg0, int start, int before, int count) {
                 // start位置的before个字符变成count个
@@ -161,16 +165,13 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     }
                 });
                 mContentEditText.setText("");
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                      // imm.hideSoftInputFromWindow(myEditText.getWindowToken(), 0);
-                if (imm.isActive()) // 一直是true
-                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,
-                            InputMethodManager.HIDE_NOT_ALWAYS);
+                hideSoftKeyboard();
             }
         });
 
         // Select a image
-        mMoreButton.setOnClickListener(new OnClickListener() {
+        Button imageSelectButton = (Button)findViewById(R.id.conversation_message_create_image);
+        imageSelectButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
@@ -181,11 +182,38 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             }
         });
 
+        Button videoRecordButton = (Button)findViewById(R.id.conversation_message_create_video);
+        videoRecordButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                Log.d(TAG, "Show camera");
+            }
+        });
+
+        mMoreButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                hideSoftKeyboard();
+                mMediaMessageOptionsLayout = (LinearLayout)findViewById(R.id.conversation_message_create_multi);
+                int visiable = mMediaMessageOptionsLayout.getVisibility();
+                if (visiable == View.GONE) {
+                    mMediaMessageOptionsLayout.setVisibility(View.VISIBLE);
+                } else if (visiable == View.VISIBLE) {
+                    mMediaMessageOptionsLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
         mVoiceTextSwitchButton.setText("语音");
         mVoiceTextSwitchButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
+                if (mMediaMessageOptionsLayout != null) {
+                    mMediaMessageOptionsLayout.setVisibility(View.GONE);
+                }
                 if (mVoiceTextSwitchButton.getText().equals("文本")) {
                     mVoiceTextSwitchButton.setText("语音");
 
@@ -194,9 +222,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
                     // Switch to send button if the edit text is not empty.
                     mContentEditText.requestFocus();
-                    // Show keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    showSoftKeyboard();
 
                     if (mContentEditText.getText().toString().length() > 0) {
                         mSendButton.setVisibility(View.VISIBLE);
@@ -211,9 +237,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     mSendButton.setVisibility(View.GONE);
                     mMoreButton.setVisibility(View.VISIBLE);
 
-                    // Hide keyboard
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    hideSoftKeyboard();
                 }
 
             }
@@ -317,7 +341,6 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         if (item.getItemId() == R.id.group_member) {
             TSBChatGroup group = new TSBChatGroup();
             group.setGroupId(mConversation.getTarget());
-
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
             intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);
             startActivity(intent);
@@ -426,7 +449,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT){
             String wholeID = DocumentsContract.getDocumentId(mImageUri);
             Log.d(TAG, wholeID);
-            // Lollipop: content://com...../media:{id}, match id to find the file path.
+            // Lollipop: content://com...../medihideSoftKeyboarda:{id}, match id to find the file path.
             String[] splits = wholeID.split(":");
 
             if (splits.length != 2) {
@@ -564,4 +587,14 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             }
         }
     };
+
+    private void showSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mContentEditText, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    private void hideSoftKeyboard() {
+        InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        im.hideSoftInputFromWindow(getCurrentFocus().getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
 }

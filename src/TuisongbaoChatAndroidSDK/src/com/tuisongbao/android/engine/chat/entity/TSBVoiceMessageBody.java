@@ -45,7 +45,7 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
     }
 
     private TSBVoiceMessageBody(Parcel in) {
-        super(TSBMessage.TYPE.IMAGE);
+        super(TSBMessage.TYPE.VOICE);
         readFromParcel(in);
     }
 

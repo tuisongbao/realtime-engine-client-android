@@ -46,7 +46,7 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
 
     @Override
     public String toString() {
-        return String.format("TSBTextMessageBody[file: %s, type: %s]", file.toString(), type.getName());
+        return String.format("TSBImageMessage[file: %s, type: %s]", file.toString(), type.getName());
     }
 
     private TSBImageMessageBody(Parcel in) {
