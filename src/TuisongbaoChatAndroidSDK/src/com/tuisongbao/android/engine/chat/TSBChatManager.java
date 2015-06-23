@@ -255,10 +255,8 @@ public class TSBChatManager extends BaseManager {
                     file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
 
                     JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
-                    JsonObject imageInfo = new JsonObject();
-                    imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
-                    imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
-                    file.add(TSBImageMessageBody.IMAGE_INFO, imageInfo);
+                    file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
+                    file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
                     body.setFile(file);
 
                     message.setBody(body);
@@ -321,17 +319,12 @@ public class TSBChatManager extends BaseManager {
                     TYPE messageType = body.getType();
                     if (messageType == TYPE.IMAGE) {
                         JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
-                        JsonObject imageInfo = new JsonObject();
-                        imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
-                        imageInfo.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
-                        file.add(TSBImageMessageBody.IMAGE_INFO, imageInfo);
+                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
+                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
                         body.setFile(file);
                     } else if (messageType == TYPE.VOICE) {
                         JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
-                        JsonObject audioInfo = new JsonObject();
-                        audioInfo.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
-                        audioInfo.addProperty(TSBVoiceMessageBody.VOICE_INFO_FORMAT, formatInfoInResponse.getString("format_name"));
-                        file.add(TSBVoiceMessageBody.VOICE_INFO, audioInfo);
+                        file.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
                         body.setFile(file);
                     }
 

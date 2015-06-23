@@ -26,9 +26,14 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_FILE_SIZE = "size";
     public static final String COLUMN_FILE_MIMETYPE = "mimeType";
     /**
-     * JSONString format of other file information, like image's width & height, video's duration
+     * image's width & height
      */
-    public static final String COLUMN_FILE_NOTES = "info";
+    public static final String COLUMN_FILE_WIDTH = "width";
+    public static final String COLUMN_FILE_HEIGHT = "height";
+    /**
+     * video's duration
+     */
+    public static final String COLUMN_FILE_DURATION = "duration";
 
     public static final String COLUMN_CREATED_AT = "createdAt";
 
@@ -51,7 +56,9 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_FILE_DOWNLOAD_URL + " text, "
           + COLUMN_FILE_SIZE + " text, "
           + COLUMN_FILE_MIMETYPE + " text, "
-          + COLUMN_FILE_NOTES + " text, "
+          + COLUMN_FILE_WIDTH + " integer, "
+          + COLUMN_FILE_HEIGHT + " integer, "
+          + COLUMN_FILE_DURATION + " text, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

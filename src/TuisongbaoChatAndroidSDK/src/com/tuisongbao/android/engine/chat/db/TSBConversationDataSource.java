@@ -8,8 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
@@ -212,6 +210,12 @@ public class TSBConversationDataSource {
         removeMessages(userId, type, target);
     }
 
+    /***
+     * Only used for updating the localpath field
+     *
+     * @param message
+     * @return the rows effected
+     */
     public int updateMessage(TSBMessage message) {
         String uniqueMessageId = generateUniqueMessageId(message);
         String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
@@ -316,19 +320,19 @@ public class TSBConversationDataSource {
                 mediaBody = new TSBVoiceMessageBody();
             }
 
-            Gson gson = new Gson();
-            JsonObject mediaInfo = gson.fromJson(cursor.getString(11), JsonObject.class);
-            mediaBody.setMediaInfo(mediaInfo);
-
             mediaBody.setLocalPath(cursor.getString(7));
             mediaBody.setDownloadUrl(cursor.getString(8));
             mediaBody.setSize(cursor.getString(9));
             mediaBody.setMimeType(cursor.getString(10));
 
+            mediaBody.setWidth(cursor.getInt(11));
+            mediaBody.setHeight(cursor.getInt(12));
+            mediaBody.setDuration(cursor.getString(13));
+
             body = mediaBody;
         }
         message.setBody(body);
-        message.setCreatedAt(cursor.getString(12));
+        message.setCreatedAt(cursor.getString(14));
 
         return message;
     }
@@ -364,16 +368,16 @@ public class TSBConversationDataSource {
             TSBTextMessageBody textMessageBody = (TSBTextMessageBody)message.getBody();
             values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
         } else if (isMediaMessage(message)) {
-            TSBMediaMessageBody body = null;
             TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)message.getBody();
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_NOTES, mediaBody.getMediaInfo().toString());
 
-            body = mediaBody;
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
 
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, body.getLocalPath());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, body.getDownloadUrl());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, body.getSize());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, body.getMimeType());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, mediaBody.getWidth());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, mediaBody.getHeight());
+            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, mediaBody.getDuration());
         }
 
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());

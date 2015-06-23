@@ -7,9 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class TSBVoiceMessageBody extends TSBMediaMessageBody {
-    public static final String VOICE_INFO = "voice";
     public static final String VOICE_INFO_DURATION = "duration";
-    public static final String VOICE_INFO_FORMAT = "format";
 
     public TSBVoiceMessageBody() {
         super(TSBMessage.TYPE.VOICE);
@@ -19,6 +17,11 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
     public void readFromParcel(Parcel in) {
         Gson gson = new Gson();
         setFile(gson.fromJson(in.readString(), JsonObject.class));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     @Override
@@ -40,6 +43,16 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
     };
 
     @Override
+    public String getDuration() {
+        return file.get(VOICE_INFO_DURATION).getAsString();
+    }
+
+    @Override
+    public void setDuration(String duration) {
+        file.addProperty(VOICE_INFO_DURATION, duration);
+    }
+
+    @Override
     public String toString() {
         return String.format("TSBVoiceMessageBody[file: %s, type: %s]", file.toString(), type.getName());
     }
@@ -47,15 +60,5 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
     private TSBVoiceMessageBody(Parcel in) {
         super(TSBMessage.TYPE.VOICE);
         readFromParcel(in);
-    }
-
-    @Override
-    public JsonObject getMediaInfo() {
-        return file.get(VOICE_INFO).getAsJsonObject();
-    }
-
-    @Override
-    public void setMediaInfo(JsonObject infoObject) {
-        file.add(VOICE_INFO, infoObject);
     }
 }

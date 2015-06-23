@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 public class TSBImageMessageBody extends TSBMediaMessageBody {
-    public static final String IMAGE_INFO = "image";
     public static final String IMAGE_INFO_WIDTH = "width";
     public static final String IMAGE_INFO_HEIGHT = "height";
 
@@ -45,6 +44,26 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
     };
 
     @Override
+    public int getWidth() {
+        return file.get(IMAGE_INFO_WIDTH).getAsInt();
+    }
+
+    @Override
+    public int getHeight() {
+        return file.get(IMAGE_INFO_HEIGHT).getAsInt();
+    }
+
+    @Override
+    public void setWidth(int width) {
+        file.addProperty(IMAGE_INFO_WIDTH, width);
+    }
+
+    @Override
+    public void setHeight(int height) {
+        file.addProperty(IMAGE_INFO_HEIGHT, height);
+    }
+
+    @Override
     public String toString() {
         return String.format("TSBImageMessage[file: %s, type: %s]", file.toString(), type.getName());
     }
@@ -52,15 +71,5 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
     private TSBImageMessageBody(Parcel in) {
         super(TSBMessage.TYPE.IMAGE);
         readFromParcel(in);
-    }
-
-    @Override
-    public JsonObject getMediaInfo() {
-        return file.get(IMAGE_INFO).getAsJsonObject();
-    }
-
-    @Override
-    public void setMediaInfo(JsonObject infoObject) {
-        file.add(IMAGE_INFO, infoObject);
     }
 }

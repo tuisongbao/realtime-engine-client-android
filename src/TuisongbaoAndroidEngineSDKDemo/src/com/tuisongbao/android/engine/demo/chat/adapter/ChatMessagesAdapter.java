@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.gson.JsonObject;
+import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
@@ -146,9 +146,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
     private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
         TSBVoiceMessageBody body = (TSBVoiceMessageBody)message.getBody();
-        JsonObject mediaInfo = body.getMediaInfo();
-        int duration = (int)mediaInfo.get(TSBVoiceMessageBody.VOICE_INFO_DURATION).getAsDouble();
-        voiceButton.setText(duration + "'");
+        Log.i(TAG, "duration " + body.getDuration());
+        voiceButton.setText(body.getDuration());
 
         // TODO: set different width measured by duration.
 
@@ -202,6 +201,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
+        TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
+        Log.i(TAG, "Image size is " + body.getWidth() + " * " + body.getHeight());
         message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
             @Override

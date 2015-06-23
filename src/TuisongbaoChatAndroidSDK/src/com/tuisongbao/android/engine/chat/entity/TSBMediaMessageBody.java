@@ -1,7 +1,5 @@
 package com.tuisongbao.android.engine.chat.entity;
 
-import android.os.Parcel;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
@@ -16,15 +14,18 @@ public abstract class TSBMediaMessageBody extends TSBMessageBody {
     public static final String SIZE = "size";
     public static final String MIME_TYPE = "mimeType";
 
+    // According to the rule of Gson, this will be serialized to
+    // file:
+    //     width:
+    //     height:
+    //     ....
+    // this field is used by generating the key `file`
     protected JsonObject file;
 
     public TSBMediaMessageBody(TYPE type) {
         super(type);
         file = new JsonObject();
     }
-
-    abstract public JsonObject getMediaInfo();
-    abstract public void setMediaInfo(JsonObject infoObject);
 
     public void setLocalPath(String path) {
         file.addProperty(LOCAL_PATH, path);
@@ -82,20 +83,43 @@ public abstract class TSBMediaMessageBody extends TSBMessageBody {
         file.addProperty(MIME_TYPE, mimeType);
     }
 
-    @Override
-    public int describeContents() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel arg0, int arg1) {
-        // TODO Auto-generated method stub
-
-    }
-
     public void setFile(JsonObject file) {
         this.file = file;
     }
 
+    public JsonObject getFile() {
+        return file;
+    }
+
+    // Image informations
+
+    public int getWidth() {
+        return 0;
+    }
+
+    public void setWidth(int width) {}
+
+    public int getHeight() {
+        return 0;
+    }
+
+    public void setHeight(int height) {}
+
+    // Video informations
+
+    /***
+     * Duration of video
+     *
+     * @return
+     */
+    public String getDuration() {
+        return "0";
+    }
+
+    /***
+     * Set duration of video
+     *
+     * @param duration in seconds
+     */
+    public void setDuration(String duration) {}
 }
