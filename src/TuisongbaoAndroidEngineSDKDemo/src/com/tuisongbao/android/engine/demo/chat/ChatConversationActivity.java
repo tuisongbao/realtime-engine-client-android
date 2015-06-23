@@ -42,12 +42,12 @@ import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
-import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer;
-import com.tuisongbao.android.engine.chat.entity.TSBMediaRecorder;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
+import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
+import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
@@ -56,12 +56,16 @@ import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.android.engine.log.LogUtil;
 
 @SuppressLint("NewApi")
-public class ChatConversationActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class ChatConversationActivity extends Activity implements
+        LoaderCallbacks<Cursor> {
 
     public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.android.engine.demo.ChatConversationActivity.MessageSent";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.demo.ChatConversationActivity.ExtraMessage";
     public static final String EXTRA_CONVERSATION = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
     private static final String TAG = "com.tuisongbao.android.engine.demo.ChatConversationActivity";
+
+    private static final int REQUEST_CODE_IMAGE = 1;
+    private static final int REQUEST_CODE_TAKE_VIDEO = 2;
 
     private ListView mMessagesListView;
     private Button mSendButton;
@@ -86,17 +90,19 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         setContentView(R.layout.activity_conversation);
         mConversation = getIntent().getParcelableExtra(EXTRA_CONVERSATION);
 
-        mMessagesListView = (ListView)findViewById(R.id.conversation_messages_list_view);
-        mContentEditText = (EditText)findViewById(R.id.conversation_message_content_edittext);
-        mSendButton = (Button)findViewById(R.id.conversation_text_send_button);
-        mMoreButton = (Button)findViewById(R.id.conversation_more_send_button);
-        mVoiceTextSwitchButton = (Button)findViewById(R.id.conversation_voice_text_switch_button);
-        mVoiceRecorderButton = (Button)findViewById(R.id.conversation_voice_recorder_button);
+        mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
+        mContentEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
+        mSendButton = (Button) findViewById(R.id.conversation_text_send_button);
+        mMoreButton = (Button) findViewById(R.id.conversation_more_send_button);
+        mVoiceTextSwitchButton = (Button) findViewById(R.id.conversation_voice_text_switch_button);
+        mVoiceRecorderButton = (Button) findViewById(R.id.conversation_voice_recorder_button);
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         mContentEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onTextChanged(CharSequence arg0, int start, int before, int count) {
+            public void onTextChanged(CharSequence arg0, int start, int before,
+                    int count) {
                 // start位置的before个字符变成count个
                 if (start + count > 0) {
                     // Show send button
@@ -111,7 +117,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             }
 
             @Override
-            public void beforeTextChanged(CharSequence arg0, int start, int count, int after) {
+            public void beforeTextChanged(CharSequence arg0, int start,
+                    int count, int after) {
                 // start位置的count个字符变成after个
             }
 
@@ -129,48 +136,62 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
             @Override
             public void onClick(View v) {
-                TSBMessageBody body = new TSBTextMessageBody(mContentEditText.getText().toString());
-                mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
-
-                    @Override
-                    public void onSuccess(TSBMessage t) {
-                        t.setFrom(LoginChache.getUserId());
-                        mMessageList.add(t);
-
-                        Intent intent = new Intent(BROADCAST_ACTION_MESSAGE_SENT);
-                        intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
-                        sendBroadcast(intent);
-
-                        runOnUiThread(new Runnable() {
+                TSBMessageBody body = new TSBTextMessageBody(mContentEditText
+                        .getText().toString());
+                mConversation.sendMessage(body,
+                        new TSBEngineCallback<TSBMessage>() {
 
                             @Override
-                            public void run() {
-                                mMessagesAdapter.refresh(mMessageList);
-                                mMessagesListView.setSelection(mMessageList.size() - 1);
-                                Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
+                            public void onSuccess(TSBMessage t) {
+                                t.setFrom(LoginChache.getUserId());
+                                mMessageList.add(t);
+
+                                Intent intent = new Intent(
+                                        BROADCAST_ACTION_MESSAGE_SENT);
+                                intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
+                                sendBroadcast(intent);
+
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        mMessagesAdapter.refresh(mMessageList);
+                                        mMessagesListView
+                                                .setSelection(mMessageList
+                                                        .size() - 1);
+                                        Toast.makeText(
+                                                ChatConversationActivity.this,
+                                                "Send success",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
                             }
-                        });
-
-                    }
-
-                    @Override
-                    public void onError(final int code, final String message) {
-                        runOnUiThread(new Runnable() {
 
                             @Override
-                            public void run() {
-                                Toast.makeText(ChatConversationActivity.this, "Send failure [code=" + code + ";msg=" + message + "]", Toast.LENGTH_LONG).show();
+                            public void onError(final int code,
+                                    final String message) {
+                                runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(
+                                                ChatConversationActivity.this,
+                                                "Send failure [code=" + code
+                                                        + ";msg=" + message
+                                                        + "]",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         });
-                    }
-                });
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
         });
 
         // Select a image
-        Button imageSelectButton = (Button)findViewById(R.id.conversation_message_create_image);
+        Button imageSelectButton = (Button) findViewById(R.id.conversation_message_create_image);
         imageSelectButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -178,16 +199,19 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, REQUEST_CODE_IMAGE);
             }
         });
 
-        Button videoRecordButton = (Button)findViewById(R.id.conversation_message_create_video);
+        Button videoRecordButton = (Button) findViewById(R.id.conversation_message_create_video);
         videoRecordButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
                 Log.d(TAG, "Show camera");
+                Intent intent = new Intent();
+                intent.setAction("com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO");
+                startActivityForResult(intent, REQUEST_CODE_TAKE_VIDEO);
             }
         });
 
@@ -196,7 +220,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             @Override
             public void onClick(View arg0) {
                 hideSoftKeyboard();
-                mMediaMessageOptionsLayout = (LinearLayout)findViewById(R.id.conversation_message_create_multi);
+                mMediaMessageOptionsLayout = (LinearLayout) findViewById(R.id.conversation_message_create_multi);
                 int visiable = mMediaMessageOptionsLayout.getVisibility();
                 if (visiable == View.GONE) {
                     mMediaMessageOptionsLayout.setVisibility(View.VISIBLE);
@@ -264,13 +288,15 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                         Object tag = mVoiceRecorderButton.getTag();
                         // User has cancel this operation
                         if (tag != null && tag.equals("cancel")) {
-                            LogUtil.info(TAG, "Voice operation has been canceled");
+                            LogUtil.info(TAG,
+                                    "Voice operation has been canceled");
                             mRecorder.cancel();
                         } else {
                             onRecordFinished();
                         }
                     } else {
-                        // if the duration is shorter than 2 seconds, ignore this operation.
+                        // if the duration is shorter than 2 seconds, ignore
+                        // this operation.
                         mRecorder.cancel();
                     }
                     mVoiceRecorderButton.setTag("normal");
@@ -294,15 +320,18 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         mMessagesListView.setOnScrollListener(new OnScrollListener() {
 
             int currentFirstVisibleItem;
+
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if (currentFirstVisibleItem == 0 && scrollState == SCROLL_STATE_IDLE) {
+                if (currentFirstVisibleItem == 0
+                        && scrollState == SCROLL_STATE_IDLE) {
                     request();
                 }
             }
 
             @Override
-            public void onScroll(AbsListView arg0, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            public void onScroll(AbsListView arg0, int firstVisibleItem,
+                    int visibleItemCount, int totalItemCount) {
                 this.currentFirstVisibleItem = firstVisibleItem;
             }
         });
@@ -316,13 +345,16 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            mImageUri = data.getData();
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK) {
+            mImageUri = intent.getData();
             // Query the real path of the image.
             getLoaderManager().restartLoader(0, null, this);
+        } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
+            // TODO: parse video from data
+            Uri videoUri = intent.getData();
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override
@@ -350,6 +382,22 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     }
 
     @Override
+    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+        return getAppropriateLoader();
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
+        handlerLoaderFinished(arg1);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -367,22 +415,6 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         unregisterBroadcast();
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-        return getAppropriateLoader();
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-        handlerLoaderFinished(arg1);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
     private void onRecordStart() {
         LogUtil.info(TAG, "Recording.....");
         mRecorder.start();
@@ -390,7 +422,7 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
     private void onRecordFinished() {
         LogUtil.info(TAG, "Record finished");
-        String filePath = mRecorder.finish();
+        String filePath = mRecorder.stop();
 
         onVoiceMessageSent(filePath);
     }
@@ -426,19 +458,33 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             // If the SDK version is over lollipop, have to query all
             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
 
-            String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
+            String[] projection = { MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE,
+                    MediaStore.Images.Media.LONGITUDE };
 
-            CursorLoader cursorLoader = new CursorLoader(ChatConversationActivity.this, uri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            CursorLoader cursorLoader = new CursorLoader(
+                    ChatConversationActivity.this, uri, projection, null, null,
+                    MediaStore.Images.Media.DATE_ADDED + " desc");
             return cursorLoader;
 
         } else {
-            String[] projection = { MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.BUCKET_ID, MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE, MediaStore.Images.Media.LONGITUDE };
+            String[] projection = { MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE,
+                    MediaStore.Images.Media.LONGITUDE };
 
-            CursorLoader cursorLoader = new CursorLoader(ChatConversationActivity.this, mImageUri, projection, null, null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            CursorLoader cursorLoader = new CursorLoader(
+                    ChatConversationActivity.this, mImageUri, projection, null,
+                    null, MediaStore.Images.Media.DATE_ADDED + " desc");
             return cursorLoader;
         }
     }
@@ -446,10 +492,11 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     private void handlerLoaderFinished(Cursor cursor) {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         String realPath = "";
-        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT){
+        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT) {
             String wholeID = DocumentsContract.getDocumentId(mImageUri);
             Log.d(TAG, wholeID);
-            // Lollipop: content://com...../medihideSoftKeyboarda:{id}, match id to find the file path.
+            // Lollipop: content://com...../medihideSoftKeyboarda:{id}, match id
+            // to find the file path.
             String[] splits = wholeID.split(":");
 
             if (splits.length != 2) {
@@ -458,10 +505,12 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
             String imageId = splits[1];
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                String id = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns._ID));
+                String id = cursor.getString(cursor
+                        .getColumnIndex(MediaStore.MediaColumns._ID));
 
                 if (imageId.equals(id)) {
-                    realPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                    realPath = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.MediaColumns.DATA));
                     break;
                 }
                 cursor.moveToNext();
@@ -469,54 +518,61 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
         } else {
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
-                realPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                realPath = cursor.getString(cursor
+                        .getColumnIndex(MediaStore.MediaColumns.DATA));
             }
         }
         sendImageMessage(realPath);
     }
 
     private void request() {
-        mConversation.getMessages(mStartMessageId, null, 20, new TSBEngineCallback<List<TSBMessage>>() {
-
-            @Override
-            public void onSuccess(final List<TSBMessage> t) {
-                Log.d(TAG, "Get " + t.size() + " messages");
-                if (t.size() < 1) {
-                    return;
-                }
-                final int selectionPosition = t.size();
-                mStartMessageId = t.get(0).getMessageId();
-                mStartMessageId = mStartMessageId - Long.valueOf(t.size());
-                Collections.reverse(t);
-                t.addAll(mMessageList);
-                mMessageList = t;
-
-                runOnUiThread(new Runnable() {
+        mConversation.getMessages(mStartMessageId, null, 20,
+                new TSBEngineCallback<List<TSBMessage>>() {
 
                     @Override
-                    public void run() {
-                        mMessagesAdapter.refresh(mMessageList);
-                        mMessagesListView.setSelection(selectionPosition);
-                    }
-                });
-            }
+                    public void onSuccess(final List<TSBMessage> t) {
+                        Log.d(TAG, "Get " + t.size() + " messages");
+                        if (t.size() < 1) {
+                            return;
+                        }
+                        final int selectionPosition = t.size();
+                        mStartMessageId = t.get(0).getMessageId();
+                        mStartMessageId = mStartMessageId
+                                - Long.valueOf(t.size());
+                        Collections.reverse(t);
+                        t.addAll(mMessageList);
+                        mMessageList = t;
 
-            @Override
-            public void onError(int code, String message) {
-                runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                mMessagesAdapter.refresh(mMessageList);
+                                mMessagesListView
+                                        .setSelection(selectionPosition);
+                            }
+                        });
+                    }
 
                     @Override
-                    public void run() {
-                        Toast.makeText(ChatConversationActivity.this, "获取消息失败，请稍后再试", Toast.LENGTH_LONG).show();
+                    public void onError(int code, String message) {
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                Toast.makeText(ChatConversationActivity.this,
+                                        "获取消息失败，请稍后再试", Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
                     }
                 });
-            }
-        });
     }
 
     private void sendImageMessage(String filePath) {
         if (filePath == null || filePath.length() < 1) {
-            Toast.makeText(ChatConversationActivity.this, "Send failed, file not exist", Toast.LENGTH_LONG).show();
+            Toast.makeText(ChatConversationActivity.this,
+                    "Send failed, file not exist", Toast.LENGTH_LONG).show();
             return;
         }
         TSBImageMessageBody body = new TSBImageMessageBody();
@@ -532,7 +588,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     public void run() {
                         mMessagesAdapter.refresh(mMessageList);
                         mMessagesListView.setSelection(mMessageList.size() - 1);
-                        Toast.makeText(ChatConversationActivity.this, "Send success", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatConversationActivity.this,
+                                "Send success", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -545,7 +602,8 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
                     public void run() {
                         mMessagesAdapter.refresh(mMessageList);
                         mMessagesListView.setSelection(mMessageList.size() - 1);
-                        Toast.makeText(ChatConversationActivity.this, "Send failed", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ChatConversationActivity.this,
+                                "Send failed", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -567,10 +625,15 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
+            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
+                    .equals(intent.getAction())) {
                 String target = mConversation.getTarget();
-                TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                Log.i(TAG, "App get " + message.toString() + " to " + message.getRecipient() + " and corrent target is " + target);
+                TSBMessage message = intent
+                        .getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                Log.i(TAG,
+                        "App get " + message.toString() + " to "
+                                + message.getRecipient()
+                                + " and corrent target is " + target);
 
                 // Only receive message sent to current conversation
                 boolean showMessage = false;
@@ -589,12 +652,14 @@ public class ChatConversationActivity extends Activity implements LoaderCallback
     };
 
     private void showSoftKeyboard() {
-        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(mContentEditText, InputMethodManager.SHOW_IMPLICIT);
     }
 
     private void hideSoftKeyboard() {
-        InputMethodManager im = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-        im.hideSoftInputFromWindow(getCurrentFocus().getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        im.hideSoftInputFromWindow(getCurrentFocus()
+                .getApplicationWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }

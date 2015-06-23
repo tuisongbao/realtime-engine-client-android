@@ -17,12 +17,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.JsonObject;
-import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer;
-import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer.OnErrorListener;
-import com.tuisongbao.android.engine.chat.entity.TSBMediaPlayer.OnStopListener;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
+import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
+import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnErrorListener;
+import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnStopListener;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;

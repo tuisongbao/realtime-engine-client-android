@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.chat.entity;
+package com.tuisongbao.android.engine.chat.media;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.log.LogUtil;
 

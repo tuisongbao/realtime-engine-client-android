@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.chat.entity;
+package com.tuisongbao.android.engine.chat.media;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,11 +11,10 @@ import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBMediaRecorder {
-    enum STATE { STOP, START, FINISHED, CANCELED };
+    public static final String INTENT_ACTION_TAKE_VIDEO = "com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO";
 
     private MediaRecorder mRecorder;
     private String mCurrentVoiceFileName;
-    private STATE mState = STATE.STOP;
 
     public TSBMediaRecorder() {
 
@@ -41,7 +40,7 @@ public class TSBMediaRecorder {
         }
     }
 
-    public String finish() {
+    public String stop() {
         try {
             mRecorder.stop();
             mRecorder.release();
