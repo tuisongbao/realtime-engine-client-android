@@ -1,16 +1,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_camera_preview"
+    android:layout_margin="50dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <view class="com.tuisongbao.android.engine.chat.media.TSBTakeVideoActivity$TestView"
-        android:id="@+id/preview_camera"
+    <SurfaceView
+        android:id="@+id/surfaceView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_camera" />
 
     <Button
-        android:id="@+id/button_camera"
-        android:layout_width="30dp"
-        android:layout_height="30dp" />
+        android:id="@id/button_camera"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true" />
 
 </RelativeLayout>
