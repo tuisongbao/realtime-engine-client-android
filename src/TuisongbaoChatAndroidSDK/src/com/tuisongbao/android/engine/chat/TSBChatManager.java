@@ -239,16 +239,20 @@ public class TSBChatManager extends BaseManager {
         UploadManager manager = new UploadManager();
         String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
 
+        UpProgressHandler progressHandler = null;
+        if (options != null) {
+            progressHandler = new UpProgressHandler() {
+
+                @Override
+                public void progress(String arg0, double percent) {
+                    options.callbackProgress((int)(percent * 100));
+                }
+            };
+        }
+
         Map<String, String> params = new HashMap<String, String>();
         params.put("x:targetId", message.getRecipient());
-        final UploadOptions opt = new UploadOptions(params, null, true, new UpProgressHandler() {
-
-            @Override
-            public void progress(String arg0, double percent) {
-                options.callbackProgress((int)(percent * 100));
-            }
-        }, null);
-
+        final UploadOptions opt = new UploadOptions(params, null, true, progressHandler, null);
         manager.put(filePath, null, token, new UpCompletionHandler() {
 
             @Override
