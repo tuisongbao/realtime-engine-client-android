@@ -48,9 +48,9 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
             Camera.Parameters params = mCamera.getParameters();
 
             List<String> focusModes = params.getSupportedFocusModes();
-            if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+            if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
                 // set the focus mode
-                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                 // set Camera parameters
                 mCamera.setParameters(params);
             }
@@ -158,13 +158,21 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        if(mCamera != null) {
+        if (mCamera == null) {
+            return;
+        }
+
+        // Sometimes it will throw setParameters failed exception, it's weird.
+        try {
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             requestLayout();
 
             mCamera.setParameters(parameters);
             mCamera.startPreview();
+        } catch (Exception e) {
+            // TODO: Handle exception
+            e.printStackTrace();
         }
     }
 
