@@ -387,19 +387,13 @@ public class ChatConversationActivity extends Activity implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+        String[] projection = { MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DATA };
+
         // The Uri of different Android version has different format.
         if (getUriType(mImageUri) == UriType.TYPE1) {
             // Query all, then filter by ID when loader finished
             Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
-            String[] projection = { MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE,
-                    MediaStore.Images.Media.LONGITUDE };
 
             CursorLoader cursorLoader = new CursorLoader(
                     ChatConversationActivity.this, uri, projection, null, null,
@@ -407,15 +401,6 @@ public class ChatConversationActivity extends Activity implements
             return cursorLoader;
 
         } else {
-            String[] projection = { MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE,
-                    MediaStore.Images.Media.LONGITUDE };
-
             CursorLoader cursorLoader = new CursorLoader(
                     ChatConversationActivity.this, mImageUri, projection, null,
                     null, MediaStore.Images.Media.DATE_ADDED + " desc");
