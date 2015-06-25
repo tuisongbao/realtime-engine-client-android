@@ -1,10 +1,7 @@
 package com.tuisongbao.android.engine.chat;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,11 +9,13 @@ import org.json.JSONObject;
 import com.google.gson.JsonObject;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.entity.TSBChatLoginData;
 import com.tuisongbao.android.engine.chat.entity.TSBChatMessageSendData;
+import com.tuisongbao.android.engine.chat.entity.TSBChatOptions;
 import com.tuisongbao.android.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMediaMessageBody;
@@ -134,7 +133,7 @@ public class TSBChatManager extends BaseManager {
      * @param callback
      */
     public void sendMessage(final TSBMessage message,
-            final TSBEngineCallback<TSBMessage> callback) {
+            final TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
         try {
             if (!isLogin()) {
                 handleErrorMessage(callback,
@@ -171,9 +170,8 @@ public class TSBChatManager extends BaseManager {
             if (messageType == TYPE.TEXT) {
                 sendMessageRequest(message, callback);
             } else {
-                sendMediaMessage(message, callback);
+                sendMediaMessage(message, callback, options);
             }
-
         } catch (Exception e) {
             handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
@@ -223,60 +221,15 @@ public class TSBChatManager extends BaseManager {
         send(request, response);
     }
 
-    private void sendImageMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
-        TSBImageMessageBody imageBody = (TSBImageMessageBody)message.getBody();
-        String filePath = imageBody.getLocalPath();
-        if (StrUtil.isEmpty(filePath)) {
-            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "File path is invalid.");
-            return;
-        }
-
-        UploadManager manager = new UploadManager();
-        String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
-
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("x:targetId", message.getRecipient());
-        final UploadOptions opt = new UploadOptions(params, null, true, null, null);
-        manager.put(filePath, null, token, new UpCompletionHandler() {
-
-            @Override
-            public void complete(String key, ResponseInfo info, JSONObject responseObject) {
-                LogUtil.info(LogUtil.LOG_TAG_CHAT, "Upload file finished with key: " + key + ", info: " + info);
-
-                try {
-                    LogUtil.info(LogUtil.LOG_TAG_CHAT, "Get response from QINIU " + responseObject.toString(4));
-                    TSBImageMessageBody body = (TSBImageMessageBody) message.getBody();
-
-                    JsonObject file = new JsonObject();
-                    file.addProperty(TSBImageMessageBody.KEY, responseObject.getString("key"));
-                    file.addProperty(TSBImageMessageBody.ETAG, responseObject.getString("etag"));
-                    file.addProperty(TSBImageMessageBody.NAME, responseObject.getString("fname"));
-                    file.addProperty(TSBImageMessageBody.SIZE, responseObject.getString("fsize"));
-                    file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
-
-                    JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
-                    file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
-                    file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
-                    body.setFile(file);
-
-                    message.setBody(body);
-                    sendMessageRequest(message, callback);
-                } catch (Exception e) {
-                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
-                }
-            }
-        }, opt);
-    }
-
-
-    private void sendMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
-        TSBEngineCallback<JSONObject> handlerCallback = getResponseHandlerOfMediaMessage(message, callback);
-        if (!uploadMessageResourceToQiniu(message, handlerCallback)) {
+    private void sendMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
+        TSBEngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
+        if (!uploadMessageResourceToQiniu(message, handlerCallback, options)) {
             callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Failed to get resource of the message.");
         }
     }
 
-    private boolean uploadMessageResourceToQiniu(TSBMessage message, final TSBEngineCallback<JSONObject> responseHandler) {
+    private boolean uploadMessageResourceToQiniu(TSBMessage message, final TSBEngineCallback<JSONObject> responseHandler,
+            final TSBChatOptions options) {
         TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)message.getBody();
         String filePath = mediaBody.getLocalPath();
         if (StrUtil.isEmpty(filePath)) {
@@ -288,24 +241,35 @@ public class TSBChatManager extends BaseManager {
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("x:targetId", message.getRecipient());
-        final UploadOptions opt = new UploadOptions(params, null, true, null, null);
+        final UploadOptions opt = new UploadOptions(params, null, true, new UpProgressHandler() {
+
+            @Override
+            public void progress(String arg0, double percent) {
+                options.callbackProgress((int)(percent * 100));
+            }
+        }, null);
+
         manager.put(filePath, null, token, new UpCompletionHandler() {
 
             @Override
             public void complete(String key, ResponseInfo info, JSONObject responseObject) {
-                responseHandler.onSuccess(responseObject);
+                if (responseObject == null) {
+                    responseHandler.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "Failed to upload image to TuiSongBao, please try later");
+                } else {
+                    responseHandler.onSuccess(responseObject);
+                }
             }
         }, opt);
         return true;
     }
 
-    private TSBEngineCallback<JSONObject> getResponseHandlerOfMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback) {
+    private TSBEngineCallback<JSONObject> getUploaderHandlerOfMediaMessage(final TSBMessage message,
+            final TSBEngineCallback<TSBMessage> callback) {
         TSBEngineCallback<JSONObject> responseHandler = new TSBEngineCallback<JSONObject>() {
 
             @Override
             public void onSuccess(JSONObject responseObject) {
                 try {
-
                     LogUtil.info(LogUtil.LOG_TAG_CHAT, "Get response from QINIU " + responseObject.toString(4));
                     TSBMediaMessageBody body = (TSBMediaMessageBody) message.getBody();
 
@@ -337,7 +301,7 @@ public class TSBChatManager extends BaseManager {
 
             @Override
             public void onError(int code, String message) {
-
+                callback.onError(code, message);
             }
         };
         return responseHandler;
@@ -503,10 +467,4 @@ public class TSBChatManager extends BaseManager {
 
         }
     };
-
-    private String getTimestampString(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return format.format(date);
-    }
 }

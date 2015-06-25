@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.android.engine.chat.entity.TSBChatOptions;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
@@ -48,6 +49,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
 import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
@@ -62,10 +64,11 @@ public class ChatConversationActivity extends Activity implements
         TYPE2 // content://media/external/images/media/32114
     }
 
-    public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.android.engine.demo.ChatConversationActivity.MessageSent";
-    public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.demo.ChatConversationActivity.ExtraMessage";
-    public static final String EXTRA_CONVERSATION = "com.tuisongbao.android.engine.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
-    private static final String TAG = "com.tuisongbao.android.engine.demo.ChatConversationActivity";
+    public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.demo.ChatConversationActivity.MessageSent";
+    public final static String BROADCAST_ACTION_MESSAGE_SENT_PROGRESS = "com.tuisongbao.demo.ChatConversationActivity.MessageSent.progress";
+    public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.demo.ChatConversationActivity.ExtraMessage";
+    public static final String EXTRA_CONVERSATION = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
+    private static final String TAG = "com.tuisongbao.demo.ChatConversationActivity";
 
     private static final int REQUEST_CODE_IMAGE = 1;
     private static final int REQUEST_CODE_TAKE_VIDEO = 2;
@@ -187,7 +190,7 @@ public class ChatConversationActivity extends Activity implements
                                     }
                                 });
                             }
-                        });
+                        }, null);
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
@@ -499,7 +502,7 @@ public class ChatConversationActivity extends Activity implements
                 // TODO Auto-generated method stub
 
             }
-        });
+        }, null);
     }
 
     private void request() {
@@ -585,12 +588,22 @@ public class ChatConversationActivity extends Activity implements
                 });
 
             }
-        });
+        }, new TSBChatOptions(new TSBProgressCallback() {
+
+            @Override
+            public void progress(final int percent) {
+                LogUtil.debug(LogUtil.LOG_TAG_CHAT, "progress " + percent);
+                Intent intent = new Intent(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS);
+                intent.putExtra("percent", percent);
+                sendBroadcast(intent);
+            }
+        }));
     }
 
     private void registerBroadcast() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        filter.addAction(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS);
         registerReceiver(mBroadcastReceiver, filter);
     }
 
@@ -602,8 +615,9 @@ public class ChatConversationActivity extends Activity implements
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
-                    .equals(intent.getAction())) {
+                    .equals(action)) {
                 String target = mConversation.getTarget();
                 TSBMessage message = intent
                         .getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
@@ -624,6 +638,9 @@ public class ChatConversationActivity extends Activity implements
                     mMessagesAdapter.refresh(mMessageList);
                     mMessagesListView.setSelection(mMessageList.size() - 1);
                 }
+            } else if (action.equals(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS)) {
+                int progress = intent.getIntExtra("percent", 0);
+                // TODO: refresh UI
             }
         }
     };

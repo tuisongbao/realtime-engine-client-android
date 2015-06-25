@@ -107,10 +107,10 @@ public class TSBChatConversation implements Parcelable {
         TSBConversationManager.getInstance().getMessages(type, target, startMessageId, endMessageId, limit, callback);
     }
 
-    public void sendMessage(TSBMessageBody body, TSBEngineCallback<TSBMessage> callback) {
+    public void sendMessage(TSBMessageBody body, TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
         TSBMessage message = TSBMessage.createMessage(TSBMessage.TYPE.TEXT);
         message.setBody(body).setChatType(type).setRecipient(target);
-        TSBChatManager.getInstance().sendMessage(message, callback);
+        TSBChatManager.getInstance().sendMessage(message, callback, options);
     }
 
     @Override
