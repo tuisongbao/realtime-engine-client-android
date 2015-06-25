@@ -48,6 +48,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
 import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder;
+import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder.TSBMediaEventCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.demo.R;
@@ -348,6 +349,14 @@ public class ChatConversationActivity extends Activity implements
         request();
 
         mRecorder = new TSBMediaRecorder();
+        mRecorder.setMaxDuration(60 * 1000, new TSBMediaEventCallback() {
+
+            @Override
+            public void onEvent() {
+                onRecordFinished();
+                onRecordStart();
+            }
+        });
     }
 
     @Override
@@ -467,6 +476,7 @@ public class ChatConversationActivity extends Activity implements
     protected void onDestroy() {
         super.onDestroy();
         unregisterBroadcast();
+        mRecorder.release();
     }
 
     private void onRecordStart() {
