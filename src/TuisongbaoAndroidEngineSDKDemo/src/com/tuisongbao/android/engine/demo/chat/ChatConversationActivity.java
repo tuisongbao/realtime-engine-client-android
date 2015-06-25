@@ -17,7 +17,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -58,6 +57,10 @@ import com.tuisongbao.android.engine.log.LogUtil;
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements
         LoaderCallbacks<Cursor> {
+    enum UriType {
+        TYPE1, // content://com...../medihideSoftKeyboarda:{id}
+        TYPE2 // content://media/external/images/media/32114
+    }
 
     public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.android.engine.demo.ChatConversationActivity.MessageSent";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.demo.ChatConversationActivity.ExtraMessage";
@@ -348,6 +351,7 @@ public class ChatConversationActivity extends Activity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK) {
             mImageUri = intent.getData();
+            LogUtil.debug(TAG, "mImageUri" + mImageUri.getPath() + "  " + mImageUri);
             // Query the real path of the image.
             getLoaderManager().restartLoader(0, null, this);
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
@@ -383,12 +387,74 @@ public class ChatConversationActivity extends Activity implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-        return getAppropriateLoader();
+        // The Uri of different Android version has different format.
+        if (getUriType(mImageUri) == UriType.TYPE1) {
+            // Query all, then filter by ID when loader finished
+            Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+            String[] projection = { MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE,
+                    MediaStore.Images.Media.LONGITUDE };
+
+            CursorLoader cursorLoader = new CursorLoader(
+                    ChatConversationActivity.this, uri, projection, null, null,
+                    MediaStore.Images.Media.DATE_ADDED + " desc");
+            return cursorLoader;
+
+        } else {
+            String[] projection = { MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                    MediaStore.Images.Media.BUCKET_ID,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.LATITUDE,
+                    MediaStore.Images.Media.LONGITUDE };
+
+            CursorLoader cursorLoader = new CursorLoader(
+                    ChatConversationActivity.this, mImageUri, projection, null,
+                    null, MediaStore.Images.Media.DATE_ADDED + " desc");
+            return cursorLoader;
+        }
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-        handlerLoaderFinished(arg1);
+    public void onLoadFinished(Loader<Cursor> arg0, Cursor cursor) {
+        try {
+            String realPath = "";
+
+            if (getUriType(mImageUri) == UriType.TYPE1) {
+                String [] splits = mImageUri.getPath().split(":");
+                String imageId = splits[1];
+                cursor.moveToFirst();
+                while (!cursor.isAfterLast()) {
+                    String id = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.MediaColumns._ID));
+
+                    if (imageId.equals(id)) {
+                        realPath = cursor.getString(cursor
+                                .getColumnIndex(MediaStore.MediaColumns.DATA));
+                        break;
+                    }
+                    cursor.moveToNext();
+                }
+            } else {
+                if (cursor.getCount() > 0) {
+                    cursor.moveToFirst();
+                    realPath = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.MediaColumns.DATA));
+                }
+            }
+            sendImageMessage(realPath);
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     @Override
@@ -449,80 +515,6 @@ public class ChatConversationActivity extends Activity implements
 
             }
         });
-    }
-
-    private Loader<Cursor> getAppropriateLoader() {
-        // The Uri of different Android version has different format.
-        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT) {
-            // If the SDK version is over lollipop, have to query all
-            Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
-            String[] projection = { MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE,
-                    MediaStore.Images.Media.LONGITUDE };
-
-            CursorLoader cursorLoader = new CursorLoader(
-                    ChatConversationActivity.this, uri, projection, null, null,
-                    MediaStore.Images.Media.DATE_ADDED + " desc");
-            return cursorLoader;
-
-        } else {
-            String[] projection = { MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATA,
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
-                    MediaStore.Images.Media.BUCKET_ID,
-                    MediaStore.Images.Media.DATE_ADDED,
-                    MediaStore.Images.Media.LATITUDE,
-                    MediaStore.Images.Media.LONGITUDE };
-
-            CursorLoader cursorLoader = new CursorLoader(
-                    ChatConversationActivity.this, mImageUri, projection, null,
-                    null, MediaStore.Images.Media.DATE_ADDED + " desc");
-            return cursorLoader;
-        }
-    }
-
-    private void handlerLoaderFinished(Cursor cursor) {
-        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-        String realPath = "";
-        if (currentapiVersion > android.os.Build.VERSION_CODES.KITKAT) {
-            String wholeID = DocumentsContract.getDocumentId(mImageUri);
-            Log.d(TAG, wholeID);
-            // Lollipop: content://com...../medihideSoftKeyboarda:{id}, match id
-            // to find the file path.
-            String[] splits = wholeID.split(":");
-
-            if (splits.length != 2) {
-                return;
-            }
-            String imageId = splits[1];
-            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                String id = cursor.getString(cursor
-                        .getColumnIndex(MediaStore.MediaColumns._ID));
-
-                if (imageId.equals(id)) {
-                    realPath = cursor.getString(cursor
-                            .getColumnIndex(MediaStore.MediaColumns.DATA));
-                    break;
-                }
-                cursor.moveToNext();
-            }
-        } else {
-            if (cursor.getCount() > 0) {
-                cursor.moveToFirst();
-                realPath = cursor.getString(cursor
-                        .getColumnIndex(MediaStore.MediaColumns.DATA));
-            }
-        }
-        sendImageMessage(realPath);
     }
 
     private void request() {
@@ -661,5 +653,24 @@ public class ChatConversationActivity extends Activity implements
         im.hideSoftInputFromWindow(getCurrentFocus()
                 .getApplicationWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    /***
+     * Different android system may have different format of Uri. See UriType for detail.
+     * If it is TYPE1, when query real path of the image, have to query all images and then filter them by the id field in Uri
+     * If it is TYPE2, can query the real path directly by CursorLoader.
+     *
+     * See also: onCreateLoader() and onLoadFinished()
+     *
+     * @param uri
+     * @return
+     */
+    private UriType getUriType(Uri uri) {
+        String [] splits = mImageUri.getPath().split(":");
+        if (splits.length > 1) {
+            return UriType.TYPE1;
+        } else {
+            return UriType.TYPE2;
+        }
     }
 }
