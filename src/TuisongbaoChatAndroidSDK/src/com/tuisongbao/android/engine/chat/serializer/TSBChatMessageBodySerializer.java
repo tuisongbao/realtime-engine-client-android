@@ -7,6 +7,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.tuisongbao.android.engine.chat.entity.TSBEventMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
@@ -42,6 +43,10 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
             TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
             voiceBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = voiceBody;
+        } else if (type == TYPE.EVENT) {
+            TSBEventMessageBody eventBody = new TSBEventMessageBody();
+            eventBody.setEvent(bodyJson.get("event").getAsJsonObject());
+            messageBody = eventBody;
         }
         return messageBody;
     }

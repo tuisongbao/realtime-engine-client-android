@@ -34,6 +34,11 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
      * video's duration
      */
     public static final String COLUMN_FILE_DURATION = "duration";
+    /**
+     * event
+     */
+    public static final String COLUMN_EVENT_TYPE = "eventType";
+    public static final String COLUMN_EVENT_TARGET = "eventTarget";
 
     public static final String COLUMN_CREATED_AT = "createdAt";
 
@@ -52,6 +57,7 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_CHAT_TYPE + " text not null, "
           + COLUMN_CONTENT + " text, "
           + COLUMN_CONTENT_TYPE + " text not null, "
+
           + COLUMN_FILE_LOCAL_PATH + " text, "
           + COLUMN_FILE_DOWNLOAD_URL + " text, "
           + COLUMN_FILE_SIZE + " text, "
@@ -59,6 +65,9 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
           + COLUMN_FILE_WIDTH + " integer, "
           + COLUMN_FILE_HEIGHT + " integer, "
           + COLUMN_FILE_DURATION + " text, "
+
+          + COLUMN_EVENT_TYPE + " text, "
+          + COLUMN_EVENT_TARGET + " text, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

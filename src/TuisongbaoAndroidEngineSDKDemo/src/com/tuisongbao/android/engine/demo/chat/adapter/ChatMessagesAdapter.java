@@ -31,7 +31,6 @@ import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class ChatMessagesAdapter extends BaseAdapter {
-
     private static final String TAG = "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
     private Context mContext;
     private List<TSBMessage> mMessageList;
@@ -75,7 +74,21 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     .findViewById(R.id.list_item_chat_detail_send);
             RelativeLayout layoutReplay = (RelativeLayout) convertView
                     .findViewById(R.id.list_item_chat_detail_reply);
+            TextView eventMessageTextView = (TextView)convertView.findViewById(R.id.list_item_chat_event_message);
 
+            // Handle event message
+            if (message.getBody().getType() == TYPE.EVENT) {
+                layoutSend.setVisibility(View.GONE);
+                layoutReplay.setVisibility(View.GONE);
+                eventMessageTextView.setVisibility(View.VISIBLE);
+
+                eventMessageTextView.setText(ToolUtils.getEventMessage(message));
+                return convertView;
+            }
+
+            eventMessageTextView.setVisibility(View.GONE);
+
+            // Handle chat message
             boolean sentByLoginUser = StrUtil.strNotNull(message.getFrom()).equals(LoginChache.getUserId());
             if (sentByLoginUser) {
 

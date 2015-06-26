@@ -36,6 +36,9 @@ public abstract class TSBMessageBody implements Parcelable {
         } else if (type == TYPE.VOICE) {
             body = new TSBVoiceMessageBody();
             body.setType(TYPE.VOICE);
+        } else if (type == TYPE.EVENT) {
+            body = new TSBEventMessageBody();
+            body.setType(TYPE.EVENT);
         }
         return body;
     }

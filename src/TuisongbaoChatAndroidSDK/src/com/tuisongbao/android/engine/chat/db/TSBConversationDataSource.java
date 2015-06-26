@@ -8,9 +8,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.gson.JsonObject;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
+import com.tuisongbao.android.engine.chat.entity.TSBEventMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMediaMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
@@ -309,6 +311,14 @@ public class TSBConversationDataSource {
             textBody.setText(cursor.getString(5));
 
             body = textBody;
+        } else if (StrUtil.isEqual(TYPE.EVENT.getName(), contentType)) {
+            TSBEventMessageBody eventBody = new TSBEventMessageBody();
+            JsonObject event = new JsonObject();
+            event.addProperty(TSBEventMessageBody.EVENT_TYPE, cursor.getString(14));
+            event.addProperty(TSBEventMessageBody.EVENT_TARGET, cursor.getString(15));
+            eventBody.setEvent(event);
+
+            body = eventBody;
         } else {
             TSBMediaMessageBody mediaBody = null;
             if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
@@ -329,7 +339,7 @@ public class TSBConversationDataSource {
             body = mediaBody;
         }
         message.setBody(body);
-        message.setCreatedAt(cursor.getString(14));
+        message.setCreatedAt(cursor.getString(16));
 
         return message;
     }
@@ -375,6 +385,11 @@ public class TSBConversationDataSource {
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, mediaBody.getWidth());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, mediaBody.getHeight());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, mediaBody.getDuration());
+
+        } else if (message.getBody().getType() == TYPE.EVENT) {
+            TSBEventMessageBody eventBody = (TSBEventMessageBody)message.getBody();
+            values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
+            values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
         }
 
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());

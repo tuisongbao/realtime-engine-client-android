@@ -44,7 +44,11 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
 
     @Override
     public String getDuration() {
-        return file.get(VOICE_INFO_DURATION).getAsString();
+        try {
+            return file.get(VOICE_INFO_DURATION).getAsString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

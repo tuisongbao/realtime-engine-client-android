@@ -3,11 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/activity_horizontal_margin" >
+    
+     <TextView
+         android:id="@+id/list_item_chat_event_message"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:background="@color/gray"
+         android:layout_alignParentTop="true"
+         android:layout_centerHorizontal="true" />
 
     <RelativeLayout
         android:id="@+id/list_item_chat_detail_send"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_chat_event_message" >
         
         <TextView
             android:id="@+id/list_item_chat_detail_send_user"
@@ -51,7 +60,8 @@
     <RelativeLayout
         android:id="@+id/list_item_chat_detail_reply"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_chat_event_message"  >
 
         <TextView
             android:id="@+id/list_item_chat_detail_reply_user"

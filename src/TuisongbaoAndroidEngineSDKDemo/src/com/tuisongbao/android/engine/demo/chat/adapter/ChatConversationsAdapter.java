@@ -105,10 +105,13 @@ public class ChatConversationsAdapter extends BaseAdapter {
                         @Override
                         public void run() {
                             String simplifiedMessage = message.getText();
-                            if (message.getBody().getType() == TYPE.IMAGE) {
+                            TYPE messageType = message.getBody().getType();
+                            if (messageType == TYPE.IMAGE) {
                                 simplifiedMessage = "[图片]";
-                            } else if (message.getBody().getType() == TYPE.VOICE) {
+                            } else if (messageType == TYPE.VOICE) {
                                 simplifiedMessage = "[语音]";
+                            } else if (messageType == TYPE.EVENT) {
+                                simplifiedMessage = ToolUtils.getEventMessage(message);
                             }
                             messageTextView.setText(simplifiedMessage);
                             messageTextView.setTextColor(mContext.getResources().getColor(R.color.gray));

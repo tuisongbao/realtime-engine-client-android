@@ -6,7 +6,31 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import com.tuisongbao.android.engine.chat.entity.TSBChatEvent;
+import com.tuisongbao.android.engine.chat.entity.TSBEventMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage;
+import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
+
 public class ToolUtils {
+    public static String getEventMessage(TSBMessage message) {
+        if (message.getBody().getType() != TYPE.EVENT) {
+            return "";
+        }
+
+        TSBEventMessageBody body = (TSBEventMessageBody)message.getBody();
+        TSBChatEvent event = body.getEventType();
+        String maker = message.getFrom();
+        String target = body.getEventTarget();
+        String eventMessage = "";
+        if (event == TSBChatEvent.GroupJoined) {
+            eventMessage = String.format("%s 邀请 %s 加入群组", maker, target);
+        } else if (event == TSBChatEvent.GroupRemoved) {
+            eventMessage = String.format("%s 被 %s 移出群组", target, maker);
+        } else if (event == TSBChatEvent.GroupDismissed) {
+            eventMessage = String.format("%s 解散了该群", maker);
+        }
+        return eventMessage;
+    }
 
     public static String getDisplayTime(String timeString) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
