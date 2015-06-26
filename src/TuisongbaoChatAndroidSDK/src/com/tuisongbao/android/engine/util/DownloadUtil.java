@@ -5,26 +5,29 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 
+import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 
 public class DownloadUtil {
-
     /***
      * Download image and save to local, return path of the local image file.
      *
+     * @param urlString download url
+     * @param type according to different type, save file into different folder
      * @param callback
      */
-    public static void downloadResourceIntoLocal(final String urlString, final String outputFileName, final String resourceType, final TSBEngineCallback<String> callback) {
-        LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begine to download " + resourceType + " from " + urlString + " and save it into local fileName " + outputFileName);
-        if (StrUtil.isEmpty(urlString)) {
+    public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final TSBEngineCallback<String> callback
+            , final TSBProgressCallback progressCallback) {
+        LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begine to download " + type.getName() + " from " + urlString);
+        final String[] splits = urlString.split("/");
+        if (StrUtil.isEmpty(urlString) || splits.length < 1) {
             callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
             return;
         }
@@ -32,46 +35,59 @@ public class DownloadUtil {
 
             @Override
             public void run() {
-                if (StrUtil.isEqual(resourceType, "image")) {
-                    downloadImage(urlString, outputFileName + ".png", callback);
-                } else if (StrUtil.isEqual(resourceType, "voice")) {
-                    downloadVoice(urlString, outputFileName + ".wav", callback);
+                try {
+                    // The last string is timestamp, use it to be the file name
+                    String outputFileName = splits[splits.length - 1];
+                    outputFileName = outputFileName.substring(0, 14);
+                    String folder = "";
+                    // TODO: the suffix seems not work, no matter what the real format is, the image or voice can show and play respectively. Check why.
+                    if (type == TYPE.IMAGE) {
+                        outputFileName += ".png";
+                        folder = "images";
+                    } else if (type == TYPE.VOICE) {
+                        outputFileName += ".wav";
+                        folder = "voices";
+                    }
+                    downloadFileWithProgress(urlString, outputFileName, folder, callback, progressCallback);
+                } catch (Exception e) {
+                    callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "The resource url String is invalid.");
                 }
             }
         });
     }
 
-    public static void downloadVoice(final String urlString, final String outputFileName, final TSBEngineCallback<String> callback) {
+    private static void downloadFileWithProgress(final String urlString, final String outputFileName, final String folder, final TSBEngineCallback<String> callback
+            , final TSBProgressCallback progressCallback) {
         try {
-            File outputFile = getOutputFile(outputFileName, "voices");
-            String filePath = outputFile.getPath();
-
             URL url = new URL(urlString);
-            InputStream inputStream = url.openStream();
-            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-            int c;
-            while ((c = inputStream.read()) != -1) {
-                fileOutputStream.write(c);
+            URLConnection conexion = url.openConnection();
+            conexion.connect();
+            int lenghtOfFile = conexion.getContentLength();
+            InputStream is = url.openStream();
+            File outputFile = getOutputFile(outputFileName, folder);
+            FileOutputStream fos = new FileOutputStream(outputFile);
+            byte data[] = new byte[1024];
+            long total = 0;
+            int progress = 0;
+            int count = 0;
+            while ((count = is.read(data)) != -1) {
+                total += count;
+                int progress_temp = (int) total * 100 / lenghtOfFile;
+                if (progress_temp % 10 == 0 && progress != progress_temp) {
+                    progress = progress_temp;
+                }
+                if (progressCallback != null) {
+                    progressCallback.progress(progress_temp);
+                }
+                fos.write(data, 0, count);
             }
-            fileOutputStream.close();
+            is.close();
+            fos.close();
 
+            String filePath = outputFile.getPath();
             callback.onSuccess(filePath);
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
-            callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "Download voice failed, check log to find reason");
-        }
-    }
-
-    public static void downloadImage(String urlString, String outputFileName, TSBEngineCallback<String> callback) {
-        URL url;
-        try {
-            url = new URL(urlString);
-            Bitmap bitmap = BitmapFactory.decodeStream(url.openStream());
-            String filePath = saveImage(bitmap, outputFileName);
-            callback.onSuccess(filePath);
-        } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
-            callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "Download image failed, check log to find reason");
         }
     }
 
@@ -89,29 +105,6 @@ public class DownloadUtil {
         file.createNewFile();
 
         return file;
-    }
-
-    public static String saveImage(Bitmap bmp, String outputFileName) throws IOException {
-        File outputFile = getOutputFile(outputFileName, "images");
-        String filePath = outputFile.getPath();
-
-        FileOutputStream out = new FileOutputStream(filePath);
-        bmp.compress(CompressFormat.PNG, 100, out);
-        out.flush();
-        out.close();
-
-        return filePath;
-    }
-
-    public static Bitmap loadFromFile(String filename) {
-        try {
-            File f = new File(filename);
-            if (!f.exists()) { return null; }
-            Bitmap tmp = BitmapFactory.decodeFile(filename);
-            return tmp;
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public static boolean hasSDCard() {

@@ -24,6 +24,7 @@ import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
 import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnErrorListener;
 import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnStopListener;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
@@ -142,7 +143,6 @@ public class ChatMessagesAdapter extends BaseAdapter {
             textView.setTextSize(17);
 
         } else if (message.getBody().getType() == TYPE.IMAGE) {
-            textView.setVisibility(View.GONE);
             imageView.setVisibility(View.VISIBLE);
             voiceButton.setVisibility(View.GONE);
 
@@ -159,8 +159,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
     private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
         TSBVoiceMessageBody body = (TSBVoiceMessageBody)message.getBody();
-        Log.i(TAG, "duration " + body.getDuration());
-        voiceButton.setText(body.getDuration());
+        final String duration = body.getDuration();
+        voiceButton.setText(duration);
 
         // TODO: set different width measured by duration.
 
@@ -190,7 +190,6 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             @Override
                             public void run() {
                                 voiceButton.setBackgroundColor(mContext.getResources().getColor(R.color.gray));
-
                             }
                         });
                     }
@@ -207,6 +206,21 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             }
                         });
                     }
+                }, new TSBProgressCallback() {
+
+                    @Override
+                    public void progress(final int percent) {
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                voiceButton.setText(percent + "%");
+                                if (percent == 100) {
+                                    voiceButton.setText(duration);
+                                }
+                            }
+                        });
+                    }
                 });
             }
         };
@@ -215,7 +229,6 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
     private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
         TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
-        Log.i(TAG, "Image size is " + body.getWidth() + " * " + body.getHeight());
         message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
             @Override
@@ -227,6 +240,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                         Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
                         imageView.setImageBitmap(bmp);
                         imageView.setVisibility(View.VISIBLE);
+                        textView.setVisibility(View.GONE);
                     }
                 });
             }
@@ -238,7 +252,18 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     @Override
                     public void run() {
                         textView.setText("Failed to load image");
-                        textView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        }, new TSBProgressCallback() {
+
+            @Override
+            public void progress(final int percent) {
+                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        textView.setText(percent + "%");
                     }
                 });
             }

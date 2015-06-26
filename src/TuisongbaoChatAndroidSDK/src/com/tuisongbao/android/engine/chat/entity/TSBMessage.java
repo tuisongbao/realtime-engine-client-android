@@ -1,7 +1,6 @@
 package com.tuisongbao.android.engine.chat.entity;
 
 import java.io.File;
-import java.util.Date;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,6 +9,7 @@ import com.tuisongbao.android.engine.TSBEngine;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.engineio.EngineConstants;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.DownloadUtil;
@@ -197,7 +197,7 @@ public class TSBMessage implements Parcelable {
         // empty
     }
 
-    public void downloadResource(final TSBEngineCallback<TSBMessage> callback) {
+    public void downloadResource(final TSBEngineCallback<TSBMessage> callback, final TSBProgressCallback progressCallback) {
         final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
         final String userId = TSBChatManager.getInstance().getChatUser().getUserId();
         final TSBMessage message = this;
@@ -227,13 +227,12 @@ public class TSBMessage implements Parcelable {
 
             if (needDownload) {
                 downloading = true;
-                String fileName = StrUtil.getTimestampStringOnlyContainNumber(new Date());
-                DownloadUtil.downloadResourceIntoLocal(downloadUrl, fileName, body.getType().getName(), new TSBEngineCallback<String>() {
+                DownloadUtil.downloadResourceIntoLocal(downloadUrl, body.getType(), new TSBEngineCallback<String>() {
 
                     @Override
-                    public void onSuccess(String t) {
+                    public void onSuccess(String filePath) {
                         downloading = false;
-                        body.setLocalPath(t);
+                        body.setLocalPath(filePath);
                         dataSource.open();
                         dataSource.upsertMessage(userId, message);
                         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
@@ -248,7 +247,7 @@ public class TSBMessage implements Parcelable {
                         downloading = false;
                         callback.onError(code, message);
                     }
-                });
+                }, progressCallback);
             } else {
                 callback.onSuccess(message);
             }

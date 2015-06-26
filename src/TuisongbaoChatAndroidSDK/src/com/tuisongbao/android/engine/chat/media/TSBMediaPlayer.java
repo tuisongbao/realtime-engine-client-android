@@ -10,6 +10,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
+import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.log.LogUtil;
 
 
@@ -46,10 +47,11 @@ public class TSBMediaPlayer implements OnPreparedListener, android.media.MediaPl
         return mInstance;
     }
 
-    public void start(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener) {
+    public void start(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
+            , final TSBProgressCallback progressCallback) {
         try {
             stopLastMedia();
-            startPlay(message, stopListener, errorListener);
+            startPlay(message, stopListener, errorListener, progressCallback);
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
         }
@@ -62,9 +64,9 @@ public class TSBMediaPlayer implements OnPreparedListener, android.media.MediaPl
         }
     }
 
-    private void startPlay(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener) {
+    private void startPlay(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
+            , final TSBProgressCallback progressCallback) {
         currentPlayingMessage = message;
-
 
         if (errorListener != null) {
             errorListenerHashMap.put(message, errorListener);
@@ -101,7 +103,7 @@ public class TSBMediaPlayer implements OnPreparedListener, android.media.MediaPl
             public void onError(int code, String errorMessage) {
                 callbackErrorListener(message, errorMessage);
             }
-        });
+        }, progressCallback);
     }
 
     public void stop() {
