@@ -41,7 +41,7 @@ public class TSBMediaRecorder {
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mRecorder.setOutputFile(mCurrentVoiceFileName);
-            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
             if (mMaxDuration > 0) {
                 mRecorder.setMaxDuration(mMaxDuration);
