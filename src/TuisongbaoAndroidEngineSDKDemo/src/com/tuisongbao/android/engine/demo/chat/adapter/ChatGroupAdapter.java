@@ -53,15 +53,9 @@ public class ChatGroupAdapter extends BaseAdapter {
         TextView textViewGroupId = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_id);
         textViewGroupId.setText("groupId：" + group.getGroupId());
-        TextView textViewName = (TextView) convertView
-                .findViewById(R.id.list_item_chat_group_name);
-        textViewName.setText("组名：" + group.getName());
         TextView textViewOwner = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_owner);
         textViewOwner.setText("Owner：" + group.getOwner());
-        TextView textViewDesc = (TextView) convertView
-                .findViewById(R.id.list_item_chat_group_desc);
-        textViewDesc.setText(group.getDescription());
         TextView textViewIspublic = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_ispublic);
         textViewIspublic.setText("是否公开：" + group.isPublic());

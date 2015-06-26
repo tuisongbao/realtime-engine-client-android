@@ -377,7 +377,8 @@ public class ChatConversationActivity extends Activity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         if (mConversation.getType() == ChatType.GroupChat) {
             getMenuInflater().inflate(R.menu.group_detail, menu);
-            getActionBar().setTitle(mConversation.getGroupName());
+            // TODO: query group name from demo app server.
+            getActionBar().setTitle(mConversation.getTarget());
         } else {
             getActionBar().setTitle(mConversation.getTarget());
         }
@@ -662,7 +663,7 @@ public class ChatConversationActivity extends Activity implements
 
     private void hideSoftKeyboard() {
         InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        im.hideSoftInputFromWindow(getCurrentFocus()
+        im.hideSoftInputFromWindow(mContentEditText
                 .getApplicationWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }

@@ -13,8 +13,6 @@ public class TSBChatGroup implements Parcelable {
 
     private String groupId;
     private String owner;
-    private String name;
-    private String description;
     private boolean isPublic;
     private boolean userCanInvite;
     private int userCount;
@@ -40,22 +38,6 @@ public class TSBChatGroup implements Parcelable {
 
     public void setOwner(String owner) {
         this.owner = owner;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public boolean isPublic() {
@@ -155,9 +137,9 @@ public class TSBChatGroup implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("TSBChatGroup[groupId: %s, owner: %s, name: %s, description: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s" +
+        return String.format("TSBChatGroup[groupId: %s, owner: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s" +
                 ", invitedUserIds: %s]"
-                , groupId, owner, name, description, isPublic, userCanInvite, userCount, userCountLimit, StrUtil.getStringFromList(invitedUserIds));
+                , groupId, owner, isPublic, userCanInvite, userCount, userCountLimit, StrUtil.getStringFromList(invitedUserIds));
     }
 
     @Override
@@ -169,7 +151,6 @@ public class TSBChatGroup implements Parcelable {
     public void writeToParcel(Parcel out, int flag) {
         out.writeString(groupId);
         out.writeString(owner);
-        out.writeString(description);
         out.writeInt(isPublic ? 1 : 0);
         out.writeInt(userCanInvite ? 1 : 0);
         out.writeInt(userCount);
@@ -181,7 +162,6 @@ public class TSBChatGroup implements Parcelable {
     private TSBChatGroup(Parcel in) {
         setGroupId(in.readString());
         setOwner(in.readString());
-        setDescription(in.readString());
         setIsPublic(in.readInt() == 0 ? false : true);
         setUserCanInvite(in.readInt() == 0 ? false : true);
         setUserCount(in.readInt());

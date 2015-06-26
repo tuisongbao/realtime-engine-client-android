@@ -242,7 +242,6 @@ public class TSBConversationDataSource {
         values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
         values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
-        values.put(TSBConversationSQLiteHelper.COLUMN_GROUP_NAME, conversation.getGroupName());
 
         long id = conversationDB.insert(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
         LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation + " with return id " + id);
@@ -279,7 +278,6 @@ public class TSBConversationDataSource {
         values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
         values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
-        values.put(TSBConversationSQLiteHelper.COLUMN_GROUP_NAME, conversation.getGroupName());
 
         int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
                 new String[]{ currentUserId, conversation.getTarget() });
@@ -293,7 +291,6 @@ public class TSBConversationDataSource {
         conversation.setType(ChatType.getType(cursor.getString(3)));
         conversation.setUnreadMessageCount(cursor.getInt(4));
         conversation.setLastActiveAt(cursor.getString(5));
-        conversation.setGroupName(cursor.getString(6));
 
         return conversation;
     }

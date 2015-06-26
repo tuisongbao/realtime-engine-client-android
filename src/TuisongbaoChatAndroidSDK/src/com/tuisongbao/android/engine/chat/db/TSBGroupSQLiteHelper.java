@@ -13,8 +13,6 @@ public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
 
     public static final String COLUMN_GROUP_ID = "groupId";
     public static final String COLUMN_OWNER = "owner";
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_ISPUBLIC = "isPublic";
     public static final String COLUMN_USER_CAN_INVITE = "userCanInvite";
     public static final String COLUMN_USER_COUNT = "userCount";
@@ -32,8 +30,6 @@ public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
           + " integer primary key autoincrement, "
           + COLUMN_GROUP_ID + " text not null, "
           + COLUMN_OWNER + " text not null, "
-          + COLUMN_NAME + " text not null, "
-          + COLUMN_DESCRIPTION + " text, "
           + COLUMN_ISPUBLIC + " integer,"
           + COLUMN_USER_CAN_INVITE + " integer, "
           + COLUMN_USER_COUNT + " integer, "

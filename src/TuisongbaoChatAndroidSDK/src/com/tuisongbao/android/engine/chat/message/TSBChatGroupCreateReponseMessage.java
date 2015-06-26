@@ -23,7 +23,6 @@ public class TSBChatGroupCreateReponseMessage extends
         Gson gson = new Gson();
         TSBChatGroupCreateData requestData = gson.fromJson((String)getRequestData(), TSBChatGroupCreateData.class);
         group.setOwner(currentUser);
-        group.setName(requestData.getName());
 
         int userCount = 0;
         if (requestData.getInviteUserIds() != null) {
@@ -34,7 +33,6 @@ public class TSBChatGroupCreateReponseMessage extends
 
         group.setUserCount(userCount);
         group.setIsPublic(requestData.isPublic());
-        group.setDescription(requestData.getDescription());
 
         TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
         dataSource.open();

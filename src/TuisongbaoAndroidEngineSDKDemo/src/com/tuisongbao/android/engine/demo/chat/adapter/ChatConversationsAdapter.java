@@ -79,7 +79,8 @@ public class ChatConversationsAdapter extends BaseAdapter {
         // Target info
         String target = tsbConversation.getTarget();
         if (tsbConversation.getType() == ChatType.GroupChat) {
-            target = tsbConversation.getGroupName();
+            // TODO: query group name from demo app server.
+            target = tsbConversation.getTarget();
         }
         TextView targetTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_target);

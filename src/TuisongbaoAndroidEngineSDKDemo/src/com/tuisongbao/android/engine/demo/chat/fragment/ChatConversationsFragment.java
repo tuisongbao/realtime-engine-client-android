@@ -54,7 +54,7 @@ public class ChatConversationsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        // inflater: 打气筒， inflate：充气，very reasonable.
+        // inflater: 打气筒， inflate：充气，very vivid.
         mRootView = inflater.inflate(R.layout.fragment_conversations, container,
                 false);
         mConversationsListView = (ListView) mRootView

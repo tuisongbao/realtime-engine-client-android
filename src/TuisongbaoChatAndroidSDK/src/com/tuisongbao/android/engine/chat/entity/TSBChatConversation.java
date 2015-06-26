@@ -55,14 +55,6 @@ public class TSBChatConversation implements Parcelable {
         this.lastActiveAt = lastActiveAt;
     }
 
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
     /**
      * 重置未读消息
      *
@@ -138,7 +130,6 @@ public class TSBChatConversation implements Parcelable {
         setTarget(in.readString());
         setUnreadMessageCount(in.readInt());
         setLastActiveAt(in.readString());
-        setGroupName(in.readString());
     }
 
     public static final Parcelable.Creator<TSBChatConversation> CREATOR =

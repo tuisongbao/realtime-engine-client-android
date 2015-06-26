@@ -44,7 +44,7 @@ public class TSBGroupDataSource {
             return null;
         }
         cursor.moveToFirst();
-        return cursor.getString(9);
+        return cursor.getString(7);
     }
 
     /***
@@ -116,12 +116,8 @@ public class TSBGroupDataSource {
         }
 
         String idClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + inClauseString;
-        String nameClause = TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE '" + "%" + groupName + "%" + "'";
         sql = "SELECT * FROM " + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP
                 + " WHERE " + idClause;
-        if (groupName != null) {
-            sql += " AND " + nameClause;
-        }
         sql += ";";
 
         cursor = groupDB.rawQuery(sql, null);
@@ -138,26 +134,21 @@ public class TSBGroupDataSource {
 
     }
 
-    public List<TSBChatGroup> getListNotWork(String userId, String groupId, String groupName) {
+    public List<TSBChatGroup> getListNotWork(String userId, String groupId) {
         String sql = "SELECT group.name FROM "
                 + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP + " group INNER JOIN " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER + " groupUser"
                 + " ON group." + TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = groupUser." + TSBGroupSQLiteHelper.COLUMN_GROUP_ID
                 + " WHERE groupUser." + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
 
         String idClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = '" + groupId + "'";
-        String nameClause = TSBGroupSQLiteHelper.COLUMN_NAME + " LIKE '" + "%" + groupName + "%" + "'";
 
-        if (groupId != null && groupName != null) {
-            sql += " AND " + idClause + " AND " + nameClause;
-        } else if (groupId == null && groupName != null) {
-            sql += " AND " + nameClause;
-        } else if (groupId != null && groupName == null) {
+        if (groupId != null) {
             sql += " AND " + idClause;
         }
         sql += ";";
         Cursor cursor = groupDB.rawQuery(sql, null);
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " groups with query "
-                + "[userId:" + userId + ", groupId:" + groupId + ", groupName:" + groupName + "]");
+                + "[userId:" + userId + ", groupId:" + groupId + "]");
 
         List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
         cursor.moveToFirst();
@@ -256,12 +247,10 @@ public class TSBGroupDataSource {
         TSBChatGroup group = new TSBChatGroup();
         group.setGroupId(cursor.getString(1));
         group.setOwner(cursor.getString(2));
-        group.setName(cursor.getString(3));
-        group.setDescription(cursor.getString(4));
-        group.setIsPublic(cursor.getInt(5) == 1 ? true : false);
-        group.setUserCanInvite(cursor.getInt(6) == 1 ? true : false);
-        group.setUserCount(cursor.getInt(7));
-        group.setUserCountLimit(cursor.getInt(8));
+        group.setIsPublic(cursor.getInt(3) == 1 ? true : false);
+        group.setUserCanInvite(cursor.getInt(4) == 1 ? true : false);
+        group.setUserCount(cursor.getInt(5));
+        group.setUserCountLimit(cursor.getInt(6));
 
         return group;
     }
@@ -277,8 +266,6 @@ public class TSBGroupDataSource {
     private ContentValues getContentValuesExceptGroupId(TSBChatGroup group) {
         ContentValues values = new ContentValues();
         values.put(TSBGroupSQLiteHelper.COLUMN_OWNER, group.getOwner());
-        values.put(TSBGroupSQLiteHelper.COLUMN_NAME, group.getName());
-        values.put(TSBGroupSQLiteHelper.COLUMN_DESCRIPTION, group.getDescription());
         values.put(TSBGroupSQLiteHelper.COLUMN_ISPUBLIC, group.isPublic());
         values.put(TSBGroupSQLiteHelper.COLUMN_USER_CAN_INVITE, group.userCanInvite());
         values.put(TSBGroupSQLiteHelper.COLUMN_USER_COUNT, group.getUserCount());
