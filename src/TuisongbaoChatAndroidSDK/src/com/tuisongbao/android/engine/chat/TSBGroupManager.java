@@ -47,25 +47,19 @@ public class TSBGroupManager extends BaseManager {
     /**
      * 创建群组
      *
-     * @param groupName
-     *            群的名称 注意, 群名称不能以 private- 或者 present- 开头
      * @param members
      *            群聊成员，可以为空，此时成员只有自己
      * @param callback
      */
-    public void create(String groupName, List<String> members,
+    public void create(List<String> members,
             TSBEngineCallback<TSBChatGroup> callback) {
-        create(groupName, "", members, false, false, callback);
+        create(members, false, false, callback);
     }
 
 
     /**
      * 创建群组
      *
-     * @param groupName
-     *            群的名称 注意, 群名称不能以 private- 或者 present- 开头
-     * @param description
-     *            群的描述
      * @param members
      *            群聊成员，可以为空，此时成员只有自己
      * @param isPublic
@@ -74,8 +68,7 @@ public class TSBGroupManager extends BaseManager {
      *            默认值 true ，除创建者（owner）外，其他群用户也可以发送加群邀请
      * @param callback
      */
-    public void create(String groupName, String description,
-            List<String> members, boolean isPublic, boolean userCanInvite,
+    public void create(List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<TSBChatGroup> callback) {
         try {
             if (!isLogin()) {
@@ -84,17 +77,9 @@ public class TSBGroupManager extends BaseManager {
                         "permission denny: need to login");
                 return;
             }
-            if (!isIllegalGroupName(groupName)) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group name can't not be empty or illegal");
-                return;
-            }
 
             TSBChatGroupCreateMessage message = new TSBChatGroupCreateMessage();
             TSBChatGroupCreateData data = new TSBChatGroupCreateData();
-            data.setName(groupName);
-            data.setDescription(description);
             data.setInviteUserIds(members);
             data.setPublic(isPublic);
             data.setUserCanInvite(userCanInvite);
@@ -115,11 +100,9 @@ public class TSBGroupManager extends BaseManager {
      * @param tsbChatManager TODO
      * @param groupId
      *            可选，根据 id 过滤
-     * @param groupName
-     *            可选，根据 name 过滤
      * @param callback
      */
-    public void getList(String groupId, String groupName, TSBEngineCallback<List<TSBChatGroup>> callback) {
+    public void getList(String groupId, TSBEngineCallback<List<TSBChatGroup>> callback) {
         try {
             if (!isLogin()) {
                 handleErrorMessage(callback,
@@ -137,7 +120,6 @@ public class TSBGroupManager extends BaseManager {
             TSBChatGroupGetMessage message = new TSBChatGroupGetMessage();
             TSBChatGroupGetData data = new TSBChatGroupGetData();
             data.setGroupId(groupId);
-            data.setName(groupName);
             data.setLastActiveAt(lastActiveAt);
             message.setData(data);
             TSBChatGroupGetReponseMessage response = new TSBChatGroupGetReponseMessage();

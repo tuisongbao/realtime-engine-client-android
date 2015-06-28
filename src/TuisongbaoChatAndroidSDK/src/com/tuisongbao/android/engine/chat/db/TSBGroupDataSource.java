@@ -78,14 +78,14 @@ public class TSBGroupDataSource {
         insertUserIfNotExist(group.getGroupId(), userId);
     }
 
-    public List<TSBChatGroup> getList(String userId, String groupId, String groupName) {
+    public List<TSBChatGroup> getList(String userId, String groupId) {
         List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
         Cursor cursor = null;
         String sql = "SELECT * FROM " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
         cursor = groupUserDB.rawQuery(sql, null);
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " groups of user "
-                + userId + ", groupId:" + groupId + ", groupName:" + groupName);
+                + userId + ", groupId:" + groupId);
 
         if (cursor.getCount() < 1) {
             return groups;
@@ -223,7 +223,7 @@ public class TSBGroupDataSource {
         dataSource.close();
 
         // If the group is empty, remove this group.
-        List<TSBChatGroup> groups = getList(userId, groupId, null);
+        List<TSBChatGroup> groups = getList(userId, groupId);
         if (groups.size() < 1) {
             return;
         }

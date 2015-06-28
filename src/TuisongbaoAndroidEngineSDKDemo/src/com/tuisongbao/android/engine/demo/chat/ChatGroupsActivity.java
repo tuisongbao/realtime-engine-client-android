@@ -78,7 +78,7 @@ public class ChatGroupsActivity extends Activity {
     }
 
     private void request() {
-        TSBGroupManager.getInstance().getList(null, null, new TSBEngineCallback<List<TSBChatGroup>>() {
+        TSBGroupManager.getInstance().getList(null, new TSBEngineCallback<List<TSBChatGroup>>() {
 
             @Override
             public void onSuccess(List<TSBChatGroup> t) {

@@ -50,9 +50,7 @@ public class ChatGroupCreateActivity extends Activity {
 
     private void create() {
         List<String> members = new ArrayList<String>();
-        TSBGroupManager.getInstance().create(
-                mGroupNameEditText.getText().toString(),
-                mGroupDescEditText.getText().toString(), members,
+        TSBGroupManager.getInstance().create(members,
                 !mGroupIsPrivateToggleButton.isChecked(),
                 !mGroupInvitedPermissionToggleButton.isChecked(),
                 new TSBEngineCallback<TSBChatGroup>() {
