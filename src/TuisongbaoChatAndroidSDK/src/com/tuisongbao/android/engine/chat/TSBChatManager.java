@@ -44,7 +44,7 @@ import com.tuisongbao.android.engine.util.ExecutorUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBChatManager extends BaseManager {
-
+    private static final String TAG = "com.tuisongbao.android.engine.TSBChatManager";
     private TSBChatUser mTSBChatUser;
     private TSBChatLoginMessage mTSBLoginMessage;
 
@@ -107,14 +107,14 @@ public class TSBChatManager extends BaseManager {
      */
     public void logout() {
         if (!isLogin()) {
-            clearCache();
+            clearCacheUser();
             return;
         }
         if (TSBEngine.isConnected()) {
             TSBChatLogoutMessage message = new TSBChatLogoutMessage();
             send(message);
         }
-        clearCache();
+        clearCacheUser();
     }
 
     public void enableCache() {
@@ -123,6 +123,15 @@ public class TSBChatManager extends BaseManager {
 
     public boolean isCacheEnabled() {
         return mIsCacheEnabled;
+    }
+
+    public void clearCache() {
+        try {
+            TSBConversationManager.getInstance().clearCache();
+            TSBGroupManager.getInstance().clearCache();
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+        }
     }
 
     /**
@@ -311,7 +320,7 @@ public class TSBChatManager extends BaseManager {
         return responseHandler;
     }
 
-    private void clearCache() {
+    private void clearCacheUser() {
         mTSBChatUser = null;
         mTSBLoginMessage = null;
     }

@@ -208,6 +208,13 @@ public class TSBConversationManager extends BaseManager {
         }
     }
 
+    /***
+     * Remove all conversations and related messages from local database.
+     */
+    public void clearCache() {
+        dataSource.deleteAllData();
+    }
+
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {

@@ -91,8 +91,7 @@ public class TSBChatGroup implements Parcelable {
     /**
      * 获取群组下用户列表，会从服务器同步最新的数据
      *
-     * @param groupId
-     * @param callback
+     * @param callback 可选
      */
     public void getUsers(TSBEngineCallback<List<TSBContactsUser>> callback) {
         TSBGroupManager.getInstance().getUsers(groupId, callback);
@@ -101,11 +100,9 @@ public class TSBChatGroup implements Parcelable {
     /**
      * 邀请加入群组
      *
-     * @param groupId
-     *            群的id
      * @param userIds
      *            邀请加入的用户id
-     * @param callback
+     * @param callback 可选
      */
     public void joinInvitation(List<String> userIds, TSBEngineCallback<String> callback) {
         TSBGroupManager.getInstance().joinInvitation(groupId, userIds, callback);
@@ -114,11 +111,9 @@ public class TSBChatGroup implements Parcelable {
     /**
      * 删除群组中的用户
      *
-     * @param groupId
-     *            群的id
      * @param userIds
      *            删除的用户id
-     * @param callback
+     * @param callback 可选
      */
     public void removeUsers(List<String> userIds, TSBEngineCallback<String> callback) {
         TSBGroupManager.getInstance().removeUsers(groupId, userIds, callback);
@@ -127,9 +122,7 @@ public class TSBChatGroup implements Parcelable {
     /**
      * 离开群组
      *
-     * @param groupId
-     *            群的id
-     * @param callback
+     * @param callback 可选
      */
     public void leave(TSBEngineCallback<String> callback) {
         TSBGroupManager.getInstance().leave(groupId, callback);

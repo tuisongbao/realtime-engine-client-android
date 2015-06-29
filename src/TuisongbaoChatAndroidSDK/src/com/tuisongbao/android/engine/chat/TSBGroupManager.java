@@ -284,6 +284,13 @@ public class TSBGroupManager extends BaseManager {
         }
     }
 
+    /***
+     * Remove all Groups and related users from local database.
+     */
+    public void clearCache() {
+        dataSource.deleteAllData();
+    }
+
     private boolean isIllegalGroupName(String groupName) {
         return !StrUtil.isEmpty(groupName)
                 && !groupName

@@ -17,23 +17,23 @@ import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBGroupDataSource {
     private SQLiteDatabase groupDB;
-    private SQLiteDatabase groupUserDB;
+    private SQLiteDatabase groupMemberDB;
     private TSBGroupSQLiteHelper groupSQLiteHelper;
-    private TSBGroupMemberSQLiteHelper groupUserSQLiteHelper;
+    private TSBGroupMemberSQLiteHelper groupMemberSQLiteHelper;
 
     public TSBGroupDataSource(Context context) {
         groupSQLiteHelper = new TSBGroupSQLiteHelper(context);
-        groupUserSQLiteHelper = new TSBGroupMemberSQLiteHelper(context);
+        groupMemberSQLiteHelper = new TSBGroupMemberSQLiteHelper(context);
     }
 
     public void open() {
         groupDB = groupSQLiteHelper.getWritableDatabase();
-        groupUserDB = groupUserSQLiteHelper.getWritableDatabase();
+        groupMemberDB = groupMemberSQLiteHelper.getWritableDatabase();
     }
 
     public void close() {
         groupSQLiteHelper.close();
-        groupUserSQLiteHelper.close();
+        groupMemberSQLiteHelper.close();
     }
 
     public String getLatestLastActiveAt(String userId) {
@@ -83,7 +83,7 @@ public class TSBGroupDataSource {
         Cursor cursor = null;
         String sql = "SELECT * FROM " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
-        cursor = groupUserDB.rawQuery(sql, null);
+        cursor = groupMemberDB.rawQuery(sql, null);
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " groups of user "
                 + userId + ", groupId:" + groupId);
 
@@ -175,7 +175,7 @@ public class TSBGroupDataSource {
         List<TSBContactsUser> users = new ArrayList<TSBContactsUser>();
         String whereClause = "SELECT " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = ?";
-        Cursor cursor = groupUserDB.rawQuery(whereClause, new String[]{ groupId });
+        Cursor cursor = groupMemberDB.rawQuery(whereClause, new String[]{ groupId });
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " users from group " + groupId);
 
         cursor.moveToFirst();
@@ -199,13 +199,13 @@ public class TSBGroupDataSource {
         String whereClause = "SELECT * FROM " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = '" + groupId + "'"
                 + " AND " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
-        Cursor cursor = groupUserDB.rawQuery(whereClause, null);
+        Cursor cursor = groupMemberDB.rawQuery(whereClause, null);
 
         if (cursor.getCount() < 1) {
             ContentValues values = new ContentValues();
             values.put(TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID, groupId);
             values.put(TSBGroupMemberSQLiteHelper.COLUMN_USER_ID, userId);
-            groupUserDB.insert(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
+            groupMemberDB.insert(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
             LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, groupId + " has new member " + userId);
         }
     }
@@ -213,7 +213,7 @@ public class TSBGroupDataSource {
     public void removeUser(String groupId, String userId) {
         String whereClause = TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = ? AND "
                 + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = ?";
-        int rowsAffected = groupUserDB.delete(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
+        int rowsAffected = groupMemberDB.delete(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
         LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
 
         // Remove conversation
@@ -241,6 +241,12 @@ public class TSBGroupDataSource {
         if (!StrUtil.isEmpty(userId)) {
             removeUser(groupId, userId);
         }
+    }
+
+    public void deleteAllData() {
+        open();
+        groupDB.delete(TSBGroupSQLiteHelper.TABLE_CHAT_GROUP, null, null);
+        groupMemberDB.delete(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, null, null);
     }
 
     private TSBChatGroup createGroup(Cursor cursor) {

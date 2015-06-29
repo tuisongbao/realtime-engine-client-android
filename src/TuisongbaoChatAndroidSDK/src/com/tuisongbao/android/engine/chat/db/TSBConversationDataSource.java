@@ -237,6 +237,12 @@ public class TSBConversationDataSource {
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
     }
 
+    public void deleteAllData() {
+        open();
+        conversationDB.delete(TABLE_CONVERSATION, null, null);
+        messageDB.delete(TABLE_MESSAGE, null, null);
+    }
+
     private void insert(TSBChatConversation conversation, String userId) {
         ContentValues values = new ContentValues();
         values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
