@@ -34,7 +34,9 @@ public class TSBGroupManager extends BaseManager {
     private static TSBGroupDataSource dataSource;
 
     public TSBGroupManager() {
-        dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+        if (TSBChatManager.getInstance().isCacheEnabled()) {
+            dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+        }
     }
 
     public synchronized static TSBGroupManager getInstance() {
@@ -111,11 +113,13 @@ public class TSBGroupManager extends BaseManager {
                 return;
             }
 
-            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
-            String lastActiveAt = "";
-            dataSource.open();
-            lastActiveAt = dataSource.getLatestLastActiveAt(userId);
-            dataSource.close();
+            String lastActiveAt = null;
+            if (TSBChatManager.getInstance().isCacheEnabled()) {
+                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+                dataSource.open();
+                lastActiveAt = dataSource.getLatestLastActiveAt(userId);
+                dataSource.close();
+            }
 
             TSBChatGroupGetMessage message = new TSBChatGroupGetMessage();
             TSBChatGroupGetData data = new TSBChatGroupGetData();
@@ -289,13 +293,5 @@ public class TSBGroupManager extends BaseManager {
      */
     public void clearCache() {
         dataSource.deleteAllData();
-    }
-
-    private boolean isIllegalGroupName(String groupName) {
-        return !StrUtil.isEmpty(groupName)
-                && !groupName
-                        .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE)
-                && !groupName
-                        .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
     }
 }

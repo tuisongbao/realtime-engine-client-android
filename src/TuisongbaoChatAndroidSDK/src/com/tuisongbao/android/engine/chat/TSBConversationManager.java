@@ -30,7 +30,9 @@ public class TSBConversationManager extends BaseManager {
     private static TSBConversationDataSource dataSource;
 
     public TSBConversationManager() {
-        dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        if (TSBChatManager.getInstance().isCacheEnabled()) {
+            dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        }
     }
 
     public synchronized static TSBConversationManager getInstance() {
@@ -90,11 +92,13 @@ public class TSBConversationManager extends BaseManager {
                 return;
             }
 
-            // Reset unread event has no response from server, so directly update database.
-            String userId = TSBChatManager.getInstance().getChatUser().getUserId();
-            dataSource.open();
-            dataSource.resetUnread(userId, chatType, target);
-            dataSource.close();
+            if (TSBChatManager.getInstance().isCacheEnabled()) {
+                // Reset unread event has no response from server, so directly update database.
+                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+                dataSource.open();
+                dataSource.resetUnread(userId, chatType, target);
+                dataSource.close();
+            }
 
             TSBChatConversationResetUnreadMessage message = new TSBChatConversationResetUnreadMessage();
             TSBChatConversationData data = new TSBChatConversationData();
@@ -216,8 +220,7 @@ public class TSBConversationManager extends BaseManager {
     }
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
-            Long endMessageId, int limit,
-            TSBEngineCallback<List<TSBMessage>> callback) {
+            Long endMessageId, int limit, TSBEngineCallback<List<TSBMessage>> callback) {
         TSBChatMessageMultiGetResponseMessage response = new TSBChatMessageMultiGetResponseMessage();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
