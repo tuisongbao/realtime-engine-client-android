@@ -40,7 +40,6 @@ import android.widget.Toast;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.android.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.android.engine.chat.entity.TSBChatOptions;
 import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
@@ -50,7 +49,6 @@ import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
 import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder;
 import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder.TSBMediaEventCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
-import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
@@ -191,7 +189,7 @@ public class ChatConversationActivity extends Activity implements
                                     }
                                 });
                             }
-                        }, null);
+                        });
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
@@ -513,7 +511,7 @@ public class ChatConversationActivity extends Activity implements
                 // TODO Auto-generated method stub
 
             }
-        }, null);
+        });
     }
 
     private void request() {
@@ -599,16 +597,7 @@ public class ChatConversationActivity extends Activity implements
                 });
 
             }
-        }, new TSBChatOptions(new TSBProgressCallback() {
-
-            @Override
-            public void progress(final int percent) {
-                LogUtil.debug(LogUtil.LOG_TAG_CHAT, "progress " + percent);
-                Intent intent = new Intent(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS);
-                intent.putExtra("percent", percent);
-                sendBroadcast(intent);
-            }
-        }));
+        });
     }
 
     private void registerBroadcast() {
