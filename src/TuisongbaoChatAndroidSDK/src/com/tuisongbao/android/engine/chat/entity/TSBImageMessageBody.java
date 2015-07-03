@@ -22,10 +22,14 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
 
     @Override
     public void writeToParcel(Parcel out, int flag) {
+        writeToParcel(out);
         out.writeString(file.toString());
     }
 
+    @Override
     public void readFromParcel(Parcel in) {
+        super.readFromParcel(in);
+
         Gson gson = new Gson();
         setFile(gson.fromJson(in.readString(), JsonObject.class));
     }
@@ -65,7 +69,7 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
 
     @Override
     public String toString() {
-        return String.format("TSBImageMessage[file: %s, type: %s]", file.toString(), type.getName());
+        return String.format("TSBImageMessage[file: %s, type: %s, TSBMessageBody: %s]", file.toString(), type.getName(), super.toString());
     }
 
     private TSBImageMessageBody(Parcel in) {

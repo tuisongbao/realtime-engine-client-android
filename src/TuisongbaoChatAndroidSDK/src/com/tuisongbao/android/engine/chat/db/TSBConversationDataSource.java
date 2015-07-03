@@ -3,12 +3,15 @@ package com.tuisongbao.android.engine.chat.db;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tuisongbao.android.engine.chat.TSBChatManager;
 import com.tuisongbao.android.engine.chat.entity.ChatType;
 import com.tuisongbao.android.engine.chat.entity.TSBChatConversation;
@@ -24,6 +27,7 @@ import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class TSBConversationDataSource {
+    private static final String TAG = "com.tuisongbao.engine.TSBConversationDataSource";
     private static final String TABLE_CONVERSATION = TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
     private static final String TABLE_MESSAGE = TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
 
@@ -344,8 +348,19 @@ public class TSBConversationDataSource {
 
             body = mediaBody;
         }
+
+        String extraString = cursor.getString(16);
+        if (extraString != null && extraString.length() > 0) {
+            try {
+                JsonParser parser = new JsonParser();
+                JsonObject extraInJson = (JsonObject)parser.parse(extraString);
+                body.setExtra(extraInJson);
+            } catch (Exception e) {
+                LogUtil.error(TAG, e);
+            }
+        }
         message.setBody(body);
-        message.setCreatedAt(cursor.getString(16));
+        message.setCreatedAt(cursor.getString(17));
 
         return message;
     }
@@ -396,6 +411,12 @@ public class TSBConversationDataSource {
             TSBEventMessageBody eventBody = (TSBEventMessageBody)message.getBody();
             values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
             values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
+        }
+
+        JSONObject extra = message.getBody().getExtra();
+        LogUtil.debug(TAG, extra + "");
+        if (extra != null) {
+            values.put(TSBMessageSQLiteHelper.COLUMN_EXTRA, extra.toString());
         }
 
         values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());

@@ -39,7 +39,10 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
      */
     public static final String COLUMN_EVENT_TYPE = "eventType";
     public static final String COLUMN_EVENT_TARGET = "eventTarget";
-
+    /**
+     * extra
+     */
+    public static final String COLUMN_EXTRA = "extra";
     public static final String COLUMN_CREATED_AT = "createdAt";
 
     public TSBMessageSQLiteHelper(Context context) {
@@ -68,6 +71,7 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
 
           + COLUMN_EVENT_TYPE + " text, "
           + COLUMN_EVENT_TARGET + " text, "
+          + COLUMN_EXTRA + " text, "
           + COLUMN_CREATED_AT + " text not null"
           + ");";
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);

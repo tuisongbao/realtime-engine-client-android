@@ -14,7 +14,10 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
         file = new JsonObject();
     }
 
+    @Override
     public void readFromParcel(Parcel in) {
+        super.readFromParcel(in);
+
         Gson gson = new Gson();
         setFile(gson.fromJson(in.readString(), JsonObject.class));
     }
@@ -26,6 +29,7 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
 
     @Override
     public void writeToParcel(Parcel out, int arg1) {
+        writeToParcel(out);
         out.writeString(file.toString());
     }
 
@@ -58,7 +62,7 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
 
     @Override
     public String toString() {
-        return String.format("TSBVoiceMessageBody[file: %s, type: %s]", file.toString(), type.getName());
+        return String.format("TSBVoiceMessageBody[file: %s, type: %s, TSBMessageBody: %s]", file.toString(), type.getName(), super.toString());
     }
 
     private TSBVoiceMessageBody(Parcel in) {

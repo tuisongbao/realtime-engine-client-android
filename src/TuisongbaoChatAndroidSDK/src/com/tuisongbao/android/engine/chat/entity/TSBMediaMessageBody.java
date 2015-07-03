@@ -19,7 +19,17 @@ public abstract class TSBMediaMessageBody extends TSBMessageBody {
     //     width:
     //     height:
     //     ....
-    // this field is used by generating the key `file`
+    // this field is used to generate the `file` key
+    /**
+     * According to the rule of Gson, this will be serialized to
+     * file:
+     *     width:
+     *     height:
+     *     ....
+     * this field is used by generating the key `file`
+     *
+     * Why use JsonObject instead of JSONObject, see also TSBMessageBody
+     */
     protected JsonObject file;
 
     public TSBMediaMessageBody(TYPE type) {

@@ -31,11 +31,14 @@ public class TSBTextMessageBody extends TSBMessageBody {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(getText());
+    public void writeToParcel(Parcel out, int flags) {
+        writeToParcel(out);
+        out.writeString(getText());
     }
 
+    @Override
     public void readFromParcel(Parcel in) {
+        super.readFromParcel(in);
         setText(in.readString());
     }
 
@@ -54,7 +57,7 @@ public class TSBTextMessageBody extends TSBMessageBody {
 
     @Override
     public String toString() {
-        return String.format("TSBTextMessageBody[text: %s, type: %s]", text, type.getName());
+        return String.format("TSBTextMessageBody[text: %s, type: %s, TSBMessageBody: %s", text, type.getName(), super.toString());
     }
 
     private TSBTextMessageBody(Parcel in) {

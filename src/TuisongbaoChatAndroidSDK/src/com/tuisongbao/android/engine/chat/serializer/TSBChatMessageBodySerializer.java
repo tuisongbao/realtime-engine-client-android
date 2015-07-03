@@ -48,6 +48,12 @@ public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessage
             eventBody.setEvent(bodyJson.get("event").getAsJsonObject());
             messageBody = eventBody;
         }
+
+        if (bodyJson.get("extra") != null) {
+            JsonObject extraInJson = bodyJson.get("extra").getAsJsonObject();
+            messageBody.setExtra(extraInJson);
+        }
+
         return messageBody;
     }
 

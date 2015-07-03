@@ -14,10 +14,6 @@ public class TSBChatConversation implements Parcelable {
     private String target;
     private int unreadMessageCount;
     private String lastActiveAt;
-    /***
-     * Only valid when conversation's type is group
-     */
-    private String groupName;
 
     public TSBChatConversation() {
 
@@ -109,8 +105,8 @@ public class TSBChatConversation implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("TSBChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s, groupName: %s]"
-                , type.getName(), target, unreadMessageCount, lastActiveAt, groupName);
+        return String.format("TSBChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s]"
+                , type.getName(), target, unreadMessageCount, lastActiveAt);
     }
 
     @Override
@@ -124,7 +120,6 @@ public class TSBChatConversation implements Parcelable {
         out.writeString(target);
         out.writeInt(unreadMessageCount);
         out.writeString(lastActiveAt);
-        out.writeString(groupName);
     }
 
     private TSBChatConversation(Parcel in) {

@@ -22,7 +22,7 @@ public class TSBChannel {
      */
     String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
-    TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
+    transient TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
 
         @Override
         public void onEvent(String channelName, String eventName, String data) {
