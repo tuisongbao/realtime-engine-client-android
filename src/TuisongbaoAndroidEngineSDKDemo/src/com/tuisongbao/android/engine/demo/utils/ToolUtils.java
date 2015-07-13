@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.demo.chat.utils;
+package com.tuisongbao.android.engine.demo.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +10,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBChatEvent;
 import com.tuisongbao.android.engine.chat.entity.TSBEventMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.android.engine.util.StrUtil;
 
 public class ToolUtils {
     public static String getEventMessage(TSBMessage message) {
@@ -71,5 +72,21 @@ public class ToolUtils {
         cal2.setTime(date);
         return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
                           (cal1.get(Calendar.DAY_OF_YEAR) - cal2.get(Calendar.DAY_OF_YEAR)) == 1;
+    }
+
+    public static boolean isEqual(String strRight, String strLeft) {
+        if (StrUtil.isEmpty(strRight) && StrUtil.isEmpty(strLeft)) {
+            return true;
+        }
+        else {
+            if (StrUtil.isEmpty(strLeft)) {
+                return false;
+            }
+            if (StrUtil.isEmpty(strRight)) {
+                return false;
+            }
+
+            return strRight == strLeft || strRight.equals(strLeft);
+        }
     }
 }

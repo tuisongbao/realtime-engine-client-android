@@ -265,6 +265,6 @@ public class TSBMessage implements Parcelable {
 
     private boolean isMediaMessage() {
         TYPE bodyType = getBody().getType();
-        return bodyType == TYPE.IMAGE || bodyType == TYPE.VOICE;
+        return bodyType == TYPE.IMAGE || bodyType == TYPE.VOICE || bodyType == TYPE.VIDEO;
     }
 }

@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.chat.media;
+package com.tuisongbao.android.engine.demo.chat.media;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import android.os.Environment;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
 
-public class TSBMediaRecorder {
+public class ChatVoiceRecorder {
     public static final String INTENT_ACTION_TAKE_VIDEO = "com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO";
     private static final String TAG = "com.tuisongbao.android.engine.media.TSBMediaRecorder";
 
@@ -20,13 +20,13 @@ public class TSBMediaRecorder {
     private String mCurrentVoiceFileName;
     private int mMaxDuration = -1; // in millisecond
 
-    HashMap<String, TSBMediaEventCallback> mEventCallbackHashMap = new HashMap<String, TSBMediaRecorder.TSBMediaEventCallback>();
+    HashMap<String, ChatVoiceEventCallback> mEventCallbackHashMap = new HashMap<String, ChatVoiceRecorder.ChatVoiceEventCallback>();
 
-    public TSBMediaRecorder() {
+    public ChatVoiceRecorder() {
         mRecorder = new MediaRecorder();
     }
 
-    public interface TSBMediaEventCallback {
+    public interface ChatVoiceEventCallback {
         public void onEvent();
     }
 
@@ -53,7 +53,7 @@ public class TSBMediaRecorder {
                     try {
                         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
                             LogUtil.warn(TAG, "Maximum Duration Reached");
-                            TSBMediaEventCallback callback = mEventCallbackHashMap.get(what + "");
+                            ChatVoiceEventCallback callback = mEventCallbackHashMap.get(what + "");
                             if (callback != null) {
                                 callback.onEvent();
                             }
@@ -98,7 +98,7 @@ public class TSBMediaRecorder {
         }
     }
 
-    public void setMaxDuration(int maxInMilliSeconds, TSBMediaEventCallback callback) {
+    public void setMaxDuration(int maxInMilliSeconds, ChatVoiceEventCallback callback) {
         mMaxDuration = maxInMilliSeconds;
         mEventCallbackHashMap.put(MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED + "", callback);
     }

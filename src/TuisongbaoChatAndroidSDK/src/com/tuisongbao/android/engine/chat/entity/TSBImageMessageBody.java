@@ -12,7 +12,6 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
 
     public TSBImageMessageBody() {
         super(TSBMessage.TYPE.IMAGE);
-        file = new JsonObject();
     }
 
     @Override
@@ -47,22 +46,18 @@ public class TSBImageMessageBody extends TSBMediaMessageBody {
         }
     };
 
-    @Override
     public int getWidth() {
         return file.get(IMAGE_INFO_WIDTH).getAsInt();
     }
 
-    @Override
     public int getHeight() {
         return file.get(IMAGE_INFO_HEIGHT).getAsInt();
     }
 
-    @Override
     public void setWidth(int width) {
         file.addProperty(IMAGE_INFO_WIDTH, width);
     }
 
-    @Override
     public void setHeight(int height) {
         file.addProperty(IMAGE_INFO_HEIGHT, height);
     }

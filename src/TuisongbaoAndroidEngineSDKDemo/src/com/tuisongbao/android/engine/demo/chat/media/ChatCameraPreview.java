@@ -1,8 +1,9 @@
-package com.tuisongbao.android.engine.chat.media;
+package com.tuisongbao.android.engine.demo.chat.media;
 
 import java.io.IOException;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
@@ -15,9 +16,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tuisongbao.android.engine.log.LogUtil;
-
-public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callback {
+public class ChatCameraPreview extends ViewGroup implements SurfaceHolder.Callback {
     private final String TAG = "Preview";
 
     SurfaceView mSurfaceView;
@@ -26,7 +25,7 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
     List<Size> mSupportedPreviewSizes;
     Camera mCamera;
 
-    TSBCameraPreview(Context context, SurfaceView sv) {
+    ChatCameraPreview(Context context, SurfaceView sv) {
         super(context);
 
         mSurfaceView = sv;
@@ -57,6 +56,10 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
         }
     }
 
+    public Surface getSurface() {
+        return mSurfaceView.getHolder().getSurface();
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // We purposely disregard child measurements because act as a
@@ -64,7 +67,7 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
         // of stretching it.
         final int width = resolveSize(getSuggestedMinimumWidth(), widthMeasureSpec);
         final int height = resolveSize(getSuggestedMinimumHeight(), heightMeasureSpec);
-        LogUtil.debug(TAG, "onMeasure " + width + "*" + height);
+        Log.d(TAG, "onMeasure " + width + "*" + height);
         setMeasuredDimension(width, height);
 
         if (mSupportedPreviewSizes != null) {
@@ -75,7 +78,7 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         String logString = String.format("l: %d, t: %d, r: %d, b: %d", l, t, r, b);
-        LogUtil.debug(TAG, "onLayout " + logString);
+        Log.d(TAG, "onLayout " + logString);
         if (changed && getChildCount() > 0) {
             final View child = getChildAt(0);
 
@@ -165,7 +168,7 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
         // Sometimes it will throw setParameters failed exception, it's weird.
         try {
             Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            parameters.setRotation(90);
             requestLayout();
 
             mCamera.setParameters(parameters);
@@ -176,6 +179,8 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
         }
     }
 
+    @SuppressLint("NewApi")
+    @SuppressWarnings("deprecation")
     public void setCameraDisplayOrientation(Activity activity, int cameraId) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
@@ -197,7 +202,6 @@ public class TSBCameraPreview extends ViewGroup implements SurfaceHolder.Callbac
         } else {  // back-facing
                 result = (info.orientation - degrees + 360) % 360;
         }
-        LogUtil.debug(TAG, "setCameraDisplayOrientation " + result);
         mCamera.setDisplayOrientation(result);
     }
 }

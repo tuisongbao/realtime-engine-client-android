@@ -22,6 +22,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVideoMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.android.engine.log.LogUtil;
 import com.tuisongbao.android.engine.util.StrUtil;
@@ -332,19 +333,23 @@ public class TSBConversationDataSource {
         } else {
             TSBMediaMessageBody mediaBody = null;
             if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-                mediaBody = new TSBImageMessageBody();
+                TSBImageMessageBody imageBody = new TSBImageMessageBody();
+                imageBody.setWidth(cursor.getInt(11));
+                imageBody.setHeight(cursor.getInt(12));
+                mediaBody = imageBody;
             } else if (StrUtil.isEqual(TYPE.VOICE.getName(), contentType)) {
-                mediaBody = new TSBVoiceMessageBody();
+                TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
+                voiceBody.setDuration(cursor.getString(13));
+                mediaBody = voiceBody;
+            } else if (StrUtil.isEqual(TYPE.VIDEO.getName(), contentType)) {
+                TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
+                videoBody.setDuration(cursor.getString(13));
+                mediaBody = videoBody;
             }
-
             mediaBody.setLocalPath(cursor.getString(7));
             mediaBody.setDownloadUrl(cursor.getString(8));
             mediaBody.setSize(cursor.getString(9));
             mediaBody.setMimeType(cursor.getString(10));
-
-            mediaBody.setWidth(cursor.getInt(11));
-            mediaBody.setHeight(cursor.getInt(12));
-            mediaBody.setDuration(cursor.getString(13));
 
             body = mediaBody;
         }
@@ -403,9 +408,17 @@ public class TSBConversationDataSource {
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
 
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, mediaBody.getWidth());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, mediaBody.getHeight());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, mediaBody.getDuration());
+            if (mediaBody instanceof TSBImageMessageBody) {
+                TSBImageMessageBody imageBody = (TSBImageMessageBody)mediaBody;
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, imageBody.getWidth());
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, imageBody.getHeight());
+            } else if (mediaBody instanceof TSBVoiceMessageBody) {
+                TSBVoiceMessageBody voiceBody = (TSBVoiceMessageBody)mediaBody;
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, voiceBody.getDuration());
+            } else if (mediaBody instanceof TSBVideoMessageBody) {
+                TSBVideoMessageBody videoBody = (TSBVideoMessageBody)mediaBody;
+                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
+            }
 
         } else if (message.getBody().getType() == TYPE.EVENT) {
             TSBEventMessageBody eventBody = (TSBEventMessageBody)message.getBody();
@@ -426,6 +439,6 @@ public class TSBConversationDataSource {
 
     private boolean isMediaMessage(TSBMessage message) {
         TYPE type = message.getBody().getType();
-        return type  == TYPE.IMAGE || type == TYPE.VOICE;
+        return type  == TYPE.IMAGE || type == TYPE.VOICE || type == TYPE.VIDEO;
     }
 }

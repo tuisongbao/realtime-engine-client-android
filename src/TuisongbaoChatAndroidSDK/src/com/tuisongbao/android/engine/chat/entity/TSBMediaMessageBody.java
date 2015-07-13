@@ -100,36 +100,4 @@ public abstract class TSBMediaMessageBody extends TSBMessageBody {
     public JsonObject getFile() {
         return file;
     }
-
-    // Image informations
-
-    public int getWidth() {
-        return 0;
-    }
-
-    public void setWidth(int width) {}
-
-    public int getHeight() {
-        return 0;
-    }
-
-    public void setHeight(int height) {}
-
-    // Video informations
-
-    /***
-     * Duration of video
-     *
-     * @return
-     */
-    public String getDuration() {
-        return "0";
-    }
-
-    /***
-     * Set duration of video
-     *
-     * @param duration in seconds
-     */
-    public void setDuration(String duration) {}
 }

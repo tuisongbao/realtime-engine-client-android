@@ -6,11 +6,11 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-public class TSBVoiceMessageBody extends TSBMediaMessageBody {
-    public static final String VOICE_INFO_DURATION = "duration";
+public class TSBVideoMessageBody extends TSBMediaMessageBody {
+    public static final String VIDEO_INFO_DURATION = "duration";
 
-    public TSBVoiceMessageBody() {
-        super(TSBMessage.TYPE.VOICE);
+    public TSBVideoMessageBody() {
+        super(TSBMessage.TYPE.VIDEO);
     }
 
     @Override
@@ -32,39 +32,38 @@ public class TSBVoiceMessageBody extends TSBMediaMessageBody {
         out.writeString(file.toString());
     }
 
-    public static final Parcelable.Creator<TSBVoiceMessageBody> CREATOR = new Parcelable.Creator<TSBVoiceMessageBody>() {
+    public static final Parcelable.Creator<TSBVideoMessageBody> CREATOR =
+            new Parcelable.Creator<TSBVideoMessageBody>() {
         @Override
-        public TSBVoiceMessageBody createFromParcel(Parcel in) {
-            return new TSBVoiceMessageBody(in);
+        public TSBVideoMessageBody createFromParcel(Parcel in) {
+            return new TSBVideoMessageBody(in);
         }
 
         @Override
-        public TSBVoiceMessageBody[] newArray(int size) {
-            return new TSBVoiceMessageBody[size];
+        public TSBVideoMessageBody[] newArray(int size) {
+            return new TSBVideoMessageBody[size];
         }
     };
 
     public String getDuration() {
         try {
-            return file.get(VOICE_INFO_DURATION).getAsString();
+            return file.get(VIDEO_INFO_DURATION).getAsString();
         } catch (Exception e) {
             return null;
         }
     }
 
     public void setDuration(String duration) {
-        file.addProperty(VOICE_INFO_DURATION, duration);
+        file.addProperty(VIDEO_INFO_DURATION, duration);
     }
 
     @Override
     public String toString() {
-        return String.format(
-                "TSBVoiceMessageBody[file: %s, type: %s, TSBMessageBody: %s]",
-                file.toString(), type.getName(), super.toString());
+        return String.format("TSBVideoMessageBody[file: %s, type: %s, TSBMessageBody: %s]", file.toString(), type.getName(), super.toString());
     }
 
-    private TSBVoiceMessageBody(Parcel in) {
-        super(TSBMessage.TYPE.VOICE);
+    private TSBVideoMessageBody(Parcel in) {
+        super(TSBMessage.TYPE.VIDEO);
         readFromParcel(in);
     }
 }

@@ -66,6 +66,12 @@
                 android:id="@+id/conversation_message_create_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/photo" />
+            
+            <Button
+                android:id="@+id/conversation_message_create_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="@string/image" />
         </LinearLayout>
     </LinearLayout>

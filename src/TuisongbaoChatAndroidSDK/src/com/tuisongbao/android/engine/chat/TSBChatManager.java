@@ -299,7 +299,7 @@ public class TSBChatManager extends BaseManager {
                         file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
                         file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
                         body.setFile(file);
-                    } else if (messageType == TYPE.VOICE) {
+                    } else if (messageType == TYPE.VOICE || messageType == TYPE.VIDEO) {
                         JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
                         file.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
                         body.setFile(file);

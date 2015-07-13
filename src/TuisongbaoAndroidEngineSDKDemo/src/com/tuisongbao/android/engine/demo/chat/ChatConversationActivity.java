@@ -44,14 +44,16 @@ import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBTextMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVideoMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
-import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder;
-import com.tuisongbao.android.engine.chat.media.TSBMediaRecorder.TSBMediaEventCallback;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
+import com.tuisongbao.android.engine.demo.chat.media.ChatCameraActivity;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoicePlayer;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoiceRecorder;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoiceRecorder.ChatVoiceEventCallback;
 import com.tuisongbao.android.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.android.engine.log.LogUtil;
 
@@ -86,8 +88,47 @@ public class ChatConversationActivity extends Activity implements
 
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
-    private TSBMediaRecorder mRecorder;
+    private ChatVoiceRecorder mRecorder;
     private long mRecordStartTime;
+    private TSBEngineCallback<TSBMessage> sendMessageCallback = new TSBEngineCallback<TSBMessage>() {
+
+        @Override
+        public void onSuccess(final TSBMessage t) {
+            t.setFrom(LoginChache.getUserId());
+            mMessageList.add(t);
+
+            // Notify dashboard to update the latest message of this conversation
+            Intent intent = new Intent(
+                    BROADCAST_ACTION_MESSAGE_SENT);
+            intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
+            sendBroadcast(intent);
+
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    mMessagesAdapter.refresh(mMessageList);
+                    mMessagesListView.setSelection(mMessageList.size() - 1);
+                    Toast.makeText(ChatConversationActivity.this,
+                            "Send success", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    mMessagesAdapter.refresh(mMessageList);
+                    mMessagesListView.setSelection(mMessageList.size() - 1);
+                    Toast.makeText(ChatConversationActivity.this,
+                            "Send failed", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,53 +184,7 @@ public class ChatConversationActivity extends Activity implements
             public void onClick(View v) {
                 TSBMessageBody body = new TSBTextMessageBody(mContentEditText
                         .getText().toString());
-                mConversation.sendMessage(body,
-                        new TSBEngineCallback<TSBMessage>() {
-
-                            @Override
-                            public void onSuccess(TSBMessage t) {
-                                t.setFrom(LoginChache.getUserId());
-                                mMessageList.add(t);
-
-                                Intent intent = new Intent(
-                                        BROADCAST_ACTION_MESSAGE_SENT);
-                                intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
-                                sendBroadcast(intent);
-
-                                runOnUiThread(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        mMessagesAdapter.refresh(mMessageList);
-                                        mMessagesListView
-                                                .setSelection(mMessageList
-                                                        .size() - 1);
-                                        Toast.makeText(
-                                                ChatConversationActivity.this,
-                                                "Send success",
-                                                Toast.LENGTH_LONG).show();
-                                    }
-                                });
-
-                            }
-
-                            @Override
-                            public void onError(final int code,
-                                    final String message) {
-                                runOnUiThread(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(
-                                                ChatConversationActivity.this,
-                                                "Send failure [code=" + code
-                                                        + ";msg=" + message
-                                                        + "]",
-                                                Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                            }
-                        });
+                mConversation.sendMessage(body, sendMessageCallback);
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
@@ -213,9 +208,9 @@ public class ChatConversationActivity extends Activity implements
 
             @Override
             public void onClick(View arg0) {
-                Log.d(TAG, "Show camera");
-                Intent intent = new Intent();
-                intent.setAction("com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO");
+                Intent intent = new Intent(getApplicationContext(),
+                        ChatCameraActivity.class);
+                intent.setAction(ChatCameraActivity.ACTION_VIDEO);
                 startActivityForResult(intent, REQUEST_CODE_TAKE_VIDEO);
             }
         });
@@ -346,8 +341,8 @@ public class ChatConversationActivity extends Activity implements
         // Request the latest messages.
         request();
 
-        mRecorder = new TSBMediaRecorder();
-        mRecorder.setMaxDuration(60 * 1000, new TSBMediaEventCallback() {
+        mRecorder = new ChatVoiceRecorder();
+        mRecorder.setMaxDuration(60 * 1000, new ChatVoiceEventCallback() {
 
             @Override
             public void onEvent() {
@@ -365,8 +360,10 @@ public class ChatConversationActivity extends Activity implements
             // Query the real path of the image.
             getLoaderManager().restartLoader(0, null, this);
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
-            // TODO: parse video from data
-            Uri videoUri = intent.getData();
+            String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
+            TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
+            videoBody.setLocalPath(videoPath);
+            mConversation.sendMessage(videoBody, sendMessageCallback);
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -425,7 +422,7 @@ public class ChatConversationActivity extends Activity implements
             String realPath = "";
 
             if (getUriType(mImageUri) == UriType.TYPE1) {
-                String [] splits = mImageUri.getPath().split(":");
+                String[] splits = mImageUri.getPath().split(":");
                 String imageId = splits[1];
                 cursor.moveToFirst();
                 while (!cursor.isAfterLast()) {
@@ -468,7 +465,7 @@ public class ChatConversationActivity extends Activity implements
     protected void onPause() {
         super.onPause();
 
-        TSBMediaPlayer.getInstance().stop();
+        ChatVoicePlayer.getInstance().stop();
     }
 
     @Override
@@ -487,31 +484,13 @@ public class ChatConversationActivity extends Activity implements
         LogUtil.info(TAG, "Record finished");
         String filePath = mRecorder.stop();
 
-        onVoiceMessageSent(filePath);
+        sendVoiceMessage(filePath);
     }
 
-    private void onVoiceMessageSent(String filePath) {
+    private void sendVoiceMessage(String filePath) {
         TSBVoiceMessageBody body = new TSBVoiceMessageBody();
         body.setLocalPath(filePath);
-        mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
-
-            @Override
-            public void onSuccess(final TSBMessage t) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMessageList.add(t);
-                        mMessagesAdapter.refresh(mMessageList);
-                    }
-                });
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                // TODO Auto-generated method stub
-
-            }
-        });
+        mConversation.sendMessage(body, sendMessageCallback);
     }
 
     private void request() {
@@ -566,38 +545,7 @@ public class ChatConversationActivity extends Activity implements
         }
         TSBImageMessageBody body = new TSBImageMessageBody();
         body.setLocalPath(filePath);
-        mConversation.sendMessage(body, new TSBEngineCallback<TSBMessage>() {
-
-            @Override
-            public void onSuccess(final TSBMessage t) {
-                mMessageList.add(t);
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        mMessagesAdapter.refresh(mMessageList);
-                        mMessagesListView.setSelection(mMessageList.size() - 1);
-                        Toast.makeText(ChatConversationActivity.this,
-                                "Send success", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        mMessagesAdapter.refresh(mMessageList);
-                        mMessagesListView.setSelection(mMessageList.size() - 1);
-                        Toast.makeText(ChatConversationActivity.this,
-                                "Send failed", Toast.LENGTH_LONG).show();
-                    }
-                });
-
-            }
-        });
+        mConversation.sendMessage(body, sendMessageCallback);
     }
 
     private void registerBroadcast() {
@@ -652,15 +600,16 @@ public class ChatConversationActivity extends Activity implements
 
     private void hideSoftKeyboard() {
         InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        im.hideSoftInputFromWindow(mContentEditText
-                .getApplicationWindowToken(),
+        im.hideSoftInputFromWindow(
+                mContentEditText.getApplicationWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     /***
-     * Different android system may have different format of Uri. See UriType for detail.
-     * If it is TYPE1, when query real path of the image, have to query all images and then filter them by the id field in Uri
-     * If it is TYPE2, can query the real path directly by CursorLoader.
+     * Different android system may have different format of Uri. See UriType
+     * for detail. If it is TYPE1, when query real path of the image, have to
+     * query all images and then filter them by the id field in Uri If it is
+     * TYPE2, can query the real path directly by CursorLoader.
      *
      * See also: onCreateLoader() and onLoadFinished()
      *
@@ -668,7 +617,7 @@ public class ChatConversationActivity extends Activity implements
      * @return
      */
     private UriType getUriType(Uri uri) {
-        String [] splits = mImageUri.getPath().split(":");
+        String[] splits = mImageUri.getPath().split(":");
         if (splits.length > 1) {
             return UriType.TYPE1;
         } else {

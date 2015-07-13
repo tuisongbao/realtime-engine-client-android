@@ -1,4 +1,4 @@
-package com.tuisongbao.android.engine.chat.media;
+package com.tuisongbao.android.engine.demo.chat.media;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,19 +13,12 @@ import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.log.LogUtil;
 
-
-/***
- * Play voice or video in order, for example, A is playing, when start B, A will be stopped before starting B.
- *
- * @author tuisongbao
- *
- */
-public class TSBMediaPlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
+public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
     private static MediaPlayer mMediaPlayer;
-    private static TSBMediaPlayer mInstance;
+    private static ChatVoicePlayer mInstance;
     private TSBMessage currentPlayingMessage;
-    HashMap<TSBMessage, OnStopListener> stopListenerHashMap = new HashMap<TSBMessage, TSBMediaPlayer.OnStopListener>();
-    HashMap<TSBMessage, OnErrorListener> errorListenerHashMap = new HashMap<TSBMessage, TSBMediaPlayer.OnErrorListener>();
+    HashMap<TSBMessage, OnStopListener> stopListenerHashMap = new HashMap<TSBMessage, ChatVoicePlayer.OnStopListener>();
+    HashMap<TSBMessage, OnErrorListener> errorListenerHashMap = new HashMap<TSBMessage, ChatVoicePlayer.OnErrorListener>();
 
     public interface OnStopListener {
         public void onStop();
@@ -35,14 +28,14 @@ public class TSBMediaPlayer implements OnPreparedListener, android.media.MediaPl
         public void onError(String error);
     }
 
-    public TSBMediaPlayer() {
+    public ChatVoicePlayer() {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
-    public static TSBMediaPlayer getInstance() {
+    public static ChatVoicePlayer getInstance() {
         if (mInstance == null) {
-            mInstance = new TSBMediaPlayer();
+            mInstance = new ChatVoicePlayer();
         }
         return mInstance;
     }

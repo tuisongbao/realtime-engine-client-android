@@ -18,7 +18,7 @@ import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.entity.ConversationWrapper;
-import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
+import com.tuisongbao.android.engine.demo.utils.ToolUtils;
 
 public class ChatConversationsAdapter extends BaseAdapter {
     private static final String TAG = "com.tuisongbao.android.engine.chat.ChatConversationsAdapter";

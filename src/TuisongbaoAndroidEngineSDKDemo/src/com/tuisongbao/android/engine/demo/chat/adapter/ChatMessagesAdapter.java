@@ -3,6 +3,7 @@ package com.tuisongbao.android.engine.demo.chat.adapter;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -16,19 +17,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.tuisongbao.android.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage;
 import com.tuisongbao.android.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.android.engine.chat.entity.TSBMessageBody;
+import com.tuisongbao.android.engine.chat.entity.TSBVideoMessageBody;
 import com.tuisongbao.android.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer;
-import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnErrorListener;
-import com.tuisongbao.android.engine.chat.media.TSBMediaPlayer.OnStopListener;
 import com.tuisongbao.android.engine.common.TSBEngineCallback;
 import com.tuisongbao.android.engine.common.TSBProgressCallback;
 import com.tuisongbao.android.engine.demo.R;
 import com.tuisongbao.android.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.android.engine.demo.chat.cache.LoginChache;
-import com.tuisongbao.android.engine.demo.chat.utils.ToolUtils;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVideoPlayerActivity;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoicePlayer;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoicePlayer.OnErrorListener;
+import com.tuisongbao.android.engine.demo.chat.media.ChatVoicePlayer.OnStopListener;
+import com.tuisongbao.android.engine.demo.utils.ToolUtils;
 import com.tuisongbao.android.engine.util.StrUtil;
 
 public class ChatMessagesAdapter extends BaseAdapter {
@@ -134,33 +137,40 @@ public class ChatMessagesAdapter extends BaseAdapter {
             voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_reply_content_voice);
         }
 
-        if (message.getBody().getType() == TYPE.TEXT) {
+        TSBMessageBody messageBody = message.getBody();
+        if (messageBody.getType() == TYPE.TEXT) {
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
-            textView.setText(message.getBody() != null ? message.getText() : "");
+            textView.setText(messageBody != null ? message.getText() : "");
             textView.setTextSize(17);
 
-        } else if (message.getBody().getType() == TYPE.IMAGE) {
+        } else if (messageBody.getType() == TYPE.IMAGE) {
             imageView.setVisibility(View.VISIBLE);
             voiceButton.setVisibility(View.GONE);
 
             showImageMessage(message, convertView, imageView, textView);
 
-        } else if (message.getBody().getType() == TYPE.VOICE) {
+        } else if (messageBody.getType() == TYPE.VOICE) {
             textView.setVisibility(View.GONE);
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.VISIBLE);
 
             showVoiceMessage(message, convertView, voiceButton);
+        } else if (messageBody.getType() == TYPE.VIDEO) {
+            textView.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
+            voiceButton.setVisibility(View.VISIBLE);
+
+            showVideoWidget(message, convertView, voiceButton);
         }
     }
 
     private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
         TSBVoiceMessageBody body = (TSBVoiceMessageBody)message.getBody();
         final String duration = body.getDuration();
-        voiceButton.setText(duration);
+        voiceButton.setText("voice: " + duration);
 
         // TODO: set different width measured by duration.
 
@@ -178,7 +188,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                 voiceButton.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
                 voiceButton.setTag("playing");
 
-                TSBMediaPlayer player = TSBMediaPlayer.getInstance();
+                ChatVoicePlayer player = ChatVoicePlayer.getInstance();
                 player.start(message, new OnStopListener() {
 
                     @Override
@@ -228,7 +238,6 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        TSBImageMessageBody body = (TSBImageMessageBody)message.getBody();
         message.downloadResource(new TSBEngineCallback<TSBMessage>() {
 
             @Override
@@ -268,5 +277,49 @@ public class ChatMessagesAdapter extends BaseAdapter {
                 });
             }
         });
+    }
+
+    private void showVideoWidget(final TSBMessage message, View convertView, final Button voiceButton) {
+        final TSBVideoMessageBody body = (TSBVideoMessageBody)message.getBody();
+        final String duration = body.getDuration();
+        voiceButton.setText("video: " + duration);
+
+        voiceButton.setTag("idle");
+        OnClickListener listener = new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+
+                    @Override
+                    public void onSuccess(TSBMessage t) {
+                        Intent intent = new Intent(mContext.getApplicationContext(), ChatVideoPlayerActivity.class);
+                        intent.putExtra(ChatVideoPlayerActivity.EXTRA_VIDEO_PATH, message.getResourcePath());
+                        mContext.startActivity(intent);
+                    }
+
+                    @Override
+                    public void onError(int code, String message) {
+
+                    }
+                }, new TSBProgressCallback() {
+
+                    @Override
+                    public void progress(final int percent) {
+                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                voiceButton.setText(percent + "%");
+                                if (percent == 100) {
+                                    voiceButton.setText(duration);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        };
+        voiceButton.setOnClickListener(listener);
     }
 }

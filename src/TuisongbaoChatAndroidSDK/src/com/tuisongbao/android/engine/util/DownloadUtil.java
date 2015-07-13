@@ -25,7 +25,7 @@ public class DownloadUtil {
      */
     public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final TSBEngineCallback<String> callback
             , final TSBProgressCallback progressCallback) {
-        LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begine to download " + type.getName() + " from " + urlString);
+        LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begin to download " + type.getName() + " from " + urlString);
         final String[] splits = urlString.split("/");
         if (StrUtil.isEmpty(urlString) || splits.length < 1) {
             callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
@@ -47,6 +47,9 @@ public class DownloadUtil {
                     } else if (type == TYPE.VOICE) {
                         outputFileName += ".wav";
                         folder = "voices";
+                    } else if (type == TYPE.VIDEO) {
+                        outputFileName += ".mp4";
+                        folder = "videos";
                     }
                     downloadFileWithProgress(urlString, outputFileName, folder, callback, progressCallback);
                 } catch (Exception e) {
