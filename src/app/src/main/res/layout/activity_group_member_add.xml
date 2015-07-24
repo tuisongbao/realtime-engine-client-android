@@ -1,0 +1,41 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_item_height"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/group_member_add_edittext"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="请输入用户名，多个用户用英文“,”隔开" />
+
+        <Button
+            android:id="@+id/group_member_add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/search"
+        android:visibility="gone" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="选中的联系人:"
+        android:visibility="gone" />
+
+    <ListView
+        android:id="@+id/group_member_add_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone" >
+    </ListView>
+
+</LinearLayout>

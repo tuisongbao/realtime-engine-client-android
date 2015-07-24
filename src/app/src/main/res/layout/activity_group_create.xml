@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <EditText
+        android:id="@+id/group_create_name"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_item_height"
+        android:hint="请输入群组名称" />
+
+    <EditText
+        android:id="@+id/group_create_detail"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/common_item_height2"
+        android:layout_below="@id/group_create_name"
+        android:gravity="left|top"
+        android:hint="请输入群组简介" />
+
+    <TextView
+        android:id="@+id/group_create_detail_textview_auth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group_create_detail"
+        android:text="群组权限:(私有群)" />
+
+    <ToggleButton
+        android:id="@+id/group_create_detail_is_private"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group_create_detail_textview_auth" />
+
+    <TextView
+        android:id="@+id/group_create_detail_textview_invite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group_create_detail_is_private"
+        android:text="成员邀请权限:(不允许群成员邀请其他人)" />
+
+    <ToggleButton
+        android:id="@+id/group_create_detail_invited_permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group_create_detail_textview_invite" />
+
+</RelativeLayout>

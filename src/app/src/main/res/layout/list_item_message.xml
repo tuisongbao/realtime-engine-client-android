@@ -1,0 +1,102 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/activity_horizontal_margin" >
+    
+     <TextView
+         android:id="@+id/list_item_chat_event_message"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:background="@color/gray"
+         android:layout_alignParentTop="true"
+         android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:id="@+id/list_item_chat_detail_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_chat_event_message" >
+        
+        <TextView
+            android:id="@+id/list_item_chat_detail_send_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        <TextView
+            android:id="@+id/list_item_chat_detail_send_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true" />
+        
+        <ImageView
+            android:id="@+id/list_item_chat_detail_send_content_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="image"
+            android:layout_below="@id/list_item_chat_detail_send_time"
+            android:layout_alignParentRight="true" />
+
+        <TextView
+            android:id="@+id/list_item_chat_detail_send_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/list_item_chat_detail_send_time"
+            android:layout_marginTop="@dimen/activity_horizontal_margin" />
+        
+        <Button
+            android:id="@+id/list_item_chat_detail_send_content_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_chat_detail_send_time"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/list_item_chat_detail_reply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/list_item_chat_event_message"  >
+
+        <TextView
+            android:id="@+id/list_item_chat_detail_reply_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        <TextView
+            android:id="@+id/list_item_chat_detail_reply_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/list_item_chat_detail_reply_user" />
+        
+        <ImageView
+            android:id="@+id/list_item_chat_detail_reply_content_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_chat_detail_reply_time"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:id="@+id/list_item_chat_detail_reply_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_chat_detail_reply_user"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/activity_horizontal_margin" />
+        
+        <Button
+            android:id="@+id/list_item_chat_detail_reply_content_voice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_chat_detail_reply_time"
+            android:layout_alignParentLeft="true" />
+    </RelativeLayout>
+
+</RelativeLayout>
