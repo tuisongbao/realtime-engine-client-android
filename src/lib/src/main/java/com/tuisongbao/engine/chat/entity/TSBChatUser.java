@@ -8,7 +8,7 @@ public class TSBChatUser {
 
     private boolean isNew;
     private String userId;
-    private HashMap<String, String> uploadTokens = new HashMap<String, String>();
+    private String uploadToken;
 
     public boolean isNew() {
         return isNew;
@@ -26,18 +26,17 @@ public class TSBChatUser {
         this.userId = userId;
     }
 
-    /***
-     *
-     * @param forWhat image, voice or video
-     * @return
-     */
-    public String getUploadToken(String forWhat) {
-        return uploadTokens.get(forWhat);
+    public void setUploadToken(String uploadToken) {
+        this.uploadToken = uploadToken;
+    }
+
+    public String getUploadToken() {
+        return this.uploadToken;
     }
 
     @Override
     public String toString() {
-        return String.format("TSBChatUser[isNew: %s, userId: %s, image uptoken: %s, voice uptoken: %s]"
-                , isNew, userId, uploadTokens.get(TYPE.IMAGE.getName()), uploadTokens.get(TYPE.VOICE.getName()));
+        return String.format("TSBChatUser[isNew: %s, userId: %s, uptoken: %s]"
+                , isNew, userId, uploadToken);
     }
 }

@@ -1,5 +1,7 @@
 package com.tuisongbao.engine.chat;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import com.tuisongbao.engine.chat.entity.TSBImageMessageBody;
 import com.tuisongbao.engine.chat.entity.TSBMediaMessageBody;
 import com.tuisongbao.engine.chat.entity.TSBMessage;
 import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.engine.chat.message.TSBChatLoginMessage;
 import com.tuisongbao.engine.chat.message.TSBChatLoginResponseMessage;
 import com.tuisongbao.engine.chat.message.TSBChatLogoutMessage;
@@ -245,8 +248,8 @@ public class TSBChatManager extends BaseManager {
         }
 
         UploadManager manager = new UploadManager();
-        String token = TSBChatManager.getInstance().getChatUser().getUploadToken(message.getBody().getType().getName());
-
+        String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
+        Log.d(TAG, token);
         UpProgressHandler progressHandler = null;
         if (options != null) {
             progressHandler = new UpProgressHandler() {
@@ -265,8 +268,9 @@ public class TSBChatManager extends BaseManager {
 
             @Override
             public void complete(String key, ResponseInfo info, JSONObject responseObject) {
-                if (responseObject == null) {
-                    responseHandler.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "Failed to upload image to TuiSongBao, please try later");
+                Log.i(TAG, "Get response of qiniu, info: " + info.isOK() + " error: " + info.error);
+                if (!info.isOK()) {
+                    responseHandler.onError(EngineConstants.ENGINE_CODE_UNKNOWN, info.error);
                 } else {
                     responseHandler.onSuccess(responseObject);
                 }
@@ -287,23 +291,22 @@ public class TSBChatManager extends BaseManager {
 
                     JsonObject file = new JsonObject();
                     file.addProperty(TSBImageMessageBody.KEY, responseObject.getString("key"));
-                    file.addProperty("persistentId", responseObject.getString("persistentId"));
-//                    file.addProperty(TSBImageMessageBody.ETAG, responseObject.getString("etag"));
-//                    file.addProperty(TSBImageMessageBody.NAME, responseObject.getString("fname"));
-//                    file.addProperty(TSBImageMessageBody.SIZE, responseObject.getString("fsize"));
-//                    file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
-//
-//                    TYPE messageType = body.getType();
-//                    if (messageType == TYPE.IMAGE) {
-//                        JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
-//                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
-//                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
-//                        body.setFile(file);
-//                    } else if (messageType == TYPE.VOICE || messageType == TYPE.VIDEO) {
-//                        JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
-//                        file.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
-//                        body.setFile(file);
-//                    }
+                    file.addProperty(TSBImageMessageBody.ETAG, responseObject.getString("etag"));
+                    file.addProperty(TSBImageMessageBody.NAME, responseObject.getString("fname"));
+                    file.addProperty(TSBImageMessageBody.SIZE, responseObject.getString("fsize"));
+                    file.addProperty(TSBImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
+
+                    TYPE messageType = body.getType();
+                    if (messageType == TYPE.IMAGE) {
+                        JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
+                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
+                        file.addProperty(TSBImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
+                        body.setFile(file);
+                    } else if (messageType == TYPE.VOICE || messageType == TYPE.VIDEO) {
+                        JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
+                        file.addProperty(TSBVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
+                        body.setFile(file);
+                    }
                     body.setFile(file);
                     message.setBody(body);
                     sendMessageRequest(message, callback);

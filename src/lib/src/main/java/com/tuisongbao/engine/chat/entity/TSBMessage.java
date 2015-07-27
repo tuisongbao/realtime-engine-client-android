@@ -11,6 +11,7 @@ import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBProgressCallback;
 import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.lib.BuildConfig;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.DownloadUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -126,7 +127,7 @@ public class TSBMessage implements Parcelable {
         private String name;
         private int index;
 
-        private TYPE(String name, int index) {
+        TYPE(String name, int index) {
             this.name = name;
         }
 

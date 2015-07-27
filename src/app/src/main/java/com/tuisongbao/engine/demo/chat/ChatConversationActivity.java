@@ -73,6 +73,7 @@ public class ChatConversationActivity extends Activity implements
 
     private static final int REQUEST_CODE_IMAGE = 1;
     private static final int REQUEST_CODE_TAKE_VIDEO = 2;
+    private static final int REQUEST_CODE_PHOTO = 3;
 
     private ListView mMessagesListView;
     private Button mSendButton;
@@ -116,11 +117,12 @@ public class ChatConversationActivity extends Activity implements
         }
 
         @Override
-        public void onError(int code, String message) {
+        public void onError(int code, final String message) {
             runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
+                    Log.e(TAG, "Failed to send message with error " + message);
                     mMessagesAdapter.refresh(mMessageList);
                     mMessagesListView.setSelection(mMessageList.size() - 1);
                     Toast.makeText(ChatConversationActivity.this,
@@ -187,6 +189,19 @@ public class ChatConversationActivity extends Activity implements
                 mConversation.sendMessage(body, sendMessageCallback);
                 mContentEditText.setText("");
                 hideSoftKeyboard();
+            }
+        });
+
+        // Take photo
+        Button capturePhotoButton = (Button) findViewById(R.id.conversation_message_create_photo);
+        capturePhotoButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                Intent intent = new Intent(getApplicationContext(),
+                        ChatCameraActivity.class);
+                intent.setAction(ChatCameraActivity.ACTION_PHOTO);
+                startActivityForResult(intent, REQUEST_CODE_PHOTO);
             }
         });
 
@@ -364,6 +379,11 @@ public class ChatConversationActivity extends Activity implements
             TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
             videoBody.setLocalPath(videoPath);
             mConversation.sendMessage(videoBody, sendMessageCallback);
+        } else if (requestCode == REQUEST_CODE_PHOTO && resultCode == RESULT_OK) {
+            String photoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_PHOTO);
+            TSBImageMessageBody imageBody = new TSBImageMessageBody();
+            imageBody.setLocalPath(photoPath);
+            mConversation.sendMessage(imageBody, sendMessageCallback);
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -446,7 +466,7 @@ public class ChatConversationActivity extends Activity implements
             sendImageMessage(realPath);
 
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 
@@ -538,6 +558,7 @@ public class ChatConversationActivity extends Activity implements
     }
 
     private void sendImageMessage(String filePath) {
+        Log.i(TAG, "send image which path is " + filePath);
         if (filePath == null || filePath.length() < 1) {
             Toast.makeText(ChatConversationActivity.this,
                     "Send failed, file not exist", Toast.LENGTH_LONG).show();

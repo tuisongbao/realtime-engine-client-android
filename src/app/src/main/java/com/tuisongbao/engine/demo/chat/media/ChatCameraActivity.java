@@ -58,6 +58,12 @@ public class ChatCameraActivity extends Activity {
         mPreview.setKeepScreenOn(true);
 
         actionButton = (Button) findViewById(R.id.button_camera);
+        String action = getIntent().getAction();
+        if (StrUtil.isEqual(action, ACTION_PHOTO)) {
+            actionButton.setText("Click to take picture");
+        } else if (StrUtil.isEqual(action, ACTION_VIDEO)) {
+            actionButton.setText("Click to start");
+        }
         actionButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -122,7 +128,8 @@ public class ChatCameraActivity extends Activity {
                 refreshGallery(outFile);
 
                 Intent intent = new Intent();
-                intent.putExtra(EXTRA_VIDEO, mResourcePath);
+                mResourcePath = outFile.getAbsolutePath();
+                intent.putExtra(EXTRA_PHOTO, mResourcePath);
                 setResult(RESULT_OK, intent);
 
                 finish();
@@ -146,7 +153,7 @@ public class ChatCameraActivity extends Activity {
 
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                Toast.makeText(mActivity, "Photo tokend, begin to save...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mActivity, "Photo has been token, begin to save...", Toast.LENGTH_SHORT).show();
                 new SaveImageTask().execute(data);
                 resetCam();
             }
@@ -166,6 +173,7 @@ public class ChatCameraActivity extends Activity {
         }
 
         isRecording = !isRecording;
+        actionButton.setText("Click to stop");
 
         try {
             mRecorder = new MediaRecorder();

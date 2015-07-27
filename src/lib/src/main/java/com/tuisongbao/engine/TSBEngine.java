@@ -43,7 +43,7 @@ public final class TSBEngine {
     /**
      * Initialize engine and start engine service.
      *
-     * @param context application conetext
+     * @param context application context
      * @param options
      */
     public static void init(Context context, TSBEngineOptions options) {
@@ -271,7 +271,7 @@ public final class TSBEngine {
             }
             return true;
         } catch (Exception e) {
-            LogUtil.warn(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.warn(LogUtil.LOG_TAG_CHAT, "Can not find PushConfig, Did you miss the configuration?");
         }
         return false;
     }

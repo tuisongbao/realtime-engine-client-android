@@ -13,7 +13,6 @@
         android:id="@+id/button_camera"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="Take Picture"
         android:layout_alignParentBottom="true" />
 
 </RelativeLayout>

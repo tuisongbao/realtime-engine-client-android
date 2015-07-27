@@ -9,73 +9,73 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical" >
-        
+
         <LinearLayout
             android:id="@+id/conversation_message_create_text"
 	        android:layout_width="match_parent"
 	        android:layout_height="@dimen/common_item_height"
 	        android:orientation="horizontal" >
-            
+
 	        <Button
 	            android:id="@+id/conversation_voice_text_switch_button"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/voice" />
-	
+
 	        <EditText
 	            android:id="@+id/conversation_message_content_edittext"
 	            android:layout_width="0dp"
 	            android:layout_height="match_parent"
 	            android:hint="@string/conversation_send_text_hint"
 	            android:layout_weight="1" />
-	        
+
 	        <Button
 	            android:id="@+id/conversation_voice_recorder_button"
 	            android:layout_width="wrap_content"
 	            android:layout_height="match_parent"
 	            android:layout_weight="1"
 	            android:text="@string/record" />
-	        
+
 	        <Button
 	            android:id="@+id/conversation_more_send_button"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/more" />
-	
+
 	        <Button
 	            android:id="@+id/conversation_text_send_button"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            android:text="@string/send" />
         </LinearLayout>
-        
+
         <LinearLayout
             android:id="@+id/conversation_message_create_multi"
             android:layout_width="match_parent"
             android:layout_height="@dimen/common_item_height"
             android:visibility="gone"
             android:orientation="horizontal" >
-    
+
             <Button
                 android:id="@+id/conversation_message_create_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/video" />
-            
+
             <Button
                 android:id="@+id/conversation_message_create_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/photo" />
-            
+                android:text="@string/image" />
+
             <Button
                 android:id="@+id/conversation_message_create_photo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/image" />
+                android:text="@string/photo" />
         </LinearLayout>
     </LinearLayout>
-    
+
 
     <ListView
         android:id="@+id/conversation_messages_list_view"
