@@ -2,15 +2,8 @@ package com.tuisongbao.engine.engineio.source;
 
 import com.tuisongbao.engine.service.RawMessage;
 
-/**
- * 从一个数据源接受数据.
- * 
- */
+import org.json.JSONObject;
+
 public interface IEngineCallback {
-    /**
-     * 接受新消息
-     *
-     * @param message 新消息.
-     */
-    public void receive(RawMessage message);
+    public void receive(JSONObject message);
 }

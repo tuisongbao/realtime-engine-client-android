@@ -8,7 +8,7 @@ public enum ChatType {
     private String name;
     private int index;
 
-    private ChatType(String name, int index) {
+    ChatType(String name, int index) {
         this.name = name;
     }
 

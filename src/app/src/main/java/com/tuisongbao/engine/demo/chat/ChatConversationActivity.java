@@ -47,6 +47,7 @@ import com.tuisongbao.engine.chat.entity.TSBTextMessageBody;
 import com.tuisongbao.engine.chat.entity.TSBVideoMessageBody;
 import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
 import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -69,7 +70,7 @@ public class ChatConversationActivity extends Activity implements
     public final static String BROADCAST_ACTION_MESSAGE_SENT_PROGRESS = "com.tuisongbao.demo.ChatConversationActivity.MessageSent.progress";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.demo.ChatConversationActivity.ExtraMessage";
     public static final String EXTRA_CONVERSATION = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
-    private static final String TAG = "com.tuisongbao.demo.ChatConversationActivity";
+    private static final String TAG = "Conversation Activity";
 
     private static final int REQUEST_CODE_IMAGE = 1;
     private static final int REQUEST_CODE_TAKE_VIDEO = 2;
@@ -175,7 +176,7 @@ public class ChatConversationActivity extends Activity implements
             }
         });
 
-        mMessageList = new ArrayList<TSBMessage>();
+        mMessageList = new ArrayList<>();
         mMessagesAdapter = new ChatMessagesAdapter(mMessageList, this);
         mMessagesListView.setAdapter(mMessagesAdapter);
 
@@ -403,7 +404,7 @@ public class ChatConversationActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member) {
-            TSBChatGroup group = new TSBChatGroup();
+            TSBChatGroup group = new TSBChatGroup(DemoApplication.engine.chatManager.groupManager);
             group.setGroupId(mConversation.getTarget());
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
             intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);
@@ -629,7 +630,7 @@ public class ChatConversationActivity extends Activity implements
     /***
      * Different android system may have different format of Uri. See UriType
      * for detail. If it is TYPE1, when query real path of the image, have to
-     * query all images and then filter them by the id field in Uri If it is
+     * query all images and then filter them by the id field in Uri; If it is
      * TYPE2, can query the real path directly by CursorLoader.
      *
      * See also: onCreateLoader() and onLoadFinished()
@@ -638,7 +639,7 @@ public class ChatConversationActivity extends Activity implements
      * @return
      */
     private UriType getUriType(Uri uri) {
-        String[] splits = mImageUri.getPath().split(":");
+        String[] splits = uri.getPath().split(":");
         if (splits.length > 1) {
             return UriType.TYPE1;
         } else {

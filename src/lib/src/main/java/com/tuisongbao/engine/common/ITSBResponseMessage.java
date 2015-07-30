@@ -1,17 +1,18 @@
 package com.tuisongbao.engine.common;
 
-public interface ITSBResponseMessage {
+import com.tuisongbao.engine.TSBEngine;
 
-    public void setErrorMessage(String error);
-    public void setCode(int code);
-    public void setName(String name);
-    public void setData(String data);
-    public void setChannel(String channel);
-    public void setBindName(String bindName);
-    public void setServerRequestId(long serverRequestId);
-    public void setRequestData(Object params);
-    public boolean isSuccess();
-    public void setCallback(ITSBEngineCallback callback);
-    public ITSBEngineCallback getCallback();
-    public void callBack();
+public interface ITSBResponseMessage {
+    void setErrorMessage(String error);
+    void setCode(int code);
+    void setName(String name);
+    void setData(String data);
+    void setChannel(String channel);
+    void setBindName(String bindName);
+    void setServerRequestId(long serverRequestId);
+    void setRequestData(Object params);
+    boolean isSuccess();
+    void setCallback(ITSBEngineCallback callback);
+    ITSBEngineCallback getCallback();
+    void callBack();
 }

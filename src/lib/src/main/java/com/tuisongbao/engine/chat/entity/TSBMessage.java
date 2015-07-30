@@ -10,15 +10,14 @@ import com.tuisongbao.engine.chat.TSBChatManager;
 import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBProgressCallback;
-import com.tuisongbao.engine.engineio.EngineConstants;
-import com.tuisongbao.engine.lib.BuildConfig;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.DownloadUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class TSBMessage implements Parcelable {
     /***
-     * This value is not unique, it is the message's order number in a conversation,
+     * This value is not unique, it is the message's serial number in a conversation,
      * A different conversation may has a message which has a same messageId.
      */
     private long messageId;
@@ -28,6 +27,12 @@ public class TSBMessage implements Parcelable {
     private TSBMessageBody content;
     private String createdAt;
     private boolean downloading = false;
+
+    transient private TSBChatManager mChatManager;
+
+    public TSBMessage(TSBChatManager chatManager) {
+        mChatManager = chatManager;
+    }
 
     public ChatType getChatType() {
         return type;
@@ -199,17 +204,16 @@ public class TSBMessage implements Parcelable {
     }
 
     public void downloadResource(final TSBEngineCallback<TSBMessage> callback, final TSBProgressCallback progressCallback) {
-        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
-        final String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
         final TSBMessage message = this;
 
         if (getBody().getType() == TYPE.TEXT) {
-            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Text message has no resource to download");
+            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "Text message has no resource to download");
             return;
         }
 
         if (downloading) {
-            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "Downloading is in process!");
+            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "Downloading is in process!");
             return;
         }
 
@@ -235,12 +239,13 @@ public class TSBMessage implements Parcelable {
                         downloading = false;
                         body.setLocalPath(filePath);
 
-                        if (TSBChatManager.getInstance().isCacheEnabled()) {
-                            dataSource.open();
-                            dataSource.upsertMessage(userId, message);
-                            LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
-                            dataSource.close();
-                        }
+                        // TODO: Get cache status and update DB
+//                        if (TSBChatManager.getInstance().isCacheEnabled()) {
+//                            dataSource.open();
+//                            dataSource.upsertMessage(userId, message);
+//                            LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
+//                            dataSource.close();
+//                        }
 
                         message.setBody(body);
                         callback.onSuccess(message);
@@ -257,7 +262,7 @@ public class TSBMessage implements Parcelable {
             }
         } catch (Exception e) {
             LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
-            callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
         }
     }
 

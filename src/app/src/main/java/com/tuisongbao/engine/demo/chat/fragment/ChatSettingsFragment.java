@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.TSBChatManager;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.LoginActivity;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -38,7 +39,7 @@ public class ChatSettingsFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                TSBChatManager.getInstance().logout();
+                DemoApplication.engine.chatManager.logout();
                 Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);

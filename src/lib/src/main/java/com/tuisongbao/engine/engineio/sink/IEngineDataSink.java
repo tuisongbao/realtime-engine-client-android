@@ -14,11 +14,11 @@ public interface IEngineDataSink {
      *
      * @param message The new measurement.
      */
-    public boolean receive(RawMessage message) throws DataSinkException;
+    boolean receive(RawMessage message) throws DataSinkException;
 
     /**
      * Release any acquired resources and either stop sending message (if a
      * source) or stop expecting to receive them (if a sink).
      */
-    public void stop();
+    void stop();
 }

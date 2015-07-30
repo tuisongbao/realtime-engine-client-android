@@ -5,22 +5,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.TSBChannelManager;
 import com.tuisongbao.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.engine.channel.message.TSBUnsubscribeMessage;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBResponseMessage;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
+import org.json.JSONException;
+
 public class TSBChannel {
+    private static final String TAG = TSBChannel.class.getSimpleName();
+
+    protected TSBChannelManager mChannelManager;
+
     /**
      * This field must be channel, because when serialize message, this will be parse into it's name string.
      */
-    String channel;
+    protected String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
     transient TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
 
@@ -43,7 +48,8 @@ public class TSBChannel {
         }
     };
 
-    public TSBChannel(String name) {
+    public TSBChannel(String name, TSBChannelManager channelManager) {
+        mChannelManager = channelManager;
         this.channel = name;
     }
 
@@ -62,7 +68,7 @@ public class TSBChannel {
         LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Bind event listner for channel: " + channel);
         TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(bindCallback);
-        TSBEngine.bind(channel, response);
+        mChannelManager.bind(channel, response);
     }
 
     public void bind(String eventName, TSBEngineBindCallback callback) {
@@ -106,35 +112,43 @@ public class TSBChannel {
             @Override
             public void onSuccess(String t) {
                 LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation pass: " + t);
-                sendSubscribeRequest();
+                try {
+                    sendSubscribeRequest();
+                } catch (Exception e) {
+                    LogUtil.error(TAG, "Send subscribe request failed", e);
+                }
             }
 
             @Override
             public void onError(int code, String message) {
                 LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed: " + message);
-                handleErrorMessage(formatEventName(EngineConstants.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
+                handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
 
                 // remove reference from tsbchannel manager
-                TSBChannelManager.getInstance().unSubscribe(channel);
+                mChannelManager.unsubscribe(channel);
             }
         });
     }
 
     public void unsubscribe() {
-        TSBUnsubscribeMessage message = new TSBUnsubscribeMessage();
-        TSBChannel data = new TSBChannel(channel);
-        message.setData(data);
-        TSBEngine.send(message.getName(), message.serialize(), null);
+        try {
+            TSBUnsubscribeMessage message = new TSBUnsubscribeMessage();
+            TSBChannel data = new TSBChannel(channel, mChannelManager);
+            message.setData(data);
+            mChannelManager.send(message);
 
-        // Remove listeners on engineIO layer
-        TSBEngine.unbind(channel);
+            // Remove listeners on engineIO layer
+            mChannelManager.unbind(channel, null);
 
-        eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
+            eventHandlers = new ConcurrentHashMap<>();
+        } catch (Exception e) {
+
+        }
     }
 
-    public void sendSubscribeRequest() {
+    protected void sendSubscribeRequest() throws JSONException {
         TSBSubscribeMessage message = generateSubscribeMessage();
-        TSBEngine.send(message.getName(), message.serialize(), null);
+        mChannelManager.send(message);
     }
 
     protected void validata(TSBEngineCallback<String> callback) {
@@ -143,7 +157,7 @@ public class TSBChannel {
 
     protected TSBSubscribeMessage generateSubscribeMessage() {
         TSBSubscribeMessage message = new TSBSubscribeMessage();
-        TSBPresenceChannel data = new TSBPresenceChannel(channel);
+        TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
         data.setName(channel);
         message.setData(data);
 

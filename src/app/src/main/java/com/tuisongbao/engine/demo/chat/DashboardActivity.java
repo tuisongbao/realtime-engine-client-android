@@ -30,7 +30,8 @@ import com.tuisongbao.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.engine.chat.entity.TSBMessage;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.connection.entity.TSBConnection;
+import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.fragment.ChatContactsFragment;
@@ -123,13 +124,13 @@ public class DashboardActivity extends FragmentActivity {
             }
         });
 
-        TSBChatManager.getInstance().bind(
+        DemoApplication.engine.chatManager.bind(
                 TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
                 new TSBEngineBindCallback() {
 
                     @Override
                     public void onEvent(String bindName, String name,
-                            final String data) {
+                                        final String data) {
                         runOnUiThread(new Runnable() {
 
                             @Override
@@ -153,38 +154,6 @@ public class DashboardActivity extends FragmentActivity {
                         });
                     }
                 });
-        TSBEngine.connection.bindConnectionChangeStatusEvent(new TSBEngineCallback<TSBConnection>() {
-
-            @Override
-            public void onSuccess(TSBConnection t) {
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Toast.makeText(
-                                DashboardActivity.this,
-                                "你已成功链接上网络",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-
-            }
-
-            @Override
-            public void onError(final int code, final String message) {
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Toast.makeText(
-                                DashboardActivity.this,
-                                "你已经断开连接[code=" + code + ";message=" + message + "]",
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-        });
-
         registerBroadcast();
     }
 

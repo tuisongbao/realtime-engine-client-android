@@ -15,11 +15,11 @@ public class TSBChatGroupCreateReponseMessage extends
     protected TSBChatGroup prepareCallBackData() {
         TSBChatGroup group = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+        if (!mEngine.chatManager.isCacheEnabled()) {
             return group;
         }
 
-        String currentUser = TSBChatManager.getInstance().getChatUser().getUserId();
+        String currentUser = mEngine.chatManager.getChatUser().getUserId();
         Gson gson = new Gson();
         TSBChatGroupCreateData requestData = gson.fromJson((String)getRequestData(), TSBChatGroupCreateData.class);
         group.setOwner(currentUser);
@@ -34,7 +34,7 @@ public class TSBChatGroupCreateReponseMessage extends
         group.setUserCount(userCount);
         group.setIsPublic(requestData.isPublic());
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
         dataSource.open();
         dataSource.insert(group, currentUser);
         dataSource.close();

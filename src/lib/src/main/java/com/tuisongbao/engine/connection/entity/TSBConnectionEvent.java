@@ -2,7 +2,7 @@ package com.tuisongbao.engine.connection.entity;
 
 import com.tuisongbao.engine.entity.TSBEngineConstants;
 
-public class TSBConnection {
+public class TSBConnectionEvent {
 
     private int code;
     private String message;

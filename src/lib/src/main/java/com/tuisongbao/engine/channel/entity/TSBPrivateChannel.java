@@ -4,9 +4,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.channel.TSBChannelManager;
 import com.tuisongbao.engine.channel.message.TSBSubscribeMessage;
 import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
@@ -15,11 +16,11 @@ import com.tuisongbao.engine.util.ExecutorUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class TSBPrivateChannel extends TSBChannel {
-    public TSBPrivateChannel(String name) {
-        super(name);
+    public TSBPrivateChannel(String name, TSBChannelManager channelManager) {
+        super(name, channelManager);
     }
 
-    String signature;
+    protected String signature;
 
     public String getSignature() {
         return signature;
@@ -31,7 +32,7 @@ public class TSBPrivateChannel extends TSBChannel {
 
     protected JSONObject getHttpRequestObjectOfAuth() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("socketId", TSBEngine.getSocketId());
+        json.put("socketId", mChannelManager.engine.connection.getSocketId());
         json.put("channelName", channel);
 
         return json;
@@ -40,7 +41,7 @@ public class TSBPrivateChannel extends TSBChannel {
     @Override
     protected TSBSubscribeMessage generateSubscribeMessage() {
         TSBSubscribeMessage message = new TSBSubscribeMessage();
-        TSBPresenceChannel data = new TSBPresenceChannel(channel);
+        TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
         data.setSignature(signature);
         message.setData(data);
 
@@ -50,7 +51,7 @@ public class TSBPrivateChannel extends TSBChannel {
     protected boolean validateResponseDataOfAuth(JSONObject data, TSBEngineCallback<String> callback) {
         signature = data.optString("signature");
         if (StrUtil.isEmpty(signature)) {
-            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, Signature field is empty");
+            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, Signature field is empty");
             return false;
         }
         return true;
@@ -66,21 +67,21 @@ public class TSBPrivateChannel extends TSBChannel {
                 try {
                     json = getHttpRequestObjectOfAuth();
                 } catch (JSONException e) {
-                    callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Tuisongbao internal error");
+                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Tuisongbao internal error");
                     LogUtil.error(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed.",  e);
                     return;
                 }
                 BaseRequest authRequest = new BaseRequest(
-                        HttpConstants.HTTP_METHOD_POST, TSBEngine.getTSBEngineOptions().getAuthEndpoint(), json.toString());
+                        HttpConstants.HTTP_METHOD_POST, mChannelManager.engine.getEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse authResponse = authRequest.execute();
                 if (authResponse == null || !authResponse.isStatusOk()) {
-                    callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Error accured when call auth server");
+                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Error accured when call auth server");
                     return;
                 }
 
                 JSONObject jsonData = authResponse.getJSONData();
                 if (jsonData == null) {
-                    callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, auth server response nothing");
+                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, auth server response nothing");
                     return;
                 }
                 if (validateResponseDataOfAuth(jsonData, callback)) {

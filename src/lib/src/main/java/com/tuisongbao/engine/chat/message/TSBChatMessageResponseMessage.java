@@ -20,13 +20,11 @@ import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.engine.common.BaseTSBResponseMessage;
 import com.tuisongbao.engine.common.ITSBEngineCallback;
 import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.service.EngineServiceManager;
 import com.tuisongbao.engine.util.StrUtil;
 
-public class TSBChatMessageResponseMessage extends
-        BaseTSBResponseMessage<TSBMessage> {
+public class TSBChatMessageResponseMessage extends BaseTSBResponseMessage<TSBMessage> {
     private TSBMessage mSendMessage;
     /**
      * 用于保存用户传递的call back
@@ -65,12 +63,12 @@ public class TSBChatMessageResponseMessage extends
     @Override
     protected TSBMessage prepareCallBackData() {
         TSBMessage message = null;
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
-        String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        String userId = mEngine.chatManager.getChatUser().getUserId();
         dataSource.open();
 
         // New Message received.
-        if (EngineConstants.CHAT_NAME_NEW_MESSAGE.equals(getBindName())) {
+        if (Protocol.CHAT_NAME_NEW_MESSAGE.equals(getBindName())) {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(ChatType.class,
                     new TSBChatMessageChatTypeSerializer());
@@ -81,7 +79,7 @@ public class TSBChatMessageResponseMessage extends
             Gson gson = gsonBuilder.create();
             message = gson.fromJson(getData(),
                     TSBMessage.class);
-            EngineServiceManager.receivedMessage(message);
+            // TODO: Send message to relevant engine instance.
         }
 
         // Send message successfully
@@ -111,7 +109,7 @@ public class TSBChatMessageResponseMessage extends
             }
         }
 
-        if (message != null && TSBChatManager.getInstance().isCacheEnabled()) {
+        if (message != null && mEngine.chatManager.isCacheEnabled()) {
             dataSource.upsertMessage(userId, message);
         }
         dataSource.close();
@@ -124,7 +122,7 @@ public class TSBChatMessageResponseMessage extends
         ((TSBChatMessageResponseMessageCallback)getCallback()).onEvent(this);
     }
 
-    public static interface TSBChatMessageResponseMessageCallback extends ITSBEngineCallback {
-        public void onEvent(TSBChatMessageResponseMessage response);
+    public interface TSBChatMessageResponseMessageCallback extends ITSBEngineCallback {
+        void onEvent(TSBChatMessageResponseMessage response);
     }
 }

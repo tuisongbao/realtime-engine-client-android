@@ -19,6 +19,7 @@ import android.widget.ListView;
 import com.tuisongbao.engine.chat.entity.ChatType;
 import com.tuisongbao.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.ChatGroupsActivity;
@@ -81,7 +82,7 @@ public class ChatContactsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
 
-                TSBChatConversation conversation = new TSBChatConversation();
+                TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
                 conversation.setTarget(mFriendsList.get(arg2).getUserId());
                 conversation.setType(ChatType.SingleChat);
 

@@ -10,6 +10,7 @@ import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class TSBChatGroup implements Parcelable {
+    transient private TSBGroupManager mGroupManager;
 
     private String groupId;
     private String owner;
@@ -20,8 +21,8 @@ public class TSBChatGroup implements Parcelable {
     private String lastActiveAt;
     private List<String> invitedUserIds;
 
-    public TSBChatGroup() {
-
+    public TSBChatGroup(TSBGroupManager groupManager) {
+        mGroupManager = groupManager;
     }
 
     public String getGroupId() {
@@ -94,7 +95,7 @@ public class TSBChatGroup implements Parcelable {
      * @param callback 可选
      */
     public void getUsers(TSBEngineCallback<List<TSBContactsUser>> callback) {
-        TSBGroupManager.getInstance().getUsers(groupId, callback);
+        mGroupManager.getUsers(groupId, callback);
     }
 
     /**
@@ -105,7 +106,7 @@ public class TSBChatGroup implements Parcelable {
      * @param callback 可选
      */
     public void joinInvitation(List<String> userIds, TSBEngineCallback<String> callback) {
-        TSBGroupManager.getInstance().joinInvitation(groupId, userIds, callback);
+        mGroupManager.joinInvitation(groupId, userIds, callback);
     }
 
     /**
@@ -116,7 +117,7 @@ public class TSBChatGroup implements Parcelable {
      * @param callback 可选
      */
     public void removeUsers(List<String> userIds, TSBEngineCallback<String> callback) {
-        TSBGroupManager.getInstance().removeUsers(groupId, userIds, callback);
+        mGroupManager.removeUsers(groupId, userIds, callback);
     }
 
     /**
@@ -125,7 +126,7 @@ public class TSBChatGroup implements Parcelable {
      * @param callback 可选
      */
     public void leave(TSBEngineCallback<String> callback) {
-        TSBGroupManager.getInstance().leave(groupId, callback);
+        mGroupManager.leave(groupId, callback);
     }
 
     @Override

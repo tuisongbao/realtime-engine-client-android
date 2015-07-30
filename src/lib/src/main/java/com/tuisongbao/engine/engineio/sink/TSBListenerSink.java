@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.tuisongbao.engine.common.ITSBEngineCallback;
 import com.tuisongbao.engine.common.ITSBResponseMessage;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.service.RawMessage;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -68,9 +68,9 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
     protected void propagateMessage(RawMessage message) {
         if (message != null) {
             // 当网络联络连接失败后，需要将callback listener全部回调
-            if (EngineConstants.EVENT_CONNECTION_CHANGE_STATUS.equals(message
+            if (Protocol.EVENT_CONNECTION_CHANGE_STATUS.equals(message
                     .getBindName())
-                    && message.getCode() != EngineConstants.ENGINE_CODE_SUCCESS) {
+                    && message.getCode() != Protocol.ENGINE_CODE_SUCCESS) {
                 if (!mListeners.isEmpty()) {
                     Set<Long> requestIds = mListeners.keySet();
                     for (Long requestId : requestIds) {
@@ -110,11 +110,11 @@ public class TSBListenerSink extends BaseEngineCallbackSink {
             ITSBResponseMessage callbackMessage = map.get(requestMessage);
             if (callbackMessage != null) {
                 copyFromRawMessage(callbackMessage, message);
-                if (EngineConstants.ENGINE_ENGINE_RESPONSE.equals(message.getName())) {
-                    callbackMessage.setBindName(requestMessage.getName());
-                    // TODO: check the request params
-                    callbackMessage.setRequestData(requestMessage.getData());
-                }
+//                if (Protocol.Event.equals(message.getName())) {
+//                    callbackMessage.setBindName(requestMessage.getName());
+//                    // TODO: check the request params
+//                    callbackMessage.setRequestData(requestMessage.getData());
+//                }
                 callbackMessage.callBack();
             }
             // 由于对于request请求返回的name均是"event_response",所以绑定事件是需要使用请求的name

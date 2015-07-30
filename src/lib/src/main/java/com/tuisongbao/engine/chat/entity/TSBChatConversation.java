@@ -5,6 +5,7 @@ import java.util.List;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.TSBChatManager;
 import com.tuisongbao.engine.chat.TSBConversationManager;
 import com.tuisongbao.engine.common.TSBEngineCallback;
@@ -14,9 +15,12 @@ public class TSBChatConversation implements Parcelable {
     private String target;
     private int unreadMessageCount;
     private String lastActiveAt;
+    private TSBMessage lastMessage;
 
-    public TSBChatConversation() {
+    transient private TSBConversationManager mConversationManager;
 
+    public TSBChatConversation(TSBConversationManager conversationManager) {
+        mConversationManager = conversationManager;
     }
 
     public ChatType getType() {
@@ -51,13 +55,21 @@ public class TSBChatConversation implements Parcelable {
         this.lastActiveAt = lastActiveAt;
     }
 
+    public TSBMessage getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(TSBMessage lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
     /***
      * 重置未读消息
      *
      * @param callback 可选
      */
     public void resetUnread(TSBEngineCallback<String> callback) {
-        TSBConversationManager.getInstance().resetUnread(type, target, callback);
+        mConversationManager.resetUnread(type, target, callback);
     }
 
     /**
@@ -66,7 +78,7 @@ public class TSBChatConversation implements Parcelable {
      * @param callback 可选
      */
     public void delete(TSBEngineCallback<String> callback) {
-        TSBConversationManager.getInstance().delete(type, target, callback);
+        mConversationManager.delete(type, target, callback);
     }
 
     /**
@@ -82,7 +94,7 @@ public class TSBChatConversation implements Parcelable {
      */
     public void getMessages(Long startMessageId,Long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
-        TSBConversationManager.getInstance().getMessages(type, target, startMessageId, endMessageId, limit, callback);
+        mConversationManager.getMessages(type, target, startMessageId, endMessageId, limit, callback);
     }
 
     /***
@@ -100,7 +112,7 @@ public class TSBChatConversation implements Parcelable {
     private void sendMessage(TSBMessageBody body, TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
         TSBMessage message = new TSBMessage();
         message.setBody(body).setChatType(type).setRecipient(target);
-        TSBChatManager.getInstance().sendMessage(message, callback, options);
+        mConversationManager.sendMessage(message, callback, options);
     }
 
     @Override

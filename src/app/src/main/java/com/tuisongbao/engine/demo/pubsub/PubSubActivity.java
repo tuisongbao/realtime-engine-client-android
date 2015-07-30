@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.channel.TSBChannelManager;
 import com.tuisongbao.engine.channel.entity.TSBChannel;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 
 public class PubSubActivity extends Activity {
@@ -56,7 +57,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                TSBChannel channel = TSBChannelManager.getInstance().subscribe(channelName, authData);
+                TSBChannel channel = DemoApplication.engine.channelManager.subscribe(channelName, authData);
                 channel.bind("engine:subscription_succeeded", new TSBEngineBindCallback() {
 
                     @Override
@@ -94,7 +95,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                TSBChannelManager.getInstance().unSubscribe(channelName);
+                DemoApplication.engine.channelManager.unsubscribe(channelName);
             }
         });
 

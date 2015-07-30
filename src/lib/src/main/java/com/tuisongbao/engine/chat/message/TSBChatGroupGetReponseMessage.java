@@ -18,12 +18,12 @@ public class TSBChatGroupGetReponseMessage extends
     protected List<TSBChatGroup> prepareCallBackData() {
         List<TSBChatGroup> groups = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+        if (!mEngine.chatManager.isCacheEnabled()) {
             return groups;
         }
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
-        String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        String userId = mEngine.chatManager.getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(groups, userId);
 

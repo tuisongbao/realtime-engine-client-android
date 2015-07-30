@@ -12,7 +12,7 @@ import android.os.Environment;
 import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBProgressCallback;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class DownloadUtil {
@@ -28,7 +28,7 @@ public class DownloadUtil {
         LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begin to download " + type.getName() + " from " + urlString);
         final String[] splits = urlString.split("/");
         if (StrUtil.isEmpty(urlString) || splits.length < 1) {
-            callback.onError(EngineConstants.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
+            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
             return;
         }
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
@@ -53,7 +53,7 @@ public class DownloadUtil {
                     }
                     downloadFileWithProgress(urlString, outputFileName, folder, callback, progressCallback);
                 } catch (Exception e) {
-                    callback.onError(EngineConstants.ENGINE_CODE_UNKNOWN, "The resource url String is invalid.");
+                    callback.onError(Protocol.ENGINE_CODE_UNKNOWN, "The resource url String is invalid.");
                 }
             }
         });

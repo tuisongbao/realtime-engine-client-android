@@ -3,23 +3,19 @@ package com.tuisongbao.engine.service;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
-public class RawMessage implements Parcelable {
+import org.json.JSONException;
+import org.json.JSONObject;
 
+public class RawMessage implements Parcelable {
+    private static final String TAG = RawMessage.class.getSimpleName();
     /**
      * 消息唯一标志符,用于发送的标示消息类型
      */
     private String mUUID;
-    /**
-     * 应用id
-     */
-    private String mAppId;
-    /**
-     * 应用Secret
-     */
-    private String mAppKey;
     /**
      * 消息名
      */
@@ -35,7 +31,7 @@ public class RawMessage implements Parcelable {
     /**
      * 返回的状态码
      */
-    private int mCode = EngineConstants.ENGINE_CODE_SUCCESS;
+    private int mCode = Protocol.ENGINE_CODE_SUCCESS;
     /**
      * 返回的状态错误信息
      */
@@ -56,12 +52,9 @@ public class RawMessage implements Parcelable {
      * 服务端请求id, 服务端返回
      */
     private long mServerRequestId;
-    private long mTimestamp;
-    
-    public RawMessage(String appId, String appKey, String name, String data) {
+
+    public RawMessage(String name, String data) {
         this();
-        mAppKey = appKey;
-        mAppId = appId;
         mName = name;
         mData = data;
     }
@@ -72,14 +65,6 @@ public class RawMessage implements Parcelable {
 
     public void setServerRequestId(long serverRequestId) {
         this.mServerRequestId = serverRequestId;
-    }
-
-    public String getAppKey() {
-        return mAppKey;
-    }
-
-    public void setAppKey(String appKey) {
-        this.mAppKey = appKey;
     }
 
     public boolean isUnbind() {
@@ -134,14 +119,6 @@ public class RawMessage implements Parcelable {
         return mUUID;
     }
 
-    public String getAppId() {
-        return mAppId;
-    }
-
-    public void setAppId(String appId) {
-        this.mAppId = appId;
-    }
-
     public String getName() {
         return mName;
     }
@@ -158,6 +135,14 @@ public class RawMessage implements Parcelable {
         this.mData = data;
     }
 
+    public String serialize() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put(Protocol.REQUEST_KEY_ID, getRequestId());
+        json.put(Protocol.REQUEST_KEY_NAME, getName());
+        json.put(Protocol.REQUEST_KEY_DATA, getData());
+        return json.toString();
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -166,8 +151,6 @@ public class RawMessage implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(StrUtil.strNotNull(mUUID));
-        dest.writeString(StrUtil.strNotNull(mAppId));
-        dest.writeString(StrUtil.strNotNull(mAppKey));
         dest.writeString(StrUtil.strNotNull(mName));
         dest.writeString(StrUtil.strNotNull(mData));
         dest.writeString(StrUtil.strNotNull(mChannel));
@@ -180,8 +163,6 @@ public class RawMessage implements Parcelable {
 
     public void readFromParcel(Parcel in) {
         mUUID = in.readString();
-        mAppId = in.readString();
-        mAppKey = in.readString();
         mName = in.readString();
         mData = in.readString();
         mChannel = in.readString();
@@ -208,15 +189,9 @@ public class RawMessage implements Parcelable {
 
     private RawMessage(Parcel in) {
         readFromParcel(in);
-        timestamp();
     }
 
     private RawMessage() {
         mUUID = StrUtil.creatUUID();
-        timestamp();
-    }
-
-    private void timestamp() {
-        mTimestamp = System.currentTimeMillis();
     }
 }

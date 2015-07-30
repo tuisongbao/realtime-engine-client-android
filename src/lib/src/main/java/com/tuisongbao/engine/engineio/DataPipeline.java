@@ -12,6 +12,8 @@ import com.tuisongbao.engine.engineio.source.IEngineDataSource;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.service.RawMessage;
 
+import org.json.JSONObject;
+
 /**
  * A pipeline that ferries data from IEngineDataSources to EngineDataSinks.
  *
@@ -19,9 +21,9 @@ import com.tuisongbao.engine.service.RawMessage;
 public class DataPipeline implements IEngineCallback {
     private static final String TAG = DataPipeline.class.getSimpleName();
     private CopyOnWriteArrayList<IEngineDataSink> mSinks =
-            new CopyOnWriteArrayList<IEngineDataSink>();
+            new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<IEngineDataSource> mSources =
-            new CopyOnWriteArrayList<IEngineDataSource>();
+            new CopyOnWriteArrayList<>();
 
     /**
      * Accept new values from data sources and send it out to all registered
@@ -133,5 +135,10 @@ public class DataPipeline implements IEngineCallback {
             (i.next()).stop();
         }
         mSinks.clear();
+    }
+
+    @Override
+    public void receive(JSONObject message) {
+
     }
 }

@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.chat.TSBChatManager;
 import com.tuisongbao.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.pubsub.PubSubActivity;
@@ -35,7 +36,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    TSBChatManager.getInstance().login(mEditTextAccount.getText().toString(), new TSBEngineCallback<TSBChatUser>() {
+                    DemoApplication.engine.chatManager.login(mEditTextAccount.getText().toString(), new TSBEngineCallback<TSBChatUser>() {
 
                         @Override
                         public void onSuccess(TSBChatUser t) {

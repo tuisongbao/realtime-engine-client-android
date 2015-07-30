@@ -18,11 +18,11 @@ public class TSBChatGroupGetUsersReponseMessage extends
     protected List<TSBContactsUser> prepareCallBackData() {
         List<TSBContactsUser> users = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+        if (!mEngine.chatManager.isCacheEnabled()) {
             return users;
         }
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
         dataSource.open();
 
         Gson gson = new Gson();

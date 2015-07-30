@@ -1,73 +1,50 @@
 package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.TSBChatManager;
-import com.tuisongbao.engine.connection.entity.TSBConnection;
+import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
 
-public abstract class BaseManager {
-    protected boolean isLogin() {
-        return TSBChatManager.getInstance().getChatUser() != null;
+import org.json.JSONException;
+
+public class BaseManager {
+    public static TSBEngine engine;
+
+    public BaseManager() {}
+
+    public BaseManager(TSBEngine engine) {
+        this.engine = engine;
+        // TODO: Bind connection status listener
     }
 
-    protected boolean send(ITSBRequestMessage message) {
-        return send(message, null);
+    public void send(ITSBRequestMessage message) throws JSONException {
+        send(message, null);
     }
 
-    protected boolean send(ITSBRequestMessage message, ITSBResponseMessage response) {
-        return TSBEngine.send(message.getName(), message.serialize(), response);
+    public void send(ITSBRequestMessage message, ITSBResponseMessage response) throws JSONException {
+        engine.connection.send(message.getName(), message.serialize(), response);
     }
 
-    protected boolean send(String name, String data, ITSBResponseMessage response) {
-        return TSBEngine.send(name, data, null);
-    }
-
-    protected void bind(String bindName, ITSBEngineCallback callback) {
+    public void bind(String bindName, ITSBEngineCallback callback) {
         TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(callback);
-        TSBEngine.bind(bindName, response);
+        engine.connection.bind(bindName, response);
     }
 
-    protected void bind(String bindName, ITSBResponseMessage response) {
-        TSBEngine.bind(bindName, response);
+    public void bind(String bindName, ITSBResponseMessage response) {
+        engine.connection.bind(bindName, response);
     }
 
-    protected void unbind(String bindName) {
-        TSBEngine.unbind(bindName);
-    }
-
-    protected void unbind(String bindName, ITSBEngineCallback callback) {
+    public void unbind(String bindName, ITSBEngineCallback callback) {
         TSBResponseMessage response = new TSBResponseMessage();
         response.setCallback(callback);
-        TSBEngine.unbind(bindName, response);
+        engine.connection.unbind(bindName, response);
     }
 
-    protected BaseManager() {
-        bindConnectionEvents();
-    }
-
-    private void bindConnectionEvents() {
-        TSBEngine.connection.bindConnectionChangeStatusEvent(mConnectionCallback);
-    }
-
-    private TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
-
-        @Override
-        public void onSuccess(TSBConnection t) {
-            handleConnect(t);
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            handleDisconnect(code, message);
-        }
-    };
-
-    protected <T> void handleErrorMessage(TSBEngineCallback<T> callback,
+    public <T> void handleErrorMessage(TSBEngineCallback<T> callback,
             int code, String message) {
         callback.onError(code, message);
     }
 
-    protected void handleConnect(TSBConnection t) {
+    protected void handleConnect(TSBConnectionEvent t) {
         // empty
     }
 

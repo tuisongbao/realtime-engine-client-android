@@ -27,6 +27,7 @@ import com.tuisongbao.engine.chat.entity.ChatType;
 import com.tuisongbao.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.engine.chat.entity.TSBMessage;
 import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.adapter.ChatConversationsAdapter;
@@ -149,7 +150,7 @@ public class ChatConversationsFragment extends Fragment {
             wrapper = new ConversationWrapper();
             mConversationHashMap.put(key, wrapper);
 
-            TSBChatConversation conversation = new TSBChatConversation();
+            TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
             conversation.setType(message.getChatType());
             conversation.setTarget(target);
             wrapper.setConversation(conversation);
@@ -160,7 +161,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void request() {
-        TSBConversationManager.getInstance().getList(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
+        DemoApplication.engine.chatManager.conversationManager.getList(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
 
             @Override
             public void onSuccess(final List<TSBChatConversation> t) {

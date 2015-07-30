@@ -10,22 +10,22 @@ import com.tuisongbao.engine.engineio.source.IEngineDataSource;
  * communication.
  *
  */
-public interface IEngineInterface extends IEngineDataSource, IEngineDataSink {
+public interface IEngineInterface extends IEngineDataSource {
 
     /**
      * Change the resource used by the instance to connect to the interface,
-     * restarting any neccessary services.
+     * restarting any necessary services.
      *
      * @param resource The new resource to use for the interface.
      * @return true if the resource was different and the interface was
      *      restarted.
      */
-    public boolean setResource(String resource) throws DataSourceException;
+    boolean setResource(String resource) throws DataSourceException;
 
     /**
      * Checks whether interface connects to data interface successfully.
      *
      * @return true if the interface has connected to data interface successfully, or false.
      */
-    public boolean isConnected();
+    boolean isConnected();
 }

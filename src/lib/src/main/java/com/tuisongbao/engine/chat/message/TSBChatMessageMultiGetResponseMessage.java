@@ -36,8 +36,8 @@ public class TSBChatMessageMultiGetResponseMessage extends TSBChatMessageGetResp
     @Override
     protected List<TSBMessage> prepareCallBackData() {
         List<TSBMessage> messages = super.prepareCallBackData();
-        TSBChatUser user = TSBChatManager.getInstance().getChatUser();
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        TSBChatUser user = mEngine.chatManager.getChatUser();
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine.chatManager);
         dataSource.open();
         for (TSBMessage message : messages) {
             dataSource.upsertMessage(user.getUserId(), message);

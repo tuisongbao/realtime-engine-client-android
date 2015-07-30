@@ -1,11 +1,14 @@
-package com.tuisongbao.engine.engineio;
+package com.tuisongbao.engine.common;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.tuisongbao.engine.util.StrUtil;
 
-public class EngineConstants {
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Protocol {
 
     // request key
     public static final String REQUEST_KEY_WS_ADDR = "addr";
@@ -23,12 +26,16 @@ public class EngineConstants {
     public static final String REQUEST_KEY_RECONNECTION_IN = "reconnectIn";
     public static final String REQUEST_KEY_RECONNECTION_INMAX = "reconnectInMax";
 
+    // common
+    public static final String EVENT_NAME_PATTERN_INTERNAL = "^engine_";
+    public static final String EVENT_NAME_PATTERN_CONNECTION = "^engine_connection";
+    public static final String EVENT_NAME_PATTERN_CHANNEL = "^engine_channel";
+    public static final String EVENT_NAME_PATTERN_RESPONSE = "^engine_response$";
+
     // connection
-    public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED = "engine_connection:established";
-    public static final String CONNECTION_NAME_CONNECTION_SUCCEEDED_ERROR = "engine_connection:error";
-    public static final String CONNECTION_PREFIX = "engine_connection:";
-    public static final String CONNECTION_CONNECTED = "established";
-    public static final String CONNECTION_ERROR = "error";
+    public static final String EVENT_NAME_CONNECTION_ESTABLISHED = "engine_connection:established";
+    public static final String EVENT_NAME_CONNECTION_ERROR = "engine_connection:error";
+
     public static final int CONNECTION_STATUS_CONNECTED = 1;
     public static final int CONNECTION_STATUS_ERROR = 2;
     public static final int CONNECTION_STATUS_CLOSED = 3;
@@ -76,11 +83,7 @@ public class EngineConstants {
      */
     public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY = 3;
 
-    // common name
-    public static final String ENGINE_ENGINE_RESPONSE = "engine_response";
-
     // channel name
-    public static final String CHANNEL_NAME_PREFIX = "engine_channel";
     public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";
     public static final String CHANNEL_NAME_SUBSCRIPTION_ERROR = "engine_channel:subscription_error";
     public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
@@ -94,31 +97,34 @@ public class EngineConstants {
     public static final int ENGINE_CODE_SUCCESS = 0;
     public static final int ENGINE_CODE_INVALID_OPERATION = -9002;
     public static final String ENGINE_MESSAGE_UNKNOWN_ERROR = "TuiSongBao internal error, please contact us";
-
-    // connection code
-    public static final int CONNECTION_CODE_CONNECTION_CLOSED = -1001;
-    public static final int CONNECTION_CODE_CONNECTION_EXCEPTION = -1002;
     public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -1003;
 
     // channel code
     public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = -2001;
 
     // bind name
-    public static final String EVENT_CONNECTION_CHANGE_STATUS = "android:engine_connection:connection_change_status";
+    public static final String EVENT_CONNECTION_CHANGE_STATUS = "engine_connection:connection_change_status";
 
-    // chat code
+    public static JSONObject parseEvent(String eventString) throws JSONException {
+        return new JSONObject(eventString);
+    }
 
-    public static int getConnectionStatus(String src) {
-        String statusString = getValue(src, CONNECTION_PREFIX);
-        if (StrUtil.isEmpty(statusString)) {
-            return CONNECTION_STATUS_NONE;
-        } else if (statusString.endsWith(CONNECTION_CONNECTED)) {
-            return CONNECTION_STATUS_CONNECTED;
-        } else if (statusString.endsWith(CONNECTION_ERROR)) {
-            return CONNECTION_STATUS_ERROR;
-        } else {
-            return CONNECTION_STATUS_NONE;
-        }
+    public static boolean isConnectionEvent(String eventName) {
+        Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CONNECTION, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pat.matcher(eventName);
+        return matcher.find();
+    }
+
+    public static boolean isChannelEvent(String eventName) {
+        Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CHANNEL, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pat.matcher(eventName);
+        return matcher.find();
+    }
+
+    public static boolean isServerResponseEvent(String eventName) {
+        Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_RESPONSE, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pat.matcher(eventName);
+        return matcher.find();
     }
 
     public static String genErrorJsonString(int code, String message) {

@@ -35,8 +35,8 @@ import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBEngineResponseToServerRequestMessage;
-import com.tuisongbao.engine.connection.entity.TSBConnection;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.entity.TSBEngineConstants;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
@@ -46,28 +46,30 @@ import com.tuisongbao.engine.util.ExecutorUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class TSBChatManager extends BaseManager {
-    private static final String TAG = "com.tuisongbao.android.engine.TSBChatManager";
+    public static TSBGroupManager groupManager;
+    public static TSBConversationManager conversationManager;
+
+    private static final String TAG = TSBChatManager.class.getSimpleName();
+
     private TSBChatUser mTSBChatUser;
     private TSBChatLoginMessage mTSBLoginMessage;
-
-    private static TSBChatManager mInstance;
     private boolean mIsCacheEnabled = false;
 
-    public synchronized static TSBChatManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new TSBChatManager();
-        }
-        return mInstance;
-    }
-
-    private TSBChatManager() {
-        super();
+    public TSBChatManager(TSBEngine engine) {
+        super(engine);
         // bind get message event
         TSBChatMessageResponseMessage response = new TSBChatMessageResponseMessage(
                 mChatMessageCallback);
         bind(TSBChatMessageGetMessage.NAME, response);
         // bind receive new message event
-        bind(EngineConstants.CHAT_NAME_NEW_MESSAGE, response);
+        bind(Protocol.CHAT_NAME_NEW_MESSAGE, response);
+
+        groupManager = new TSBGroupManager(this);
+        conversationManager = new TSBConversationManager(this);
+    }
+
+    public boolean isLogin() {
+        return mTSBChatUser != null;
     }
 
     /**
@@ -79,12 +81,12 @@ public class TSBChatManager extends BaseManager {
      */
     public void login(String userData, TSBEngineCallback<TSBChatUser> callback) {
         if (isLogin()) {
-            handleErrorMessage(callback,
-                    TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_HAS_LOGINED,
-                    "user has been logined");
+            callback.onSuccess(getChatUser());
+            LogUtil.warn(TAG, "Duplicate login");
             return;
         }
-        if (TSBEngine.isConnected()) {
+        // TODO: Cache login message, re-login when connection is established
+        if (engine.connection.ismConnected()) {
             TSBChatLoginMessage message = new TSBChatLoginMessage();
             TSBChatLoginData data = new TSBChatLoginData();
             data.setUserData(userData);
@@ -93,6 +95,7 @@ public class TSBChatManager extends BaseManager {
             mTSBLoginMessage = message;
             auth(message);
         } else {
+            // TODO: Set timer, callback error if timeout.
             callback.onError(
                     TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
                     "can't connect to engine server");
@@ -108,19 +111,27 @@ public class TSBChatManager extends BaseManager {
      *
      */
     public void logout() {
-        if (!isLogin()) {
+        try {
+            if (!isLogin()) {
+                clearCacheUser();
+                return;
+            }
+            if (engine.connection.ismConnected()) {
+                TSBChatLogoutMessage message = new TSBChatLogoutMessage();
+                send(message);
+            }
             clearCacheUser();
-            return;
+        } catch (Exception e) {
+            LogUtil.error(TAG, "Logout failed", e);
         }
-        if (TSBEngine.isConnected()) {
-            TSBChatLogoutMessage message = new TSBChatLogoutMessage();
-            send(message);
-        }
-        clearCacheUser();
     }
 
     public void enableCache() {
         mIsCacheEnabled = true;
+    }
+
+    public void disableCache() {
+        mIsCacheEnabled = false;
     }
 
     public boolean isCacheEnabled() {
@@ -129,8 +140,7 @@ public class TSBChatManager extends BaseManager {
 
     public void clearCache() {
         try {
-            TSBConversationManager.getInstance().clearCache();
-            TSBGroupManager.getInstance().clearCache();
+            // TODO: Clear group and conversation data
         } catch (Exception e) {
             LogUtil.error(TAG, e);
         }
@@ -184,7 +194,7 @@ public class TSBChatManager extends BaseManager {
                 sendMediaMessage(message, callback, options);
             }
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -204,7 +214,7 @@ public class TSBChatManager extends BaseManager {
     }
 
     @Override
-    protected void handleConnect(TSBConnection t) {
+    protected void handleConnect(TSBConnectionEvent t) {
         // when logined, it need to re-login
         if (isLogin() && mTSBLoginMessage != null) {
             // 当断掉重连时不需要回调
@@ -217,7 +227,7 @@ public class TSBChatManager extends BaseManager {
         // empty
     }
 
-    private void sendMessageRequest(TSBMessage message, TSBEngineCallback<TSBMessage> callback) {
+    private void sendMessageRequest(TSBMessage message, TSBEngineCallback<TSBMessage> callback) throws JSONException {
         TSBChatMessageSendMessage request = new TSBChatMessageSendMessage();
         TSBChatMessageSendData data = new TSBChatMessageSendData();
         data.setTo(message.getRecipient());
@@ -235,7 +245,7 @@ public class TSBChatManager extends BaseManager {
     private void sendMediaMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
         TSBEngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
         if (!uploadMessageResourceToQiniu(message, handlerCallback, options)) {
-            callback.onError(EngineConstants.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Failed to get resource of the message.");
+            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Failed to get resource of the message.");
         }
     }
 
@@ -248,7 +258,7 @@ public class TSBChatManager extends BaseManager {
         }
 
         UploadManager manager = new UploadManager();
-        String token = TSBChatManager.getInstance().getChatUser().getUploadToken();
+        String token = mTSBChatUser.getUploadToken();
         Log.d(TAG, token);
         UpProgressHandler progressHandler = null;
         if (options != null) {
@@ -270,7 +280,7 @@ public class TSBChatManager extends BaseManager {
             public void complete(String key, ResponseInfo info, JSONObject responseObject) {
                 Log.i(TAG, "Get response of qiniu, info: " + info.isOK() + " error: " + info.error);
                 if (!info.isOK()) {
-                    responseHandler.onError(EngineConstants.ENGINE_CODE_UNKNOWN, info.error);
+                    responseHandler.onError(Protocol.ENGINE_CODE_UNKNOWN, info.error);
                 } else {
                     responseHandler.onSuccess(responseObject);
                 }
@@ -338,21 +348,21 @@ public class TSBChatManager extends BaseManager {
 
             @Override
             public void run() {
-                JSONObject json = new JSONObject();
+                JSONObject requestData = new JSONObject();
                 try {
-                    json.put("socketId", TSBEngine.getSocketId());
-                    json.put("chatLogin", true);
+                    requestData.put("socketId", engine.connection.getSocketId());
+                    requestData.put("chatLogin", true);
                     if (msg.getData() != null
                             && !StrUtil.isEmpty(msg.getData().getUserData())) {
-                        json.put("authData", msg.getData().getUserData());
+                        requestData.put("authData", msg.getData().getUserData());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 BaseRequest request = new BaseRequest(
-                        HttpConstants.HTTP_METHOD_POST, TSBEngine
-                                .getTSBEngineOptions().getAuthEndpoint(), json
-                                .toString());
+                        HttpConstants.HTTP_METHOD_POST
+                        , engine.getEngineOptions().getAuthEndpoint()
+                        , requestData.toString());
                 BaseResponse response = request.execute();
                 if (response != null && response.isStatusOk()) {
                     JSONObject jsonData = response.getJSONData();
@@ -381,7 +391,11 @@ public class TSBChatManager extends BaseManager {
                         authMessage.setData(authData);
                         TSBChatLoginResponseMessage responseMessage = new TSBChatLoginResponseMessage();
                         responseMessage.setCallback(mLoginCallback);
-                        send(authMessage, responseMessage);
+                        try {
+                            send(authMessage, responseMessage);
+                        } catch (Exception e) {
+                            LogUtil.error(TAG, "Send login event failed", e);
+                        }
                     }
                 } else {
                     // connection to user server error or user server feed back
@@ -437,7 +451,11 @@ public class TSBChatManager extends BaseManager {
                     long serverRequestId = response.getServerRequestId();
                     TSBEngineResponseToServerRequestMessage message = new TSBEngineResponseToServerRequestMessage(
                             serverRequestId, true);
-                    send(message);
+                    try {
+                        send(message);
+                    } catch (JSONException e) {
+                        // TODO: resend ?
+                    }
                 } else if (TSBChatMessageSendMessage.NAME.equals(response
                         .getBindName())) {
                     if (response.getCustomCallback() != null) {
@@ -452,7 +470,7 @@ public class TSBChatManager extends BaseManager {
                         }
                         response.getCustomCallback().onSuccess(response.getCallBackData());
                     }
-                } else if (EngineConstants.CHAT_NAME_NEW_MESSAGE
+                } else if (Protocol.CHAT_NAME_NEW_MESSAGE
                         .equals(response.getBindName())) {
                     // 接收到消息
                     if (response.getData() != null) {

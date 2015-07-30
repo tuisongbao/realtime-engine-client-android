@@ -19,6 +19,7 @@ import com.tuisongbao.engine.log.LogUtil;
 
 public class BaseRequest extends HttpEntityEnclosingRequestBase
 {
+    private static final String TAG = BaseRequest.class.getSimpleName();
     String method;
     DefaultHttpClient httpClient;
     String params;
@@ -47,16 +48,9 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
                 setEntity(entity);
             }
             setHeader(HTTP.CONTENT_TYPE, "application/json");
-            setAuth(TSBEngine.getTSBEngineOptions().getAppId(), TSBEngine.getTSBEngineOptions().getAppId());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setAuth(String username, String password)
-    {
-        UsernamePasswordCredentials localUsernamePasswordCredentials = new UsernamePasswordCredentials(username, password);
-        this.setHeader(BasicScheme.authenticate(localUsernamePasswordCredentials, HTTP.UTF_8, false));
     }
 
     @Override
@@ -76,12 +70,12 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
         BaseResponse localResponse = null;
         try
         {
-            LogUtil.info(LogUtil.LOG_TAG_HTTP, this.toString());
+            LogUtil.info(TAG, this.toString());
             localResponse = new BaseResponse(this.httpClient.execute(this));
         }
         catch (IOException localIOException)
         {
-            LogUtil.error(LogUtil.LOG_TAG_HTTP, localIOException.getMessage()
+            LogUtil.error(TAG, localIOException.getMessage()
                     + "\n IOException when executing request. Do you have permission to access the internet?");
         }
         return localResponse;

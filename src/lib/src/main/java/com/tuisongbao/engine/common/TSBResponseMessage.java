@@ -35,19 +35,19 @@ public class TSBResponseMessage extends BaseTSBResponseMessage<String> {
     protected String prepareCallBackData() {
         String result = super.prepareCallBackData();
 
-        if (!TSBChatManager.getInstance().isCacheEnabled()) {
+        if (!mEngine.chatManager.isCacheEnabled()) {
             return result;
         }
 
         // 初始化数据库
         Context applicationContext = TSBEngine.getContext();
-        TSBGroupDataSource groupDataSource = new TSBGroupDataSource(applicationContext);
-        TSBConversationDataSource conversationDataSource = new TSBConversationDataSource(applicationContext);
+        TSBGroupDataSource groupDataSource = new TSBGroupDataSource(applicationContext, mEngine.chatManager);
+        TSBConversationDataSource conversationDataSource = new TSBConversationDataSource(applicationContext, mEngine.chatManager);
 
         groupDataSource.open();
         conversationDataSource.open();
 
-        TSBChatUser currentUser = TSBChatManager.getInstance().getChatUser();
+        TSBChatUser currentUser = mEngine.chatManager.getChatUser();
 
         // 获取response的名称，和request时的名称是一致的
         String requestName = getBindName();

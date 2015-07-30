@@ -9,6 +9,7 @@ import com.tuisongbao.engine.chat.entity.ChatType;
 import com.tuisongbao.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.engine.chat.entity.TSBChatConversationData;
 import com.tuisongbao.engine.chat.entity.TSBChatMessageGetData;
+import com.tuisongbao.engine.chat.entity.TSBChatOptions;
 import com.tuisongbao.engine.chat.entity.TSBMessage;
 import com.tuisongbao.engine.chat.message.TSBChatConversationDeleteMessage;
 import com.tuisongbao.engine.chat.message.TSBChatConversationGetMessage;
@@ -20,26 +21,22 @@ import com.tuisongbao.engine.chat.message.TSBChatMessageMultiGetResponseMessage;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBResponseMessage;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.entity.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
+import org.json.JSONException;
+
 public class TSBConversationManager extends BaseManager {
-    private static TSBConversationManager mInstance;
-    private static TSBConversationDataSource dataSource;
+    private TSBChatManager mChatManager;
+    private TSBConversationDataSource dataSource;
 
-    public TSBConversationManager() {
-        if (TSBChatManager.getInstance().isCacheEnabled()) {
-            dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+    public TSBConversationManager(TSBChatManager chatManager) {
+        mChatManager = chatManager;
+        if (mChatManager.isCacheEnabled()) {
+            dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
         }
-    }
-
-    public synchronized static TSBConversationManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new TSBConversationManager();
-        }
-        return mInstance;
     }
 
     /**
@@ -54,7 +51,7 @@ public class TSBConversationManager extends BaseManager {
     public void getList(ChatType chatType, String target,
             TSBEngineCallback<List<TSBChatConversation>> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -62,15 +59,15 @@ public class TSBConversationManager extends BaseManager {
             }
 
             String lastActiveAt = null;
-            if (TSBChatManager.getInstance().isCacheEnabled()) {
+            if (mChatManager.isCacheEnabled()) {
                 dataSource.open();
-                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+                String userId = mChatManager.getChatUser().getUserId();
                 lastActiveAt = dataSource.getLatestLastActiveAt(userId);
                 dataSource.close();
             }
             sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -85,16 +82,16 @@ public class TSBConversationManager extends BaseManager {
      */
     public void resetUnread(ChatType chatType, String target, TSBEngineCallback<String> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 return;
             }
             if (chatType == null || StrUtil.isEmpty(target)) {
                 return;
             }
 
-            if (TSBChatManager.getInstance().isCacheEnabled()) {
+            if (mChatManager.isCacheEnabled()) {
                 // Reset unread event has no response from server, so directly update database.
-                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+                String userId = mChatManager.getChatUser().getUserId();
                 dataSource.open();
                 dataSource.resetUnread(userId, chatType, target);
                 dataSource.close();
@@ -110,7 +107,7 @@ public class TSBConversationManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -127,7 +124,7 @@ public class TSBConversationManager extends BaseManager {
     public void delete(ChatType chatType, String target,
             TSBEngineCallback<String> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -149,7 +146,7 @@ public class TSBConversationManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -172,7 +169,7 @@ public class TSBConversationManager extends BaseManager {
             Long endMessageId, int limit,
             TSBEngineCallback<List<TSBMessage>> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -197,7 +194,7 @@ public class TSBConversationManager extends BaseManager {
                 return;
             }
 
-            if (!TSBChatManager.getInstance().isCacheEnabled()) {
+            if (!mChatManager.isCacheEnabled()) {
                 TSBChatMessageGetMessage message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
                 TSBChatMessageGetResponseMessage response = new TSBChatMessageGetResponseMessage();
                 response.setCallback(callback);
@@ -207,9 +204,13 @@ public class TSBConversationManager extends BaseManager {
 
             requestMissingMessagesInLocalCache(chatType, target, startMessageId, endMessageId, limit, callback);
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
+    }
+
+    public void sendMessage(final TSBMessage message, final TSBEngineCallback<TSBMessage> callback, TSBChatOptions options) {
+        mChatManager.sendMessage(message, callback, options);
     }
 
     /***
@@ -220,12 +221,12 @@ public class TSBConversationManager extends BaseManager {
     }
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
-            Long endMessageId, int limit, TSBEngineCallback<List<TSBMessage>> callback) {
+            Long endMessageId, int limit, TSBEngineCallback<List<TSBMessage>> callback) throws JSONException {
         TSBChatMessageMultiGetResponseMessage response = new TSBChatMessageMultiGetResponseMessage();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
 
-        String currentUserId = TSBChatManager.getInstance().getChatUser().getUserId();
+        String currentUserId = mChatManager.getChatUser().getUserId();
         // Query local data
         dataSource.open();
         List<TSBMessage> messages = dataSource.getMessages(currentUserId, chatType, target, startMessageId, endMessageId, limit);
@@ -287,7 +288,7 @@ public class TSBConversationManager extends BaseManager {
     }
 
     private void sendRequestOfGetConversations(ChatType chatType, String target, String lastActiveAt,
-            TSBEngineCallback<List<TSBChatConversation>> callback) {
+            TSBEngineCallback<List<TSBChatConversation>> callback) throws JSONException {
         TSBChatConversationGetMessage message = new TSBChatConversationGetMessage();
         TSBChatConversationData data = new TSBChatConversationData();
         data.setType(chatType);

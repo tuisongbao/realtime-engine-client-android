@@ -19,6 +19,7 @@ import com.tuisongbao.engine.chat.entity.ChatType;
 import com.tuisongbao.engine.chat.entity.TSBChatConversation;
 import com.tuisongbao.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupAdapter;
 
@@ -33,7 +34,7 @@ public class ChatGroupsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_list);
         mListViewGroup = (ListView) findViewById(R.id.group_list_view);
-        mListGroup = new ArrayList<TSBChatGroup>();
+        mListGroup = new ArrayList<>();
         mAdapter = new ChatGroupAdapter(mListGroup, this);
         mListViewGroup.setAdapter(mAdapter);
         mListViewGroup.setOnItemClickListener(new OnItemClickListener() {
@@ -42,7 +43,7 @@ public class ChatGroupsActivity extends Activity {
                     long arg3) {
                 TSBChatGroup group = mListGroup.get(arg2);
 
-                TSBChatConversation conversation = new TSBChatConversation();
+                TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
                 conversation.setTarget(group.getGroupId());
                 conversation.setType(ChatType.GroupChat);
 
@@ -78,11 +79,11 @@ public class ChatGroupsActivity extends Activity {
     }
 
     private void request() {
-        TSBGroupManager.getInstance().getList(null, new TSBEngineCallback<List<TSBChatGroup>>() {
+        DemoApplication.engine.chatManager.groupManager.getList(null, new TSBEngineCallback<List<TSBChatGroup>>() {
 
             @Override
             public void onSuccess(List<TSBChatGroup> t) {
-                mListGroup  = t;
+                mListGroup = t;
                 runOnUiThread(new Runnable() {
 
                     @Override

@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.chat.TSBChatManager;
+import com.tuisongbao.engine.chat.TSBGroupManager;
 import com.tuisongbao.engine.chat.entity.ChatType;
 import com.tuisongbao.engine.chat.entity.TSBChatGroup;
 import com.tuisongbao.engine.chat.entity.TSBContactsUser;
@@ -20,8 +22,10 @@ public class TSBGroupDataSource {
     private SQLiteDatabase groupMemberDB;
     private TSBGroupSQLiteHelper groupSQLiteHelper;
     private TSBGroupMemberSQLiteHelper groupMemberSQLiteHelper;
+    private TSBChatManager mChatManager;
 
-    public TSBGroupDataSource(Context context) {
+    public TSBGroupDataSource(Context context, TSBChatManager chatManager) {
+        mChatManager = chatManager;
         groupSQLiteHelper = new TSBGroupSQLiteHelper(context);
         groupMemberSQLiteHelper = new TSBGroupMemberSQLiteHelper(context);
     }
@@ -49,9 +53,6 @@ public class TSBGroupDataSource {
 
     /***
      * Try to update items, if not rows effected then insert.
-     *
-     * @param conversation
-     * @param userId
      */
     public void upsert(TSBChatGroup group, String userId) {
         String groupId = group.getGroupId();
@@ -217,7 +218,7 @@ public class TSBGroupDataSource {
         LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
 
         // Remove conversation
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext());
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
         dataSource.open();
         dataSource.remove(userId, ChatType.GroupChat, groupId);
         dataSource.close();
@@ -250,7 +251,7 @@ public class TSBGroupDataSource {
     }
 
     private TSBChatGroup createGroup(Cursor cursor) {
-        TSBChatGroup group = new TSBChatGroup();
+        TSBChatGroup group = new TSBChatGroup(mChatManager.groupManager);
         group.setGroupId(cursor.getString(1));
         group.setOwner(cursor.getString(2));
         group.setIsPublic(cursor.getInt(3) == 1 ? true : false);

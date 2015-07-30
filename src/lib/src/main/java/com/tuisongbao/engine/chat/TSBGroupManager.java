@@ -24,26 +24,20 @@ import com.tuisongbao.engine.chat.message.TSBChatGroupRemoveUserMessage;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBResponseMessage;
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.entity.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class TSBGroupManager extends BaseManager {
-    private static TSBGroupManager mInstance;
     private static TSBGroupDataSource dataSource;
+    private TSBChatManager mChatManager;
 
-    public TSBGroupManager() {
-        if (TSBChatManager.getInstance().isCacheEnabled()) {
-            dataSource = new TSBGroupDataSource(TSBEngine.getContext());
+    public TSBGroupManager(TSBChatManager chatManager) {
+        mChatManager = chatManager;
+        if (mChatManager.isCacheEnabled()) {
+            dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mChatManager);
         }
-    }
-
-    public synchronized static TSBGroupManager getInstance() {
-        if (mInstance == null) {
-            mInstance = new TSBGroupManager();
-        }
-        return mInstance;
     }
 
     /**
@@ -73,7 +67,7 @@ public class TSBGroupManager extends BaseManager {
     public void create(List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<TSBChatGroup> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -91,22 +85,14 @@ public class TSBGroupManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
 
-    /**
-     * 获取群组列表
-     *
-     * @param tsbChatManager TODO
-     * @param groupId
-     *            可选，根据 id 过滤
-     * @param callback
-     */
     public void getList(String groupId, TSBEngineCallback<List<TSBChatGroup>> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -114,8 +100,8 @@ public class TSBGroupManager extends BaseManager {
             }
 
             String lastActiveAt = null;
-            if (TSBChatManager.getInstance().isCacheEnabled()) {
-                String userId = TSBChatManager.getInstance().getChatUser().getUserId();
+            if (mChatManager.isCacheEnabled()) {
+                String userId = mChatManager.getChatUser().getUserId();
                 dataSource.open();
                 lastActiveAt = dataSource.getLatestLastActiveAt(userId);
                 dataSource.close();
@@ -131,7 +117,7 @@ public class TSBGroupManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
 
@@ -147,7 +133,7 @@ public class TSBGroupManager extends BaseManager {
     public void getUsers(String groupId,
             TSBEngineCallback<List<TSBContactsUser>> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -168,7 +154,7 @@ public class TSBGroupManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -185,7 +171,7 @@ public class TSBGroupManager extends BaseManager {
     public void joinInvitation(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -208,7 +194,7 @@ public class TSBGroupManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -225,7 +211,7 @@ public class TSBGroupManager extends BaseManager {
     public void removeUsers(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -248,7 +234,7 @@ public class TSBGroupManager extends BaseManager {
             send(message, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }
@@ -262,7 +248,7 @@ public class TSBGroupManager extends BaseManager {
      */
     public void leave(String groupId, TSBEngineCallback<String> callback) {
         try {
-            if (!isLogin()) {
+            if (!mChatManager.isLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -283,7 +269,7 @@ public class TSBGroupManager extends BaseManager {
             response.setCallback(callback);
             send(message, response);
         } catch (Exception e) {
-            handleErrorMessage(callback, EngineConstants.ENGINE_CODE_UNKNOWN, EngineConstants.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
         }
     }

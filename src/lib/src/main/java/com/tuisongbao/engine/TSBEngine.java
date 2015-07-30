@@ -1,6 +1,7 @@
 package com.tuisongbao.engine;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
@@ -9,71 +10,65 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
-import com.tuisongbao.engine.common.ITSBResponseMessage;
+import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.chat.TSBChatManager;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.connection.TSBConnectionManager;
-import com.tuisongbao.engine.connection.entity.TSBConnection;
-import com.tuisongbao.engine.engineio.DataPipeline;
-import com.tuisongbao.engine.engineio.EngineIoOptions;
-import com.tuisongbao.engine.engineio.EngineManager;
-import com.tuisongbao.engine.engineio.sink.TSBListenerSink;
+import com.tuisongbao.engine.connection.AutoReconnectConnection;
+import com.tuisongbao.engine.connection.Connection;
+import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.service.RawMessage;
-import com.tuisongbao.engine.util.DeviceUtil;
 import com.tuisongbao.engine.util.ExecutorUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public final class TSBEngine {
+    public static AutoReconnectConnection connection;
+    public static TSBChatManager chatManager;
+    public static TSBChannelManager channelManager;
 
-    public static TSBConnectionManager connection = TSBConnectionManager.getInstance();
+    private static final String TAG = TSBEngine.class.getSimpleName();
+
     private static Context mApplicationContext = null;
-    private static DataPipeline mDataPipeline = new DataPipeline();
-    private static TSBListenerSink mNotifier = new TSBListenerSink();
-    private static EngineManager mEngineManger = EngineManager.getInstance();
-    private static Long mRequestId = 1L;
-    private static TSBEngineOptions mTSBEngineOptions;
-    private static String mPushAppId;
-    private static String mPushToken;
-    private static String mPushService;
+    private TSBEngineOptions mEngineOptions;
+    private String mPushAppId;
+    private String mPushToken;
+    private String mPushService;
 
-    private TSBEngine() {
-        // empty here
-    }
-
-    /**
-     * Initialize engine and start engine service.
-     *
-     * @param context application context
-     * @param options
-     */
-    public static void init(Context context, TSBEngineOptions options) {
+    public TSBEngine(Context context, TSBEngineOptions options) {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
         try {
-            if (options == null || StrUtil.isEmpty(options.getAppId())) {
+            mEngineOptions = options;
+            if (options == null || StrUtil.isEmpty(mEngineOptions.getAppId())) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
                         , "No AppId, you do not have permission to use cool engine!");
                 return;
-            } else if (StrUtil.isEmpty(options.getAuthEndpoint())) {
+            }
+
+            connection = new AutoReconnectConnection(this);
+
+            if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 return;
-            } else if (options.getChatIntentService() == null) {
+            } else if (mEngineOptions.getChatIntentService() == null) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
-                        , "No Intent service for receiving chat messages specified, " +
+                        , "No Intent service specified for receiving chat messages, " +
                             "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
-                return;
-                // The developer only want the Pub/Sub feature.
+                // TODO: Init ChannelManager
+                channelManager = new TSBChannelManager(this);
             } else {
                 LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
-                        "Successfully load configurations for chat.");
+                        "Successfully load configurations for engine.");
+                // TODO: Init ChatManager and ChannelManager
+                chatManager = new TSBChatManager(this);
             }
-            mTSBEngineOptions = options;
-            initEngine();
+            // TODO: When success connected, bind push if chat is enabled
 
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -81,232 +76,64 @@ public final class TSBEngine {
         return mApplicationContext;
     }
 
-    public static TSBEngineOptions getTSBEngineOptions() {
-        return mTSBEngineOptions;
+    public TSBEngineOptions getEngineOptions() {
+        return mEngineOptions;
     }
 
-    /**
-     * Checks whether engine is connected
-     *
-     * @return
-     */
-    public static boolean isConnected () {
-        return mEngineManger.isConnected();
-    }
-
-    /**
-     * Returns Connection socket id
-     *
-     * @return
-     */
-    public static String getSocketId() {
-        return mEngineManger.getSocketId();
-    }
-
-    /**
-     * Sends message to engine service.
-     *
-     * @param message
-     * @return
-     */
-    public static boolean send(String name, String data,
-            ITSBResponseMessage response) {
-        if (!isIntialized()) {
-            return false;
-        }
-        RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(), mTSBEngineOptions
-                .getAppId(), name, data);
-        message.setRequestId(getRequestId());
-        if (response != null) {
-            mNotifier.register(message, response);
-        }
-        return mEngineManger.send(message);
-    }
-
-    public static void bind(String bindName, ITSBResponseMessage response) {
-        if (!isIntialized()) {
-            return;
-        }
-        if (response != null && !StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
-                    mTSBEngineOptions.getAppId(), bindName, null);
-            message.setBindName(bindName);
-            mNotifier.bind(bindName, response);
-        } else {
-            // empty
-        }
-
-    }
-
-    public static void unbind(String bindName) {
-        if (!isIntialized()) {
-            return;
-        }
-        if (!StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
-                    mTSBEngineOptions.getAppId(), null, null);
-            message.setBindName(bindName);
-            mNotifier.unbind(bindName);
-        } else {
-            // empty
-        }
-
-    }
-
-    public static void unbind(String bindName, ITSBResponseMessage response) {
-        if (!isIntialized()) {
-            return;
-        }
-        if (response != null && !StrUtil.isEmpty(bindName)) {
-            RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(),
-                    mTSBEngineOptions.getAppId(), null, null);
-            message.setBindName(bindName);
-            mNotifier.unbind(bindName, response);
-        } else {
-            // empty
-        }
-
-    }
-
-    private static boolean isIntialized() {
-        return mTSBEngineOptions != null;
-    }
-
-    private static void initEngine() {
-        initializeDefaultSinks();
-        // bind connection, it must be called after initializeDefaultSinks
-        bindConnection();
-        EngineIoOptions engineIoOption = new EngineIoOptions();
-        engineIoOption.setAppId(mTSBEngineOptions.getAppId());
-        engineIoOption.setPlatform("Android$" + DeviceUtil.getDeviceModel());
-        mDataPipeline.addSource(EngineManager.getInstance().init(engineIoOption));
-    }
-
-    private static void bindConnection() {
-        connection.bindConnectionChangeStatusEvent(mConnectionCallback);
-    }
-
-    private static long getRequestId() {
-        synchronized (mRequestId) {
-            mRequestId++;
-            return mRequestId;
-        }
-    }
-
-    private static void initializeDefaultSinks() {
-        mDataPipeline.addSink(mNotifier);
-    }
-
-    private static void uploadPusConfig() {
-        if (loadPushConfig()) {
-            if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
-                sendPushConfig();
-            } else {
-                // delay 30s and retry
-                ExecutorUtil.getTimers().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        loadPushConfig();
-                        sendPushConfig();
-                    }
-                }, 1000 * 30, TimeUnit.MILLISECONDS);
+    private void loadPushConfig() throws ClassNotFoundException, NoSuchFieldException
+            , IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Class forName = Class.forName("com.tuisongbao.android.PushConfig");
+        // get push app id
+        if (forName != null) {
+            // get push config instance
+            Field pushConfigInstance = forName.getDeclaredField("mInstance");
+            pushConfigInstance.setAccessible(true);
+            Object pushConfig = pushConfigInstance.get(forName);
+            if (StrUtil.isEmpty(mPushAppId) && pushConfig != null) {
+                Field field = forName.getDeclaredField("PUSH_APP_ID");
+                field.setAccessible(true);
+                Object appId = field.get(pushConfig);
+                if (appId != null && appId instanceof String) {
+                    mPushAppId = (String)appId;
+                }
             }
-        } else {
-            // empty, not integrate with push
-        }
-    }
-
-    /**
-     * Returns whether the app is integrate with push
-     *
-     * @return true if the app is integrate with push, or false
-     */
-    private static boolean loadPushConfig() {
-        try {
-            Class forName = Class.forName("com.tuisongbao.android.PushConfig");
             // get push app id
-            if (forName != null) {
-                // get push config instance
-                Field pushConfigInstance = forName.getDeclaredField("mInstance");
-                pushConfigInstance.setAccessible(true);
-                Object pushConfig = pushConfigInstance.get(forName);
-                if (StrUtil.isEmpty(mPushAppId) && pushConfig != null) {
-                    Field field = forName.getDeclaredField("PUSH_APP_ID");
-                    field.setAccessible(true);
-                    Object appId = field.get(pushConfig);
-                    if (appId != null && appId instanceof String) {
-                        mPushAppId = (String)appId;
-                    } else {
-                        return true;
-                    }
+            if (StrUtil.isEmpty(mPushService) && pushConfig != null) {
+                Field field = forName.getDeclaredField("mServiceType");
+                field.setAccessible(true);
+                // service type
+                Object serviceType = field.get(pushConfig);
+                if (serviceType != null && serviceType instanceof Enum) {
+                    mPushService = ((Enum)serviceType).name();
                 }
-                // get push app id
-                if (StrUtil.isEmpty(mPushService) && pushConfig != null) {
-                    Field field = forName.getDeclaredField("mServiceType");
-                    field.setAccessible(true);
-                    // service type
-                    Object serviceType = field.get(pushConfig);
-                    if (serviceType != null && serviceType instanceof Enum) {
-                        mPushService = ((Enum)serviceType).name();
-                    }
-                }
-                // get token
-                if (StrUtil.isEmpty(mPushToken)) {
-                    forName = Class.forName("com.tuisongbao.android.PushPreference");
-                    if (forName != null) {
-                        // get push config instance
-                        Field pushPreferenceInstance = forName.getDeclaredField("mInstance");
-                        pushPreferenceInstance.setAccessible(true);
-                        Object pushPreference = pushPreferenceInstance.get(forName);
-                        if (pushPreference != null) {
-                            Method method = forName.getMethod("getAppToken");
-                            String token = (String)method.invoke(pushPreference);
-                            if (!StrUtil.isEmpty(token)) {
-                                mPushToken = token;
-                            }
+            }
+            // get token
+            if (StrUtil.isEmpty(mPushToken)) {
+                forName = Class.forName("com.tuisongbao.android.PushPreference");
+                if (forName != null) {
+                    // get push config instance
+                    Field pushPreferenceInstance = forName.getDeclaredField("mInstance");
+                    pushPreferenceInstance.setAccessible(true);
+                    Object pushPreference = pushPreferenceInstance.get(forName);
+                    if (pushPreference != null) {
+                        Method method = forName.getMethod("getAppToken");
+                        String token = (String)method.invoke(pushPreference);
+                        if (!StrUtil.isEmpty(token)) {
+                            mPushToken = token;
                         }
                     }
                 }
             }
-            return true;
-        } catch (Exception e) {
-            LogUtil.warn(LogUtil.LOG_TAG_CHAT, "Can not find PushConfig, Did you miss the configuration?");
         }
-        return false;
     }
 
-    private static boolean sendPushConfig() {
-        if (isConnected() && !StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
+    private void sendPushEvent() throws JSONException {
+        if (!StrUtil.isEmpty(mPushAppId) && !StrUtil.isEmpty(mPushService) && !StrUtil.isEmpty(mPushToken)) {
             JSONObject data = new JSONObject();
-            try {
-                data.put("appId", mPushAppId);
-                data.put("service", mPushService);
-                data.put("token", mPushToken);
-                RawMessage message = new RawMessage(mTSBEngineOptions.getAppId(), mTSBEngineOptions
-                        .getAppId(), "engine_connection:bindPush", data.toString());
-                message.setRequestId(getRequestId());
-                return mEngineManger.send(message);
-            } catch (JSONException e) {
-                LogUtil.warn(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
-            }
-            return false;
-        } else {
-            return false;
+            data.put("appId", mPushAppId);
+            data.put("service", mPushService);
+            data.put("token", mPushToken);
+            // TODO: Send bindPush event
         }
     }
-
-    private static TSBEngineCallback<TSBConnection> mConnectionCallback = new TSBEngineCallback<TSBConnection>() {
-
-        @Override
-        public void onSuccess(TSBConnection t) {
-            // when reconnection to upload push config
-            uploadPusConfig();
-        }
-
-        @Override
-        public void onError(int code, String message) {
-
-        }
-    };
 }

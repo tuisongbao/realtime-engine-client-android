@@ -1,10 +1,11 @@
 package com.tuisongbao.engine.common;
 
-import com.tuisongbao.engine.engineio.EngineConstants;
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.log.LogUtil;
 
 
 public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
+    transient protected TSBEngine mEngine;
 
     private String mErrorMessage;
     private int mCode;
@@ -71,7 +72,6 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
     @Override
     public void setName(String name) {
         mName = name;
-
     }
 
     @Override
@@ -125,7 +125,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
                     if (callBack instanceof TSBEngineBindCallback) {
                         String data = getData();
                         if (data == null) {
-                            data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                            data = Protocol.genErrorJsonString(getCode(), getErrorMessage());
                         }
                         ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), data);
                     }
@@ -138,7 +138,7 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
                     if (callBack instanceof TSBEngineBindCallback) {
                         String data = getData();
                         if (data == null) {
-                            data = EngineConstants.genErrorJsonString(getCode(), getErrorMessage());
+                            data = Protocol.genErrorJsonString(getCode(), getErrorMessage());
                         }
                         ((TSBEngineBindCallback)callBack).onEvent(getBindName(), getName(), getData());
                     }
