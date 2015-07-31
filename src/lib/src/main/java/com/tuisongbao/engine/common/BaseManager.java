@@ -20,6 +20,7 @@ public class BaseManager {
     }
 
     public void send(ITSBRequestMessage message, ITSBResponseMessage response) throws JSONException {
+        String test = message.serialize();
         engine.connection.send(message.getName(), message.serialize(), response);
     }
 

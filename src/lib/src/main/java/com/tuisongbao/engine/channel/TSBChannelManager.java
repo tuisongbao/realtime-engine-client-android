@@ -20,7 +20,7 @@ public class TSBChannelManager extends BaseManager {
     private TSBEngineBindCallback mSubscribeErrorCallback = new TSBEngineBindCallback() {
 
         @Override
-        public void onEvent(String channelName, String eventName, String data) {
+        public void onEvent(String channelName, Object... args) {
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel manager get subscribe error of " + channelName + ", remove it now");
             mChannelMap.remove(channelName);
         }

@@ -30,7 +30,9 @@ public class TSBChannel {
     transient TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
 
         @Override
-        public void onEvent(String channelName, String eventName, String data) {
+        public void onEvent(String channelName, Object... args) {
+            String eventName = (String)args[0];
+            String data = (String)args[1];
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, channelName + " Got " + eventName + " with data " + data);
             if (!StrUtil.isEqual(channelName, channel)) {
                 return;

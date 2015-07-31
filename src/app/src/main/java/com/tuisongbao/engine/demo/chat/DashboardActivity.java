@@ -30,6 +30,7 @@ import com.tuisongbao.engine.chat.entity.TSBContactsUser;
 import com.tuisongbao.engine.chat.entity.TSBMessage;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -42,7 +43,8 @@ import com.tuisongbao.engine.entity.TSBEngineConstants;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class DashboardActivity extends FragmentActivity {
-    private static final String TAG = "com.tuisongbao.engine.demo.DashboardActivity";
+    private static final String TAG = DashboardActivity.class.getSimpleName();
+
     private TextView mConversationTextView, mContactsTextView, mSettingsTextView;
     private ViewPager mViewPager;
     private FragmentPagerAdapter mAdapter;
@@ -129,12 +131,12 @@ public class DashboardActivity extends FragmentActivity {
                 new TSBEngineBindCallback() {
 
                     @Override
-                    public void onEvent(String bindName, String name,
-                                        final String data) {
+                    public void onEvent(String bindName, final Object... args) {
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
+                                String data = (String)args[2];
                                 if (!StrUtil.isEmpty(data)) {
                                     try {
                                         JSONObject json = new JSONObject(data);
@@ -155,6 +157,44 @@ public class DashboardActivity extends FragmentActivity {
                     }
                 });
         registerBroadcast();
+        listenConnectionEvent();
+    }
+
+    private void listenConnectionEvent() {
+        Connection connection = DemoApplication.engine.connection;
+        connection.bind(Connection.Event.StateChanged, new TSBEngineBindCallback() {
+            @Override
+            public void onEvent(String name, Object... args) {
+                showToaster(name + " from " + args[0] + " to " + args[1]);
+            }
+        });
+        connection.bind(Connection.Event.ConnectingIn, new TSBEngineBindCallback() {
+            @Override
+            public void onEvent(String name, Object... args) {
+                showToaster(name + " " + args[0] + " seconds");
+            }
+        });
+        connection.bind(Connection.Event.Connecting, new TSBEngineBindCallback() {
+            @Override
+            public void onEvent(String name, Object... args) {
+                showToaster(name);
+            }
+        });
+        connection.bind(Connection.Event.Error, new TSBEngineBindCallback() {
+            @Override
+            public void onEvent(String name, Object... args) {
+                showToaster(name + " reason:" + args[0]);
+            }
+        });
+    }
+
+    private void showToaster(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+            }
+        });
     }
 
     private void initFragment() {

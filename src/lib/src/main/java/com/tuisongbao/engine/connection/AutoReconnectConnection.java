@@ -2,7 +2,6 @@ package com.tuisongbao.engine.connection;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.engineio.exception.DataSourceException;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -41,7 +40,7 @@ public class AutoReconnectConnection extends Connection {
 
     @Override
     public void connect() {
-        preConnection();
+        backoff();
         super.connect();
     }
 
@@ -95,7 +94,7 @@ public class AutoReconnectConnection extends Connection {
     /**
      * 该方法用于控制重连频率，在重连网络之前需要判断其需要经个多少再连一次
      */
-    private void preConnection() {
+    private void backoff() {
         // 需要马上重连
         if (mConnectionType == Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY
                 && mReconnectTimes <= 0) {
@@ -141,6 +140,7 @@ public class AutoReconnectConnection extends Connection {
         try {
             LogUtil.info(TAG, "Start to sleep： " + mReconnectGap);
             if (mReconnectGap > 0) {
+                callbackListeners(Event.ConnectingIn, mReconnectGap);
                 Thread.sleep(mReconnectGap);
             }
             LogUtil.info(TAG, "End to sleep： " + mReconnectGap);

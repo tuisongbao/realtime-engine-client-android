@@ -86,7 +86,7 @@ public class TSBChatManager extends BaseManager {
             return;
         }
         // TODO: Cache login message, re-login when connection is established
-        if (engine.connection.ismConnected()) {
+        if (engine.connection.isConnected()) {
             TSBChatLoginMessage message = new TSBChatLoginMessage();
             TSBChatLoginData data = new TSBChatLoginData();
             data.setUserData(userData);
@@ -116,7 +116,7 @@ public class TSBChatManager extends BaseManager {
                 clearCacheUser();
                 return;
             }
-            if (engine.connection.ismConnected()) {
+            if (engine.connection.isConnected()) {
                 TSBChatLogoutMessage message = new TSBChatLogoutMessage();
                 send(message);
             }

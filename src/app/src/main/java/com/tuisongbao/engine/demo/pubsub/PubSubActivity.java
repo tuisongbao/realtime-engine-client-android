@@ -58,29 +58,18 @@ public class PubSubActivity extends Activity {
                     return;
                 }
                 TSBChannel channel = DemoApplication.engine.channelManager.subscribe(channelName, authData);
-                channel.bind("engine:subscription_succeeded", new TSBEngineBindCallback() {
+                TSBEngineBindCallback callback = new TSBEngineBindCallback() {
 
                     @Override
-                    public void onEvent(String channelName, String eventName, String data) {
+                    public void onEvent(String channelName, Object... args) {
+                        String eventName = (String)args[0];
+                        String data = (String)args[1];
                         refreshEventList(channelName, eventName, data);
                     }
-                });
-
-                channel.bind("engine:subscription_error", new TSBEngineBindCallback() {
-
-                    @Override
-                    public void onEvent(String channelName, String eventName, String data) {
-                        refreshEventList(channelName, eventName, data);
-                    }
-                });
-
-                channel.bind("cool-event", new TSBEngineBindCallback() {
-
-                    @Override
-                    public void onEvent(String channelName, String eventName, String data) {
-                        refreshEventList(channelName, eventName, data);
-                    }
-                });
+                };
+                channel.bind("engine:subscription_succeeded", callback);
+                channel.bind("engine:subscription_error", callback);
+                channel.bind("cool-event", callback);
             }
         });
 
