@@ -9,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.TSBChatManager;
 import com.tuisongbao.engine.chat.entity.TSBChatUser;
 import com.tuisongbao.engine.common.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;

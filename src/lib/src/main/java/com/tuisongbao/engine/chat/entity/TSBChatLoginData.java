@@ -1,7 +1,6 @@
 package com.tuisongbao.engine.chat.entity;
 
 public class TSBChatLoginData {
-
     private String signature;
     private String userData;
 

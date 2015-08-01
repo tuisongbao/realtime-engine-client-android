@@ -5,18 +5,17 @@ import com.github.nkzawa.engineio.client.HandshakeData;
 import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
+import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.ITSBResponseMessage;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.engine.engineio.DataPipeline;
+import com.tuisongbao.engine.common.Event;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.engineio.sink.TSBListenerSink;
+import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.engineio.source.BaseEngineIODataSource;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.service.RawMessage;
 import com.tuisongbao.engine.util.StrUtil;
 
 import org.json.JSONException;
@@ -25,16 +24,14 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-// TODO: Connection events, "state_changed", "connecting_in", "connecting", "error"
+// TODO: 15-7-31 Use EventEmitter to handle listeners
 public class Connection extends BaseEngineIODataSource {
-    public enum Event {
+    public enum ConnectionEvent {
         StateChanged("state_changed"),
         ConnectingIn("connecting_in"),
         Connecting("connecting"),
@@ -42,7 +39,7 @@ public class Connection extends BaseEngineIODataSource {
 
         private String name;
 
-        Event(String name) {
+        ConnectionEvent(String name) {
             this.name = name;
         }
 
@@ -130,21 +127,18 @@ public class Connection extends BaseEngineIODataSource {
     /***
      * Record the last error received from server. If socket closed unexpectedly, use the strategy in this error to reconnect.
      */
-    protected JSONObject lastConnectionError;
+    protected ConnectionEventData lastConnectionError;
     protected Socket mSocket;
     protected TSBEngine mEngine;
     protected State mLastState;
     protected ConcurrentMap<String, Set<TSBEngineBindCallback>> mEventListeners = new ConcurrentHashMap<>();
 
-    private DataPipeline mDataPipeline = new DataPipeline();
-    private TSBListenerSink mNotifier = new TSBListenerSink();
     private Long mRequestId = 1L;
     private Options mOptions = new Options();
 
     public Connection(TSBEngine engine) {
         mEngine = engine;
         mOptions.setAppId(mEngine.getEngineOptions().getAppId());
-        mDataPipeline.addSource(this);
         mLastState = State.Initialized;
 
         start();
@@ -161,7 +155,7 @@ public class Connection extends BaseEngineIODataSource {
     public void connect() {
         LogUtil.info(TAG, "Connecting...");
 
-        callbackListeners(Event.Connecting);
+        callbackListeners(ConnectionEvent.Connecting);
 
         String appId = mEngine.getEngineOptions().getAppId();
         BaseRequest request = new BaseRequest(HttpConstants.HTTP_METHOD_GET,
@@ -196,22 +190,22 @@ public class Connection extends BaseEngineIODataSource {
     }
 
     /***
-     * Bind listener to the event, when event takes place, listener will be called. Support multiple listeners binding to a event, but
-     * if you bind multiple same listeners to a event, listener only be called once.
+     * Bind sink to the connectionEvent, when connectionEvent takes place, sink will be called. Support multiple listeners binding to a connectionEvent, but
+     * if you bind multiple same listeners to a connectionEvent, sink only be called once.
      *
-     * @param event
+     * @param connectionEvent
      * @param callback
      * @return
      */
-    public boolean bind(Event event, TSBEngineBindCallback callback) {
+    public boolean bind(ConnectionEvent connectionEvent, TSBEngineBindCallback callback) {
         try {
-            Set<TSBEngineBindCallback> listeners = mEventListeners.get(event.name);
+            Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
             synchronized (listeners) {
                 if (listeners == null) {
                     listeners = new HashSet<>();
                 }
                 listeners.add(callback);
-                mEventListeners.put(event.name, listeners);
+                mEventListeners.put(connectionEvent.name, listeners);
             }
             return true;
         } catch (Exception e) {
@@ -221,25 +215,26 @@ public class Connection extends BaseEngineIODataSource {
     }
 
     /***
-     * Unbind listener from a event.
+     * Unbind sink from a connectionEvent.
      *
-     * @param event
-     * @param callback Optional, Can be null, which means remove all listeners from the event
+     * @param connectionEvent
+     * @param callback Optional, Can be null, which means remove all listeners from the connectionEvent
      * @return
      */
-    public boolean unbind(Event event, TSBEngineBindCallback callback) {
+    public boolean unbind(ConnectionEvent connectionEvent, TSBEngineBindCallback callback) {
+        // TODO: 15-7-31 Test this API
         try {
-            Set<TSBEngineBindCallback> listeners = mEventListeners.get(event.name);
+            Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
             if (listeners == null) {
                 return true;
             }
             if (callback == null) {
-                mEventListeners.remove(event.name);
+                mEventListeners.remove(connectionEvent.name);
                 return true;
             }
             synchronized (listeners) {
                 listeners.remove(callback);
-                mEventListeners.put(event.name, listeners);
+                mEventListeners.put(connectionEvent.name, listeners);
                 return true;
             }
         } catch (Exception e) {
@@ -248,14 +243,14 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    protected void callbackListeners(Event event, Object... args) {
-        Set<TSBEngineBindCallback> listeners = mEventListeners.get(event.name);
+    protected void callbackListeners(ConnectionEvent connectionEvent, Object... args) {
+        Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
         if (listeners == null) {
             return;
         }
         synchronized (listeners) {
             for (TSBEngineBindCallback listener: listeners) {
-                listener.onEvent(event.name, args);
+                listener.onEvent(connectionEvent.name, args);
             }
         }
     }
@@ -264,7 +259,7 @@ public class Connection extends BaseEngineIODataSource {
         if (state == mLastState) return;
 
         LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
-        callbackListeners(Event.StateChanged, mLastState, state);
+        callbackListeners(ConnectionEvent.StateChanged, mLastState, state);
 
         mLastState = state;
     }
@@ -274,27 +269,11 @@ public class Connection extends BaseEngineIODataSource {
         updateState(State.Disconnected);
     }
 
-    public void send(String name, String data, ITSBResponseMessage response) throws JSONException {
-        RawMessage message = new RawMessage(name, data);
-        message.setRequestId(getRequestId());
-        if (response != null) {
-            mNotifier.register(message, response);
-        }
-        mSocket.send(message.serialize());
-    }
-
-    public void bind(String name, ITSBResponseMessage response) {
-        if (response != null && !StrUtil.isEmpty(name)) {
-            mNotifier.bind(name, response);
-        }
-    }
-
-    public void unbind(String name, ITSBResponseMessage response) {
-        if (response != null) {
-            mNotifier.unbind(name, response);
-        } else {
-            mNotifier.unbind(name);
-        }
+    public Event send(String name, String data) throws JSONException {
+        Event event = new Event(name, data);
+        event.setId(getRequestId());
+        mSocket.send(event.serialize());
+        return event;
     }
 
     private String getWebSocketURL(String socketAddr) {
@@ -336,14 +315,15 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Message receive [msg=" + getArgsMSG(args) + "]");
+                    LogUtil.info(TAG, "Socket Message receive");
                     if (args != null && args.length > 0) {
                         try {
-                            handleEvent(args[0].toString());
+                            LogUtil.info(TAG, "Got event:" + args[0].toString());
+                            onEvent(args[0].toString());
                         } catch (JSONException e) {
                             LogUtil.info(TAG, "Handle Message Exception [msg="
                                     + e.getLocalizedMessage() + "]");
-                            callbackListeners(Event.Error);
+                            callbackListeners(ConnectionEvent.Error);
                         }
                     }
                 }
@@ -358,7 +338,7 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    // TODO: Can only bind one listener on each state
+                    // TODO: Can only bind one sink on each state
                     onSocketClosed(args);
                 }
             }).on(Socket.EVENT_FLUSH, new Emitter.Listener() {
@@ -397,11 +377,11 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    protected void handleConnectionEvent(String eventName, JSONObject data) {
+    protected void handleConnectionEvent(String eventName, ConnectionEventData data) {
         if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
-            callbackListeners(Event.Error);
+            callbackListeners(ConnectionEvent.Error);
             disconnect();
         } else if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
             // TODO: Notify listeners
@@ -410,20 +390,16 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    private void handleChannelEvent(String eventName, JSONObject data) {
-        // TODO:
-    }
-
-    private void handleEvent(String eventString) throws JSONException {
-        JSONObject event = Protocol.parseEvent(eventString);
-        String eventName = event.optString(Protocol.REQUEST_KEY_NAME);
-        JSONObject data = event.optJSONObject(Protocol.REQUEST_KEY_DATA);
-        if (Protocol.isChannelEvent(eventName)) {
-            handleChannelEvent(eventName, data);
-        } else if (Protocol.isConnectionEvent(eventName)) {
-            handleConnectionEvent(eventName, data);
+    private void onEvent(String eventString) throws JSONException {
+        Gson gson = new Gson();
+        com.tuisongbao.engine.common.Event event = gson.fromJson(eventString, com.tuisongbao.engine.common.Event.class);
+        String eventName = event.getName();
+        if (Protocol.isConnectionEvent(eventName)) {
+            ConnectionEventData connectionData = gson.fromJson(event.getData(), ConnectionEventData.class);
+            handleConnectionEvent(eventName, connectionData);
         } else if (Protocol.isServerResponseEvent(eventName)) {
-
+            // Notify the pipeline which will ferries data to sink
+            dispatchEvent(event);
         }
     }
 

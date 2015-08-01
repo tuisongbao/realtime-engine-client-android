@@ -1,43 +1,32 @@
 package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
+import com.tuisongbao.engine.connection.entity.ConnectionEventData;
+import com.tuisongbao.engine.log.LogUtil;
 
-import org.json.JSONException;
-
-public class BaseManager {
+public class BaseManager extends EventEmitter {
     public static TSBEngine engine;
+
+    private static final String TAG = BaseManager.class.getSimpleName();
 
     public BaseManager() {}
 
     public BaseManager(TSBEngine engine) {
         this.engine = engine;
-        // TODO: Bind connection status listener
+        // TODO: Bind connection status sink
     }
 
-    public void send(ITSBRequestMessage message) throws JSONException {
-        send(message, null);
-    }
-
-    public void send(ITSBRequestMessage message, ITSBResponseMessage response) throws JSONException {
-        String test = message.serialize();
-        engine.connection.send(message.getName(), message.serialize(), response);
-    }
-
-    public void bind(String bindName, ITSBEngineCallback callback) {
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        engine.connection.bind(bindName, response);
-    }
-
-    public void bind(String bindName, ITSBResponseMessage response) {
-        engine.connection.bind(bindName, response);
-    }
-
-    public void unbind(String bindName, ITSBEngineCallback callback) {
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(callback);
-        engine.connection.unbind(bindName, response);
+    public boolean send(ITSBRequestMessage message, ITSBResponseMessage response) {
+        try {
+            Event event = engine.connection.send(message.getName(), message.serialize());
+            if (response != null) {
+                engine.sink.setHandler(event, response);
+            }
+        } catch (Exception e) {
+            LogUtil.error(TAG, "Failed to send event " + message.getName());
+            return false;
+        }
+        return true;
     }
 
     public <T> void handleErrorMessage(TSBEngineCallback<T> callback,
@@ -45,7 +34,7 @@ public class BaseManager {
         callback.onError(code, message);
     }
 
-    protected void handleConnect(TSBConnectionEvent t) {
+    protected void handleConnect(ConnectionEventData t) {
         // empty
     }
 

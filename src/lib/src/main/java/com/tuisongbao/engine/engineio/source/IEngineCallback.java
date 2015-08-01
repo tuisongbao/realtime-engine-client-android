@@ -1,9 +1,7 @@
 package com.tuisongbao.engine.engineio.source;
 
-import com.tuisongbao.engine.service.RawMessage;
-
-import org.json.JSONObject;
+import com.tuisongbao.engine.common.Event;
 
 public interface IEngineCallback {
-    public void receive(JSONObject message);
+    void ferry(Event event);
 }

@@ -1,18 +1,16 @@
 package com.tuisongbao.engine.engineio;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import com.tuisongbao.engine.common.Event;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.engine.engineio.sink.IEngineDataSink;
 import com.tuisongbao.engine.engineio.source.IEngineCallback;
 import com.tuisongbao.engine.engineio.source.IEngineDataSource;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.service.RawMessage;
 
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A pipeline that ferries data from IEngineDataSources to EngineDataSinks.
@@ -34,15 +32,16 @@ public class DataPipeline implements IEngineCallback {
      * If any data sink throws a DataSinkException when receiving data, it will
      * be removed from the list of sinks.
      */
-    public void receive(RawMessage message) {
-        if(message == null) {
+    @Override
+    public void ferry(Event event) {
+        if(event == null) {
             return;
         }
         List<IEngineDataSink> deadSinks = new ArrayList<IEngineDataSink>();
         for(Iterator<IEngineDataSink> i = mSinks.iterator(); i.hasNext();) {
             IEngineDataSink sink = i.next();
             try {
-                sink.receive(message);
+                sink.receive(event);
             } catch(DataSinkException e) {
                 LogUtil.warn(LogUtil.LOG_TAG_ENGINEIO, TAG + ": The sink " +
                         sink + " exploded when we sent a new message " +
@@ -135,10 +134,5 @@ public class DataPipeline implements IEngineCallback {
             (i.next()).stop();
         }
         mSinks.clear();
-    }
-
-    @Override
-    public void receive(JSONObject message) {
-
     }
 }

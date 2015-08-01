@@ -16,12 +16,7 @@ public class TSBEngineConstants {
     public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR;
     public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = Protocol.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED;
 
-    // channel name
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = Protocol.CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED;
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED_ERROR = Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR;
-
     // bind name
-    public static final String TSBENGINE_BIND_NAME_CONNECTION_CONNECTED = Protocol.EVENT_CONNECTION_CHANGE_STATUS;
     public static final String TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED = "engine_chat:user:presenceChanged";
 
 

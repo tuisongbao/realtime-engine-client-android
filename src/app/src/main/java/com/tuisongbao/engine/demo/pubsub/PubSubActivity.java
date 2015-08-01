@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.pubsub;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,11 +11,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.channel.TSBChannelManager;
 import com.tuisongbao.engine.channel.entity.TSBChannel;
 import com.tuisongbao.engine.common.TSBEngineBindCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PubSubActivity extends Activity {
     private static String TAG = "com.tuisongbao.android.engine.demo:PubSubActivity";

@@ -2,10 +2,9 @@ package com.tuisongbao.engine.connection;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
-
-import org.json.JSONObject;
 
 /**
  * Created by root on 15-7-29.
@@ -45,10 +44,10 @@ public class AutoReconnectConnection extends Connection {
     }
 
     @Override
-    protected void handleConnectionEvent(String eventName, JSONObject data) {
+    protected void handleConnectionEvent(String eventName, ConnectionEventData data) {
         super.handleConnectionEvent(eventName, data);
         if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
-            int code = lastConnectionError.optInt(Protocol.REQUEST_KEY_CODE);
+            int code = lastConnectionError.getCode();
             // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
             if (code >= 4000 && code <= 4099) {
                 mConnectionType = Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_FORBIDDEN_CONNECTION;
@@ -76,15 +75,15 @@ public class AutoReconnectConnection extends Connection {
         resetConnectionStrategy();
     }
 
-    private void setReconnectionStrategy(JSONObject data) {
-        String reconnectStrategy = data.optString(Protocol.REQUEST_KEY_RECONNECTION_STRATEGY);
+    private void setReconnectionStrategy(ConnectionEventData data) {
+        String reconnectStrategy = data.getReconnectStrategy();
         if (!StrUtil.isEmpty(reconnectStrategy)) {
             mReconnectStrategy = reconnectStrategy;
-            int reconnectIn = data.optInt(Protocol.REQUEST_KEY_RECONNECTION_IN);
+            int reconnectIn = data.getReconnectIn();
             if (reconnectIn >= 0) {
                 mReconnectIn = reconnectIn;
             }
-            int reconnectMax = data.optInt(Protocol.REQUEST_KEY_RECONNECTION_INMAX);
+            int reconnectMax = data.getReconnectInMax();
             if (reconnectMax >= 0) {
                 mReconnectMax = reconnectMax;
             }
@@ -103,7 +102,7 @@ public class AutoReconnectConnection extends Connection {
         }
         if (Protocol.CONNECTION_STRATEGY_STATIC.equals(mReconnectStrategy)) {
             /**
-             * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error Event 的
+             * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error ConnectionEvent 的
              * data.reconnectStrategy 来启用，通过 data.reconnectIn 设置重连间隔。
              */
             if (mReconnectIn <= 0) {
@@ -113,7 +112,7 @@ public class AutoReconnectConnection extends Connection {
         } else {
             /**
              * backoff ：默认策略，重连间隔从一个基数开始（默认为 0），每次乘以 2 ，直到达到最大值（默认为 10 秒）。服务端可以通过
-             * engine_connection:error Event 的 data.reconnectIn 、 data.reconnectInMax
+             * engine_connection:error ConnectionEvent 的 data.reconnectIn 、 data.reconnectInMax
              * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
              *
              * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
@@ -140,7 +139,7 @@ public class AutoReconnectConnection extends Connection {
         try {
             LogUtil.info(TAG, "Start to sleep： " + mReconnectGap);
             if (mReconnectGap > 0) {
-                callbackListeners(Event.ConnectingIn, mReconnectGap);
+                callbackListeners(ConnectionEvent.ConnectingIn, mReconnectGap);
                 Thread.sleep(mReconnectGap);
             }
             LogUtil.info(TAG, "End to sleep： " + mReconnectGap);

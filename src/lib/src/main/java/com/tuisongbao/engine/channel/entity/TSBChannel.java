@@ -1,23 +1,22 @@
 package com.tuisongbao.engine.channel.entity;
 
+import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.channel.message.TSBSubscribeMessage;
+import com.tuisongbao.engine.channel.message.TSBUnsubscribeMessage;
+import com.tuisongbao.engine.common.EventEmitter;
+import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.log.LogUtil;
+
+import org.json.JSONException;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.tuisongbao.engine.channel.TSBChannelManager;
-import com.tuisongbao.engine.channel.message.TSBSubscribeMessage;
-import com.tuisongbao.engine.channel.message.TSBUnsubscribeMessage;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.common.TSBResponseMessage;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
-
-import org.json.JSONException;
-
-public class TSBChannel {
+public class TSBChannel extends EventEmitter {
     private static final String TAG = TSBChannel.class.getSimpleName();
 
     protected TSBChannelManager mChannelManager;
@@ -27,28 +26,6 @@ public class TSBChannel {
      */
     protected String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
-    transient TSBEngineBindCallback bindCallback = new TSBEngineBindCallback() {
-
-        @Override
-        public void onEvent(String channelName, Object... args) {
-            String eventName = (String)args[0];
-            String data = (String)args[1];
-            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, channelName + " Got " + eventName + " with data " + data);
-            if (!StrUtil.isEqual(channelName, channel)) {
-                return;
-            }
-            eventName = formatEventName(eventName);
-            CopyOnWriteArrayList<TSBEngineBindCallback> handlers = eventHandlers.get(eventName);
-            if (handlers == null) {
-                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are no handlers for this event");
-                return;
-            }
-            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "There are " + handlers.size() + " handlers and begine to call them");
-            for (TSBEngineBindCallback handler : handlers) {
-                handler.onEvent(channelName, eventName, data);
-            }
-        }
-    };
 
     public TSBChannel(String name, TSBChannelManager channelManager) {
         mChannelManager = channelManager;
@@ -63,53 +40,9 @@ public class TSBChannel {
         channel = name;
     }
 
-    /***
-     * Make sure this method only be called once!
-     */
-    public void setEventListener() {
-        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Bind event listner for channel: " + channel);
-        TSBResponseMessage response = new TSBResponseMessage();
-        response.setCallback(bindCallback);
-        mChannelManager.bind(channel, response);
-    }
-
-    public void bind(String eventName, TSBEngineBindCallback callback) {
-        CopyOnWriteArrayList<TSBEngineBindCallback> list = eventHandlers.get(eventName);
-        if (list == null) {
-            list = new CopyOnWriteArrayList<TSBEngineBindCallback>();
-        }
-        list.add(callback);
-        eventHandlers.put(eventName, list);
-    }
-
-    public void unbind(String eventName, TSBEngineBindCallback callback) {
-        if (callback == null) {
-            eventHandlers.remove(eventName);
-            return;
-        }
-
-        CopyOnWriteArrayList<TSBEngineBindCallback> list = eventHandlers.get(eventName);
-        if (list == null) {
-            eventHandlers.remove(eventName);
-            return;
-        }
-        for (TSBEngineBindCallback local : list) {
-            if (local == callback) {
-                list.remove(local);
-            }
-        }
-
-        // If there are no callback for this event, remove it
-        list = eventHandlers.get(eventName);
-        if (list == null || list.isEmpty()) {
-            eventHandlers.remove(eventName);
-            return;
-        }
-    }
-
     public void subscribe() {
         LogUtil.debug(LogUtil.LOG_TAG_CHANNEL, "Begin auth channel: " + channel);
-        validata(new TSBEngineCallback<String>() {
+        validate(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -137,10 +70,10 @@ public class TSBChannel {
             TSBUnsubscribeMessage message = new TSBUnsubscribeMessage();
             TSBChannel data = new TSBChannel(channel, mChannelManager);
             message.setData(data);
-            mChannelManager.send(message);
+            mChannelManager.send(message, null);
 
             // Remove listeners on engineIO layer
-            mChannelManager.unbind(channel, null);
+            mChannelManager.unbind(channel);
 
             eventHandlers = new ConcurrentHashMap<>();
         } catch (Exception e) {
@@ -150,15 +83,16 @@ public class TSBChannel {
 
     protected void sendSubscribeRequest() throws JSONException {
         TSBSubscribeMessage message = generateSubscribeMessage();
-        mChannelManager.send(message);
+        mChannelManager.send(message, null);
     }
 
-    protected void validata(TSBEngineCallback<String> callback) {
+    protected void validate(TSBEngineCallback<String> callback) {
         callback.onSuccess(channel);
     }
 
     protected TSBSubscribeMessage generateSubscribeMessage() {
         TSBSubscribeMessage message = new TSBSubscribeMessage();
+        // As TSBPresenceChannel has all properties, so use it to be the event data.
         TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
         data.setName(channel);
         message.setData(data);

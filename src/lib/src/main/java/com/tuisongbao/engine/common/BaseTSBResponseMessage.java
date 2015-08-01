@@ -1,5 +1,6 @@
 package com.tuisongbao.engine.common;
 
+import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -114,6 +115,19 @@ public abstract class BaseTSBResponseMessage<T> implements ITSBResponseMessage {
      */
     protected T prepareCallBackData() {
         return parse();
+    }
+
+    public void callback(Event request, ResponseEventData response) {
+        // TODO: 15-8-1 Directly call parse with data, remove set/get Data method
+        setData(response.getResult().toString());
+
+        ITSBEngineCallback callBack = getCallback();
+        if (response.getOk()) {
+            ((TSBEngineCallback)callBack).onSuccess(prepareCallBackData());
+        } else {
+            ResponseError error = new Gson().fromJson(response.getError(), ResponseError.class);
+            ((TSBEngineCallback) callBack).onError(error.getCode(), error.getMessage());
+        }
     }
 
     @Override

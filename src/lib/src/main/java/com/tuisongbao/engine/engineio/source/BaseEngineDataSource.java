@@ -1,19 +1,18 @@
 package com.tuisongbao.engine.engineio.source;
 
+import com.tuisongbao.engine.common.Event;
+import com.tuisongbao.engine.common.EventEmitter;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import com.tuisongbao.engine.service.RawMessage;
-
-import org.json.JSONObject;
 
 /**
  * A common parent for all engine data sources.
  *
  */
-public class BaseEngineDataSource implements IEngineDataSource {
-    private IEngineCallback mCallback;
+public class BaseEngineDataSource extends EventEmitter implements IEngineDataSource {
+    private IEngineCallback mPipeline;
     private final Lock mCallbackLock = new ReentrantLock();
     private final Condition mCallbackChanged = mCallbackLock.newCondition();
 
@@ -40,7 +39,7 @@ public class BaseEngineDataSource implements IEngineDataSource {
      */
     public void setCallback(IEngineCallback callback) {
         mCallbackLock.lock();
-        mCallback = callback;
+        mPipeline = callback;
         mCallbackChanged.signal();
         mCallbackLock.unlock();
     }
@@ -55,9 +54,9 @@ public class BaseEngineDataSource implements IEngineDataSource {
         setCallback(null);
     }
 
-    protected void handleEvent(JSONObject event) {
-        if (mCallback != null && event != null) {
-            mCallback.receive(event);
+    protected void dispatchEvent(Event event) {
+        if (mPipeline != null && event != null) {
+            mPipeline.ferry(event);
         }
     }
 }

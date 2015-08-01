@@ -1,32 +1,30 @@
 package com.tuisongbao.engine.engineio.sink;
 
+import com.tuisongbao.engine.common.Event;
+import com.tuisongbao.engine.common.EventEmitter;
+import com.tuisongbao.engine.engineio.exception.DataSinkException;
+import com.tuisongbao.engine.log.LogUtil;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import android.util.Log;
-
-import com.tuisongbao.engine.engineio.exception.DataSinkException;
-import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.service.RawMessage;
-
 /**
- * Functionality to notify multiple clients asynchronously of new message.
+ * Functionality to notify multiple clients asynchronously of new event.
  *
  */
-public abstract class BaseEngineCallbackSink implements IEngineDataSink {
+public abstract class BaseEngineCallbackSink extends EventEmitter implements IEngineDataSink {
     private final static String TAG = BaseEngineCallbackSink.class.getSimpleName();
 
     private NotificationThread mNotificationThread = new NotificationThread();
     private Lock mNotificationsLock = new ReentrantLock();
     private Condition mNotificationReceived = mNotificationsLock.newCondition();
     /**
-     * We should make received message in order
+     * We should make received event in order
      */
-    private BlockingQueue<RawMessage> mNotifications =
-            new LinkedBlockingQueue<RawMessage>();
+    private BlockingQueue<Event> mNotifications = new LinkedBlockingQueue<>();
 
     public BaseEngineCallbackSink() {
         mNotificationThread.start();
@@ -36,16 +34,16 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
         mNotificationThread.done();
     }
 
-    public boolean receive(RawMessage message)
+    public boolean receive(Event event)
             throws DataSinkException {
         mNotificationsLock.lock();
-        mNotifications.offer(message);
+        mNotifications.offer(event);
         mNotificationReceived.signal();
         mNotificationsLock.unlock();
         return true;
     }
 
-    abstract protected void propagateMessage(RawMessage message);
+    abstract protected void propagateEvent(Event event);
 
     private class NotificationThread extends Thread {
         private boolean mRunning = true;
@@ -55,7 +53,7 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
         }
 
         public synchronized void done() {
-            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Stopping notification thread");
+            LogUtil.debug(TAG, "Stopping notification thread");
             mRunning = false;
             interrupt();
         }
@@ -68,21 +66,20 @@ public abstract class BaseEngineCallbackSink implements IEngineDataSink {
                         mNotificationReceived.await();
                     }
                 } catch(InterruptedException e) {
-                    LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Interrupted while waiting for a new " +
+                    LogUtil.debug(TAG, "Interrupted while waiting for a new " +
                             "item for notification -- likely shutting down");
                     return;
                 } finally {
                     mNotificationsLock.unlock();
                 }
 
-
-                RawMessage message = null;
-                Log.d(TAG, "Received event number: " + mNotifications.size());
-                while((message = mNotifications.poll()) != null) {
-                    propagateMessage(message);
+                Event event;
+                LogUtil.debug(TAG, "Received event number: " + mNotifications.size());
+                while((event = mNotifications.poll()) != null) {
+                    propagateEvent(event);
                 }
             }
-            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Stopped message receive");
+            LogUtil.debug(TAG, "Stopped event receive");
         }
     }
 }

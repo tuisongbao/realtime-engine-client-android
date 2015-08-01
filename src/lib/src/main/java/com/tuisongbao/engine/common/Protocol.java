@@ -1,9 +1,9 @@
 package com.tuisongbao.engine.common;
 
+import com.tuisongbao.engine.util.StrUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.tuisongbao.engine.util.StrUtil;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,28 +30,25 @@ public class Protocol {
     public static final String EVENT_NAME_PATTERN_INTERNAL = "^engine_";
     public static final String EVENT_NAME_PATTERN_CONNECTION = "^engine_connection";
     public static final String EVENT_NAME_PATTERN_CHANNEL = "^engine_channel";
+    public static final String EVENT_NAME_PATTERN_CHAT = "^engine_chat";
     public static final String EVENT_NAME_PATTERN_RESPONSE = "^engine_response$";
+
+    public static final String EVENT_NAME_MESSAGE_NEW = "engine_chat:message:new";
+    public static final String EVENT_NAME_PRESENCE_CHANGE = "engine_chat:user:presenceChanged";
 
     // connection
     public static final String EVENT_NAME_CONNECTION_ESTABLISHED = "engine_connection:established";
     public static final String EVENT_NAME_CONNECTION_ERROR = "engine_connection:error";
 
-    public static final int CONNECTION_STATUS_CONNECTED = 1;
-    public static final int CONNECTION_STATUS_ERROR = 2;
-    public static final int CONNECTION_STATUS_CLOSED = 3;
-    public static final int CONNECTION_STATUS_DISCONNECTED = 4;
-    public static final int CONNECTION_STATUS_CONNECTING = 5;
-    public static final int CONNECTION_STATUS_NONE = 0;
-
     // connection strategy
     /**
-     * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error Event 的
+     * static ：以静态的间隔进行重连，服务端可以通过 engine_connection:error ConnectionEvent 的
      * data.reconnectStrategy 来启用，通过 data.reconnectIn 设置重连间隔。
      */
     public static final String CONNECTION_STRATEGY_STATIC = "static";
     /**
      * backoff ：默认策略，重连间隔从一个基数开始（默认为 0），每次乘以 2 ，直到达到最大值（默认为 10 秒）。服务端可以通过
-     * engine_connection:error Event 的 data.reconnectIn 、 data.reconnectInMax
+     * engine_connection:error ConnectionEvent 的 data.reconnectIn 、 data.reconnectInMax
      * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
      *
      * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
@@ -102,9 +99,6 @@ public class Protocol {
     // channel code
     public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = -2001;
 
-    // bind name
-    public static final String EVENT_CONNECTION_CHANGE_STATUS = "engine_connection:connection_change_status";
-
     public static JSONObject parseEvent(String eventString) throws JSONException {
         return new JSONObject(eventString);
     }
@@ -123,6 +117,12 @@ public class Protocol {
 
     public static boolean isServerResponseEvent(String eventName) {
         Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_RESPONSE, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pat.matcher(eventName);
+        return matcher.find();
+    }
+
+    public static boolean isChatEvent(String eventName) {
+        Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CHAT, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pat.matcher(eventName);
         return matcher.find();
     }

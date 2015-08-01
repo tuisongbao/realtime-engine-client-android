@@ -58,7 +58,7 @@ public class TSBPrivateChannel extends TSBChannel {
     }
 
     @Override
-    protected void validata(final TSBEngineCallback<String> callback) {
+    protected void validate(final TSBEngineCallback<String> callback) {
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
 
             @Override

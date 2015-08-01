@@ -1,33 +1,31 @@
 package com.tuisongbao.engine.channel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.entity.TSBChannel;
 import com.tuisongbao.engine.channel.entity.TSBPresenceChannel;
 import com.tuisongbao.engine.channel.entity.TSBPrivateChannel;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.engine.connection.entity.TSBConnectionEvent;
+import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.entity.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 public class TSBChannelManager extends BaseManager {
     private Map<String, TSBChannel> mChannelMap = new HashMap<String, TSBChannel>();
-    private TSBEngineBindCallback mSubscribeErrorCallback = new TSBEngineBindCallback() {
-
-        @Override
-        public void onEvent(String channelName, Object... args) {
-            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel manager get subscribe error of " + channelName + ", remove it now");
-            mChannelMap.remove(channelName);
-        }
-    };
 
     public TSBChannelManager(TSBEngine engine) {
         super(engine);
+        bind("engine:subscription_error", new Listener() {
+            @Override
+            public void call(Object... args) {
+                String channelName = args[0].toString();
+                mChannelMap.remove(channelName);
+            }
+        });
     }
 
     /**
@@ -61,9 +59,7 @@ public class TSBChannelManager extends BaseManager {
             }
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
-            channel.setEventListener();
             channel.subscribe();
-            channel.bind("engine:subscription_error", mSubscribeErrorCallback);
             return channel;
 
         } catch (Exception e) {
@@ -88,7 +84,7 @@ public class TSBChannelManager extends BaseManager {
     }
 
     @Override
-    protected void handleConnect(TSBConnectionEvent t) {
+    protected void handleConnect(ConnectionEventData t) {
         LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Engine connected, resend all subscribe channel request");
         HashSet<TSBChannel> values = new HashSet<TSBChannel>(mChannelMap.values());
         for (TSBChannel channel : values) {

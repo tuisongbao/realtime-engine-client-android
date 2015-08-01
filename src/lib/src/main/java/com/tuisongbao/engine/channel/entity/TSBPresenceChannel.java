@@ -54,12 +54,12 @@ public class TSBPresenceChannel extends TSBPrivateChannel {
     }
 
     @Override
-    protected void validata(TSBEngineCallback<String> callback) {
+    protected void validate(TSBEngineCallback<String> callback) {
         if (StrUtil.isEmpty(authData)) {
             callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "AuthData is required when subscribe a presence channel");
             return;
         }
-        super.validata(callback);
+        super.validate(callback);
     }
 
     @Override

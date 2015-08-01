@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.common;
 
-import com.tuisongbao.engine.TSBEngine;
-
 public interface ITSBResponseMessage {
     void setErrorMessage(String error);
     void setCode(int code);
@@ -15,4 +13,5 @@ public interface ITSBResponseMessage {
     void setCallback(ITSBEngineCallback callback);
     ITSBEngineCallback getCallback();
     void callBack();
+    void callback(Event request, ResponseEventData response);
 }
