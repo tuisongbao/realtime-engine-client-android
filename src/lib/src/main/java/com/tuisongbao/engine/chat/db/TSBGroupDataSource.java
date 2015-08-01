@@ -1,30 +1,29 @@
 package com.tuisongbao.engine.chat.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.TSBChatManager;
-import com.tuisongbao.engine.chat.TSBGroupManager;
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TSBGroupDataSource {
     private SQLiteDatabase groupDB;
     private SQLiteDatabase groupMemberDB;
     private TSBGroupSQLiteHelper groupSQLiteHelper;
     private TSBGroupMemberSQLiteHelper groupMemberSQLiteHelper;
-    private TSBChatManager mChatManager;
+    private ChatManager mChatManager;
 
-    public TSBGroupDataSource(Context context, TSBChatManager chatManager) {
+    public TSBGroupDataSource(Context context, ChatManager chatManager) {
         mChatManager = chatManager;
         groupSQLiteHelper = new TSBGroupSQLiteHelper(context);
         groupMemberSQLiteHelper = new TSBGroupMemberSQLiteHelper(context);
@@ -54,7 +53,7 @@ public class TSBGroupDataSource {
     /***
      * Try to update items, if not rows effected then insert.
      */
-    public void upsert(TSBChatGroup group, String userId) {
+    public void upsert(ChatGroup group, String userId) {
         String groupId = group.getGroupId();
         int rowsEffected = update(group);
         if (rowsEffected < 1) {
@@ -63,13 +62,13 @@ public class TSBGroupDataSource {
         insertUserIfNotExist(groupId, userId);
     }
 
-    public void upsert(List<TSBChatGroup> groups, String userId) {
-        for (TSBChatGroup group : groups) {
+    public void upsert(List<ChatGroup> groups, String userId) {
+        for (ChatGroup group : groups) {
             upsert(group, userId);
         }
     }
 
-    public void insert(TSBChatGroup group, String userId) {
+    public void insert(ChatGroup group, String userId) {
         ContentValues values = getContentValuesExceptGroupId(group);
         values.put(TSBGroupSQLiteHelper.COLUMN_GROUP_ID, group.getGroupId());
 
@@ -79,8 +78,8 @@ public class TSBGroupDataSource {
         insertUserIfNotExist(group.getGroupId(), userId);
     }
 
-    public List<TSBChatGroup> getList(String userId, String groupId) {
-        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
+    public List<ChatGroup> getList(String userId, String groupId) {
+        List<ChatGroup> groups = new ArrayList<ChatGroup>();
         Cursor cursor = null;
         String sql = "SELECT * FROM " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
@@ -125,7 +124,7 @@ public class TSBGroupDataSource {
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " groups");
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            TSBChatGroup group = createGroup(cursor);
+            ChatGroup group = createGroup(cursor);
             groups.add(group);
             cursor.moveToNext();
         }
@@ -135,7 +134,7 @@ public class TSBGroupDataSource {
 
     }
 
-    public List<TSBChatGroup> getListNotWork(String userId, String groupId) {
+    public List<ChatGroup> getListNotWork(String userId, String groupId) {
         String sql = "SELECT group.name FROM "
                 + TSBGroupSQLiteHelper.TABLE_CHAT_GROUP + " group INNER JOIN " + TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER + " groupUser"
                 + " ON group." + TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = groupUser." + TSBGroupSQLiteHelper.COLUMN_GROUP_ID
@@ -151,10 +150,10 @@ public class TSBGroupDataSource {
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " groups with query "
                 + "[userId:" + userId + ", groupId:" + groupId + "]");
 
-        List<TSBChatGroup> groups = new ArrayList<TSBChatGroup>();
+        List<ChatGroup> groups = new ArrayList<ChatGroup>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            TSBChatGroup group = createGroup(cursor);
+            ChatGroup group = createGroup(cursor);
             groups.add(group);
             cursor.moveToNext();
         }
@@ -163,7 +162,7 @@ public class TSBGroupDataSource {
         return groups;
     }
 
-    public int update(TSBChatGroup group) {
+    public int update(ChatGroup group) {
         String whereClause = TSBGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?";
         ContentValues values = getContentValuesExceptGroupId(group);
 
@@ -172,8 +171,8 @@ public class TSBGroupDataSource {
         return rowsAffected;
     }
 
-    public List<TSBContactsUser> getUsers(String groupId) {
-        List<TSBContactsUser> users = new ArrayList<TSBContactsUser>();
+    public List<ChatUser> getUsers(String groupId) {
+        List<ChatUser> users = new ArrayList<ChatUser>();
         String whereClause = "SELECT " + TSBGroupMemberSQLiteHelper.COLUMN_USER_ID
                 + " WHERE " + TSBGroupMemberSQLiteHelper.COLUMN_GROUP_ID + " = ?";
         Cursor cursor = groupMemberDB.rawQuery(whereClause, new String[]{ groupId });
@@ -181,7 +180,7 @@ public class TSBGroupDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            TSBContactsUser user = createGroupUser(cursor);
+            ChatUser user = createGroupUser(cursor);
             users.add(user);
             cursor.moveToNext();
         }
@@ -224,11 +223,11 @@ public class TSBGroupDataSource {
         dataSource.close();
 
         // If the group is empty, remove this group.
-        List<TSBChatGroup> groups = getList(userId, groupId);
+        List<ChatGroup> groups = getList(userId, groupId);
         if (groups.size() < 1) {
             return;
         }
-        TSBChatGroup group = groups.get(0);
+        ChatGroup group = groups.get(0);
         if (group.getUserCount() < 1) {
             remove(groupId, null);
         }
@@ -250,8 +249,8 @@ public class TSBGroupDataSource {
         groupMemberDB.delete(TSBGroupMemberSQLiteHelper.TABLE_CHAT_GROUP_USER, null, null);
     }
 
-    private TSBChatGroup createGroup(Cursor cursor) {
-        TSBChatGroup group = new TSBChatGroup(mChatManager.groupManager);
+    private ChatGroup createGroup(Cursor cursor) {
+        ChatGroup group = new ChatGroup(mChatManager.groupManager);
         group.setGroupId(cursor.getString(1));
         group.setOwner(cursor.getString(2));
         group.setIsPublic(cursor.getInt(3) == 1 ? true : false);
@@ -262,15 +261,15 @@ public class TSBGroupDataSource {
         return group;
     }
 
-    private TSBContactsUser createGroupUser(Cursor cursor) {
-        TSBContactsUser user = new TSBContactsUser();
+    private ChatUser createGroupUser(Cursor cursor) {
+        ChatUser user = new ChatUser();
         user.setUserId(cursor.getString(2));
         user.setPresence(cursor.getString(3));
 
         return user;
     }
 
-    private ContentValues getContentValuesExceptGroupId(TSBChatGroup group) {
+    private ContentValues getContentValuesExceptGroupId(ChatGroup group) {
         ContentValues values = new ContentValues();
         values.put(TSBGroupSQLiteHelper.COLUMN_OWNER, group.getOwner());
         values.put(TSBGroupSQLiteHelper.COLUMN_ISPUBLIC, group.isPublic());

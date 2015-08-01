@@ -2,29 +2,29 @@ package com.tuisongbao.engine.demo.chat.entity;
 
 import java.util.List;
 
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 
 public class ConversationWrapper {
     public int localUnreadCount = 0;
 
-    private TSBChatConversation conversation;
-    private TSBMessage latestMessage;
+    private ChatConversation conversation;
+    private ChatMessage latestMessage;
 
-    public TSBChatConversation getConversation() {
+    public ChatConversation getConversation() {
         return conversation;
     }
 
-    public void setConversation(TSBChatConversation conversation) {
+    public void setConversation(ChatConversation conversation) {
         this.conversation = conversation;
     }
 
-    public void setLatestMessage(TSBMessage latestMessage) {
+    public void setLatestMessage(ChatMessage latestMessage) {
         this.latestMessage = latestMessage;
     }
 
-    public TSBMessage getLatestMessage() {
+    public ChatMessage getLatestMessage() {
         return latestMessage;
     }
 
@@ -32,10 +32,10 @@ public class ConversationWrapper {
         if (latestMessage != null) {
             return;
         }
-        conversation.getMessages(null, null, 1, new TSBEngineCallback<List<TSBMessage>>() {
+        conversation.getMessages(null, null, 1, new TSBEngineCallback<List<ChatMessage>>() {
 
             @Override
-            public void onSuccess(List<TSBMessage> t) {
+            public void onSuccess(List<ChatMessage> t) {
                 if (t != null && t.size() > 0) {
                     latestMessage = t.get(0);
                 }

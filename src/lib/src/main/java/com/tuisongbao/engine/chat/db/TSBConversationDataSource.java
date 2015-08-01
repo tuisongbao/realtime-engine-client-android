@@ -12,19 +12,18 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.tuisongbao.engine.chat.TSBChatManager;
-import com.tuisongbao.engine.chat.TSBConversationManager;
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBEventMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBImageMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMediaMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBTextMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVideoMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -37,9 +36,9 @@ public class TSBConversationDataSource {
     private SQLiteDatabase messageDB;
     private TSBConversationSQLiteHelper conversationSQLiteHelper;
     private TSBMessageSQLiteHelper messageSQLiteHelper;
-    private TSBChatManager mChatManager;
+    private ChatManager mChatManager;
 
-    public TSBConversationDataSource(Context context, TSBChatManager chatManager) {
+    public TSBConversationDataSource(Context context, ChatManager chatManager) {
         mChatManager = chatManager;
         conversationSQLiteHelper = new TSBConversationSQLiteHelper(context);
         messageSQLiteHelper = new TSBMessageSQLiteHelper(context);
@@ -74,7 +73,7 @@ public class TSBConversationDataSource {
      * @param conversation
      * @param userId
      */
-    public void upsert(TSBChatConversation conversation, String userId) {
+    public void upsert(ChatConversation conversation, String userId) {
         int rowsEffected = update(conversation, userId);
         if (rowsEffected < 1) {
             insert(conversation, userId);
@@ -88,17 +87,17 @@ public class TSBConversationDataSource {
      * @param conversations
      * @param userId
      */
-    public void upsert(List<TSBChatConversation> conversations, String userId) {
-        for (TSBChatConversation conversation : conversations) {
+    public void upsert(List<ChatConversation> conversations, String userId) {
+        for (ChatConversation conversation : conversations) {
             upsert(conversation, userId);
         }
     }
 
-    public List<TSBChatConversation> getList(String userId, ChatType type, String target) {
+    public List<ChatConversation> getList(String userId, ChatType type, String target) {
         String queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
                 + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
         Cursor cursor;
-        List<TSBChatConversation> conversations = new ArrayList<TSBChatConversation>();
+        List<ChatConversation> conversations = new ArrayList<ChatConversation>();
 
         if(!StrUtil.isEmpty(target)) {
             queryString = queryString
@@ -114,7 +113,7 @@ public class TSBConversationDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            TSBChatConversation conversation = createConversation(cursor);
+            ChatConversation conversation = createConversation(cursor);
             conversation.setLastMessage(getLastMessage(userId, conversation.getType(), conversation.getTarget()));
             conversations.add(conversation);
             cursor.moveToNext();
@@ -130,7 +129,7 @@ public class TSBConversationDataSource {
      *
      * @param message
      */
-    public void upsertMessage(String userId, final TSBMessage message) {
+    public void upsertMessage(String userId, final ChatMessage message) {
         // TODO: transaction
         if (updateMessage(message) > 0) {
             return;
@@ -145,7 +144,7 @@ public class TSBConversationDataSource {
         }
         boolean needCreateConversation = !isConversationExist(userId, target);
         if (needCreateConversation) {
-            TSBChatConversation conversation = new TSBChatConversation(mChatManager.conversationManager);
+            ChatConversation conversation = new ChatConversation(mChatManager.conversationManager);
             conversation.setTarget(target);
             conversation.setType(message.getChatType());
             conversation.setUnreadMessageCount(1);
@@ -156,8 +155,8 @@ public class TSBConversationDataSource {
         }
     }
 
-    public TSBMessage getLastMessage(String userId, ChatType type, String target) {
-        TSBMessage lastMessage = null;
+    public ChatMessage getLastMessage(String userId, ChatType type, String target) {
+        ChatMessage lastMessage = null;
         String query = generateQueryBy(userId, type, target);
         query = query
                 + " ORDER BY " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "
@@ -178,10 +177,10 @@ public class TSBConversationDataSource {
      *
      * @param type
      * @param target
-     * @return List<TSBMessage>
+     * @return List<ChatMessage>
      */
-    public List<TSBMessage> getMessages(String userId, ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
-        List<TSBMessage> messages = new ArrayList<TSBMessage>();
+    public List<ChatMessage> getMessages(String userId, ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
+        List<ChatMessage> messages = new ArrayList<ChatMessage>();
         Cursor cursor;
         String query= generateQueryBy(userId, type, target);
         if (startMessageId != null) {
@@ -200,7 +199,7 @@ public class TSBConversationDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            TSBMessage message = createMessage(cursor);
+            ChatMessage message = createMessage(cursor);
             messages.add(message);
             cursor.moveToNext();
         }
@@ -238,14 +237,14 @@ public class TSBConversationDataSource {
      * @param message
      * @return the rows effected
      */
-    public int updateMessage(TSBMessage message) {
+    public int updateMessage(ChatMessage message) {
         String uniqueMessageId = generateUniqueMessageId(message);
         String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
-        TSBMessageBody body = message.getBody();
+        ChatMessageBody body = message.getBody();
         if (body != null && isMediaMessage(message)) {
-            TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)body;
+            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)body;
             String localPath = mediaBody.getLocalPath();
             if (!StrUtil.isEmpty(localPath)) {
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
@@ -263,7 +262,7 @@ public class TSBConversationDataSource {
         messageDB.delete(TABLE_MESSAGE, null, null);
     }
 
-    private void insert(TSBChatConversation conversation, String userId) {
+    private void insert(ChatConversation conversation, String userId) {
         ContentValues values = new ContentValues();
         values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
         values.put(TSBConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
@@ -298,7 +297,7 @@ public class TSBConversationDataSource {
      * @param userId
      * @return rows effected
      */
-    private int update(TSBChatConversation conversation, String userId) {
+    private int update(ChatConversation conversation, String userId) {
         String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
                 + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
 
@@ -313,8 +312,8 @@ public class TSBConversationDataSource {
         return rowsAffected;
     }
 
-    private TSBChatConversation createConversation(Cursor cursor) {
-        TSBChatConversation conversation = new TSBChatConversation(mChatManager.conversationManager);
+    private ChatConversation createConversation(Cursor cursor) {
+        ChatConversation conversation = new ChatConversation(mChatManager.conversationManager);
         conversation.setTarget(cursor.getString(2));
         conversation.setType(ChatType.getType(cursor.getString(3)));
         conversation.setUnreadMessageCount(cursor.getInt(4));
@@ -323,41 +322,41 @@ public class TSBConversationDataSource {
         return conversation;
     }
 
-    private TSBMessage createMessage(Cursor cursor) {
-        TSBMessage message = new TSBMessage();
+    private ChatMessage createMessage(Cursor cursor) {
+        ChatMessage message = new ChatMessage();
         message.setMessageId(cursor.getLong(1));
         message.setFrom(cursor.getString(2));
         message.setRecipient(cursor.getString(3));
         message.setChatType(ChatType.getType(cursor.getString(4)));
 
         String contentType = cursor.getString(6);
-        TSBMessageBody body = null;
+        ChatMessageBody body = null;
         if (StrUtil.isEqual(TYPE.TEXT.getName(), contentType)) {
-            TSBTextMessageBody textBody = new TSBTextMessageBody();
+            ChatTextMessageBody textBody = new ChatTextMessageBody();
             textBody.setText(cursor.getString(5));
 
             body = textBody;
         } else if (StrUtil.isEqual(TYPE.EVENT.getName(), contentType)) {
-            TSBEventMessageBody eventBody = new TSBEventMessageBody();
+            ChatEventMessageBody eventBody = new ChatEventMessageBody();
             JsonObject event = new JsonObject();
-            event.addProperty(TSBEventMessageBody.EVENT_TYPE, cursor.getString(14));
-            event.addProperty(TSBEventMessageBody.EVENT_TARGET, cursor.getString(15));
+            event.addProperty(ChatEventMessageBody.EVENT_TYPE, cursor.getString(14));
+            event.addProperty(ChatEventMessageBody.EVENT_TARGET, cursor.getString(15));
             eventBody.setEvent(event);
 
             body = eventBody;
         } else {
-            TSBMediaMessageBody mediaBody = null;
+            ChatMediaMessageBody mediaBody = null;
             if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-                TSBImageMessageBody imageBody = new TSBImageMessageBody();
+                ChatImageMessageBody imageBody = new ChatImageMessageBody();
                 imageBody.setWidth(cursor.getInt(11));
                 imageBody.setHeight(cursor.getInt(12));
                 mediaBody = imageBody;
             } else if (StrUtil.isEqual(TYPE.VOICE.getName(), contentType)) {
-                TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
+                ChatVoiceMessageBody voiceBody = new ChatVoiceMessageBody();
                 voiceBody.setDuration(cursor.getString(13));
                 mediaBody = voiceBody;
             } else if (StrUtil.isEqual(TYPE.VIDEO.getName(), contentType)) {
-                TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
+                ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
                 videoBody.setDuration(cursor.getString(13));
                 mediaBody = videoBody;
             }
@@ -385,7 +384,7 @@ public class TSBConversationDataSource {
         return message;
     }
 
-    private String generateUniqueMessageId(TSBMessage message) {
+    private String generateUniqueMessageId(ChatMessage message) {
         // These three value can unique specified a message
         return message.getFrom() + "#" + message.getRecipient() + "#" + message.getMessageId();
     }
@@ -403,7 +402,7 @@ public class TSBConversationDataSource {
         return cursor.getCount() > 0;
     }
 
-    private long insertMessage(TSBMessage message) {
+    private long insertMessage(ChatMessage message) {
         ContentValues values =  new ContentValues();
         values.put(TSBMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
         values.put(TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
@@ -413,30 +412,30 @@ public class TSBConversationDataSource {
         values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
 
         if (message.getBody().getType() == TYPE.TEXT) {
-            TSBTextMessageBody textMessageBody = (TSBTextMessageBody)message.getBody();
+            ChatTextMessageBody textMessageBody = (ChatTextMessageBody)message.getBody();
             values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
         } else if (isMediaMessage(message)) {
-            TSBMediaMessageBody mediaBody = (TSBMediaMessageBody)message.getBody();
+            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getBody();
 
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
             values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
 
-            if (mediaBody instanceof TSBImageMessageBody) {
-                TSBImageMessageBody imageBody = (TSBImageMessageBody)mediaBody;
+            if (mediaBody instanceof ChatImageMessageBody) {
+                ChatImageMessageBody imageBody = (ChatImageMessageBody)mediaBody;
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, imageBody.getWidth());
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, imageBody.getHeight());
-            } else if (mediaBody instanceof TSBVoiceMessageBody) {
-                TSBVoiceMessageBody voiceBody = (TSBVoiceMessageBody)mediaBody;
+            } else if (mediaBody instanceof ChatVoiceMessageBody) {
+                ChatVoiceMessageBody voiceBody = (ChatVoiceMessageBody)mediaBody;
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, voiceBody.getDuration());
-            } else if (mediaBody instanceof TSBVideoMessageBody) {
-                TSBVideoMessageBody videoBody = (TSBVideoMessageBody)mediaBody;
+            } else if (mediaBody instanceof ChatVideoMessageBody) {
+                ChatVideoMessageBody videoBody = (ChatVideoMessageBody)mediaBody;
                 values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
             }
 
         } else if (message.getBody().getType() == TYPE.EVENT) {
-            TSBEventMessageBody eventBody = (TSBEventMessageBody)message.getBody();
+            ChatEventMessageBody eventBody = (ChatEventMessageBody)message.getBody();
             values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
             values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
         }
@@ -452,7 +451,7 @@ public class TSBConversationDataSource {
         return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
     }
 
-    private boolean isMediaMessage(TSBMessage message) {
+    private boolean isMediaMessage(ChatMessage message) {
         TYPE type = message.getBody().getType();
         return type  == TYPE.IMAGE || type == TYPE.VOICE || type == TYPE.VIDEO;
     }

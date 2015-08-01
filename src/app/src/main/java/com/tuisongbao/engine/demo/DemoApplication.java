@@ -8,7 +8,7 @@ import android.app.Application;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.TSBEngineOptions;
-import com.tuisongbao.engine.chat.TSBChatManager;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
 
 public class DemoApplication extends Application {
@@ -30,7 +30,7 @@ public class DemoApplication extends Application {
         TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser");
         options.setChatIntentService(TSBMessageRevieveService.class);
         engine = new TSBEngine(this, options);
-        TSBChatManager chatManager = engine.chatManager;
+        ChatManager chatManager = engine.chatManager;
         chatManager.enableCache();
     }
 

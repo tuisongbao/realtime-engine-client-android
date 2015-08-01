@@ -11,11 +11,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.entity.ConversationWrapper;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
@@ -58,7 +58,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
                     R.layout.list_item_conversation, null);
         }
         final ConversationWrapper wrapper = mListConversation.get(position);
-        final TSBChatConversation tsbConversation = wrapper.getConversation();
+        final ChatConversation tsbConversation = wrapper.getConversation();
 
         // Unread message Count
         TextView unreadCountTextView = (TextView) convertView
@@ -94,12 +94,12 @@ public class ChatConversationsAdapter extends BaseAdapter {
         // Show the latest message
         final TextView messageTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_latest_message);
-        tsbConversation.getMessages(null, null, 1, new TSBEngineCallback<List<TSBMessage>>() {
+        tsbConversation.getMessages(null, null, 1, new TSBEngineCallback<List<ChatMessage>>() {
 
             @Override
-            public void onSuccess(List<TSBMessage> t) {
+            public void onSuccess(List<ChatMessage> t) {
                 if (t != null && t.size() > 0) {
-                    final TSBMessage message = t.get(0);
+                    final ChatMessage message = t.get(0);
                     ((FragmentActivity)mContext).runOnUiThread(new Runnable() {
 
                         @Override

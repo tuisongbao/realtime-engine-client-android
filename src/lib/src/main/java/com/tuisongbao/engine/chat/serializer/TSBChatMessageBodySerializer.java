@@ -1,55 +1,55 @@
 package com.tuisongbao.engine.chat.serializer;
 
-import java.lang.reflect.Type;
-
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.tuisongbao.engine.chat.entity.TSBEventMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBImageMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBTextMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVideoMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 
-public class TSBChatMessageBodySerializer implements JsonDeserializer<TSBMessageBody> {
+import java.lang.reflect.Type;
+
+public class TSBChatMessageBodySerializer implements JsonDeserializer<ChatMessageBody> {
 
     @Override
-    public TSBMessageBody deserialize(JsonElement json, Type typeOfT,
+    public ChatMessageBody deserialize(JsonElement json, Type typeOfT,
             JsonDeserializationContext arg) throws JsonParseException {
         JsonObject bodyJson = json.getAsJsonObject();
-        TSBMessage.TYPE type = TSBMessage.TYPE.TEXT;
+        ChatMessage.TYPE type = ChatMessage.TYPE.TEXT;
         String text = "";
         if (bodyJson != null) {
-            type = TSBMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type").getAsString() : null);
+            type = ChatMessage.TYPE.getType(bodyJson.get("type") != null ? bodyJson.get("type").getAsString() : null);
             text = bodyJson.get("text") != null ? bodyJson.get("text") .getAsString() : "";
         }
 
-        TSBMessageBody messageBody = null;
+        ChatMessageBody messageBody = null;
         if (type == TYPE.TEXT) {
-            TSBTextMessageBody textBody = new TSBTextMessageBody();
+            ChatTextMessageBody textBody = new ChatTextMessageBody();
             textBody.setText(text);
             messageBody = textBody;
 
         } else if (type == TYPE.IMAGE) {
-            TSBImageMessageBody imageBody = new TSBImageMessageBody();
+            ChatImageMessageBody imageBody = new ChatImageMessageBody();
             imageBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = imageBody;
 
         } else if (type == TYPE.VOICE) {
-            TSBVoiceMessageBody voiceBody = new TSBVoiceMessageBody();
+            ChatVoiceMessageBody voiceBody = new ChatVoiceMessageBody();
             voiceBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = voiceBody;
         } else if (type == TYPE.EVENT) {
-            TSBEventMessageBody eventBody = new TSBEventMessageBody();
+            ChatEventMessageBody eventBody = new ChatEventMessageBody();
             eventBody.setEvent(bodyJson.get("event").getAsJsonObject());
             messageBody = eventBody;
         } else if (type == TYPE.VIDEO) {
-            TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
+            ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
             videoBody.setFile(bodyJson.get("file").getAsJsonObject());
             messageBody = videoBody;
         }

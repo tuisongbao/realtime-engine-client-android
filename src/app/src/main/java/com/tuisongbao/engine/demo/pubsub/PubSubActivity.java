@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.channel.entity.TSBChannel;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 

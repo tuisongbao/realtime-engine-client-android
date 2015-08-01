@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.engineio.sink;
 
-import com.tuisongbao.engine.common.Event;
+import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 
 /**

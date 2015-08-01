@@ -10,8 +10,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -20,7 +20,7 @@ public class ChatGroupMemberAddActivity extends Activity {
     public static final String TAG = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity";
     public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
 
-    private TSBChatGroup mGroup;
+    private ChatGroup mGroup;
     private EditText mEditText;
 
     @Override

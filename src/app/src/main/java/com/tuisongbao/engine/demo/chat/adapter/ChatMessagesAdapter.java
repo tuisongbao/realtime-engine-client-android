@@ -17,13 +17,13 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
-import com.tuisongbao.engine.chat.entity.TSBMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVideoMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.common.TSBProgressCallback;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -37,15 +37,15 @@ import com.tuisongbao.engine.util.StrUtil;
 public class ChatMessagesAdapter extends BaseAdapter {
     private static final String TAG = "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
     private Context mContext;
-    private List<TSBMessage> mMessageList;
+    private List<ChatMessage> mMessageList;
 
-    public ChatMessagesAdapter(List<TSBMessage> listConversation,
+    public ChatMessagesAdapter(List<ChatMessage> listConversation,
             Context context) {
         mMessageList = listConversation;
         mContext = context;
     }
 
-    public void refresh(List<TSBMessage> listConversation) {
+    public void refresh(List<ChatMessage> listConversation) {
         mMessageList = listConversation;
         notifyDataSetChanged();
     }
@@ -72,7 +72,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     R.layout.list_item_message, null);
         }
         try {
-            TSBMessage message = mMessageList.get(position);
+            ChatMessage message = mMessageList.get(position);
 
             RelativeLayout layoutSend = (RelativeLayout) convertView
                     .findViewById(R.id.list_item_chat_detail_send);
@@ -122,7 +122,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private void displayMessageContent(TSBMessage message, View convertView, boolean sentByLoginUser) {
+    private void displayMessageContent(ChatMessage message, View convertView, boolean sentByLoginUser) {
         TextView textView = null;
         ImageView imageView = null;
         Button voiceButton = null;
@@ -137,7 +137,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_reply_content_voice);
         }
 
-        TSBMessageBody messageBody = message.getBody();
+        ChatMessageBody messageBody = message.getBody();
         if (messageBody.getType() == TYPE.TEXT) {
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.GONE);
@@ -167,8 +167,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
         }
     }
 
-    private void showVoiceMessage(final TSBMessage message, View convertView, final Button voiceButton) {
-        TSBVoiceMessageBody body = (TSBVoiceMessageBody)message.getBody();
+    private void showVoiceMessage(final ChatMessage message, View convertView, final Button voiceButton) {
+        ChatVoiceMessageBody body = (ChatVoiceMessageBody)message.getBody();
         final String duration = body.getDuration();
         voiceButton.setText("voice: " + duration);
 
@@ -237,11 +237,11 @@ public class ChatMessagesAdapter extends BaseAdapter {
         voiceButton.setOnClickListener(listener);
     }
 
-    private void showImageMessage(final TSBMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+    private void showImageMessage(final ChatMessage message, final View contentView, final ImageView imageView, final TextView textView) {
+        message.downloadResource(new TSBEngineCallback<ChatMessage>() {
 
             @Override
-            public void onSuccess(final TSBMessage message) {
+            public void onSuccess(final ChatMessage message) {
                 ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
 
                     @Override
@@ -279,8 +279,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
         });
     }
 
-    private void showVideoWidget(final TSBMessage message, View convertView, final Button voiceButton) {
-        final TSBVideoMessageBody body = (TSBVideoMessageBody)message.getBody();
+    private void showVideoWidget(final ChatMessage message, View convertView, final Button voiceButton) {
+        final ChatVideoMessageBody body = (ChatVideoMessageBody)message.getBody();
         final String duration = body.getDuration();
         voiceButton.setText("video: " + duration);
 
@@ -289,10 +289,10 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             @Override
             public void onClick(View arg0) {
-                message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+                message.downloadResource(new TSBEngineCallback<ChatMessage>() {
 
                     @Override
-                    public void onSuccess(TSBMessage t) {
+                    public void onSuccess(ChatMessage t) {
                         Intent intent = new Intent(mContext.getApplicationContext(), ChatVideoPlayerActivity.class);
                         intent.putExtra(ChatVideoPlayerActivity.EXTRA_VIDEO_PATH, message.getResourcePath());
                         mContext.startActivity(intent);

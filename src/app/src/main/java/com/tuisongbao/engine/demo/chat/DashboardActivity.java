@@ -21,9 +21,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -32,7 +32,7 @@ import com.tuisongbao.engine.demo.chat.fragment.ChatContactsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatConversationsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatSettingsFragment;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
-import com.tuisongbao.engine.entity.TSBEngineConstants;
+import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.util.StrUtil;
 
 import org.json.JSONException;
@@ -281,7 +281,7 @@ public class DashboardActivity extends FragmentActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String userId = ((EditText)textEntryView.findViewById(R.id.dialog_input_edittext)).getText().toString();
                         if (!StrUtil.isEmpty(userId)) {
-                            TSBContactsUser user = new TSBContactsUser();
+                            ChatUser user = new ChatUser();
                             user.setUserId(userId);
                             LoginCache.addUser(user);
                             mContactsFragment.refresh();
@@ -318,10 +318,10 @@ public class DashboardActivity extends FragmentActivity {
             String action = intent.getAction();
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(action)) {
                 markNewMessage();
-                TSBMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                ChatMessage message = intent.getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
                 mConversationsFragment.onMessageReceived(message);
             } else if (ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT.equals(action)) {
-                TSBMessage message = intent.getParcelableExtra(ChatConversationActivity.BROADCAST_EXTRA_KEY_MESSAGE);
+                ChatMessage message = intent.getParcelableExtra(ChatConversationActivity.BROADCAST_EXTRA_KEY_MESSAGE);
                 mConversationsFragment.onMessageSent(message);
             }
         }

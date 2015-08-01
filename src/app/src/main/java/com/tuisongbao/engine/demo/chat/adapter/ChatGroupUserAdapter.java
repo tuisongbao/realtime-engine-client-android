@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.demo.chat.adapter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,21 +7,23 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.demo.R;
+
+import java.util.List;
 
 public class ChatGroupUserAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<TSBContactsUser> mListGroupUser;
+    private List<ChatUser> mListGroupUser;
 
-    public ChatGroupUserAdapter(List<TSBContactsUser> listGroupUser,
+    public ChatGroupUserAdapter(List<ChatUser> listGroupUser,
             Context context) {
         mListGroupUser = listGroupUser;
         mContext = context;
     }
 
-    public void refresh(List<TSBContactsUser> listGroupUser) {
+    public void refresh(List<ChatUser> listGroupUser) {
         mListGroupUser = listGroupUser;
         notifyDataSetChanged();
     }

@@ -14,11 +14,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.TSBGroupManager;
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupAdapter;
@@ -27,7 +26,7 @@ public class ChatGroupsActivity extends Activity {
 
     private ListView mListViewGroup;
     private ChatGroupAdapter mAdapter;
-    private List<TSBChatGroup> mListGroup;
+    private List<ChatGroup> mListGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +40,9 @@ public class ChatGroupsActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                     long arg3) {
-                TSBChatGroup group = mListGroup.get(arg2);
+                ChatGroup group = mListGroup.get(arg2);
 
-                TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
+                ChatConversation conversation = new ChatConversation(DemoApplication.engine.chatManager.conversationManager);
                 conversation.setTarget(group.getGroupId());
                 conversation.setType(ChatType.GroupChat);
 
@@ -79,10 +78,10 @@ public class ChatGroupsActivity extends Activity {
     }
 
     private void request() {
-        DemoApplication.engine.chatManager.groupManager.getList(null, new TSBEngineCallback<List<TSBChatGroup>>() {
+        DemoApplication.engine.chatManager.groupManager.getList(null, new TSBEngineCallback<List<ChatGroup>>() {
 
             @Override
-            public void onSuccess(List<TSBChatGroup> t) {
+            public void onSuccess(List<ChatGroup> t) {
                 mListGroup = t;
                 runOnUiThread(new Runnable() {
 

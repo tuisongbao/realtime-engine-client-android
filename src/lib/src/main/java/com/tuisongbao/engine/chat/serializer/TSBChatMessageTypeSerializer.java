@@ -9,11 +9,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 
 public class TSBChatMessageTypeSerializer implements
-        JsonSerializer<TSBMessage.TYPE>, JsonDeserializer<TSBMessage.TYPE> {
+        JsonSerializer<ChatMessage.TYPE>, JsonDeserializer<ChatMessage.TYPE> {
 
     @Override
     public JsonElement serialize(TYPE type, Type typeOfT,
@@ -24,7 +24,7 @@ public class TSBChatMessageTypeSerializer implements
     @Override
     public TYPE deserialize(JsonElement json, Type typeOfT,
             JsonDeserializationContext arg) throws JsonParseException {
-        return TSBMessage.TYPE.getType(json.getAsString());
+        return ChatMessage.TYPE.getType(json.getAsString());
     }
 
 }

@@ -37,16 +37,16 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.engine.chat.entity.TSBImageMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBTextMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVideoMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBVoiceMessageBody;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
@@ -83,8 +83,8 @@ public class ChatConversationActivity extends Activity implements
     private Button mVoiceRecorderButton;
     private EditText mContentEditText;
     private ChatMessagesAdapter mMessagesAdapter;
-    private List<TSBMessage> mMessageList;
-    private TSBChatConversation mConversation;
+    private List<ChatMessage> mMessageList;
+    private ChatConversation mConversation;
 
     private LinearLayout mMediaMessageOptionsLayout;
 
@@ -92,10 +92,10 @@ public class ChatConversationActivity extends Activity implements
     private Long mStartMessageId = null;
     private ChatVoiceRecorder mRecorder;
     private long mRecordStartTime;
-    private TSBEngineCallback<TSBMessage> sendMessageCallback = new TSBEngineCallback<TSBMessage>() {
+    private TSBEngineCallback<ChatMessage> sendMessageCallback = new TSBEngineCallback<ChatMessage>() {
 
         @Override
-        public void onSuccess(final TSBMessage t) {
+        public void onSuccess(final ChatMessage t) {
             t.setFrom(LoginCache.getUserId());
             mMessageList.add(t);
 
@@ -185,7 +185,7 @@ public class ChatConversationActivity extends Activity implements
 
             @Override
             public void onClick(View v) {
-                TSBMessageBody body = new TSBTextMessageBody(mContentEditText
+                ChatMessageBody body = new ChatTextMessageBody(mContentEditText
                         .getText().toString());
                 mConversation.sendMessage(body, sendMessageCallback);
                 mContentEditText.setText("");
@@ -377,12 +377,12 @@ public class ChatConversationActivity extends Activity implements
             getLoaderManager().restartLoader(0, null, this);
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
             String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
-            TSBVideoMessageBody videoBody = new TSBVideoMessageBody();
+            ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
             videoBody.setLocalPath(videoPath);
             mConversation.sendMessage(videoBody, sendMessageCallback);
         } else if (requestCode == REQUEST_CODE_PHOTO && resultCode == RESULT_OK) {
             String photoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_PHOTO);
-            TSBImageMessageBody imageBody = new TSBImageMessageBody();
+            ChatImageMessageBody imageBody = new ChatImageMessageBody();
             imageBody.setLocalPath(photoPath);
             mConversation.sendMessage(imageBody, sendMessageCallback);
         }
@@ -404,7 +404,7 @@ public class ChatConversationActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member) {
-            TSBChatGroup group = new TSBChatGroup(DemoApplication.engine.chatManager.groupManager);
+            ChatGroup group = new ChatGroup(DemoApplication.engine.chatManager.groupManager);
             group.setGroupId(mConversation.getTarget());
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
             intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);
@@ -509,17 +509,17 @@ public class ChatConversationActivity extends Activity implements
     }
 
     private void sendVoiceMessage(String filePath) {
-        TSBVoiceMessageBody body = new TSBVoiceMessageBody();
+        ChatVoiceMessageBody body = new ChatVoiceMessageBody();
         body.setLocalPath(filePath);
         mConversation.sendMessage(body, sendMessageCallback);
     }
 
     private void request() {
         mConversation.getMessages(mStartMessageId, null, 20,
-                new TSBEngineCallback<List<TSBMessage>>() {
+                new TSBEngineCallback<List<ChatMessage>>() {
 
                     @Override
-                    public void onSuccess(final List<TSBMessage> t) {
+                    public void onSuccess(final List<ChatMessage> t) {
                         Log.d(TAG, "Get " + t.size() + " messages");
                         if (t.size() < 1) {
                             return;
@@ -565,7 +565,7 @@ public class ChatConversationActivity extends Activity implements
                     "Send failed, file not exist", Toast.LENGTH_LONG).show();
             return;
         }
-        TSBImageMessageBody body = new TSBImageMessageBody();
+        ChatImageMessageBody body = new ChatImageMessageBody();
         body.setLocalPath(filePath);
         mConversation.sendMessage(body, sendMessageCallback);
     }
@@ -589,7 +589,7 @@ public class ChatConversationActivity extends Activity implements
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
                     .equals(action)) {
                 String target = mConversation.getTarget();
-                TSBMessage message = intent
+                ChatMessage message = intent
                         .getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
                 Log.i(TAG,
                         "App get " + message.toString() + " to "

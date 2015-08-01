@@ -1,15 +1,15 @@
 package com.tuisongbao.engine.demo.chat.cache;
 
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.util.StrUtil;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
-import com.tuisongbao.engine.util.StrUtil;
 
 public class LoginCache {
 
     private static String userId;
-    private static List<TSBContactsUser> mAddList = new ArrayList<TSBContactsUser>();
+    private static List<ChatUser> mAddList = new ArrayList<ChatUser>();
 
     public static String getUserId() {
         return userId;
@@ -19,11 +19,11 @@ public class LoginCache {
         LoginCache.userId = userId;
     }
 
-    public static List<TSBContactsUser> getAddedUserList() {
+    public static List<ChatUser> getAddedUserList() {
         return mAddList;
     }
 
-    public static void addUser(TSBContactsUser user) {
+    public static void addUser(ChatUser user) {
         mAddList.add(user);
     }
 

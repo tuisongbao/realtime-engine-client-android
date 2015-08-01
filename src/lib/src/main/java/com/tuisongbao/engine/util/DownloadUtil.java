@@ -9,9 +9,9 @@ import java.net.URLConnection;
 
 import android.os.Environment;
 
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
-import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.common.TSBProgressCallback;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.log.LogUtil;
 

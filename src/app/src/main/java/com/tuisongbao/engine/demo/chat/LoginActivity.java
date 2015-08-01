@@ -9,8 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.entity.TSBChatUser;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -35,10 +35,10 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    DemoApplication.engine.chatManager.login(mEditTextAccount.getText().toString(), new TSBEngineCallback<TSBChatUser>() {
+                    DemoApplication.engine.chatManager.login(mEditTextAccount.getText().toString(), new TSBEngineCallback<ChatUser>() {
 
                         @Override
-                        public void onSuccess(TSBChatUser t) {
+                        public void onSuccess(ChatUser t) {
                             runOnUiThread(new Runnable() {
 
                                 @Override

@@ -3,18 +3,18 @@ package com.tuisongbao.engine;
 import android.content.Context;
 
 import com.tuisongbao.engine.channel.TSBChannelManager;
-import com.tuisongbao.engine.chat.TSBChatManager;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
-import com.tuisongbao.engine.engineio.DataPipeline;
-import com.tuisongbao.engine.engineio.sink.TSBListenerSink;
+import com.tuisongbao.engine.engineio.pipeline.DataPipeline;
+import com.tuisongbao.engine.engineio.sink.TSBEngineDataSink;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public final class TSBEngine {
     public static AutoReconnectConnection connection;
-    public static TSBChatManager chatManager;
+    public static ChatManager chatManager;
     public static TSBChannelManager channelManager;
-    public static TSBListenerSink sink;
+    public static TSBEngineDataSink sink;
     private DataPipeline mDataPipeline = new DataPipeline();
 
     private static final String TAG = TSBEngine.class.getSimpleName();
@@ -38,7 +38,7 @@ public final class TSBEngine {
             }
 
             connection = new AutoReconnectConnection(this);
-            sink = new TSBListenerSink(this);
+            sink = new TSBEngineDataSink(this);
             mDataPipeline.addSource(connection);
             mDataPipeline.addSink(sink);
 
@@ -57,7 +57,7 @@ public final class TSBEngine {
                 LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
                         "Successfully load configurations for engine.");
                 // TODO: Init ChatManager and ChannelManager
-                chatManager = new TSBChatManager(this);
+                chatManager = new ChatManager(this);
             }
             // TODO: When success connected, bind push if chat is enabled
 

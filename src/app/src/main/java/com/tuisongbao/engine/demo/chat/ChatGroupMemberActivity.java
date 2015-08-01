@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,20 +15,23 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupUserAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatGroupMemberActivity extends Activity {
 
     public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
 
-    private TSBChatGroup mGroup;
+    private ChatGroup mGroup;
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
-    private List<TSBContactsUser> mListGroupUser;
+    private List<ChatUser> mListGroupUser;
     private Button mButtonQuit;
 
     @Override
@@ -39,7 +39,7 @@ public class ChatGroupMemberActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_member);
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
-        mListGroupUser = new ArrayList<TSBContactsUser>();
+        mListGroupUser = new ArrayList<ChatUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
         mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
 
@@ -165,10 +165,10 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void request() {
-        mGroup.getUsers(new TSBEngineCallback<List<TSBContactsUser>>() {
+        mGroup.getUsers(new TSBEngineCallback<List<ChatUser>>() {
 
             @Override
-            public void onSuccess(List<TSBContactsUser> t) {
+            public void onSuccess(List<ChatUser> t) {
                 mListGroupUser = t;
                 runOnUiThread(new Runnable() {
 

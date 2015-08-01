@@ -8,8 +8,6 @@ public class BaseEngineException extends Exception
 {
     private static final long serialVersionUID = 1L;
 
-    public static final int A2DM_HTTP_ERROR = 0;
-
     private final int mCode;
 
     public BaseEngineException(int theCode, String theMessage)

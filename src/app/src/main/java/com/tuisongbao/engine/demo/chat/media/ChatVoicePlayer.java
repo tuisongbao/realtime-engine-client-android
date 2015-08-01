@@ -8,17 +8,17 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.common.TSBEngineCallback;
-import com.tuisongbao.engine.common.TSBProgressCallback;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
     private static MediaPlayer mMediaPlayer;
     private static ChatVoicePlayer mInstance;
-    private TSBMessage currentPlayingMessage;
-    HashMap<TSBMessage, OnStopListener> stopListenerHashMap = new HashMap<TSBMessage, ChatVoicePlayer.OnStopListener>();
-    HashMap<TSBMessage, OnErrorListener> errorListenerHashMap = new HashMap<TSBMessage, ChatVoicePlayer.OnErrorListener>();
+    private ChatMessage currentPlayingMessage;
+    HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<ChatMessage, ChatVoicePlayer.OnStopListener>();
+    HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<ChatMessage, ChatVoicePlayer.OnErrorListener>();
 
     public interface OnStopListener {
         public void onStop();
@@ -40,7 +40,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         return mInstance;
     }
 
-    public void start(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
+    public void start(final ChatMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
             , final TSBProgressCallback progressCallback) {
         try {
             stopLastMedia();
@@ -57,7 +57,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         }
     }
 
-    private void startPlay(final TSBMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
+    private void startPlay(final ChatMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
             , final TSBProgressCallback progressCallback) {
         currentPlayingMessage = message;
 
@@ -65,10 +65,10 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             errorListenerHashMap.put(message, errorListener);
         }
 
-        message.downloadResource(new TSBEngineCallback<TSBMessage>() {
+        message.downloadResource(new TSBEngineCallback<ChatMessage>() {
 
             @Override
-            public void onSuccess(TSBMessage t) {
+            public void onSuccess(ChatMessage t) {
                 try {
                     mMediaPlayer.reset();
                     mMediaPlayer.setDataSource(t.getResourcePath());
@@ -103,7 +103,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         mMediaPlayer.stop();
     }
 
-    private void callbackErrorListener(TSBMessage message, String errorMessage) {
+    private void callbackErrorListener(ChatMessage message, String errorMessage) {
         OnErrorListener errorListener = errorListenerHashMap.get(message);
         if (errorListener == null) {
             return;
@@ -111,7 +111,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         errorListener.onError(errorMessage);
     }
 
-    private void callbackStopListener(TSBMessage message) {
+    private void callbackStopListener(ChatMessage message) {
         OnStopListener stopListener = stopListenerHashMap.get(message);
         if (stopListener == null) {
             return;

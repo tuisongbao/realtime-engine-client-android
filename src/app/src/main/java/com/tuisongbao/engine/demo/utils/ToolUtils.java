@@ -6,28 +6,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.tuisongbao.engine.chat.entity.TSBChatEvent;
-import com.tuisongbao.engine.chat.entity.TSBEventMessageBody;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.chat.entity.TSBMessage.TYPE;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.event.entity.ChatEvent;
+import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class ToolUtils {
-    public static String getEventMessage(TSBMessage message) {
+    public static String getEventMessage(ChatMessage message) {
         if (message.getBody().getType() != TYPE.EVENT) {
             return "";
         }
 
-        TSBEventMessageBody body = (TSBEventMessageBody)message.getBody();
-        TSBChatEvent event = body.getEventType();
+        ChatEventMessageBody body = (ChatEventMessageBody)message.getBody();
+        ChatEvent event = body.getEventType();
         String maker = message.getFrom();
         String target = body.getEventTarget();
         String eventMessage = "";
-        if (event == TSBChatEvent.GroupJoined) {
+        if (event == ChatEvent.GroupJoined) {
             eventMessage = String.format("%s 邀请 %s 加入群组", maker, target);
-        } else if (event == TSBChatEvent.GroupRemoved) {
+        } else if (event == ChatEvent.GroupRemoved) {
             eventMessage = String.format("%s 被 %s 移出群组", target, maker);
-        } else if (event == TSBChatEvent.GroupDismissed) {
+        } else if (event == ChatEvent.GroupDismissed) {
             eventMessage = String.format("%s 解散了该群", maker);
         }
         return eventMessage;

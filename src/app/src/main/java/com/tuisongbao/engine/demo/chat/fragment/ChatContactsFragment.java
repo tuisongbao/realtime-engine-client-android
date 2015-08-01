@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat.fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,15 +13,18 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBContactsUser;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.ChatGroupsActivity;
 import com.tuisongbao.engine.demo.chat.adapter.ChatListFriendAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatContactsFragment extends Fragment {
     private static ChatContactsFragment mChatContactsFragment;
@@ -33,7 +33,7 @@ public class ChatContactsFragment extends Fragment {
     private LinearLayout mGroupLayout;
     private ListView mFriendsListView;
     private ChatListFriendAdapter mFriendsAdapter;
-    private List<TSBContactsUser> mFriendsList;
+    private List<ChatUser> mFriendsList;
 
     public static ChatContactsFragment getInstance() {
         if (null == mChatContactsFragment) {
@@ -71,7 +71,7 @@ public class ChatContactsFragment extends Fragment {
             }
         });
 
-        mFriendsList = new ArrayList<TSBContactsUser>(LoginCache.getAddedUserList());
+        mFriendsList = new ArrayList<ChatUser>(LoginCache.getAddedUserList());
         mFriendsAdapter = new ChatListFriendAdapter(mFriendsList, getActivity());
         mFriendsListView.setAdapter(mFriendsAdapter);
         mFriendsListView.setOnItemClickListener(new OnItemClickListener() {
@@ -82,7 +82,7 @@ public class ChatContactsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
 
-                TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
+                ChatConversation conversation = new ChatConversation(DemoApplication.engine.chatManager.conversationManager);
                 conversation.setTarget(mFriendsList.get(arg2).getUserId());
                 conversation.setType(ChatType.SingleChat);
 
@@ -95,7 +95,7 @@ public class ChatContactsFragment extends Fragment {
     }
 
     public void refresh() {
-        mFriendsList = new ArrayList<TSBContactsUser>(LoginCache.getAddedUserList());
+        mFriendsList = new ArrayList<ChatUser>(LoginCache.getAddedUserList());
         mFriendsAdapter.refresh(mFriendsList);
     }
 

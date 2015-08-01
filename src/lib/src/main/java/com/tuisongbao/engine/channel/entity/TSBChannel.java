@@ -1,12 +1,12 @@
 package com.tuisongbao.engine.channel.entity;
 
 import com.tuisongbao.engine.channel.TSBChannelManager;
-import com.tuisongbao.engine.channel.message.TSBSubscribeMessage;
-import com.tuisongbao.engine.channel.message.TSBUnsubscribeMessage;
+import com.tuisongbao.engine.channel.message.SubscribeEvent;
+import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 import org.json.JSONException;
@@ -67,7 +67,7 @@ public class TSBChannel extends EventEmitter {
 
     public void unsubscribe() {
         try {
-            TSBUnsubscribeMessage message = new TSBUnsubscribeMessage();
+            UnsubscribeEvent message = new UnsubscribeEvent();
             TSBChannel data = new TSBChannel(channel, mChannelManager);
             message.setData(data);
             mChannelManager.send(message, null);
@@ -82,7 +82,7 @@ public class TSBChannel extends EventEmitter {
     }
 
     protected void sendSubscribeRequest() throws JSONException {
-        TSBSubscribeMessage message = generateSubscribeMessage();
+        SubscribeEvent message = generateSubscribeMessage();
         mChannelManager.send(message, null);
     }
 
@@ -90,8 +90,8 @@ public class TSBChannel extends EventEmitter {
         callback.onSuccess(channel);
     }
 
-    protected TSBSubscribeMessage generateSubscribeMessage() {
-        TSBSubscribeMessage message = new TSBSubscribeMessage();
+    protected SubscribeEvent generateSubscribeMessage() {
+        SubscribeEvent message = new SubscribeEvent();
         // As TSBPresenceChannel has all properties, so use it to be the event data.
         TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
         data.setName(channel);

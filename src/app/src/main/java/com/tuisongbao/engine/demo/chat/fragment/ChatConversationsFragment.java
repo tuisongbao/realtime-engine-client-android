@@ -1,10 +1,5 @@
 package com.tuisongbao.engine.demo.chat.fragment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,21 +17,25 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.TSBConversationManager;
-import com.tuisongbao.engine.chat.entity.ChatType;
-import com.tuisongbao.engine.chat.entity.TSBChatConversation;
-import com.tuisongbao.engine.chat.entity.TSBMessage;
-import com.tuisongbao.engine.common.TSBEngineCallback;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.adapter.ChatConversationsAdapter;
 import com.tuisongbao.engine.demo.chat.entity.ConversationWrapper;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+
 public class ChatConversationsFragment extends Fragment {
 
     private static ChatConversationsFragment mConversationsFragment;
-    private static final String TAG = "com.tuisongbao.engine.demo.ChatConversationsFragment";
+    private static final String TAG = ChatConversationsFragment.class.getSimpleName();
 
     private View mRootView;
     private ListView mConversationsListView;
@@ -72,7 +71,7 @@ public class ChatConversationsFragment extends Fragment {
                     long arg3) {
                 mClickedConversationWrapper = mConversationList.get(arg2);
                 mClickedConversationWrapper.localUnreadCount = 0;
-                TSBChatConversation conversation = mClickedConversationWrapper.getConversation();
+                ChatConversation conversation = mClickedConversationWrapper.getConversation();
                 resetUnread(conversation);
 
                 mConversationsAdapter.refresh(mConversationList);
@@ -122,12 +121,12 @@ public class ChatConversationsFragment extends Fragment {
         mClickedConversationWrapper = null;
     }
 
-    public void onMessageSent(TSBMessage message) {
+    public void onMessageSent(ChatMessage message) {
         updateLatestMessageOfConversation(message, message.getRecipient());
         refreshConversationList();
     }
 
-    public void onMessageReceived(TSBMessage message) {
+    public void onMessageReceived(ChatMessage message) {
         String target = "";
         if (message.getChatType() == ChatType.SingleChat) {
             target = message.getFrom();
@@ -142,7 +141,7 @@ public class ChatConversationsFragment extends Fragment {
         refreshConversationList();
     }
 
-    private ConversationWrapper updateLatestMessageOfConversation(TSBMessage message, String target) {
+    private ConversationWrapper updateLatestMessageOfConversation(ChatMessage message, String target) {
         String key = message.getChatType().getName() + target;
         ConversationWrapper wrapper = mConversationHashMap.get(key);
         // No local conversation, create a new one.
@@ -150,7 +149,7 @@ public class ChatConversationsFragment extends Fragment {
             wrapper = new ConversationWrapper();
             mConversationHashMap.put(key, wrapper);
 
-            TSBChatConversation conversation = new TSBChatConversation(DemoApplication.engine.chatManager.conversationManager);
+            ChatConversation conversation = new ChatConversation(DemoApplication.engine.chatManager.conversationManager);
             conversation.setType(message.getChatType());
             conversation.setTarget(target);
             wrapper.setConversation(conversation);
@@ -161,10 +160,10 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void request() {
-        DemoApplication.engine.chatManager.conversationManager.getList(null, null, new TSBEngineCallback<List<TSBChatConversation>>() {
+        DemoApplication.engine.chatManager.conversationManager.getList(null, null, new TSBEngineCallback<List<ChatConversation>>() {
 
             @Override
-            public void onSuccess(final List<TSBChatConversation> t) {
+            public void onSuccess(final List<ChatConversation> t) {
                 Log.d(TAG, "Get " + t.size() + " conversations");
 
                 refreshConversationHashMap(t);
@@ -198,7 +197,7 @@ public class ChatConversationsFragment extends Fragment {
         });
     }
 
-    private void deleteConversation(TSBChatConversation conversation) {
+    private void deleteConversation(ChatConversation conversation) {
         conversation.delete(new TSBEngineCallback<String>() {
 
             @Override
@@ -234,7 +233,7 @@ public class ChatConversationsFragment extends Fragment {
         });
     }
 
-    private void resetUnread(TSBChatConversation conversation) {
+    private void resetUnread(ChatConversation conversation) {
         conversation.setUnreadMessageCount(0);
         conversation.resetUnread(new TSBEngineCallback<String>() {
             @Override
@@ -249,9 +248,9 @@ public class ChatConversationsFragment extends Fragment {
         });
     }
 
-    private void refreshConversationHashMap(List<TSBChatConversation> conversations) {
+    private void refreshConversationHashMap(List<ChatConversation> conversations) {
         HashMap<String, ConversationWrapper> newConversations = new HashMap<String, ConversationWrapper>();
-        for (TSBChatConversation conversation : conversations) {
+        for (ChatConversation conversation : conversations) {
             String keyString = getKeyString(conversation);
             ConversationWrapper wrapper = mConversationHashMap.get(keyString);
             if (wrapper == null) {
@@ -264,7 +263,7 @@ public class ChatConversationsFragment extends Fragment {
         mConversationHashMap = newConversations;
     }
 
-    private String getKeyString(TSBChatConversation conversation) {
+    private String getKeyString(ChatConversation conversation) {
         return conversation.getType().getName() + conversation.getTarget();
     }
 

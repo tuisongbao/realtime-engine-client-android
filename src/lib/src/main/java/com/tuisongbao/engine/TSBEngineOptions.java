@@ -1,6 +1,6 @@
 package com.tuisongbao.engine;
 
-import com.tuisongbao.engine.service.TSBChatIntentService;
+import com.tuisongbao.engine.service.ChatIntentService;
 
 public class TSBEngineOptions {
 
@@ -10,7 +10,7 @@ public class TSBEngineOptions {
     // Auth endpoint
     private String mAuthEndPoint;
     // chat intent service
-    private Class<? extends TSBChatIntentService> mChatIntentService = TSBChatIntentService.class;
+    private Class<? extends ChatIntentService> mChatIntentService = ChatIntentService.class;
 
     public TSBEngineOptions(String appId, String endpoint) {
         mEngineAppId = appId;
@@ -39,12 +39,12 @@ public class TSBEngineOptions {
         mEngineAppId = appKey;
     }
 
-    public Class<? extends TSBChatIntentService> getChatIntentService() {
+    public Class<? extends ChatIntentService> getChatIntentService() {
         return mChatIntentService;
     }
 
     public void setChatIntentService(
-            Class<? extends TSBChatIntentService> chatIntentService) {
+            Class<? extends ChatIntentService> chatIntentService) {
         this.mChatIntentService = chatIntentService;
     }
 }

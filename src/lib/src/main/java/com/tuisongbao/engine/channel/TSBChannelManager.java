@@ -6,7 +6,7 @@ import com.tuisongbao.engine.channel.entity.TSBPresenceChannel;
 import com.tuisongbao.engine.channel.entity.TSBPrivateChannel;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
-import com.tuisongbao.engine.entity.TSBEngineConstants;
+import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 

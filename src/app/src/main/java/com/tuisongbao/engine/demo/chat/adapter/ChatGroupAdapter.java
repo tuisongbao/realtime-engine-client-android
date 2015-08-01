@@ -9,20 +9,20 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.entity.TSBChatGroup;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.demo.R;
 
 public class ChatGroupAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<TSBChatGroup> mListGroup;
+    private List<ChatGroup> mListGroup;
 
-    public ChatGroupAdapter(List<TSBChatGroup> listGroup, Context context) {
+    public ChatGroupAdapter(List<ChatGroup> listGroup, Context context) {
         mListGroup = listGroup;
         mContext = context;
     }
 
-    public void refresh(List<TSBChatGroup> listGroup) {
+    public void refresh(List<ChatGroup> listGroup) {
         mListGroup = listGroup;
         notifyDataSetChanged();
     }
@@ -49,7 +49,7 @@ public class ChatGroupAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_chat_group, null);
         }
-        TSBChatGroup group = mListGroup.get(position);
+        ChatGroup group = mListGroup.get(position);
         TextView textViewGroupId = (TextView) convertView
                 .findViewById(R.id.list_item_chat_group_id);
         textViewGroupId.setText("groupId：" + group.getGroupId());

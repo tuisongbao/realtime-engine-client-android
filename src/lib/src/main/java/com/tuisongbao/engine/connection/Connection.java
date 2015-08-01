@@ -7,9 +7,9 @@ import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.Event;
+import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.engineio.source.BaseEngineIODataSource;
 import com.tuisongbao.engine.http.HttpConstants;
@@ -200,10 +200,11 @@ public class Connection extends BaseEngineIODataSource {
     public boolean bind(ConnectionEvent connectionEvent, TSBEngineBindCallback callback) {
         try {
             Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
+            if (listeners == null) {
+                listeners = new HashSet<>();
+            }
             synchronized (listeners) {
-                if (listeners == null) {
-                    listeners = new HashSet<>();
-                }
+
                 listeners.add(callback);
                 mEventListeners.put(connectionEvent.name, listeners);
             }
@@ -338,7 +339,6 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    // TODO: Can only bind one sink on each state
                     onSocketClosed(args);
                 }
             }).on(Socket.EVENT_FLUSH, new Emitter.Listener() {
@@ -392,7 +392,7 @@ public class Connection extends BaseEngineIODataSource {
 
     private void onEvent(String eventString) throws JSONException {
         Gson gson = new Gson();
-        com.tuisongbao.engine.common.Event event = gson.fromJson(eventString, com.tuisongbao.engine.common.Event.class);
+        Event event = gson.fromJson(eventString, Event.class);
         String eventName = event.getName();
         if (Protocol.isConnectionEvent(eventName)) {
             ConnectionEventData connectionData = gson.fromJson(event.getData(), ConnectionEventData.class);
