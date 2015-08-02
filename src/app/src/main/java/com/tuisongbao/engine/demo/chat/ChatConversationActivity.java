@@ -1,10 +1,5 @@
 package com.tuisongbao.engine.demo.chat;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -39,13 +34,13 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -57,6 +52,11 @@ import com.tuisongbao.engine.demo.chat.media.ChatVoiceRecorder;
 import com.tuisongbao.engine.demo.chat.media.ChatVoiceRecorder.ChatVoiceEventCallback;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.engine.log.LogUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @SuppressLint("NewApi")
 public class ChatConversationActivity extends Activity implements
@@ -138,6 +138,7 @@ public class ChatConversationActivity extends Activity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
         mConversation = getIntent().getParcelableExtra(EXTRA_CONVERSATION);
+        mConversation.setOwner(DemoApplication.engine);
 
         mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
         mContentEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
@@ -404,7 +405,7 @@ public class ChatConversationActivity extends Activity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member) {
-            ChatGroup group = new ChatGroup(DemoApplication.engine.chatManager.groupManager);
+            ChatGroup group = new ChatGroup(DemoApplication.engine);
             group.setGroupId(mConversation.getTarget());
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
             intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);

@@ -22,9 +22,11 @@ public class TSBGroupDataSource {
     private TSBGroupSQLiteHelper groupSQLiteHelper;
     private TSBGroupMemberSQLiteHelper groupMemberSQLiteHelper;
     private ChatManager mChatManager;
+    private TSBEngine mEngine;
 
-    public TSBGroupDataSource(Context context, ChatManager chatManager) {
-        mChatManager = chatManager;
+    public TSBGroupDataSource(Context context, TSBEngine engine) {
+        mEngine = engine;
+        mChatManager = engine.chatManager;
         groupSQLiteHelper = new TSBGroupSQLiteHelper(context);
         groupMemberSQLiteHelper = new TSBGroupMemberSQLiteHelper(context);
     }
@@ -217,7 +219,7 @@ public class TSBGroupDataSource {
         LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
 
         // Remove conversation
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
         dataSource.remove(userId, ChatType.GroupChat, groupId);
         dataSource.close();
@@ -250,7 +252,7 @@ public class TSBGroupDataSource {
     }
 
     private ChatGroup createGroup(Cursor cursor) {
-        ChatGroup group = new ChatGroup(mChatManager.groupManager);
+        ChatGroup group = new ChatGroup(mEngine);
         group.setGroupId(cursor.getString(1));
         group.setOwner(cursor.getString(2));
         group.setIsPublic(cursor.getInt(3) == 1 ? true : false);

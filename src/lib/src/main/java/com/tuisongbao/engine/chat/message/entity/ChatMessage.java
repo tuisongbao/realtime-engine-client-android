@@ -17,6 +17,7 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.io.File;
 
 public class ChatMessage implements Parcelable {
+    private final String TAG = ChatMessage.class.getSimpleName();
     /***
      * This value is not unique, it is the message's serial number in a conversation,
      * A different conversation may has a message which has a same messageId.
@@ -30,9 +31,11 @@ public class ChatMessage implements Parcelable {
     private boolean downloading = false;
 
     transient private ChatManager mChatManager;
+    transient private TSBEngine mEngine;
 
-    public ChatMessage(ChatManager chatManager) {
-        mChatManager = chatManager;
+    public ChatMessage(TSBEngine engine) {
+        mEngine = engine;
+        mChatManager = mEngine.chatManager;
     }
 
     public ChatType getChatType() {
@@ -117,13 +120,7 @@ public class ChatMessage implements Parcelable {
         return "";
     }
 
-    public static ChatMessage createMessage(TYPE type) {
-        ChatMessage message = new ChatMessage();
-        message.setBody(ChatMessageBody.createMessage(type));
-        return message;
-    }
-
-    public static enum TYPE {
+    public enum TYPE {
         TEXT("text", 1),
         IMAGE("image", 2),
         VOICE("voice", 3),
@@ -200,12 +197,8 @@ public class ChatMessage implements Parcelable {
         readFromParcel(in);
     }
 
-    public ChatMessage() {
-        // empty
-    }
-
     public void downloadResource(final TSBEngineCallback<ChatMessage> callback, final TSBProgressCallback progressCallback) {
-        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
+        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
         final ChatMessage message = this;
 
         if (getBody().getType() == TYPE.TEXT) {
@@ -227,7 +220,7 @@ public class ChatMessage implements Parcelable {
                 File fileTest = new File(localPath);
                 if (!fileTest.exists()) {
                     needDownload = true;
-                    LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Local file at " + localPath + " is no longer exists, need to download again" );
+                    LogUtil.verbose(TAG, "Local file at " + localPath + " is no longer exists, need to download again" );
                 }
             }
 
@@ -241,13 +234,12 @@ public class ChatMessage implements Parcelable {
                         body.setLocalPath(filePath);
 
                         // TODO: Get cache status and update DB
-//                        if (ChatManager.getInstance().isCacheEnabled()) {
-//                            dataSource.open();
-//                            dataSource.upsertMessage(userId, message);
-//                            LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update message local path " + message);
-//                            dataSource.close();
-//                        }
-
+                        if (mChatManager.isCacheEnabled()) {
+                            dataSource.open();
+                            dataSource.upsertMessage(mChatManager.getChatUser().getUserId(), message);
+                            LogUtil.verbose(TAG, "Update message local path " + message);
+                            dataSource.close();
+                        }
                         message.setBody(body);
                         callback.onSuccess(message);
                     }

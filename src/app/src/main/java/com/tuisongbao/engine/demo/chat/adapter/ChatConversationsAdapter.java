@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.demo.chat.adapter;
 
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
@@ -11,26 +9,27 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.demo.chat.entity.ConversationWrapper;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
+
+import java.util.List;
 
 public class ChatConversationsAdapter extends BaseAdapter {
     private static final String TAG = "com.tuisongbao.android.engine.chat.ChatConversationsAdapter";
     private Context mContext;
-    private List<ConversationWrapper> mListConversation;
+    private List<ChatConversation> mListConversation;
 
-    public ChatConversationsAdapter(List<ConversationWrapper> listConversation, Context context) {
+    public ChatConversationsAdapter(List<ChatConversation> listConversation, Context context) {
         mListConversation = listConversation;
         mContext = context;
     }
 
-    public void refresh(List<ConversationWrapper> listConversation) {
+    public void refresh(List<ChatConversation> listConversation) {
         mListConversation = listConversation;
         notifyDataSetChanged();
     }
@@ -57,13 +56,12 @@ public class ChatConversationsAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(
                     R.layout.list_item_conversation, null);
         }
-        final ConversationWrapper wrapper = mListConversation.get(position);
-        final ChatConversation tsbConversation = wrapper.getConversation();
+        final ChatConversation conversation = mListConversation.get(position);
 
         // Unread message Count
         TextView unreadCountTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_unread);
-        int unreadCount = tsbConversation.getUnreadMessageCount() + wrapper.localUnreadCount;
+        int unreadCount = conversation.getUnreadMessageCount();
         String showNumber = "(" + unreadCount + ")";
         if (unreadCount > 0) {
             unreadCountTextView.setTextColor(mContext.getResources().getColor(R.color.red));
@@ -77,10 +75,10 @@ public class ChatConversationsAdapter extends BaseAdapter {
         unreadCountTextView.setTextSize(20);
 
         // Target info
-        String target = tsbConversation.getTarget();
-        if (tsbConversation.getType() == ChatType.GroupChat) {
+        String target = conversation.getTarget();
+        if (conversation.getType() == ChatType.GroupChat) {
             // TODO: query group name from demo app server.
-            target = tsbConversation.getTarget();
+            target = conversation.getTarget();
         }
         TextView targetTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_target);
@@ -89,12 +87,12 @@ public class ChatConversationsAdapter extends BaseAdapter {
 
         // last update time
         TextView lastUpdateTimeTextView = (TextView)convertView.findViewById(R.id.list_item_conversation_last_update_time);
-        lastUpdateTimeTextView.setText(ToolUtils.getDisplayTime(tsbConversation.getLastActiveAt()));
+        lastUpdateTimeTextView.setText(ToolUtils.getDisplayTime(conversation.getLastActiveAt()));
 
         // Show the latest message
         final TextView messageTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_latest_message);
-        tsbConversation.getMessages(null, null, 1, new TSBEngineCallback<List<ChatMessage>>() {
+        conversation.getMessages(null, null, 1, new TSBEngineCallback<List<ChatMessage>>() {
 
             @Override
             public void onSuccess(List<ChatMessage> t) {

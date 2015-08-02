@@ -3,6 +3,7 @@ package com.tuisongbao.engine.chat.group.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
@@ -11,6 +12,7 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.util.List;
 
 public class ChatGroup implements Parcelable {
+    transient private TSBEngine mEngine;
     transient private ChatGroupManager mGroupManager;
 
     private String groupId;
@@ -22,8 +24,9 @@ public class ChatGroup implements Parcelable {
     private String lastActiveAt;
     private List<String> invitedUserIds;
 
-    public ChatGroup(ChatGroupManager groupManager) {
-        mGroupManager = groupManager;
+    public ChatGroup(TSBEngine engine) {
+        mEngine = engine;
+        mGroupManager = mEngine.chatManager.groupManager;
     }
 
     public String getGroupId() {

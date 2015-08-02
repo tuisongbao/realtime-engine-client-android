@@ -33,10 +33,10 @@ public class ChatConversationManager extends BaseManager {
     private ChatManager mChatManager;
     private TSBConversationDataSource dataSource;
 
-    public ChatConversationManager(ChatManager chatManager) {
-        mChatManager = chatManager;
+    public ChatConversationManager(TSBEngine engine) {
+        mChatManager = engine.chatManager;
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mChatManager);
+            dataSource = new TSBConversationDataSource(TSBEngine.getContext(), engine);
         }
     }
 

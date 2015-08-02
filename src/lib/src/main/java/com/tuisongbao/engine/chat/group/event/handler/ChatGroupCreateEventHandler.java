@@ -34,7 +34,7 @@ public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
         group.setUserCount(userCount);
         group.setIsPublic(requestData.isPublic());
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
         dataSource.insert(group, currentUser);
         dataSource.close();

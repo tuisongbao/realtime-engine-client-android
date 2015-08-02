@@ -22,7 +22,7 @@ public class ChatGroupGetUsersEventHandler extends BaseEventHandler<List<ChatUse
             return users;
         }
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
 
         Gson gson = new Gson();

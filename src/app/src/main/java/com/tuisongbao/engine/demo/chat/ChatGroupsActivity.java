@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +18,9 @@ import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatGroupsActivity extends Activity {
 
@@ -42,7 +42,7 @@ public class ChatGroupsActivity extends Activity {
                     long arg3) {
                 ChatGroup group = mListGroup.get(arg2);
 
-                ChatConversation conversation = new ChatConversation(DemoApplication.engine.chatManager.conversationManager);
+                ChatConversation conversation = new ChatConversation(DemoApplication.engine);
                 conversation.setTarget(group.getGroupId());
                 conversation.setType(ChatType.GroupChat);
 

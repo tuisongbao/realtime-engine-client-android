@@ -18,8 +18,7 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
 import java.util.List;
 
-public class ChatConversationGetEventHandler extends
-        BaseEventHandler<List<ChatConversation>> {
+public class ChatConversationGetEventHandler extends BaseEventHandler<List<ChatConversation>> {
 
     @Override
     protected List<ChatConversation> prepareCallbackData(Event request, ResponseEventData response) {
@@ -29,7 +28,7 @@ public class ChatConversationGetEventHandler extends
             return changedConversations;
         }
 
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
         String userId = mEngine.chatManager.getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(changedConversations, userId);

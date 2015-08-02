@@ -54,8 +54,6 @@ public class ChatManager extends BaseManager {
 
     public ChatManager(TSBEngine engine) {
         super(engine);
-        groupManager = new ChatGroupManager(this);
-        conversationManager = new ChatConversationManager(this);
     }
 
     public boolean isLogin() {
@@ -383,7 +381,12 @@ public class ChatManager extends BaseManager {
         @Override
         public void onSuccess(ChatUser t) {
             LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
+
             if (!isLogin()) {
+                // Init groups and conversations
+                groupManager = new ChatGroupManager(engine);
+                conversationManager = new ChatConversationManager(engine);
+
                 // Chat user is null
                 mTSBChatUser = t;
                 mTSBChatUser.setUserId(mTSBLoginMessage.getData().getUserData());

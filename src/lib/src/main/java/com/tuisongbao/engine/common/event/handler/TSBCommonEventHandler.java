@@ -42,8 +42,8 @@ public class TSBCommonEventHandler extends BaseEventHandler<String> {
 
         // 初始化数据库
         Context applicationContext = TSBEngine.getContext();
-        TSBGroupDataSource groupDataSource = new TSBGroupDataSource(applicationContext, mEngine.chatManager);
-        TSBConversationDataSource conversationDataSource = new TSBConversationDataSource(applicationContext, mEngine.chatManager);
+        TSBGroupDataSource groupDataSource = new TSBGroupDataSource(applicationContext, mEngine);
+        TSBConversationDataSource conversationDataSource = new TSBConversationDataSource(applicationContext, mEngine);
 
         groupDataSource.open();
         conversationDataSource.open();

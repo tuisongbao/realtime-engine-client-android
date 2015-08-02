@@ -38,7 +38,7 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
     protected List<ChatMessage> prepareCallbackData(Event request, ResponseEventData response) {
         List<ChatMessage> messages = parse(response);
         ChatUser user = mEngine.chatManager.getChatUser();
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
         for (ChatMessage message : messages) {
             dataSource.upsertMessage(user.getUserId(), message);

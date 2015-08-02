@@ -82,7 +82,7 @@ public class ChatContactsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
 
-                ChatConversation conversation = new ChatConversation(DemoApplication.engine.chatManager.conversationManager);
+                ChatConversation conversation = new ChatConversation(DemoApplication.engine);
                 conversation.setTarget(mFriendsList.get(arg2).getUserId());
                 conversation.setType(ChatType.SingleChat);
 

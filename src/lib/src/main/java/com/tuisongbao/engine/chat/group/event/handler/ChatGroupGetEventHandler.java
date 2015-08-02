@@ -22,7 +22,7 @@ public class ChatGroupGetEventHandler extends BaseEventHandler<List<ChatGroup>> 
             return groups;
         }
 
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine.chatManager);
+        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine);
         String userId = mEngine.chatManager.getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(groups, userId);

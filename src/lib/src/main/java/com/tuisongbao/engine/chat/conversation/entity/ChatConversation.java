@@ -3,10 +3,11 @@ package com.tuisongbao.engine.chat.conversation.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 
@@ -19,10 +20,12 @@ public class ChatConversation implements Parcelable {
     private String lastActiveAt;
     private ChatMessage lastMessage;
 
+    transient private TSBEngine mEngine;
     transient private ChatConversationManager mConversationManager;
 
-    public ChatConversation(ChatConversationManager conversationManager) {
-        mConversationManager = conversationManager;
+    public ChatConversation(TSBEngine engine) {
+        mEngine = engine;
+        mConversationManager = engine.chatManager.conversationManager;
     }
 
     public ChatType getType() {
@@ -63,6 +66,15 @@ public class ChatConversation implements Parcelable {
 
     public void setLastMessage(ChatMessage lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    /***
+     * After parceling, the conversation will lost the conversation manager context. so you have to recover it after you get conversation from parcel.
+     *
+     * @param engine
+     */
+    public void setOwner(TSBEngine engine) {
+        mConversationManager = engine.chatManager.conversationManager;
     }
 
     /***
@@ -112,9 +124,9 @@ public class ChatConversation implements Parcelable {
     }
 
     private void sendMessage(ChatMessageBody body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
-        ChatMessage message = new ChatMessage();
+        ChatMessage message = new ChatMessage(mEngine);
         message.setBody(body).setChatType(type).setRecipient(target);
-        mConversationManager.sendMessage(message, callback, options);
+        mEngine.chatManager.sendMessage(message, callback, options);
     }
 
     @Override

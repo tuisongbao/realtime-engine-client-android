@@ -1,5 +1,13 @@
 package com.tuisongbao.engine.util;
 
+import android.os.Environment;
+
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.log.LogUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,15 +15,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.os.Environment;
-
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.log.LogUtil;
-
 public class DownloadUtil {
+    private static final String TAG = DownloadUtil.class.getSimpleName();
     /***
      * Download image and save to local, return path of the local image file.
      *
@@ -25,7 +26,7 @@ public class DownloadUtil {
      */
     public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final TSBEngineCallback<String> callback
             , final TSBProgressCallback progressCallback) {
-        LogUtil.info(LogUtil.LOG_TAG_CHAT, "Begin to download " + type.getName() + " from " + urlString);
+        LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
         final String[] splits = urlString.split("/");
         if (StrUtil.isEmpty(urlString) || splits.length < 1) {
             callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
@@ -90,7 +91,7 @@ public class DownloadUtil {
             String filePath = outputFile.getPath();
             callback.onSuccess(filePath);
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            LogUtil.error(TAG, e);
         }
     }
 

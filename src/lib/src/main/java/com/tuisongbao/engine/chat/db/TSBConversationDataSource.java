@@ -1,10 +1,5 @@
 package com.tuisongbao.engine.chat.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONObject;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,20 +7,26 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
-import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TSBConversationDataSource {
     private static final String TAG = "com.tuisongbao.engine.TSBConversationDataSource";
@@ -36,10 +37,10 @@ public class TSBConversationDataSource {
     private SQLiteDatabase messageDB;
     private TSBConversationSQLiteHelper conversationSQLiteHelper;
     private TSBMessageSQLiteHelper messageSQLiteHelper;
-    private ChatManager mChatManager;
+    private TSBEngine mEngine;
 
-    public TSBConversationDataSource(Context context, ChatManager chatManager) {
-        mChatManager = chatManager;
+    public TSBConversationDataSource(Context context, TSBEngine engine) {
+        mEngine = engine;
         conversationSQLiteHelper = new TSBConversationSQLiteHelper(context);
         messageSQLiteHelper = new TSBMessageSQLiteHelper(context);
     }
@@ -78,7 +79,7 @@ public class TSBConversationDataSource {
         if (rowsEffected < 1) {
             insert(conversation, userId);
         }
-        insertMessage(conversation.getLastMessage());
+        upsertMessage(userId, conversation.getLastMessage());
     }
 
     /***
@@ -144,7 +145,7 @@ public class TSBConversationDataSource {
         }
         boolean needCreateConversation = !isConversationExist(userId, target);
         if (needCreateConversation) {
-            ChatConversation conversation = new ChatConversation(mChatManager.conversationManager);
+            ChatConversation conversation = new ChatConversation(mEngine);
             conversation.setTarget(target);
             conversation.setType(message.getChatType());
             conversation.setUnreadMessageCount(1);
@@ -166,6 +167,7 @@ public class TSBConversationDataSource {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             lastMessage = createMessage(cursor);
+            cursor.moveToNext();
         }
         cursor.close();
         return  lastMessage;
@@ -313,7 +315,7 @@ public class TSBConversationDataSource {
     }
 
     private ChatConversation createConversation(Cursor cursor) {
-        ChatConversation conversation = new ChatConversation(mChatManager.conversationManager);
+        ChatConversation conversation = new ChatConversation(mEngine);
         conversation.setTarget(cursor.getString(2));
         conversation.setType(ChatType.getType(cursor.getString(3)));
         conversation.setUnreadMessageCount(cursor.getInt(4));
@@ -323,7 +325,7 @@ public class TSBConversationDataSource {
     }
 
     private ChatMessage createMessage(Cursor cursor) {
-        ChatMessage message = new ChatMessage();
+        ChatMessage message = new ChatMessage(mEngine);
         message.setMessageId(cursor.getLong(1));
         message.setFrom(cursor.getString(2));
         message.setRecipient(cursor.getString(3));

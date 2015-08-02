@@ -31,13 +31,13 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.util.List;
 
 public class ChatGroupManager extends BaseManager {
-    private static TSBGroupDataSource dataSource;
+    private TSBGroupDataSource dataSource;
     private ChatManager mChatManager;
 
-    public ChatGroupManager(ChatManager chatManager) {
-        mChatManager = chatManager;
+    public ChatGroupManager(TSBEngine engine) {
+        mChatManager = engine.chatManager;
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mChatManager);
+            dataSource = new TSBGroupDataSource(TSBEngine.getContext(), engine);
         }
     }
 
