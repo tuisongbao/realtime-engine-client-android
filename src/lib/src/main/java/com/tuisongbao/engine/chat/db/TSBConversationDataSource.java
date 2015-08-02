@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;

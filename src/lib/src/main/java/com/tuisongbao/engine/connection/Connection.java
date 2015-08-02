@@ -273,7 +273,9 @@ public class Connection extends BaseEngineIODataSource {
     public Event send(String name, String data) throws JSONException {
         Event event = new Event(name, data);
         event.setId(getRequestId());
-        mSocket.send(event.serialize());
+        String eventString = event.serialize();
+        LogUtil.info(TAG, "Send event:" + eventString);
+        mSocket.send(eventString);
         return event;
     }
 

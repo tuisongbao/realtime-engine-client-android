@@ -3,9 +3,14 @@ package com.tuisongbao.engine.chat.message.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.engine.chat.serializer.TSBChatMessageBodySerializer;
+import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
@@ -36,6 +41,23 @@ public class ChatMessage implements Parcelable {
     public ChatMessage(TSBEngine engine) {
         mEngine = engine;
         mChatManager = mEngine.chatManager;
+    }
+
+    public static Gson getSerializer() {
+        // TODO: 15-8-2 Remove this after supporting deserialize in BaseRequestEvent
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(ChatType.class,
+                new TSBChatMessageChatTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class,
+                new TSBChatMessageTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageBody.class,
+                new TSBChatMessageBodySerializer());
+
+        return gsonBuilder.create();
+    }
+
+    public void setEngine(TSBEngine engine) {
+        this.mEngine = engine;
     }
 
     public ChatType getChatType() {

@@ -1,16 +1,16 @@
 package com.tuisongbao.engine.chat.message.entity;
 
-import org.json.JSONObject;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.log.LogUtil;
+
+import org.json.JSONObject;
 
 public abstract class ChatMessageBody implements Parcelable {
     private static final String TAG = "com.tuisongbao.engine.ChatMessageBody";

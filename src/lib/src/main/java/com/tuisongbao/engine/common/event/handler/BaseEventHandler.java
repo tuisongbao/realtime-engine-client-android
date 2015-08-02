@@ -35,13 +35,17 @@ public abstract class BaseEventHandler<T> implements IEventHandler {
         return parse(response);
     }
 
-    public void callback(Event request, ResponseEventData response) {
-        ITSBEngineCallback callBack = getCallback();
-        if (response.getOk()) {
-            ((TSBEngineCallback)callBack).onSuccess(prepareCallbackData(request, response));
+    public void callback(Event request, Event response) {
+        ITSBEngineCallback callback = getCallback();
+        if (callback == null) {
+            return;
+        }
+        ResponseEventData responseData = new Gson().fromJson(response.getData(), ResponseEventData.class);
+        if (responseData.getOk()) {
+            ((TSBEngineCallback)callback).onSuccess(prepareCallbackData(request, responseData));
         } else {
-            ResponseError error = new Gson().fromJson(response.getError(), ResponseError.class);
-            ((TSBEngineCallback) callBack).onError(error.getCode(), error.getMessage());
+            ResponseError error = new Gson().fromJson(responseData.getError(), ResponseError.class);
+            ((TSBEngineCallback) callback).onError(error.getCode(), error.getMessage());
         }
     }
 }

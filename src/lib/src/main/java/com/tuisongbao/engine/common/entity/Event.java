@@ -2,7 +2,6 @@ package com.tuisongbao.engine.common.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 /**
  * Created by root on 15-7-31.
@@ -17,7 +16,7 @@ public class Event {
 
     public Event(String name, String data) {
         this.name = name;
-        this.data = mGson.fromJson(data, JsonObject.class);
+        this.data = mGson.fromJson(data, JsonElement.class);
     }
 
     public void setChannel(String channel) {

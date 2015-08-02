@@ -68,7 +68,7 @@ public class ChatGroupManager extends BaseManager {
     public void create(List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<ChatGroup> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -93,7 +93,7 @@ public class ChatGroupManager extends BaseManager {
 
     public void getList(String groupId, TSBEngineCallback<List<ChatGroup>> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -134,7 +134,7 @@ public class ChatGroupManager extends BaseManager {
     public void getUsers(String groupId,
             TSBEngineCallback<List<ChatUser>> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -172,7 +172,7 @@ public class ChatGroupManager extends BaseManager {
     public void joinInvitation(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -212,7 +212,7 @@ public class ChatGroupManager extends BaseManager {
     public void removeUsers(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -249,7 +249,7 @@ public class ChatGroupManager extends BaseManager {
      */
     public void leave(String groupId, TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");

@@ -12,6 +12,18 @@ public class ResponseEventData {
     private JsonElement result;
     private JsonObject error;
 
+    public void setTo(long to) {
+        this.to = to;
+    }
+
+    public void setOk(boolean ok) {
+        this.ok = ok;
+    }
+
+    public void setResult(JsonElement result) {
+        this.result = result;
+    }
+
     public long getTo() {
         return to;
     }

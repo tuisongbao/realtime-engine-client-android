@@ -8,8 +8,8 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatIntentService extends IntentService {
-    protected final static String INTENT_ACTION_RECEIVED_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE";
-    protected final static String INTENT_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_EXTRA_KEY_MESSAGE";
+    public final static String INTENT_ACTION_RECEIVED_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE";
+    public final static String INTENT_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_EXTRA_KEY_MESSAGE";
     private static final String TAG = ChatIntentService.class
             .getSimpleName();
 

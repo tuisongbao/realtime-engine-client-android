@@ -24,7 +24,7 @@ public class TSBEngineDataSink extends BaseEngineDataSink {
         bindOnce(String.valueOf(event.getId()), new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                response.callback(event, (ResponseEventData)args[0]);
+                response.callback(event, (Event)args[0]);
             }
         });
     }
@@ -38,7 +38,7 @@ public class TSBEngineDataSink extends BaseEngineDataSink {
             mEngine.channelManager.trigger(eventName, event);
         } else if (Protocol.isServerResponseEvent(eventName)) {
             ResponseEventData data = new Gson().fromJson(event.getData(), ResponseEventData.class);
-            trigger(String.valueOf(data.getTo()), data);
+            trigger(String.valueOf(data.getTo()), event);
         } else if (Protocol.isChatEvent(eventName)) {
             mEngine.chatManager.trigger(eventName, event);
         }

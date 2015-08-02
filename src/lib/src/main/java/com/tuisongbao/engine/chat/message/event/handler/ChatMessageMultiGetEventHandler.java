@@ -1,5 +1,6 @@
 package com.tuisongbao.engine.chat.message.event.handler;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.TSBEngine;
@@ -42,6 +43,7 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
         dataSource.open();
         for (ChatMessage message : messages) {
             dataSource.upsertMessage(user.getUserId(), message);
+            message.setEngine(mEngine);
         }
 
         ChatMessageGetData requestData = parseRequestData(request);
@@ -54,9 +56,10 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
 
 
     @Override
-    public void callback(Event request, ResponseEventData response) {
+    public void callback(Event request, Event response) {
         requestCount--;
-        prepareCallbackData(request, response);
+        ResponseEventData responseData = new Gson().fromJson(response.getData(), ResponseEventData.class);
+        prepareCallbackData(request, responseData);
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, this + " remain " + requestCount + " requests");
         if (requestCount < 1) {
             super.callback(request, response);

@@ -3,14 +3,13 @@ package com.tuisongbao.engine.chat.message.event;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageSendData;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.event.BaseRequestEvent;
 
 public class ChatMessageSendEvent extends
-        BaseRequestEvent<ChatMessageSendData> {
+        BaseRequestEvent<ChatMessage> {
 
     public static final String NAME = "engine_chat:message:send";
 

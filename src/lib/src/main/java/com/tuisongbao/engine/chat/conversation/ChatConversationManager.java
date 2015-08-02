@@ -52,7 +52,7 @@ public class ChatConversationManager extends BaseManager {
     public void getList(ChatType chatType, String target,
             TSBEngineCallback<List<ChatConversation>> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -83,7 +83,7 @@ public class ChatConversationManager extends BaseManager {
      */
     public void resetUnread(ChatType chatType, String target, TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 return;
             }
             if (chatType == null || StrUtil.isEmpty(target)) {
@@ -125,7 +125,7 @@ public class ChatConversationManager extends BaseManager {
     public void delete(ChatType chatType, String target,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
@@ -171,7 +171,7 @@ public class ChatConversationManager extends BaseManager {
             Long endMessageId, int limit,
             TSBEngineCallback<List<ChatMessage>> callback) {
         try {
-            if (!mChatManager.isLogin()) {
+            if (!mChatManager.hasLogin()) {
                 handleErrorMessage(callback,
                         TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
                         "permission denny: need to login");
