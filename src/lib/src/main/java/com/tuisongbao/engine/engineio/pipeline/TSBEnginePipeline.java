@@ -15,8 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * A pipeline that ferries data from IEngineDataSources to EngineDataSinks.
  *
  */
-public class DataPipeline implements IEngineCallback {
-    private static final String TAG = DataPipeline.class.getSimpleName();
+public class TSBEnginePipeline implements IEnginePipeline {
+    private static final String TAG = TSBEnginePipeline.class.getSimpleName();
     private CopyOnWriteArrayList<IEngineDataSink> mSinks =
             new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<IEngineDataSource> mSources =
@@ -76,7 +76,7 @@ public class DataPipeline implements IEngineCallback {
     /**
      * Add a new source to the pipeline.
      *
-     * The source is given a reference to this DataPipeline as its callback.
+     * The source is given a reference to this TSBEnginePipeline as its callback.
      */
     public IEngineDataSource addSource(IEngineDataSource source) {
         source.setCallback(this);

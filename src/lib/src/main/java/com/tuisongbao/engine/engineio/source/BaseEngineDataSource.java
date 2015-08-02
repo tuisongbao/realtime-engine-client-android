@@ -2,7 +2,7 @@ package com.tuisongbao.engine.engineio.source;
 
 import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.EventEmitter;
-import com.tuisongbao.engine.engineio.pipeline.IEngineCallback;
+import com.tuisongbao.engine.engineio.pipeline.IEnginePipeline;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public class BaseEngineDataSource extends EventEmitter implements IEngineDataSource {
-    private IEngineCallback mPipeline;
+    private IEnginePipeline mPipeline;
     private final Lock mCallbackLock = new ReentrantLock();
     private final Condition mCallbackChanged = mCallbackLock.newCondition();
 
@@ -25,10 +25,10 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
      * Construct a new instance and set the callback.
      *
      * @param callback
-     *            An object implementing the IEngineCallback interface that
+     *            An object implementing the IEnginePipeline interface that
      *            should receive data from this source.
      */
-    public BaseEngineDataSource(IEngineCallback callback) {
+    public BaseEngineDataSource(IEnginePipeline callback) {
         setCallback(callback);
     }
 
@@ -39,7 +39,7 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
      *            a valid callback or null if you wish to stop the source from
      *            sending updates.
      */
-    public void setCallback(IEngineCallback callback) {
+    public void setCallback(IEnginePipeline callback) {
         mCallbackLock.lock();
         mPipeline = callback;
         mCallbackChanged.signal();

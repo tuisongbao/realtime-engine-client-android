@@ -5,7 +5,7 @@ import android.content.Context;
 import com.tuisongbao.engine.channel.TSBChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
-import com.tuisongbao.engine.engineio.pipeline.DataPipeline;
+import com.tuisongbao.engine.engineio.pipeline.TSBEnginePipeline;
 import com.tuisongbao.engine.engineio.sink.TSBEngineDataSink;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -15,7 +15,7 @@ public final class TSBEngine {
     public static ChatManager chatManager;
     public static TSBChannelManager channelManager;
     public static TSBEngineDataSink sink;
-    private DataPipeline mDataPipeline = new DataPipeline();
+    private TSBEnginePipeline mTSBEnginePipeline = new TSBEnginePipeline();
 
     private static final String TAG = TSBEngine.class.getSimpleName();
 
@@ -39,8 +39,8 @@ public final class TSBEngine {
 
             connection = new AutoReconnectConnection(this);
             sink = new TSBEngineDataSink(this);
-            mDataPipeline.addSource(connection);
-            mDataPipeline.addSink(sink);
+            mTSBEnginePipeline.addSource(connection);
+            mTSBEnginePipeline.addSink(sink);
 
             if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE

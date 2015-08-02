@@ -1,8 +1,8 @@
 package com.tuisongbao.engine.engineio.source;
 
-import com.tuisongbao.engine.engineio.pipeline.IEngineCallback;
+import com.tuisongbao.engine.engineio.pipeline.IEnginePipeline;
 
 public interface IEngineDataSource {
-    void setCallback(IEngineCallback callback);
+    void setCallback(IEnginePipeline callback);
     void stop();
 }
