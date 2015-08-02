@@ -1,11 +1,8 @@
 package com.tuisongbao.engine.common;
 
-import com.tuisongbao.engine.common.Protocol;
-
 public class TSBEngineConstants {
 
     // channel
-    public static final String TSBENGINE_EVENT_UNBIND = "unbund";
     public static final String TSBENGINE_CHANNEL_PREFIX_PRIVATE = "private-";
     public static final String TSBENGINE_CHANNEL_PREFIX_PRESENCE = "presence-";
 

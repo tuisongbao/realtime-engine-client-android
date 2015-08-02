@@ -1,5 +1,6 @@
 package com.tuisongbao.engine.common.entity;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -8,7 +9,7 @@ import com.google.gson.JsonObject;
 public class ResponseEventData {
     private long to;
     private boolean ok;
-    private JsonObject result;
+    private JsonElement result;
     private JsonObject error;
 
     public long getTo() {
@@ -19,7 +20,7 @@ public class ResponseEventData {
         return ok;
     }
 
-    public JsonObject getResult() {
+    public JsonElement getResult() {
         return result;
     }
 

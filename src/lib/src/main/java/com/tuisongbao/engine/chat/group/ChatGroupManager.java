@@ -12,18 +12,18 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroupLeaveData;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupRemoveUserData;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.chat.group.event.ChatGroupCreateEvent;
-import com.tuisongbao.engine.chat.group.event.ChatGroupCreateReponseEvent;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupCreateEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetEvent;
-import com.tuisongbao.engine.chat.group.event.ChatGroupGetReponseEvent;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersEvent;
-import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersReponseEvent;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetUsersEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupJoinInvitationEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupLeaveEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupRemoveUserEvent;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.event.TSBResponseEvent;
+import com.tuisongbao.engine.common.event.handler.TSBCommonEventHandler;
 import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -81,7 +81,7 @@ public class ChatGroupManager extends BaseManager {
             data.setPublic(isPublic);
             data.setUserCanInvite(userCanInvite);
             message.setData(data);
-            ChatGroupCreateReponseEvent response = new ChatGroupCreateReponseEvent();
+            ChatGroupCreateEventHandler response = new ChatGroupCreateEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -113,7 +113,7 @@ public class ChatGroupManager extends BaseManager {
             data.setGroupId(groupId);
             data.setLastActiveAt(lastActiveAt);
             message.setData(data);
-            ChatGroupGetReponseEvent response = new ChatGroupGetReponseEvent();
+            ChatGroupGetEventHandler response = new ChatGroupGetEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -150,7 +150,7 @@ public class ChatGroupManager extends BaseManager {
             ChatGroupGetUsersData data = new ChatGroupGetUsersData();
             data.setGroupId(groupId);
             message.setData(data);
-            ChatGroupGetUsersReponseEvent response = new ChatGroupGetUsersReponseEvent();
+            ChatGroupGetUsersEventHandler response = new ChatGroupGetUsersEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -190,7 +190,7 @@ public class ChatGroupManager extends BaseManager {
             data.setGroupId(groupId);
             data.setUserIds(userIds);
             message.setData(data);
-            TSBResponseEvent response = new TSBResponseEvent();
+            TSBCommonEventHandler response = new TSBCommonEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -230,7 +230,7 @@ public class ChatGroupManager extends BaseManager {
             data.setGroupId(groupId);
             data.setUserIds(userIds);
             message.setData(data);
-            TSBResponseEvent response = new TSBResponseEvent();
+            TSBCommonEventHandler response = new TSBCommonEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -266,7 +266,7 @@ public class ChatGroupManager extends BaseManager {
             ChatGroupLeaveData data = new ChatGroupLeaveData();
             data.setGroupId(groupId);
             message.setData(data);
-            TSBResponseEvent response = new TSBResponseEvent();
+            TSBCommonEventHandler response = new TSBCommonEventHandler();
             response.setCallback(callback);
             send(message, response);
         } catch (Exception e) {

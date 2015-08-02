@@ -4,7 +4,7 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.event.ITSBRequestEvent;
-import com.tuisongbao.engine.common.event.ITSBResponseEvent;
+import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -20,7 +20,7 @@ public class BaseManager extends EventEmitter {
         // TODO: Bind connection status sink
     }
 
-    public boolean send(ITSBRequestEvent message, ITSBResponseEvent response) {
+    public boolean send(ITSBRequestEvent message, IEventHandler response) {
         try {
             Event event = engine.connection.send(message.getName(), message.serialize());
             if (response != null) {

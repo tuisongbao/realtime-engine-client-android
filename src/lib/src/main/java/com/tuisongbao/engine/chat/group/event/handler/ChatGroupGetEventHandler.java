@@ -1,6 +1,4 @@
-package com.tuisongbao.engine.chat.group.event;
-
-import java.util.List;
+package com.tuisongbao.engine.chat.group.event.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -8,14 +6,17 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.TSBGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupGetData;
-import com.tuisongbao.engine.common.event.BaseResponseEvent;
+import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.ResponseEventData;
+import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
-public class ChatGroupGetReponseEvent extends
-        BaseResponseEvent<List<ChatGroup>> {
+import java.util.List;
+
+public class ChatGroupGetEventHandler extends BaseEventHandler<List<ChatGroup>> {
 
     @Override
-    protected List<ChatGroup> prepareCallBackData() {
-        List<ChatGroup> groups = super.prepareCallBackData();
+    protected List<ChatGroup> prepareCallbackData(Event request, ResponseEventData response) {
+        List<ChatGroup> groups = parse(response);
 
         if (!mEngine.chatManager.isCacheEnabled()) {
             return groups;
@@ -27,7 +28,7 @@ public class ChatGroupGetReponseEvent extends
         dataSource.upsert(groups, userId);
 
         Gson gson = new Gson();
-        ChatGroupGetData requestData = gson.fromJson((String) getRequestData(), ChatGroupGetData.class);
+        ChatGroupGetData requestData = gson.fromJson(request.getData(), ChatGroupGetData.class);
         groups = dataSource.getList(userId, requestData.getGroupId());
         dataSource.close();
 
@@ -35,8 +36,8 @@ public class ChatGroupGetReponseEvent extends
     }
 
     @Override
-    public List<ChatGroup> parse() {
-        List<ChatGroup> list = new Gson().fromJson(getData(),
+    public List<ChatGroup> parse(ResponseEventData response) {
+        List<ChatGroup> list = new Gson().fromJson(response.getResult(),
                 new TypeToken<List<ChatGroup>>() {
                 }.getType());
 

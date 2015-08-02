@@ -1,18 +1,19 @@
-package com.tuisongbao.engine.chat.group.event;
+package com.tuisongbao.engine.chat.group.event.handler;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.TSBGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupCreateData;
-import com.tuisongbao.engine.common.event.BaseResponseEvent;
+import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.ResponseEventData;
+import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
-public class ChatGroupCreateReponseEvent extends
-        BaseResponseEvent<ChatGroup> {
+public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
 
     @Override
-    protected ChatGroup prepareCallBackData() {
-        ChatGroup group = super.prepareCallBackData();
+    protected ChatGroup prepareCallbackData(Event request, ResponseEventData response) {
+        ChatGroup group = parse(response);
 
         if (!mEngine.chatManager.isCacheEnabled()) {
             return group;
@@ -20,7 +21,7 @@ public class ChatGroupCreateReponseEvent extends
 
         String currentUser = mEngine.chatManager.getChatUser().getUserId();
         Gson gson = new Gson();
-        ChatGroupCreateData requestData = gson.fromJson((String)getRequestData(), ChatGroupCreateData.class);
+        ChatGroupCreateData requestData = gson.fromJson(request.getData(), ChatGroupCreateData.class);
         group.setOwner(currentUser);
 
         int userCount = 0;
@@ -42,10 +43,9 @@ public class ChatGroupCreateReponseEvent extends
     }
 
     @Override
-    public ChatGroup parse() {
-        ChatGroup group = new Gson().fromJson(getData(),
+    public ChatGroup parse(ResponseEventData response) {
+        ChatGroup group = new Gson().fromJson(response.getResult(),
                 ChatGroup.class);
         return group;
     }
-
 }

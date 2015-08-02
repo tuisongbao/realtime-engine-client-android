@@ -7,20 +7,20 @@ import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationDeleteEvent;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
-import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetReponseEvent;
+import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationGetEventHandler;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationResetUnreadEvent;
 import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
 import com.tuisongbao.engine.chat.message.event.ChatMessageGetEvent;
-import com.tuisongbao.engine.chat.message.event.ChatMessageGetResponseEvent;
-import com.tuisongbao.engine.chat.message.event.ChatMessageMultiGetResponseMessage;
+import com.tuisongbao.engine.chat.message.event.handler.ChatMessageGetEventHandler;
+import com.tuisongbao.engine.chat.message.event.handler.ChatMessageMultiGetEventHandler;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBEngineConstants;
-import com.tuisongbao.engine.common.event.TSBResponseEvent;
+import com.tuisongbao.engine.common.event.handler.TSBCommonEventHandler;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -103,7 +103,7 @@ public class ChatConversationManager extends BaseManager {
             data.setType(chatType);
             data.setTarget(target);
             message.setData(data);
-            TSBResponseEvent response = new TSBResponseEvent();
+            TSBCommonEventHandler response = new TSBCommonEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -143,7 +143,7 @@ public class ChatConversationManager extends BaseManager {
             data.setType(chatType);
             data.setTarget(target);
             message.setData(data);
-            TSBResponseEvent response = new TSBResponseEvent();
+            TSBCommonEventHandler response = new TSBCommonEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -198,7 +198,7 @@ public class ChatConversationManager extends BaseManager {
 
             if (dataSource == null) {
                 ChatMessageGetEvent message = getRequestOfGetMessages(chatType, target, startMessageId, endMessageId, limit);
-                ChatMessageGetResponseEvent response = new ChatMessageGetResponseEvent();
+                ChatMessageGetEventHandler response = new ChatMessageGetEventHandler();
                 response.setCallback(callback);
                 send(message, response);
                 return;
@@ -224,7 +224,7 @@ public class ChatConversationManager extends BaseManager {
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit, TSBEngineCallback<List<ChatMessage>> callback) throws JSONException {
-        ChatMessageMultiGetResponseMessage response = new ChatMessageMultiGetResponseMessage();
+        ChatMessageMultiGetEventHandler response = new ChatMessageMultiGetEventHandler();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
 
@@ -298,7 +298,7 @@ public class ChatConversationManager extends BaseManager {
         // Only query the changes after this time.
         data.setLastActiveAt(lastActiveAt);
         message.setData(data);
-        ChatConversationGetReponseEvent response = new ChatConversationGetReponseEvent();
+        ChatConversationGetEventHandler response = new ChatConversationGetEventHandler();
         response.setCallback(callback);
         send(message, response);
     }

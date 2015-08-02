@@ -22,7 +22,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 import com.tuisongbao.engine.chat.user.event.ChatLoginEvent;
-import com.tuisongbao.engine.chat.user.event.ChatLoginResponseEvent;
+import com.tuisongbao.engine.chat.user.event.handler.ChatLoginEventHandler;
 import com.tuisongbao.engine.chat.user.event.ChatLogoutEvent;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
@@ -361,7 +361,7 @@ public class ChatManager extends BaseManager {
                         authData.setUserData(userData);
                         authData.setSignature(signature);
                         loginEvent.setData(authData);
-                        ChatLoginResponseEvent responseMessage = new ChatLoginResponseEvent();
+                        ChatLoginEventHandler responseMessage = new ChatLoginEventHandler();
                         responseMessage.setCallback(mLoginCallback);
                         if (!send(loginEvent, responseMessage)) {
                             // TODO: 15-7-31 Cache and re-send when connected

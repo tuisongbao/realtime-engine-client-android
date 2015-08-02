@@ -1,6 +1,7 @@
 package com.tuisongbao.engine.common.entity;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -12,7 +13,7 @@ public class Event {
     private long id;
     private String name;
     private String channel;
-    private JsonObject data;
+    private JsonElement data;
 
     public Event(String name, String data) {
         this.name = name;
@@ -44,7 +45,7 @@ public class Event {
         return channel;
     }
 
-    public JsonObject getData() {
+    public JsonElement getData() {
         return data;
     }
 }

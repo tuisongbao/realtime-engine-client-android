@@ -4,7 +4,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.entity.Event;
-import com.tuisongbao.engine.common.event.ITSBResponseEvent;
+import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.util.StrUtil;
@@ -20,7 +20,7 @@ public class TSBEngineDataSink extends BaseEngineDataSink {
         mEngine = engine;
     }
 
-    public void setHandler(final Event event, final ITSBResponseEvent response) {
+    public void setHandler(final Event event, final IEventHandler response) {
         bindOnce(String.valueOf(event.getId()), new Emitter.Listener() {
             @Override
             public void call(Object... args) {

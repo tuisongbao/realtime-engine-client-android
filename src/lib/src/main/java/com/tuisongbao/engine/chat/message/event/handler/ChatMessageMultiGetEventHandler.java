@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.chat.message.event;
+package com.tuisongbao.engine.chat.message.event.handler;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -9,11 +9,13 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.List;
 
-public class ChatMessageMultiGetResponseMessage extends ChatMessageGetResponseEvent {
+public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler {
     private int requestCount = 0;
     private Long startMessageId;
     private Long endMessageId;
@@ -33,8 +35,8 @@ public class ChatMessageMultiGetResponseMessage extends ChatMessageGetResponseEv
     }
 
     @Override
-    protected List<ChatMessage> prepareCallBackData() {
-        List<ChatMessage> messages = super.prepareCallBackData();
+    protected List<ChatMessage> prepareCallbackData(Event request, ResponseEventData response) {
+        List<ChatMessage> messages = parse(response);
         ChatUser user = mEngine.chatManager.getChatUser();
         TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine.chatManager);
         dataSource.open();
@@ -42,7 +44,7 @@ public class ChatMessageMultiGetResponseMessage extends ChatMessageGetResponseEv
             dataSource.upsertMessage(user.getUserId(), message);
         }
 
-        ChatMessageGetData requestData = parseRequestData();
+        ChatMessageGetData requestData = parseRequestData(request);
         messages = dataSource.getMessages(user.getUserId(), requestData.getType(), requestData.getTarget(), startMessageId, endMessageId
                 , requestData.getLimit());
         dataSource.close();
@@ -52,19 +54,19 @@ public class ChatMessageMultiGetResponseMessage extends ChatMessageGetResponseEv
 
 
     @Override
-    public void callBack() {
+    public void callback(Event request, ResponseEventData response) {
         requestCount--;
-        prepareCallBackData();
+        prepareCallbackData(request, response);
         LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, this + " remain " + requestCount + " requests");
         if (requestCount < 1) {
-            super.callBack();
+            super.callback(request, response);
         }
     }
 
-    private ChatMessageGetData parseRequestData() {
+    private ChatMessageGetData parseRequestData(Event request) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
-        ChatMessageGetData requestData = gsonBuilder.create().fromJson((String)getRequestData(),
+        ChatMessageGetData requestData = gsonBuilder.create().fromJson(request.getData(),
                 new TypeToken<ChatMessageGetData>() {
                 }.getType());
 
