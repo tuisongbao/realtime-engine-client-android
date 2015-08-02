@@ -24,6 +24,7 @@ public class BaseManager extends EventEmitter {
         try {
             Event event = engine.connection.send(message.getName(), message.serialize());
             if (response != null) {
+                response.setEngine(engine);
                 engine.sink.setHandler(event, response);
             }
         } catch (Exception e) {

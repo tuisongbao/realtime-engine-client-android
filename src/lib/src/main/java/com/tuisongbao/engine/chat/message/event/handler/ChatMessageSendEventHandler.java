@@ -28,7 +28,6 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
             sentMessage.setBody(body);
         }
         sentMessage.setFrom(userId);
-        sentMessage.setEngine(mEngine);
 
         if (sentMessage != null && mEngine.chatManager.isCacheEnabled()) {
             TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
@@ -37,6 +36,7 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
             dataSource.close();
         }
 
+        sentMessage.setEngine(mEngine);
         return sentMessage;
     }
 

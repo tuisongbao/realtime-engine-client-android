@@ -58,6 +58,7 @@ public class ChatMessage implements Parcelable {
 
     public void setEngine(TSBEngine engine) {
         this.mEngine = engine;
+        mChatManager = engine.chatManager;
     }
 
     public ChatType getChatType() {

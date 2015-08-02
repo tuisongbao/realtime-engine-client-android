@@ -13,6 +13,10 @@ public abstract class BaseEventHandler<T> implements IEventHandler {
     transient protected TSBEngine mEngine;
     private ITSBEngineCallback mCallback;
 
+    public void setEngine(TSBEngine engine) {
+       mEngine = engine;
+    }
+
     @Override
     public void setCallback(ITSBEngineCallback callback) {
         mCallback = callback;
