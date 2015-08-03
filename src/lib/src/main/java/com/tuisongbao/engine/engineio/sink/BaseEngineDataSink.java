@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.engineio.sink;
 
-import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.engine.log.LogUtil;
@@ -24,7 +23,7 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
     /**
      * We should make received event in order
      */
-    private BlockingQueue<Event> mNotifications = new LinkedBlockingQueue<>();
+    private BlockingQueue<String> mNotifications = new LinkedBlockingQueue<>();
 
     public BaseEngineDataSink() {
         mNotificationThread.start();
@@ -34,7 +33,7 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
         mNotificationThread.done();
     }
 
-    public boolean receive(Event event)
+    public boolean receive(String event)
             throws DataSinkException {
         mNotificationsLock.lock();
         mNotifications.offer(event);
@@ -43,7 +42,7 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
         return true;
     }
 
-    abstract protected void propagateEvent(Event event);
+    abstract protected void propagateEvent(String event);
 
     private class NotificationThread extends Thread {
         private boolean mRunning = true;
@@ -73,8 +72,8 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
                     mNotificationsLock.unlock();
                 }
 
-                Event event;
-                LogUtil.debug(TAG, "Received event number: " + mNotifications.size());
+                String event;
+                LogUtil.debug(TAG, "Received rawEvent number: " + mNotifications.size());
                 while((event = mNotifications.poll()) != null) {
                     propagateEvent(event);
                 }

@@ -10,21 +10,23 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroupGetUsersData;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupJoinInvitationData;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupLeaveData;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupRemoveUserData;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.chat.group.event.ChatGroupCreateEvent;
-import com.tuisongbao.engine.chat.group.event.handler.ChatGroupCreateEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetEvent;
-import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersEvent;
-import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetUsersEventHandler;
 import com.tuisongbao.engine.chat.group.event.ChatGroupJoinInvitationEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupLeaveEvent;
-import com.tuisongbao.engine.chat.group.event.ChatGroupRemoveUserEvent;
+import com.tuisongbao.engine.chat.group.event.ChatGroupRemoveUsersEvent;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupCreateEventHandler;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetEventHandler;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetUsersEventHandler;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupJoinInvitationEventHandler;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupLeaveEventHandler;
+import com.tuisongbao.engine.chat.group.event.handler.ChatGroupRemoveUsersEventHandler;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.event.handler.TSBCommonEventHandler;
 import com.tuisongbao.engine.common.TSBEngineConstants;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -190,7 +192,7 @@ public class ChatGroupManager extends BaseManager {
             data.setGroupId(groupId);
             data.setUserIds(userIds);
             message.setData(data);
-            TSBCommonEventHandler response = new TSBCommonEventHandler();
+            ChatGroupJoinInvitationEventHandler response = new ChatGroupJoinInvitationEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -225,12 +227,12 @@ public class ChatGroupManager extends BaseManager {
                 return;
             }
 
-            ChatGroupRemoveUserEvent message = new ChatGroupRemoveUserEvent();
+            ChatGroupRemoveUsersEvent message = new ChatGroupRemoveUsersEvent();
             ChatGroupRemoveUserData data = new ChatGroupRemoveUserData();
             data.setGroupId(groupId);
             data.setUserIds(userIds);
             message.setData(data);
-            TSBCommonEventHandler response = new TSBCommonEventHandler();
+            ChatGroupRemoveUsersEventHandler response = new ChatGroupRemoveUsersEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -266,7 +268,7 @@ public class ChatGroupManager extends BaseManager {
             ChatGroupLeaveData data = new ChatGroupLeaveData();
             data.setGroupId(groupId);
             message.setData(data);
-            TSBCommonEventHandler response = new TSBCommonEventHandler();
+            ChatGroupLeaveEventHandler response = new ChatGroupLeaveEventHandler();
             response.setCallback(callback);
             send(message, response);
         } catch (Exception e) {

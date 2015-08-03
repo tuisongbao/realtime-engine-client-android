@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatConversationDeleteEvent extends BaseRequestEvent<ChatConversationData> {
+public class ChatConversationDeleteEvent extends BaseEvent<ChatConversationData> {
 
     public static final String NAME = "engine_chat:conversation:delete";
 

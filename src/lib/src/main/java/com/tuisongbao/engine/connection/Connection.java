@@ -7,9 +7,10 @@ import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.entity.RawEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.engineio.source.BaseEngineIODataSource;
 import com.tuisongbao.engine.http.HttpConstants;
@@ -169,7 +170,7 @@ public class Connection extends BaseEngineIODataSource {
                 try {
                     socketAddr = json.getString(Protocol.REQUEST_KEY_WS_ADDR);
                 } catch (JSONException e) {
-                    LogUtil.error(TAG, "Engine server request url parse exception", e);
+                    LogUtil.error(TAG, "Engine server request url getCallbackData exception", e);
                 }
                 String webSocketUrl = getWebSocketURL(socketAddr);
                 if (!StrUtil.isEmpty(webSocketUrl)) {
@@ -270,11 +271,10 @@ public class Connection extends BaseEngineIODataSource {
         updateState(State.Disconnected);
     }
 
-    public Event send(String name, String data) throws JSONException {
-        Event event = new Event(name, data);
+    public BaseEvent send(BaseEvent event) {
         event.setId(getRequestId());
         String eventString = event.serialize();
-        LogUtil.info(TAG, "Send event:" + eventString);
+        LogUtil.info(TAG, "Send rawEvent:" + eventString);
         mSocket.send(eventString);
         return event;
     }
@@ -394,14 +394,15 @@ public class Connection extends BaseEngineIODataSource {
 
     private void onEvent(String eventString) throws JSONException {
         Gson gson = new Gson();
-        Event event = gson.fromJson(eventString, Event.class);
-        String eventName = event.getName();
+        RawEvent rawEvent = gson.fromJson(eventString, RawEvent.class);
+        String eventName = rawEvent.getName();
         if (Protocol.isConnectionEvent(eventName)) {
-            ConnectionEventData connectionData = gson.fromJson(event.getData(), ConnectionEventData.class);
+            ConnectionEventData connectionData = gson.fromJson(rawEvent.getData(), ConnectionEventData.class);
             handleConnectionEvent(eventName, connectionData);
-        } else if (Protocol.isServerResponseEvent(eventName)) {
+        } else {
+            // TODO: 15-8-3 Validate event, ensure it from TuiSongBao
             // Notify the pipeline which will ferries data to sink
-            dispatchEvent(event);
+            dispatchEvent(eventString);
         }
     }
 

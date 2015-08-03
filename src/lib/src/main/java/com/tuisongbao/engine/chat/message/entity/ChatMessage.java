@@ -44,7 +44,7 @@ public class ChatMessage implements Parcelable {
     }
 
     public static Gson getSerializer() {
-        // TODO: 15-8-2 Remove this after supporting deserialize in BaseRequestEvent
+        // TODO: 15-8-2 Remove this after supporting deserialize in BaseEvent
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChatType.class,
                 new TSBChatMessageChatTypeSerializer());

@@ -7,10 +7,10 @@ import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatMessageGetEvent extends
-        BaseRequestEvent<ChatMessageGetData> {
+        BaseEvent<ChatMessageGetData> {
 
     public static final String NAME = "engine_chat:message:get";
 

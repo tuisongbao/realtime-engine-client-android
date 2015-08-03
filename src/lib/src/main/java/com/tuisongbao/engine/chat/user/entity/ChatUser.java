@@ -4,6 +4,7 @@ public class ChatUser {
 
     private boolean isNew;
     private String userId;
+    private String nickname;
     private String uploadToken;
     /**
      * 在线状态， online 或 offline
@@ -36,6 +37,14 @@ public class ChatUser {
 
     public String getPresence() {
         return presence;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Override

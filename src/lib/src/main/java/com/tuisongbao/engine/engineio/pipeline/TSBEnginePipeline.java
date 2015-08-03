@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.engineio.pipeline;
 
-import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.engine.engineio.sink.IEngineDataSink;
 import com.tuisongbao.engine.engineio.source.IEngineDataSource;
@@ -32,10 +32,7 @@ public class TSBEnginePipeline implements IEnginePipeline {
      * be removed from the list of sinks.
      */
     @Override
-    public void ferry(Event event) {
-        if(event == null) {
-            return;
-        }
+    public void ferry(String event) {
         List<IEngineDataSink> deadSinks = new ArrayList<IEngineDataSink>();
         for(Iterator<IEngineDataSink> i = mSinks.iterator(); i.hasNext();) {
             IEngineDataSink sink = i.next();
@@ -76,7 +73,7 @@ public class TSBEnginePipeline implements IEnginePipeline {
     /**
      * Add a new source to the pipeline.
      *
-     * The source is given a reference to this TSBEnginePipeline as its callback.
+     * The source is given a reference to this TSBEnginePipeline as its onResponse.
      */
     public IEngineDataSource addSource(IEngineDataSource source) {
         source.setCallback(this);
@@ -88,7 +85,7 @@ public class TSBEnginePipeline implements IEnginePipeline {
      * Remove a previously added source from the pipeline.
      *
      * Once removed, the source should no longer use this pipeline for its
-     * callback.
+     * onResponse.
      *
      * @param source if the value is null, it is ignored.
      */

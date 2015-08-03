@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.engineio.source;
 
-import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.engineio.pipeline.IEnginePipeline;
 
@@ -22,7 +21,7 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
     }
 
     /**
-     * Construct a new instance and set the callback.
+     * Construct a new instance and set the onResponse.
      *
      * @param callback
      *            An object implementing the IEnginePipeline interface that
@@ -33,10 +32,10 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
     }
 
     /**
-     * Set the current source callback to the given value.
+     * Set the current source onResponse to the given value.
      *
      * @param callback
-     *            a valid callback or null if you wish to stop the source from
+     *            a valid onResponse or null if you wish to stop the source from
      *            sending updates.
      */
     public void setCallback(IEnginePipeline callback) {
@@ -47,7 +46,7 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
     }
 
     /**
-     * Clear the callback so no further updates are sent.
+     * Clear the onResponse so no further updates are sent.
      *
      * Subclasses should be sure to call super.stop() so they also stop sending
      * updates when killed by a user.
@@ -56,9 +55,9 @@ public class BaseEngineDataSource extends EventEmitter implements IEngineDataSou
         setCallback(null);
     }
 
-    protected void dispatchEvent(Event event) {
-        if (mPipeline != null && event != null) {
-            mPipeline.ferry(event);
+    protected void dispatchEvent(String eventString) {
+        if (mPipeline != null) {
+            mPipeline.ferry(eventString);
         }
     }
 }

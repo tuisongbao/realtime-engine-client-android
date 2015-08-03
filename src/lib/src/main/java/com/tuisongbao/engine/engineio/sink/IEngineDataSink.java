@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.engineio.sink;
 
-import com.tuisongbao.engine.common.entity.Event;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 
 /**
@@ -9,12 +8,12 @@ import com.tuisongbao.engine.engineio.exception.DataSinkException;
  */
 public interface IEngineDataSink {
     /**
-     * Receive a data point with a name, a value and a event value.
+     * Receive a data point with a name, a value and a rawEvent value.
      *
      *
-     * @param event The new measurement.
+     * @param event The event in String.
      */
-    boolean receive(Event event) throws DataSinkException;
+    boolean receive(String event) throws DataSinkException;
 
     /**
      * Release any acquired resources and either stop sending event (if a

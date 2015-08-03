@@ -2,10 +2,10 @@ package com.tuisongbao.engine.channel.message;
 
 import com.tuisongbao.engine.channel.entity.ChannelState;
 import com.tuisongbao.engine.channel.entity.TSBPresenceChannel;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class SubscribeEvent extends
-        BaseRequestEvent<TSBPresenceChannel> {
+        BaseEvent<TSBPresenceChannel> {
 
     private transient String mAuthData;
     public static final String NAME = "engine_channel:subscribe";

@@ -7,8 +7,10 @@ import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationDeleteEvent;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
-import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationGetEventHandler;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationResetUnreadEvent;
+import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationDeleteEventHandler;
+import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationGetEventHandler;
+import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationResetUnreadEventHandler;
 import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
@@ -18,9 +20,8 @@ import com.tuisongbao.engine.chat.message.event.handler.ChatMessageMultiGetEvent
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.TSBEngineConstants;
-import com.tuisongbao.engine.common.event.handler.TSBCommonEventHandler;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -103,7 +104,7 @@ public class ChatConversationManager extends BaseManager {
             data.setType(chatType);
             data.setTarget(target);
             message.setData(data);
-            TSBCommonEventHandler response = new TSBCommonEventHandler();
+            ChatConversationResetUnreadEventHandler response = new ChatConversationResetUnreadEventHandler();
             response.setCallback(callback);
             send(message, response);
 
@@ -138,12 +139,11 @@ public class ChatConversationManager extends BaseManager {
                 return;
             }
             ChatConversationDeleteEvent message = new ChatConversationDeleteEvent();
-
             ChatConversationData data = new ChatConversationData();
             data.setType(chatType);
             data.setTarget(target);
             message.setData(data);
-            TSBCommonEventHandler response = new TSBCommonEventHandler();
+            ChatConversationDeleteEventHandler response = new ChatConversationDeleteEventHandler();
             response.setCallback(callback);
             send(message, response);
 

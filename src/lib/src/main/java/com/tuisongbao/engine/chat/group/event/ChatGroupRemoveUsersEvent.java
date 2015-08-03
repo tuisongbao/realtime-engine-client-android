@@ -1,13 +1,13 @@
 package com.tuisongbao.engine.chat.group.event;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroupRemoveUserData;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatGroupRemoveUserEvent extends BaseRequestEvent<ChatGroupRemoveUserData> {
+public class ChatGroupRemoveUsersEvent extends BaseEvent<ChatGroupRemoveUserData> {
 
     public static final String NAME = "engine_chat:group:removeUsers";
 
-    public ChatGroupRemoveUserEvent() {
+    public ChatGroupRemoveUsersEvent() {
         super(NAME);
     }
 

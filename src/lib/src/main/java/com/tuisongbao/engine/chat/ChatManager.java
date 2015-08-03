@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.chat;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -30,14 +29,13 @@ import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.service.ChatIntentService;
 import com.tuisongbao.engine.util.ExecutorUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -55,7 +53,7 @@ public class ChatManager extends BaseManager {
     private static final String TAG = ChatManager.class.getSimpleName();
 
     private ChatUser mChatUser;
-    private ChatLoginEvent mLoginMessage;
+    private ChatLoginEvent mLoginEvent;
     private boolean mIsCacheEnabled = false;
 
     public ChatManager(TSBEngine engine) {
@@ -86,14 +84,18 @@ public class ChatManager extends BaseManager {
             data.setUserData(userData);
             message.setData(data);
             message.setCallback(callback);
-            mLoginMessage = message;
+            mLoginEvent = message;
             auth(message);
         } else {
-            // TODO: Set timer, callback error if timeout.
+            // TODO: Set timer, onResponse error if timeout.
             callback.onError(
                     TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
                     "can't connect to engine server");
         }
+    }
+
+    public void setChatUser(ChatUser user) {
+        mChatUser = user;
     }
 
     public ChatUser getChatUser() {
@@ -112,7 +114,9 @@ public class ChatManager extends BaseManager {
             }
             if (engine.connection.isConnected()) {
                 ChatLogoutEvent message = new ChatLogoutEvent();
-                send(message, null);
+                if (send(message, null)) {
+                    // TODO: 15-8-3 Unbind listeners, clear cache
+                }
             }
             onLogout();
         } catch (Exception e) {
@@ -196,9 +200,9 @@ public class ChatManager extends BaseManager {
 
     @Override
     protected void handleConnect(ConnectionEventData t) {
-        if (hasLogin() && mLoginMessage != null) {
+        if (hasLogin() && mLoginEvent != null) {
             // TODO: 当断掉重连时不需要回调???
-            auth(mLoginMessage);
+            auth(mLoginEvent);
         }
     }
 
@@ -310,7 +314,7 @@ public class ChatManager extends BaseManager {
 
     private void clearCacheUser() {
         mChatUser = null;
-        mLoginMessage = null;
+        mLoginEvent = null;
     }
 
     private void handleErrorMessage(ChatLoginEvent msg, int code,
@@ -361,10 +365,10 @@ public class ChatManager extends BaseManager {
                         String userData = jsonData.optString("userData");
 
                         ChatLoginEvent loginEvent = new ChatLoginEvent();
-                        ChatLoginData authData = new ChatLoginData();
-                        authData.setUserData(userData);
-                        authData.setSignature(signature);
-                        loginEvent.setData(authData);
+                        ChatLoginData data = new ChatLoginData();
+                        data.setSignature(signature);
+                        data.setUserData(userData);
+                        loginEvent.setData(data);
                         ChatLoginEventHandler responseMessage = new ChatLoginEventHandler();
                         responseMessage.setCallback(mLoginCallback);
                         if (!send(loginEvent, responseMessage)) {
@@ -390,44 +394,33 @@ public class ChatManager extends BaseManager {
             onLoginSuccess(t);
 
             mChatUser = t;
-            mChatUser.setUserId(mLoginMessage.getData().getUserData());
+            mChatUser.setUserId(mLoginEvent.getData().getUserData());
             if (!hasLogin()) {
                 // Chat user is null
                 // Call back when the user first login
-                if (mLoginMessage != null && mLoginMessage.getCallback() != null) {
+                if (mLoginEvent != null && mLoginEvent.getCallback() != null) {
                     LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
-                    mLoginMessage.getCallback().onSuccess(t);
+                    mLoginEvent.getCallback().onSuccess(t);
                 }
             }
         }
 
         @Override
         public void onError(int code, String message) {
-            if (mLoginMessage != null && mLoginMessage.getCallback() != null) {
-                mLoginMessage.getCallback().onError(code, message);
+            if (mLoginEvent != null && mLoginEvent.getCallback() != null) {
+                mLoginEvent.getCallback().onError(code, message);
             }
         }
     };
 
-    private void onLoginSuccess(ChatUser user) {
+    public void onLoginSuccess(ChatUser user) {
+        mChatUser = user;
+
         // Init groups and conversations
         groupManager = new ChatGroupManager(engine);
         conversationManager = new ChatConversationManager(engine);
 
-        TSBEngineCallback callback = new TSBEngineCallback<ChatMessage>() {
-            @Override
-            public void onSuccess(ChatMessage message) {
-                receivedMessage(message);
-            }
-
-            @Override
-            public void onError(int code, String message) {
-
-            }
-        };
-        ChatMessageNewEventHandler handler = new ChatMessageNewEventHandler();
-        handler.setCallback(callback);
-        bind(Protocol.EVENT_NAME_MESSAGE_NEW, handler);
+        bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler());
     }
 
     private void onLogout() {
@@ -442,24 +435,9 @@ public class ChatManager extends BaseManager {
         bind(eventName, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                Event event = new Event(eventName, null);
-                response.callback(event, (Event)args[0]);
+                RawEvent rawEvent = new RawEvent(eventName);
+                response.onResponse(rawEvent, (RawEvent)args[0]);
             }
         });
-    }
-
-    private void receivedMessage(final ChatMessage message) {
-        Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
-        intent.setAction(ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE);
-        intent.putExtra(ChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message);
-        TSBEngine.getContext().startService(intent);
-    }
-
-    private final Class<? extends ChatIntentService> getChatIntentService() {
-        Class<? extends ChatIntentService> chatIntentService = engine.getEngineOptions().getChatIntentService();
-        if (chatIntentService == null) {
-            chatIntentService = ChatIntentService.class;
-        }
-        return chatIntentService;
     }
 }

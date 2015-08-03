@@ -2,10 +2,10 @@ package com.tuisongbao.engine.chat.user.event;
 
 import com.tuisongbao.engine.chat.user.entity.ChatLoginData;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatLoginEvent extends BaseRequestEvent<ChatLoginData> {
+public class ChatLoginEvent extends BaseEvent<ChatLoginData> {
 
     public static final String NAME = "engine_chat:user:login";
     private transient TSBEngineCallback<ChatUser> mCallback;

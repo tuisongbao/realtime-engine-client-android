@@ -22,7 +22,7 @@ public class TSBChannel extends EventEmitter {
     protected TSBChannelManager mChannelManager;
 
     /**
-     * This field must be channel, because when serialize message, this will be parse into it's name string.
+     * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
      */
     protected String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();

@@ -2,7 +2,7 @@ package com.tuisongbao.engine.common;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
-import com.tuisongbao.engine.common.entity.Event;
+import com.tuisongbao.engine.common.entity.RawEvent;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EventEmitter extends Emitter {
     private static final String TAG = EventEmitter.class.getSimpleName();
-    // FIXME: 15-8-1 This map will increase more and more, because n(event) -> 1(callback) relationship is possible.
+    // FIXME: 15-8-1 This map will increase more and more, because n(event) -> 1(onResponse) relationship is possible.
     // so can NOT remove listener from this map after unbind.
     private ConcurrentHashMap<TSBEngineBindCallback, Listener> listenerMap = new ConcurrentHashMap<>();
 
@@ -35,8 +35,8 @@ public class EventEmitter extends Emitter {
         Listener listener = new Listener() {
             @Override
             public void call(Object... args) {
-                Event event = (Event)args[0];
-                callback.onEvent(event.getName(), event);
+                RawEvent rawEvent = (RawEvent)args[0];
+                callback.onEvent(rawEvent.getName(), rawEvent);
             }
         };
         listenerMap.put(callback, listener);

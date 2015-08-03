@@ -2,21 +2,19 @@ package com.tuisongbao.engine.common.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
 /**
  * Created by root on 15-7-31.
  */
-public class Event {
-    transient private Gson mGson = new Gson();
+public class RawEvent extends BaseEvent<JsonElement> {
 
-    private long id;
-    private String name;
-    private String channel;
-    private JsonElement data;
-
-    public Event(String name, String data) {
+    public RawEvent(String name) {
         this.name = name;
-        this.data = mGson.fromJson(data, JsonElement.class);
+    }
+
+    public void setData(JsonElement data) {
+        this.data = data;
     }
 
     public void setChannel(String channel) {
@@ -46,5 +44,10 @@ public class Event {
 
     public JsonElement getData() {
         return data;
+    }
+
+    public boolean isOk() {
+        ResponseEventData data = new Gson().fromJson(this.getData(), ResponseEventData.class);
+        return data.getOk();
     }
 }

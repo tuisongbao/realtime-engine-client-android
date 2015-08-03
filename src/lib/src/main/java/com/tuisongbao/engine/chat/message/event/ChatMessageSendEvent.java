@@ -6,10 +6,9 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.event.BaseRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatMessageSendEvent extends
-        BaseRequestEvent<ChatMessage> {
+public class ChatMessageSendEvent extends BaseEvent<ChatMessage> {
 
     public static final String NAME = "engine_chat:message:send";
 

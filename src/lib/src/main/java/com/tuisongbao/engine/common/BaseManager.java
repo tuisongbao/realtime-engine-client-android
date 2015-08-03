@@ -2,8 +2,7 @@ package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.entity.Event;
-import com.tuisongbao.engine.common.event.ITSBRequestEvent;
+import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.log.LogUtil;
@@ -20,15 +19,15 @@ public class BaseManager extends EventEmitter {
         // TODO: Bind connection status sink
     }
 
-    public boolean send(ITSBRequestEvent message, IEventHandler response) {
+    public boolean send(BaseEvent event, IEventHandler response) {
         try {
-            Event event = engine.connection.send(message.getName(), message.serialize());
+            BaseEvent sentEvent = engine.connection.send(event);
             if (response != null) {
                 response.setEngine(engine);
-                engine.sink.setHandler(event, response);
+                engine.sink.setHandler(sentEvent, response);
             }
         } catch (Exception e) {
-            LogUtil.error(TAG, "Failed to send event " + message.getName());
+            LogUtil.error(TAG, "Failed to send event " + event.getName());
             return false;
         }
         return true;
