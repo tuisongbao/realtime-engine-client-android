@@ -7,10 +7,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageBodySerializer;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
+import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
+import com.tuisongbao.engine.chat.serializer.ChatMessageBodySerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
@@ -47,11 +47,11 @@ public class ChatMessage implements Parcelable {
         // TODO: 15-8-2 Remove this after supporting deserialize in BaseEvent
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChatType.class,
-                new TSBChatMessageChatTypeSerializer());
+                new ChatMessageChatTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class,
-                new TSBChatMessageTypeSerializer());
+                new ChatMessageTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessageBody.class,
-                new TSBChatMessageBodySerializer());
+                new ChatMessageBodySerializer());
 
         return gsonBuilder.create();
     }
@@ -221,7 +221,7 @@ public class ChatMessage implements Parcelable {
     }
 
     public void downloadResource(final TSBEngineCallback<ChatMessage> callback, final TSBProgressCallback progressCallback) {
-        final TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
+        final ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
         final ChatMessage message = this;
 
         if (getBody().getType() == TYPE.TEXT) {

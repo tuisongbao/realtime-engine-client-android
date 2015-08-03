@@ -1,12 +1,9 @@
 package com.tuisongbao.engine.channel.entity;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
@@ -14,16 +11,15 @@ import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.ExecutorUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
-public class TSBPrivateChannel extends TSBChannel {
-    public TSBPrivateChannel(String name, TSBChannelManager channelManager) {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class PrivateChannel extends Channel {
+    public PrivateChannel(String name, ChannelManager channelManager) {
         super(name, channelManager);
     }
 
     protected String signature;
-
-    public String getSignature() {
-        return signature;
-    }
 
     public void setSignature(String signature) {
         this.signature = signature;
@@ -40,7 +36,7 @@ public class TSBPrivateChannel extends TSBChannel {
     @Override
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
-        TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
+        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
         data.setSignature(signature);
         message.setData(data);
 

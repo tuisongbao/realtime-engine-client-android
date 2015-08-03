@@ -1,7 +1,7 @@
 package com.tuisongbao.engine.chat.message.event.handler;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
 import com.tuisongbao.engine.chat.message.event.ChatMessageGetEvent;
@@ -37,7 +37,7 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
     protected List<ChatMessage> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatMessage> messages = genCallbackData(request, response);
         ChatUser user = mEngine.chatManager.getChatUser();
-        TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
         for (ChatMessage message : messages) {
             dataSource.upsertMessage(user.getUserId(), message);

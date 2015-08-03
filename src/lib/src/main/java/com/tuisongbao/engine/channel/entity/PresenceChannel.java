@@ -3,17 +3,17 @@ package com.tuisongbao.engine.channel.entity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.util.StrUtil;
 
-public class TSBPresenceChannel extends TSBPrivateChannel {
+public class PresenceChannel extends PrivateChannel {
     private String channelData;
     private String authData;
 
-    public TSBPresenceChannel(String name, TSBChannelManager channelManager) {
+    public PresenceChannel(String name, ChannelManager channelManager) {
         super(name, channelManager);
     }
 
@@ -44,7 +44,7 @@ public class TSBPresenceChannel extends TSBPrivateChannel {
     @Override
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
-        TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
+        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
         data.setSignature(signature);
         data.setChannelData(channelData);
         message.setAuthData(authData);

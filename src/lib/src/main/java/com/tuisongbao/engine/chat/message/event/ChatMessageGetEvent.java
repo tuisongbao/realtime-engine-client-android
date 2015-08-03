@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatMessageGetEvent extends
@@ -22,9 +22,9 @@ public class ChatMessageGetEvent extends
     protected Gson getSerializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChatType.class,
-                new TSBChatMessageChatTypeSerializer());
+                new ChatMessageChatTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class,
-                new TSBChatMessageTypeSerializer());
+                new ChatMessageTypeSerializer());
         return gsonBuilder.create();
     }
 

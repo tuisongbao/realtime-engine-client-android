@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
@@ -16,10 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class TSBChannel extends EventEmitter {
-    private static final String TAG = TSBChannel.class.getSimpleName();
+public class Channel extends EventEmitter {
+    private static final String TAG = Channel.class.getSimpleName();
 
-    protected TSBChannelManager mChannelManager;
+    protected ChannelManager mChannelManager;
 
     /**
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
@@ -27,7 +27,7 @@ public class TSBChannel extends EventEmitter {
     protected String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
 
-    public TSBChannel(String name, TSBChannelManager channelManager) {
+    public Channel(String name, ChannelManager channelManager) {
         mChannelManager = channelManager;
         this.channel = name;
     }
@@ -68,7 +68,7 @@ public class TSBChannel extends EventEmitter {
     public void unsubscribe() {
         try {
             UnsubscribeEvent message = new UnsubscribeEvent();
-            TSBChannel data = new TSBChannel(channel, mChannelManager);
+            Channel data = new Channel(channel, mChannelManager);
             message.setData(data);
             mChannelManager.send(message, null);
 
@@ -92,8 +92,8 @@ public class TSBChannel extends EventEmitter {
 
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
-        // As TSBPresenceChannel has all properties, so use it to be the event data.
-        TSBPresenceChannel data = new TSBPresenceChannel(channel, mChannelManager);
+        // As PresenceChannel has all properties, so use it to be the event data.
+        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
         data.setName(channel);
         message.setData(data);
 

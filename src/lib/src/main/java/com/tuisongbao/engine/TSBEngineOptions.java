@@ -1,6 +1,6 @@
 package com.tuisongbao.engine;
 
-import com.tuisongbao.engine.service.ChatIntentService;
+import com.tuisongbao.engine.chat.ChatIntentService;
 
 public class TSBEngineOptions {
 

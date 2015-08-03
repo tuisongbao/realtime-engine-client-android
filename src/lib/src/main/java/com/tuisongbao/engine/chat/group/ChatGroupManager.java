@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.group;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.db.TSBGroupDataSource;
+import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupCreateData;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupGetData;
@@ -33,13 +33,13 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.util.List;
 
 public class ChatGroupManager extends BaseManager {
-    private TSBGroupDataSource dataSource;
+    private ChatGroupDataSource dataSource;
     private ChatManager mChatManager;
 
     public ChatGroupManager(TSBEngine engine) {
         mChatManager = engine.chatManager;
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new TSBGroupDataSource(TSBEngine.getContext(), engine);
+            dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
         }
     }
 

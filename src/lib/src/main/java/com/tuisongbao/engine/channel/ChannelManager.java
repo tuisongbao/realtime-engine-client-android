@@ -1,9 +1,9 @@
 package com.tuisongbao.engine.channel;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.channel.entity.TSBChannel;
-import com.tuisongbao.engine.channel.entity.TSBPresenceChannel;
-import com.tuisongbao.engine.channel.entity.TSBPrivateChannel;
+import com.tuisongbao.engine.channel.entity.Channel;
+import com.tuisongbao.engine.channel.entity.PrivateChannel;
+import com.tuisongbao.engine.channel.entity.PresenceChannel;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.common.TSBEngineConstants;
@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class TSBChannelManager extends BaseManager {
-    private Map<String, TSBChannel> mChannelMap = new HashMap<String, TSBChannel>();
+public class ChannelManager extends BaseManager {
+    private Map<String, Channel> mChannelMap = new HashMap<String, Channel>();
 
-    public TSBChannelManager(TSBEngine engine) {
+    public ChannelManager(TSBEngine engine) {
         super(engine);
         bind("engine:subscription_error", new Listener() {
             @Override
@@ -36,10 +36,10 @@ public class TSBChannelManager extends BaseManager {
      *
      * @param authData
      */
-    public TSBChannel subscribe(String channelName, String authData) {
+    public Channel subscribe(String channelName, String authData) {
         try {
             // unique instance return if the channel's name is same.
-            TSBChannel channel = mChannelMap.get(channelName);
+            Channel channel = mChannelMap.get(channelName);
             if (channel != null) {
                 return channel;
             }
@@ -48,14 +48,14 @@ public class TSBChannelManager extends BaseManager {
             }
 
             if (isPrivateChannel(channelName)) {
-                channel = new TSBPrivateChannel(channelName, this);
+                channel = new PrivateChannel(channelName, this);
             } else if (isPresenceChannel(channelName)) {
-                TSBPresenceChannel presenceChannel = new TSBPresenceChannel(channelName, this);
+                PresenceChannel presenceChannel = new PresenceChannel(channelName, this);
                 presenceChannel.setAuthData(authData);
                 channel = presenceChannel;
             } else {
                 // If not specified prefix found, default is public channel.
-                channel = new TSBChannel(channelName, this);
+                channel = new Channel(channelName, this);
             }
             LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
@@ -73,7 +73,7 @@ public class TSBChannelManager extends BaseManager {
             if (StrUtil.isEmpty(channelName)) {
                 return;
             }
-            TSBChannel channel = mChannelMap.get(channelName);
+            Channel channel = mChannelMap.get(channelName);
             if (channel != null) {
                 channel.unsubscribe();
                 mChannelMap.remove(channelName);
@@ -86,8 +86,8 @@ public class TSBChannelManager extends BaseManager {
     @Override
     protected void handleConnect(ConnectionEventData t) {
         LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Engine connected, resend all subscribe channel request");
-        HashSet<TSBChannel> values = new HashSet<TSBChannel>(mChannelMap.values());
-        for (TSBChannel channel : values) {
+        HashSet<Channel> values = new HashSet<Channel>(mChannelMap.values());
+        for (Channel channel : values) {
             channel.subscribe();
         }
     }

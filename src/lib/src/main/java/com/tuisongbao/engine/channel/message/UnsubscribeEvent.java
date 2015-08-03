@@ -1,10 +1,10 @@
 package com.tuisongbao.engine.channel.message;
 
-import com.tuisongbao.engine.channel.entity.TSBChannel;
+import com.tuisongbao.engine.channel.entity.Channel;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class UnsubscribeEvent extends
-        BaseEvent<TSBChannel> {
+        BaseEvent<Channel> {
 
     public static final String NAME = "engine_channel:unsubscribe";
 

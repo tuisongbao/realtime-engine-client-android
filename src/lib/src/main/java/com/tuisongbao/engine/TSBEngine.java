@@ -2,7 +2,7 @@ package com.tuisongbao.engine;
 
 import android.content.Context;
 
-import com.tuisongbao.engine.channel.TSBChannelManager;
+import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
 import com.tuisongbao.engine.engineio.pipeline.TSBEnginePipeline;
@@ -13,7 +13,7 @@ import com.tuisongbao.engine.util.StrUtil;
 public final class TSBEngine {
     public static AutoReconnectConnection connection;
     public static ChatManager chatManager;
-    public static TSBChannelManager channelManager;
+    public static ChannelManager channelManager;
     public static TSBEngineDataSink sink;
     private TSBEnginePipeline mTSBEnginePipeline = new TSBEnginePipeline();
 
@@ -45,14 +45,14 @@ public final class TSBEngine {
             if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
-                channelManager = new TSBChannelManager(this);
+                channelManager = new ChannelManager(this);
                 return;
             } else if (mEngineOptions.getChatIntentService() == null) {
                 LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
                         , "No Intent service specified for receiving chat messages, " +
                             "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
                 // TODO: Init ChannelManager
-                channelManager = new TSBChannelManager(this);
+                channelManager = new ChannelManager(this);
             } else {
                 LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
                         "Successfully load configurations for engine.");

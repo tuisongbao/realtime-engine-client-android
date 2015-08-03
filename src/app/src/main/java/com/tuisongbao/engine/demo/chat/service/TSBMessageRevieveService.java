@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.service.ChatIntentService;
+import com.tuisongbao.engine.chat.ChatIntentService;
 
 public class TSBMessageRevieveService extends ChatIntentService {
 

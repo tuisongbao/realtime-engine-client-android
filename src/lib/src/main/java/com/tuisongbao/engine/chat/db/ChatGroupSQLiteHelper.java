@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.log.LogUtil;
 
-public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
+public class ChatGroupSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_GROUP = "chatGroup";
     private static final String DATABASE_NAME = "chatGroup.db";
     private static final int DATABASE_VERSION = 1;
@@ -19,7 +19,7 @@ public class TSBGroupSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_USER_COUNT_LIMIT = "userCountLimit";
     public static final String COLUMN_LAST_ACTIVE_AT = "lastActiveAt";
 
-    public TSBGroupSQLiteHelper(Context context) {
+    public ChatGroupSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

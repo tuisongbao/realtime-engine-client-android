@@ -11,7 +11,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 
-public class TSBChatMessageChatTypeSerializer implements
+public class ChatMessageChatTypeSerializer implements
         JsonSerializer<ChatType>, JsonDeserializer<ChatType> {
 
     @Override

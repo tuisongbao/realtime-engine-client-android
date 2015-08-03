@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatConversationGetEvent extends BaseEvent<ChatConversationData> {
@@ -18,7 +18,7 @@ public class ChatConversationGetEvent extends BaseEvent<ChatConversationData> {
     @Override
     protected Gson getSerializer() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatType.class, new ChatMessageChatTypeSerializer());
         return gsonBuilder.create();
     }
 

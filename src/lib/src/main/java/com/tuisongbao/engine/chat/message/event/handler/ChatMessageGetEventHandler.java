@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageBodySerializer;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageChatTypeSerializer;
-import com.tuisongbao.engine.chat.serializer.TSBChatMessageTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageBodySerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -22,9 +22,9 @@ public class ChatMessageGetEventHandler extends BaseEventHandler<List<ChatMessag
     public List<ChatMessage> genCallbackData(BaseEvent request, RawEvent response) {
         ResponseEventData data = new Gson().fromJson(response.getData(), ResponseEventData.class);
         GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(ChatType.class, new TSBChatMessageChatTypeSerializer());
-        gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class, new TSBChatMessageTypeSerializer());
-        gsonBuilder.registerTypeAdapter(ChatMessageBody.class, new TSBChatMessageBodySerializer());
+        gsonBuilder.registerTypeAdapter(ChatType.class, new ChatMessageChatTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class, new ChatMessageTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageBody.class, new ChatMessageBodySerializer());
         List<ChatMessage> list = gsonBuilder.create().fromJson(data.getResult(),
                 new TypeToken<List<ChatMessage>>() {
                 }.getType());

@@ -3,7 +3,7 @@ package com.tuisongbao.engine.chat.group.event.handler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.db.TSBGroupDataSource;
+import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupGetUsersData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersEvent;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
@@ -19,7 +19,7 @@ public class ChatGroupGetUsersEventHandler extends BaseEventHandler<List<ChatUse
     @Override
     protected List<ChatUser> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatUser> users = genCallbackData(request, response);
-        TSBGroupDataSource dataSource = new TSBGroupDataSource(TSBEngine.getContext(), mEngine);
+        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
         dataSource.open();
 
         ChatGroupGetUsersData requestData = ((ChatGroupGetUsersEvent)request).getData();

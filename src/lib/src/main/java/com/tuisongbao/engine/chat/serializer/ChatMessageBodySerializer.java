@@ -16,7 +16,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 
 import java.lang.reflect.Type;
 
-public class TSBChatMessageBodySerializer implements JsonDeserializer<ChatMessageBody> {
+public class ChatMessageBodySerializer implements JsonDeserializer<ChatMessageBody> {
 
     @Override
     public ChatMessageBody deserialize(JsonElement json, Type typeOfT,

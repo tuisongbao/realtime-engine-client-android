@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.message.event.handler;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
@@ -33,7 +33,7 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         sentMessage.setFrom(userId);
 
         if (sentMessage != null && mEngine.chatManager.isCacheEnabled()) {
-            TSBConversationDataSource dataSource = new TSBConversationDataSource(TSBEngine.getContext(), mEngine);
+            ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
             dataSource.open();
             dataSource.upsertMessage(userId, sentMessage);
             dataSource.close();

@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.service;
+package com.tuisongbao.engine.chat;
 
 import android.app.IntentService;
 import android.content.Context;

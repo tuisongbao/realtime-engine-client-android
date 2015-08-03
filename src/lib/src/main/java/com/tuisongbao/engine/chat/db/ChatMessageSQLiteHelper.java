@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.log.LogUtil;
 
-public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
+public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_MESSAGE = "chatMessage";
     private static final String DATABASE_NAME = "chatMessage.db";
     private static final int DATABASE_VERSION = 1;
@@ -45,7 +45,7 @@ public class TSBMessageSQLiteHelper extends BaseSQLiteHelper {
     public static final String COLUMN_EXTRA = "extra";
     public static final String COLUMN_CREATED_AT = "createdAt";
 
-    public TSBMessageSQLiteHelper(Context context) {
+    public ChatMessageSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

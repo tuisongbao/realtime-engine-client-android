@@ -27,21 +27,21 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TSBConversationDataSource {
-    private static final String TAG = "com.tuisongbao.engine.TSBConversationDataSource";
-    private static final String TABLE_CONVERSATION = TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
-    private static final String TABLE_MESSAGE = TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
+public class ChatConversationDataSource {
+    private static final String TAG = "com.tuisongbao.engine.ChatConversationDataSource";
+    private static final String TABLE_CONVERSATION = ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
+    private static final String TABLE_MESSAGE = ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
 
     private SQLiteDatabase conversationDB;
     private SQLiteDatabase messageDB;
-    private TSBConversationSQLiteHelper conversationSQLiteHelper;
-    private TSBMessageSQLiteHelper messageSQLiteHelper;
+    private ChatConversationSQLiteHelper conversationSQLiteHelper;
+    private ChatMessageSQLiteHelper messageSQLiteHelper;
     private TSBEngine mEngine;
 
-    public TSBConversationDataSource(Context context, TSBEngine engine) {
+    public ChatConversationDataSource(Context context, TSBEngine engine) {
         mEngine = engine;
-        conversationSQLiteHelper = new TSBConversationSQLiteHelper(context);
-        messageSQLiteHelper = new TSBMessageSQLiteHelper(context);
+        conversationSQLiteHelper = new ChatConversationSQLiteHelper(context);
+        messageSQLiteHelper = new ChatMessageSQLiteHelper(context);
     }
 
     public void open() {
@@ -55,9 +55,9 @@ public class TSBConversationDataSource {
     }
 
     public String getLatestLastActiveAt(String userId) {
-        String sql = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
-                + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
-                + " ORDER BY datetime(" + TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
+        String sql = "SELECT * FROM " + ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                + " WHERE " + ChatConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
+                + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
         Cursor cursor = conversationDB.rawQuery(sql, null);
         if (cursor.isAfterLast()) {
             return null;
@@ -94,17 +94,17 @@ public class TSBConversationDataSource {
     }
 
     public List<ChatConversation> getList(String userId, ChatType type, String target) {
-        String queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
-                + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
+        String queryString = "SELECT * FROM " + ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                + " WHERE " + ChatConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
         Cursor cursor;
         List<ChatConversation> conversations = new ArrayList<ChatConversation>();
 
         if(!StrUtil.isEmpty(target)) {
             queryString = queryString
-                    + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'";
+                    + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'";
         } else if (StrUtil.isEmpty(target) && type != null) {
             queryString = queryString
-                    + " AND " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'";
+                    + " AND " + ChatConversationSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'";
         }
         queryString = queryString + ";";
         cursor = conversationDB.rawQuery(queryString, null);
@@ -159,7 +159,7 @@ public class TSBConversationDataSource {
         ChatMessage lastMessage = null;
         String query = generateQueryBy(userId, type, target);
         query = query
-                + " ORDER BY " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "
+                + " ORDER BY " + ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "
                 + " LIMIT " + 1
                 + ";";
         Cursor cursor = messageDB.rawQuery(query, null);
@@ -185,13 +185,13 @@ public class TSBConversationDataSource {
         Cursor cursor;
         String query= generateQueryBy(userId, type, target);
         if (startMessageId != null) {
-            query += " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " <= " + startMessageId;
+            query += " AND " + ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID + " <= " + startMessageId;
         }
         if (endMessageId != null) {
-            query = query + " AND " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " >= " + endMessageId;
+            query = query + " AND " + ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID + " >= " + endMessageId;
         }
         query = query
-                + " ORDER BY " + TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "
+                + " ORDER BY " + ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID + " DESC "
                 + " LIMIT " + limit
                 + ";";
         cursor = messageDB.rawQuery(query, null);
@@ -210,21 +210,21 @@ public class TSBConversationDataSource {
     }
 
     public void resetUnread(String userId, ChatType type, String target) {
-        String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = ?"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
+        String whereClause = ChatConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TYPE + " = ?"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = ?";
         ContentValues values = new ContentValues();
-        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, 0);
-        int rowsAffected = conversationDB.update(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION,
+        values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, 0);
+        int rowsAffected = conversationDB.update(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION,
                 values, whereClause, new String[]{ userId, type.getName(), target });
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, rowsAffected + " rows affected when reset unread count between " + userId + " and " + target);
     }
 
     public void remove(String userId, ChatType type, String target) {
-        String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TYPE + " = ?"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
-        int rowsAffected = conversationDB.delete(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, whereClause,
+        String whereClause = ChatConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TYPE + " = ?"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = ?";
+        int rowsAffected = conversationDB.delete(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, whereClause,
                 new String[]{ userId, type.getName(), target });
         LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Remove conversation:[type: " + type.getName() + ", target: " + target + "]"
                 + " and " + rowsAffected + " rows affected");
@@ -240,7 +240,7 @@ public class TSBConversationDataSource {
      */
     public int updateMessage(ChatMessage message) {
         String uniqueMessageId = generateUniqueMessageId(message);
-        String whereClause = TSBMessageSQLiteHelper.COLUMN_ID + " = ?";
+        String whereClause = ChatMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
         ChatMessageBody body = message.getBody();
@@ -248,11 +248,11 @@ public class TSBConversationDataSource {
             ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)body;
             String localPath = mediaBody.getLocalPath();
             if (!StrUtil.isEmpty(localPath)) {
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
             }
         }
 
-        values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
+        values.put(ChatMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
     }
@@ -265,13 +265,13 @@ public class TSBConversationDataSource {
 
     private void insert(ChatConversation conversation, String userId) {
         ContentValues values = new ContentValues();
-        values.put(TSBConversationSQLiteHelper.COLUMN_USER_ID, userId);
-        values.put(TSBConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
-        values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
-        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
-        values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
+        values.put(ChatConversationSQLiteHelper.COLUMN_USER_ID, userId);
+        values.put(ChatConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
+        values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
+        values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
-        long id = conversationDB.insert(TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
+        long id = conversationDB.insert(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
         LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation + " with return id " + id);
     }
 
@@ -279,13 +279,13 @@ public class TSBConversationDataSource {
         String whereClause = "";
         int rowsAffected = 0;
         if (type == ChatType.GroupChat) {
-            whereClause = TSBMessageSQLiteHelper.COLUMN_TO + " = ?";
-            rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
+            whereClause = ChatMessageSQLiteHelper.COLUMN_TO + " = ?";
+            rowsAffected = messageDB.delete(ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
                     new String[]{ target});
         } else {
-            whereClause = "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)"
-                    + " OR (" +  TSBMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = ?)";
-            rowsAffected = messageDB.delete(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
+            whereClause = "(" + ChatMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + ChatMessageSQLiteHelper.COLUMN_TO + " = ?)"
+                    + " OR (" +  ChatMessageSQLiteHelper.COLUMN_FROM + " = ?" + " AND " + ChatMessageSQLiteHelper.COLUMN_TO + " = ?)";
+            rowsAffected = messageDB.delete(ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
                     new String[]{ userId, target, target, userId });
         }
         LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Removed " + rowsAffected + " messages between " + userId + " and " + target);
@@ -299,13 +299,13 @@ public class TSBConversationDataSource {
      * @return rows effected
      */
     private int update(ChatConversation conversation, String userId) {
-        String whereClause = TSBConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = ?";
+        String whereClause = ChatConversationSQLiteHelper.COLUMN_USER_ID + " = ?"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = ?";
 
         ContentValues values = new ContentValues();
-        values.put(TSBConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
-        values.put(TSBConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
-        values.put(TSBConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
+        values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
+        values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
                 new String[]{ userId, conversation.getTarget() });
@@ -395,9 +395,9 @@ public class TSBConversationDataSource {
             return true;
         }
 
-        String queryString = "SELECT * FROM " + TSBConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
-                + " WHERE " + TSBConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
-                + " AND " + TSBConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'"
+        String queryString = "SELECT * FROM " + ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
+                + " WHERE " + ChatConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
+                + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'"
                 + ";";
         Cursor cursor = conversationDB.rawQuery(queryString, null);
         return cursor.getCount() > 0;
@@ -405,51 +405,51 @@ public class TSBConversationDataSource {
 
     private long insertMessage(ChatMessage message) {
         ContentValues values =  new ContentValues();
-        values.put(TSBMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
-        values.put(TSBMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
-        values.put(TSBMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
-        values.put(TSBMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
-        values.put(TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
-        values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
+        values.put(ChatMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
+        values.put(ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
+        values.put(ChatMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
+        values.put(ChatMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
+        values.put(ChatMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
+        values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
 
         if (message.getBody().getType() == TYPE.TEXT) {
             ChatTextMessageBody textMessageBody = (ChatTextMessageBody)message.getBody();
-            values.put(TSBMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
+            values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
         } else if (isMediaMessage(message)) {
             ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getBody();
 
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
-            values.put(TSBMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
 
             if (mediaBody instanceof ChatImageMessageBody) {
                 ChatImageMessageBody imageBody = (ChatImageMessageBody)mediaBody;
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_WIDTH, imageBody.getWidth());
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_HEIGHT, imageBody.getHeight());
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_WIDTH, imageBody.getWidth());
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_HEIGHT, imageBody.getHeight());
             } else if (mediaBody instanceof ChatVoiceMessageBody) {
                 ChatVoiceMessageBody voiceBody = (ChatVoiceMessageBody)mediaBody;
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, voiceBody.getDuration());
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, voiceBody.getDuration());
             } else if (mediaBody instanceof ChatVideoMessageBody) {
                 ChatVideoMessageBody videoBody = (ChatVideoMessageBody)mediaBody;
-                values.put(TSBMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
             }
 
         } else if (message.getBody().getType() == TYPE.EVENT) {
             ChatEventMessageBody eventBody = (ChatEventMessageBody)message.getBody();
-            values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
-            values.put(TSBMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
+            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
+            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
         }
 
         JSONObject extra = message.getBody().getExtra();
         LogUtil.debug(TAG, extra + "");
         if (extra != null) {
-            values.put(TSBMessageSQLiteHelper.COLUMN_EXTRA, extra.toString());
+            values.put(ChatMessageSQLiteHelper.COLUMN_EXTRA, extra.toString());
         }
 
-        values.put(TSBMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
+        values.put(ChatMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
-        return messageDB.insert(TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
+        return messageDB.insert(ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE, null, values);
     }
 
     private boolean isMediaMessage(ChatMessage message) {
@@ -470,16 +470,16 @@ public class TSBConversationDataSource {
     private String generateQueryBy(String userId, ChatType type, String target) {
         String queryString;
         if (type == ChatType.GroupChat) {
-            queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
-                    + " AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target + "'";
+            queryString = "SELECT * FROM " + ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE
+                    + " WHERE " + ChatMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
+                    + " AND " + ChatMessageSQLiteHelper.COLUMN_TO + " = '" + target + "'";
         } else {
-            queryString = "SELECT * FROM " + TSBMessageSQLiteHelper.TABLE_CHAT_MESSAGE
-                    + " WHERE " + TSBMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
+            queryString = "SELECT * FROM " + ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE
+                    + " WHERE " + ChatMessageSQLiteHelper.COLUMN_CHAT_TYPE + " = '" + type.getName() + "'"
                     + " AND "
-                    + "((" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + userId + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + target
+                    + "((" + ChatMessageSQLiteHelper.COLUMN_FROM + " = '" + userId + "' AND " + ChatMessageSQLiteHelper.COLUMN_TO + " = '" + target
                     + "') OR "
-                    + "(" + TSBMessageSQLiteHelper.COLUMN_FROM + " = '" + target + "' AND " + TSBMessageSQLiteHelper.COLUMN_TO + " = '" + userId
+                    + "(" + ChatMessageSQLiteHelper.COLUMN_FROM + " = '" + target + "' AND " + ChatMessageSQLiteHelper.COLUMN_TO + " = '" + userId
                     + "'))";
         }
         return queryString;

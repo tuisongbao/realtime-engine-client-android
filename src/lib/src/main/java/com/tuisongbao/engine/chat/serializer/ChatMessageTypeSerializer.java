@@ -12,7 +12,7 @@ import com.google.gson.JsonSerializer;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 
-public class TSBChatMessageTypeSerializer implements
+public class ChatMessageTypeSerializer implements
         JsonSerializer<ChatMessage.TYPE>, JsonDeserializer<ChatMessage.TYPE> {
 
     @Override

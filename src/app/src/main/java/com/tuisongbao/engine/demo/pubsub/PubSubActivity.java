@@ -11,7 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.channel.entity.TSBChannel;
+import com.tuisongbao.engine.channel.entity.Channel;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -56,7 +56,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                TSBChannel channel = DemoApplication.engine.channelManager.subscribe(channelName, authData);
+                Channel channel = DemoApplication.engine.channelManager.subscribe(channelName, authData);
                 TSBEngineBindCallback callback = new TSBEngineBindCallback() {
 
                     @Override

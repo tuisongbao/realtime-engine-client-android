@@ -11,7 +11,7 @@ import com.tuisongbao.engine.chat.conversation.event.ChatConversationResetUnread
 import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationDeleteEventHandler;
 import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationGetEventHandler;
 import com.tuisongbao.engine.chat.conversation.event.handler.ChatConversationResetUnreadEventHandler;
-import com.tuisongbao.engine.chat.db.TSBConversationDataSource;
+import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageGetData;
 import com.tuisongbao.engine.chat.message.event.ChatMessageGetEvent;
@@ -32,12 +32,12 @@ import java.util.List;
 
 public class ChatConversationManager extends BaseManager {
     private ChatManager mChatManager;
-    private TSBConversationDataSource dataSource;
+    private ChatConversationDataSource dataSource;
 
     public ChatConversationManager(TSBEngine engine) {
         mChatManager = engine.chatManager;
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new TSBConversationDataSource(TSBEngine.getContext(), engine);
+            dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
         }
     }
 
