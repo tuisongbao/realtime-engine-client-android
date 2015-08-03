@@ -4,12 +4,7 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupCreateData;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupGetData;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupGetUsersData;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupJoinInvitationData;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupLeaveData;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupRemoveUserData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupCreateEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersEvent;
@@ -79,15 +74,15 @@ public class ChatGroupManager extends BaseManager {
                 return;
             }
 
-            ChatGroupCreateEvent message = new ChatGroupCreateEvent();
-            ChatGroupCreateData data = new ChatGroupCreateData();
+            ChatGroupCreateEvent event = new ChatGroupCreateEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setInviteUserIds(members);
             data.setPublic(isPublic);
             data.setUserCanInvite(userCanInvite);
-            message.setData(data);
+            event.setData(data);
             ChatGroupCreateEventHandler response = new ChatGroupCreateEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -112,14 +107,14 @@ public class ChatGroupManager extends BaseManager {
                 dataSource.close();
             }
 
-            ChatGroupGetEvent message = new ChatGroupGetEvent();
-            ChatGroupGetData data = new ChatGroupGetData();
+            ChatGroupGetEvent event = new ChatGroupGetEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
             data.setLastActiveAt(lastActiveAt);
-            message.setData(data);
+            event.setData(data);
             ChatGroupGetEventHandler response = new ChatGroupGetEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -150,13 +145,13 @@ public class ChatGroupManager extends BaseManager {
                         "illegal parameter: group id can't be not empty");
                 return;
             }
-            ChatGroupGetUsersEvent message = new ChatGroupGetUsersEvent();
-            ChatGroupGetUsersData data = new ChatGroupGetUsersData();
+            ChatGroupGetUsersEvent event = new ChatGroupGetUsersEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
-            message.setData(data);
+            event.setData(data);
             ChatGroupGetUsersEventHandler response = new ChatGroupGetUsersEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -189,14 +184,14 @@ public class ChatGroupManager extends BaseManager {
                 return;
             }
 
-            ChatGroupJoinInvitationEvent message = new ChatGroupJoinInvitationEvent();
-            ChatGroupJoinInvitationData data = new ChatGroupJoinInvitationData();
+            ChatGroupJoinInvitationEvent event = new ChatGroupJoinInvitationEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
             data.setUserIds(userIds);
-            message.setData(data);
+            event.setData(data);
             ChatGroupJoinInvitationEventHandler response = new ChatGroupJoinInvitationEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -229,14 +224,14 @@ public class ChatGroupManager extends BaseManager {
                 return;
             }
 
-            ChatGroupRemoveUsersEvent message = new ChatGroupRemoveUsersEvent();
-            ChatGroupRemoveUserData data = new ChatGroupRemoveUserData();
+            ChatGroupRemoveUsersEvent event = new ChatGroupRemoveUsersEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
             data.setUserIds(userIds);
-            message.setData(data);
+            event.setData(data);
             ChatGroupRemoveUsersEventHandler response = new ChatGroupRemoveUsersEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -266,13 +261,13 @@ public class ChatGroupManager extends BaseManager {
                 return;
             }
 
-            ChatGroupLeaveEvent message = new ChatGroupLeaveEvent();
-            ChatGroupLeaveData data = new ChatGroupLeaveData();
+            ChatGroupLeaveEvent event = new ChatGroupLeaveEvent();
+            ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
-            message.setData(data);
+            event.setData(data);
             ChatGroupLeaveEventHandler response = new ChatGroupLeaveEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
             LogUtil.error(TAG, e);

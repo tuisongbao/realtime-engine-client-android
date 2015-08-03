@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupGetData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetEvent;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -25,7 +25,7 @@ public class ChatGroupGetEventHandler extends BaseEventHandler<List<ChatGroup>> 
         dataSource.open();
         dataSource.upsert(groups, userId);
 
-        ChatGroupGetData requestData = ((ChatGroupGetEvent)request).getData();
+        ChatGroupEventData requestData = ((ChatGroupGetEvent)request).getData();
         groups = dataSource.getList(userId, requestData.getGroupId());
         dataSource.close();
 

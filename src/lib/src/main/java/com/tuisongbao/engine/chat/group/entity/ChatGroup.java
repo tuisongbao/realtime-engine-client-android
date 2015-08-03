@@ -7,22 +7,25 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.util.StrUtil;
 
 import java.util.List;
 
 public class ChatGroup implements Parcelable {
-    transient private TSBEngine mEngine;
-    transient private ChatGroupManager mGroupManager;
-
     private String groupId;
     private String owner;
     private boolean isPublic;
     private boolean userCanInvite;
     private int userCount;
     private int userCountLimit;
+    private boolean isRemoved;
     private String lastActiveAt;
-    private List<String> invitedUserIds;
+
+    transient private TSBEngine mEngine;
+    transient private ChatGroupManager mGroupManager;
+
+    public ChatGroup() {
+
+    }
 
     public ChatGroup(TSBEngine engine) {
         mEngine = engine;
@@ -47,6 +50,10 @@ public class ChatGroup implements Parcelable {
 
     public boolean isPublic() {
         return isPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public void setIsPublic(boolean isPublic) {
@@ -77,12 +84,8 @@ public class ChatGroup implements Parcelable {
         this.userCountLimit = userCountLimit;
     }
 
-    public List<String> getInvitedUserIds() {
-        return invitedUserIds;
-    }
-
-    public void setInvitedUserIds(List<String> invitedUserIds) {
-        this.invitedUserIds = invitedUserIds;
+    public boolean getIsRemoved() {
+        return isRemoved;
     }
 
     public String getLastActiveAt() {
@@ -135,9 +138,8 @@ public class ChatGroup implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("ChatGroup[groupId: %s, owner: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s" +
-                ", invitedUserIds: %s]"
-                , groupId, owner, isPublic, userCanInvite, userCount, userCountLimit, StrUtil.getStringFromList(invitedUserIds));
+        return String.format("ChatGroup[groupId: %s, owner: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s"
+                , groupId, owner, isPublic, userCanInvite, userCount, userCountLimit);
     }
 
     @Override
@@ -154,7 +156,6 @@ public class ChatGroup implements Parcelable {
         out.writeInt(userCount);
         out.writeInt(userCountLimit);
         out.writeString(lastActiveAt);
-        out.writeList(invitedUserIds);
     }
 
     private ChatGroup(Parcel in) {
@@ -165,7 +166,6 @@ public class ChatGroup implements Parcelable {
         setUserCount(in.readInt());
         setUserCountLimit(in.readInt());
         setLastActiveAt(in.readString());
-        in.readList(invitedUserIds, null);
     }
 
     public static final Parcelable.Creator<ChatGroup> CREATOR =

@@ -1,6 +1,7 @@
 package com.tuisongbao.engine.common.event;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public abstract class BaseEvent<T>{
     protected long id;
@@ -39,7 +40,7 @@ public abstract class BaseEvent<T>{
     }
 
     protected Gson getSerializer() {
-        return new Gson();
+        return new GsonBuilder().serializeNulls().create();
     }
 
     public String serialize() {

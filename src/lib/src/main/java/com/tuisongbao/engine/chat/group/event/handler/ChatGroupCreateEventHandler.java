@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupCreateData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupCreateEvent;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -18,7 +18,7 @@ public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
         ChatGroup group = genCallbackData(request, response);
 
         String currentUser = mEngine.chatManager.getChatUser().getUserId();
-        ChatGroupCreateData requestData = ((ChatGroupCreateEvent)request).getData();
+        ChatGroupEventData requestData = ((ChatGroupCreateEvent)request).getData();
         group.setOwner(currentUser);
 
         int userCount = 0;

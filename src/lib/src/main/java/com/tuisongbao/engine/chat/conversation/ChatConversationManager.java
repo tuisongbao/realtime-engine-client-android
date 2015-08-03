@@ -4,7 +4,6 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationDeleteEvent;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationResetUnreadEvent;
@@ -101,14 +100,14 @@ public class ChatConversationManager extends BaseManager {
                 dataSource.close();
             }
 
-            ChatConversationResetUnreadEvent message = new ChatConversationResetUnreadEvent();
-            ChatConversationData data = new ChatConversationData();
+            ChatConversationResetUnreadEvent event = new ChatConversationResetUnreadEvent();
+            ChatConversation data = new ChatConversation(engine);
             data.setType(chatType);
             data.setTarget(target);
-            message.setData(data);
+            event.setData(data);
             ChatConversationResetUnreadEventHandler response = new ChatConversationResetUnreadEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -140,14 +139,14 @@ public class ChatConversationManager extends BaseManager {
                         "illegal parameter: type or target can't not be empty");
                 return;
             }
-            ChatConversationDeleteEvent message = new ChatConversationDeleteEvent();
-            ChatConversationData data = new ChatConversationData();
+            ChatConversationDeleteEvent event = new ChatConversationDeleteEvent();
+            ChatConversation data = new ChatConversation(engine);
             data.setType(chatType);
             data.setTarget(target);
-            message.setData(data);
+            event.setData(data);
             ChatConversationDeleteEventHandler response = new ChatConversationDeleteEventHandler();
             response.setCallback(callback);
-            send(message, response);
+            send(event, response);
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
@@ -279,29 +278,29 @@ public class ChatConversationManager extends BaseManager {
 
     private ChatMessageGetEvent getRequestOfGetMessages(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit) {
-        ChatMessageGetEvent message = new ChatMessageGetEvent();
+        ChatMessageGetEvent event = new ChatMessageGetEvent();
         ChatMessageGetData data = new ChatMessageGetData();
         data.setType(chatType);
         data.setTarget(target);
         data.setStartMessageId(startMessageId);
         data.setEndMessageId(endMessageId);
         data.setLimit(limit);
-        message.setData(data);
+        event.setData(data);
 
-        return message;
+        return event;
     }
 
     private void sendRequestOfGetConversations(ChatType chatType, String target, String lastActiveAt,
             TSBEngineCallback<List<ChatConversation>> callback) throws JSONException {
-        ChatConversationGetEvent message = new ChatConversationGetEvent();
-        ChatConversationData data = new ChatConversationData();
+        ChatConversationGetEvent event = new ChatConversationGetEvent();
+        ChatConversation data = new ChatConversation(engine);
         data.setType(chatType);
         data.setTarget(target);
         // Only query the changes after this time.
         data.setLastActiveAt(lastActiveAt);
-        message.setData(data);
+        event.setData(data);
         ChatConversationGetEventHandler response = new ChatConversationGetEventHandler();
         response.setCallback(callback);
-        send(message, response);
+        send(event, response);
     }
 }

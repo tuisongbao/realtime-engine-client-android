@@ -1,9 +1,9 @@
 package com.tuisongbao.engine.chat.group.event;
 
-import com.tuisongbao.engine.chat.group.entity.ChatGroupCreateData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatGroupCreateEvent extends BaseEvent<ChatGroupCreateData> {
+public class ChatGroupCreateEvent extends BaseEvent<ChatGroupEventData> {
 
     public static final String NAME = "engine_chat:group:create";
 

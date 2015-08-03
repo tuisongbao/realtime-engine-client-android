@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.group.event.handler;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupJoinInvitationData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupJoinInvitationEvent;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
@@ -19,7 +19,7 @@ public class ChatGroupJoinInvitationEventHandler extends BaseEventHandler<String
         ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
         groupDataSource.open();
 
-        ChatGroupJoinInvitationData joinInvitationData = ((ChatGroupJoinInvitationEvent)request).getData();
+        ChatGroupEventData joinInvitationData = ((ChatGroupJoinInvitationEvent)request).getData();
         String groupId = joinInvitationData.getGroupId();
         List<String> userIds = joinInvitationData.getUserIds();
 

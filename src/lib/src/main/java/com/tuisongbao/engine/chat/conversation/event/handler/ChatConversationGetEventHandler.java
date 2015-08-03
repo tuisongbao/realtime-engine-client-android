@@ -4,16 +4,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversationData;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.serializer.ChatMessageBodySerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
@@ -32,7 +31,7 @@ public class ChatConversationGetEventHandler extends BaseEventHandler<List<ChatC
         dataSource.open();
         dataSource.upsert(changedConversations, userId);
 
-        ChatConversationData requestData = ((ChatConversationGetEvent)request).getData();
+        ChatConversation requestData = ((ChatConversationGetEvent)request).getData();
         List<ChatConversation> callbackData = dataSource.getList(userId, requestData.getType(), requestData.getTarget());
         dataSource.close();
 
