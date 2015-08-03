@@ -56,7 +56,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                Channel channel = DemoApplication.engine.channelManager.subscribe(channelName, authData);
+                Channel channel = DemoApplication.getChannelManager().subscribe(channelName, authData);
                 TSBEngineBindCallback callback = new TSBEngineBindCallback() {
 
                     @Override
@@ -83,7 +83,7 @@ public class PubSubActivity extends Activity {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
-                DemoApplication.engine.channelManager.unsubscribe(channelName);
+                DemoApplication.getChannelManager().unsubscribe(channelName);
             }
         });
 

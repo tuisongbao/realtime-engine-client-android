@@ -17,7 +17,7 @@ public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
     protected ChatGroup genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         ChatGroup group = genCallbackData(request, response);
 
-        String currentUser = mEngine.chatManager.getChatUser().getUserId();
+        String currentUser = engine.getChatManager().getChatUser().getUserId();
         ChatGroupEventData requestData = ((ChatGroupCreateEvent)request).getData();
         group.setOwner(currentUser);
 
@@ -31,7 +31,7 @@ public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
         group.setUserCount(userCount);
         group.setIsPublic(requestData.isPublic());
 
-        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
+        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
         dataSource.open();
         dataSource.insert(group, currentUser);
         dataSource.close();

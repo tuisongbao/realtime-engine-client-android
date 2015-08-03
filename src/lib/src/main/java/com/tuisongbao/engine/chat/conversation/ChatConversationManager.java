@@ -36,7 +36,7 @@ public class ChatConversationManager extends BaseManager {
     private ChatConversationDataSource dataSource;
 
     public ChatConversationManager(TSBEngine engine) {
-        mChatManager = engine.chatManager;
+        mChatManager = engine.getChatManager();
         if (mChatManager.isCacheEnabled()) {
             dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
         }

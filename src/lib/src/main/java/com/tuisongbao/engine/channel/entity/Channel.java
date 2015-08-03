@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.channel.ChannelManager;
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Channel extends EventEmitter {
     private static final String TAG = Channel.class.getSimpleName();
 
-    protected ChannelManager mChannelManager;
+    protected TSBEngine engine;
 
     /**
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
@@ -27,8 +27,8 @@ public class Channel extends EventEmitter {
     protected String channel;
     transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
 
-    public Channel(String name, ChannelManager channelManager) {
-        mChannelManager = channelManager;
+    public Channel(String name, TSBEngine engine) {
+        this.engine = engine;
         this.channel = name;
     }
 
@@ -60,7 +60,7 @@ public class Channel extends EventEmitter {
                 handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
 
                 // remove reference from tsbchannel manager
-                mChannelManager.unsubscribe(channel);
+                engine.getChannelManager().unsubscribe(channel);
             }
         });
     }
@@ -68,12 +68,12 @@ public class Channel extends EventEmitter {
     public void unsubscribe() {
         try {
             UnsubscribeEvent message = new UnsubscribeEvent();
-            Channel data = new Channel(channel, mChannelManager);
+            Channel data = new Channel(channel, engine);
             message.setData(data);
-            mChannelManager.send(message, null);
+            engine.getChannelManager().send(message, null);
 
             // Remove listeners on engineIO layer
-            mChannelManager.unbind(channel);
+            engine.getChannelManager().unbind(channel);
 
             eventHandlers = new ConcurrentHashMap<>();
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class Channel extends EventEmitter {
 
     protected void sendSubscribeRequest() throws JSONException {
         SubscribeEvent message = generateSubscribeMessage();
-        mChannelManager.send(message, null);
+        engine.getChannelManager().send(message, null);
     }
 
     protected void validate(TSBEngineCallback<String> callback) {
@@ -93,7 +93,7 @@ public class Channel extends EventEmitter {
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
         // As PresenceChannel has all properties, so use it to be the event data.
-        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
+        PresenceChannel data = new PresenceChannel(channel, engine);
         data.setName(channel);
         message.setData(data);
 

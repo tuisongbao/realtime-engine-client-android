@@ -1,15 +1,18 @@
 package com.tuisongbao.engine.demo;
 
-import java.util.Iterator;
-import java.util.List;
-
 import android.app.ActivityManager;
 import android.app.Application;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.TSBEngineOptions;
+import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
+import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class DemoApplication extends Application {
     public static TSBEngine engine;
@@ -30,8 +33,20 @@ public class DemoApplication extends Application {
         TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser");
         options.setChatIntentService(TSBMessageRevieveService.class);
         engine = new TSBEngine(this, options);
-        ChatManager chatManager = engine.chatManager;
+        ChatManager chatManager = engine.getChatManager();
         chatManager.enableCache();
+    }
+
+    public static ChatGroupManager getGroupManager() {
+        return engine.getChatManager().getGroupManager();
+    }
+
+    public static ChatConversationManager getConversationManager() {
+        return engine.getChatManager().getConversationManager();
+    }
+
+    public static ChannelManager getChannelManager() {
+        return engine.getChannelManager();
     }
 
     private String getProcessName(int pid) {

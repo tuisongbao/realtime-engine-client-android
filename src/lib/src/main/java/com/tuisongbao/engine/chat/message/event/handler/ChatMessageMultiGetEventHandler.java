@@ -36,12 +36,12 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
     @Override
     protected List<ChatMessage> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatMessage> messages = genCallbackData(request, response);
-        ChatUser user = mEngine.chatManager.getChatUser();
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        ChatUser user = engine.getChatManager().getChatUser();
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
         dataSource.open();
         for (ChatMessage message : messages) {
             dataSource.upsertMessage(user.getUserId(), message);
-            message.setEngine(mEngine);
+            message.setEngine(engine);
         }
 
         ChatMessageGetData requestData = ((ChatMessageGetEvent)request).getData();

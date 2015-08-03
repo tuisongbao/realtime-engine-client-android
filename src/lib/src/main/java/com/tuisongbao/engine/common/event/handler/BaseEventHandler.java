@@ -11,12 +11,12 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 
 public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
-    protected TSBEngine mEngine;
+    protected TSBEngine engine;
     private ITSBEngineCallback mCallback;
 
     @Override
     public void setEngine(TSBEngine engine) {
-        mEngine = engine;
+        this.engine = engine;
     }
 
     public void setCallback(ITSBEngineCallback callback) {
@@ -44,7 +44,7 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
         ResponseEventData responseData = new Gson().fromJson(response.getData(), ResponseEventData.class);
         if (responseData.getOk()) {
             T data;
-            if (mEngine.chatManager.isCacheEnabled()) {
+            if (engine.getChatManager().isCacheEnabled()) {
                 data = genCallbackDataWithCache(request, response);
             } else {
                 data = genCallbackData(request, response);

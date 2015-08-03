@@ -29,7 +29,7 @@ public class ChatGroup implements Parcelable {
 
     public ChatGroup(TSBEngine engine) {
         mEngine = engine;
-        mGroupManager = mEngine.chatManager.groupManager;
+        mGroupManager = mEngine.getChatManager().getGroupManager();
     }
 
     public String getGroupId() {

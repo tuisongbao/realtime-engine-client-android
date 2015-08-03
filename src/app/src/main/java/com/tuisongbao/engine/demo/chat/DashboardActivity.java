@@ -122,7 +122,7 @@ public class DashboardActivity extends FragmentActivity {
             }
         });
 
-        DemoApplication.engine.chatManager.bind(
+        DemoApplication.engine.getChatManager().bind(
                 TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
                 new TSBEngineBindCallback() {
 
@@ -157,7 +157,7 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void listenConnectionEvent() {
-        Connection connection = DemoApplication.engine.connection;
+        Connection connection = DemoApplication.engine.getConnection();
         connection.bind(Connection.ConnectionEvent.StateChanged, new TSBEngineBindCallback() {
             @Override
             public void onEvent(String name, Object... args) {

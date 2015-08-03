@@ -34,7 +34,7 @@ public class ChatGroupManager extends BaseManager {
     private ChatManager mChatManager;
 
     public ChatGroupManager(TSBEngine engine) {
-        mChatManager = engine.chatManager;
+        mChatManager = engine.getChatManager();
         if (mChatManager.isCacheEnabled()) {
             dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
         }

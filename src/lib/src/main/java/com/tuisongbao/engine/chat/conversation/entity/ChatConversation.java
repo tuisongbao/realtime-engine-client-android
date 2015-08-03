@@ -25,7 +25,7 @@ public class ChatConversation implements Parcelable {
 
     public ChatConversation(TSBEngine engine) {
         mEngine = engine;
-        mConversationManager = engine.chatManager.conversationManager;
+        mConversationManager = engine.getChatManager().getConversationManager();
     }
 
     public ChatType getType() {
@@ -74,7 +74,8 @@ public class ChatConversation implements Parcelable {
      * @param engine
      */
     public void setOwner(TSBEngine engine) {
-        mConversationManager = engine.chatManager.conversationManager;
+        mEngine = engine;
+        mConversationManager = engine.getChatManager().getConversationManager();
     }
 
     /***
@@ -126,7 +127,7 @@ public class ChatConversation implements Parcelable {
     private void sendMessage(ChatMessageBody body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         ChatMessage message = new ChatMessage(mEngine);
         message.setBody(body).setChatType(type).setRecipient(target);
-        mEngine.chatManager.sendMessage(message, callback, options);
+        mEngine.getChatManager().sendMessage(message, callback, options);
     }
 
     @Override

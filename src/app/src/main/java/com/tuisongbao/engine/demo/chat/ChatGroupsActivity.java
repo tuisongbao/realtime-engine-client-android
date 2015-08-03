@@ -78,7 +78,7 @@ public class ChatGroupsActivity extends Activity {
     }
 
     private void request() {
-        DemoApplication.engine.chatManager.groupManager.getList(null, new TSBEngineCallback<List<ChatGroup>>() {
+        DemoApplication.getGroupManager().getList(null, new TSBEngineCallback<List<ChatGroup>>() {
 
             @Override
             public void onSuccess(List<ChatGroup> t) {

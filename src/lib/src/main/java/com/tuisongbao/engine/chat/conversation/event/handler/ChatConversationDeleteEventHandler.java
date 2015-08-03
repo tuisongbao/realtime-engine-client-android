@@ -15,8 +15,8 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 public class ChatConversationDeleteEventHandler extends BaseEventHandler<String> {
     @Override
     protected String genCallbackDataWithCache(BaseEvent request, RawEvent response) {
-        ChatUser chatUser = mEngine.chatManager.getChatUser();
-        ChatConversationDataSource conversationDataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        ChatUser chatUser = engine.getChatManager().getChatUser();
+        ChatConversationDataSource conversationDataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
         ChatConversation conversation = ((ChatConversationDeleteEvent)request).getData();
 
         conversationDataSource.open();

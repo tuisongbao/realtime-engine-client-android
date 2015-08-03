@@ -16,8 +16,8 @@ public class ChatGroupLeaveEventHandler extends BaseEventHandler<String> {
     @Override
     protected String genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         ChatGroupEventData leaveData = ((ChatGroupLeaveEvent)request).getData();
-        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
-        ChatUser chatUser = mEngine.chatManager.getChatUser();
+        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
+        ChatUser chatUser = engine.getChatManager().getChatUser();
 
         groupDataSource.open();
         groupDataSource.removeUser(leaveData.getGroupId(), chatUser.getUserId());

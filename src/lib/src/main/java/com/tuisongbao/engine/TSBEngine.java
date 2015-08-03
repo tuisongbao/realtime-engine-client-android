@@ -11,13 +11,13 @@ import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public final class TSBEngine {
-    public static AutoReconnectConnection connection;
-    public static ChatManager chatManager;
-    public static ChannelManager channelManager;
-    public static TSBEngineDataSink sink;
-    private TSBEnginePipeline mTSBEnginePipeline = new TSBEnginePipeline();
-
     private static final String TAG = TSBEngine.class.getSimpleName();
+
+    private AutoReconnectConnection connection;
+    private ChatManager chatManager;
+    private ChannelManager channelManager;
+    private TSBEngineDataSink sink;
+    private TSBEnginePipeline pipeline = new TSBEnginePipeline();
 
     private static Context mApplicationContext = null;
     private TSBEngineOptions mEngineOptions;
@@ -39,8 +39,8 @@ public final class TSBEngine {
 
             connection = new AutoReconnectConnection(this);
             sink = new TSBEngineDataSink(this);
-            mTSBEnginePipeline.addSource(connection);
-            mTSBEnginePipeline.addSink(sink);
+            pipeline.addSource(connection);
+            pipeline.addSink(sink);
 
             if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
                 LogUtil.warn(TAG
@@ -72,5 +72,25 @@ public final class TSBEngine {
 
     public TSBEngineOptions getEngineOptions() {
         return mEngineOptions;
+    }
+
+    public ChatManager getChatManager() {
+        return chatManager;
+    }
+
+    public ChannelManager getChannelManager() {
+        return channelManager;
+    }
+
+    public AutoReconnectConnection getConnection() {
+        return connection;
+    }
+
+    public TSBEngineDataSink getSink() {
+        return sink;
+    }
+
+    public TSBEnginePipeline getPipeline() {
+        return pipeline;
     }
 }

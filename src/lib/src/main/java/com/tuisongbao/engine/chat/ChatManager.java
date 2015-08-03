@@ -47,21 +47,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatManager extends BaseManager {
-    public static ChatGroupManager groupManager;
-    public static ChatConversationManager conversationManager;
-
     private static final String TAG = ChatManager.class.getSimpleName();
 
+    private ChatGroupManager groupManager;
+    private ChatConversationManager conversationManager;
     private ChatUser mChatUser;
     private ChatLoginEvent mLoginEvent;
     private boolean mIsCacheEnabled = false;
 
     public ChatManager(TSBEngine engine) {
         super(engine);
-    }
-
-    public boolean hasLogin() {
-        return mChatUser != null;
     }
 
     /**
@@ -78,24 +73,20 @@ public class ChatManager extends BaseManager {
             return;
         }
         // TODO: Cache login message, re-login when connection is established
-        if (engine.connection.isConnected()) {
-            ChatLoginEvent message = new ChatLoginEvent();
+        if (engine.getConnection().isConnected()) {
+            ChatLoginEvent event = new ChatLoginEvent();
             ChatLoginData data = new ChatLoginData();
             data.setUserData(userData);
-            message.setData(data);
-            message.setCallback(callback);
-            mLoginEvent = message;
-            auth(message);
+            event.setData(data);
+            event.setCallback(callback);
+            mLoginEvent = event;
+            auth(event);
         } else {
             // TODO: Set timer, onResponse error if timeout.
             callback.onError(
                     TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
                     "can't connect to engine server");
         }
-    }
-
-    public void setChatUser(ChatUser user) {
-        mChatUser = user;
     }
 
     public ChatUser getChatUser() {
@@ -112,7 +103,7 @@ public class ChatManager extends BaseManager {
                 clearCacheUser();
                 return;
             }
-            if (engine.connection.isConnected()) {
+            if (engine.getConnection().isConnected()) {
                 ChatLogoutEvent message = new ChatLogoutEvent();
                 if (send(message, null)) {
                     // TODO: 15-8-3 Unbind listeners, clear cache
@@ -143,6 +134,18 @@ public class ChatManager extends BaseManager {
         } catch (Exception e) {
             LogUtil.error(TAG, e);
         }
+    }
+
+    public boolean hasLogin() {
+        return mChatUser != null;
+    }
+
+    public ChatConversationManager getConversationManager() {
+        return conversationManager;
+    }
+
+    public ChatGroupManager getGroupManager() {
+        return groupManager;
     }
 
     /**
@@ -317,23 +320,23 @@ public class ChatManager extends BaseManager {
         mLoginEvent = null;
     }
 
-    private void handleErrorMessage(ChatLoginEvent msg, int code,
+    private void handleErrorMessage(ChatLoginEvent event, int code,
             String message) {
-        handleErrorMessage(msg.getCallback(), code, message);
+        handleErrorMessage(event.getCallback(), code, message);
     }
 
-    private void auth(final ChatLoginEvent msg) {
+    private void auth(final ChatLoginEvent event) {
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
 
             @Override
             public void run() {
                 JSONObject requestData = new JSONObject();
                 try {
-                    requestData.put("socketId", engine.connection.getSocketId());
+                    requestData.put("socketId", engine.getConnection().getSocketId());
                     requestData.put("chatLogin", true);
-                    if (msg.getData() != null
-                            && !StrUtil.isEmpty(msg.getData().getUserData())) {
-                        requestData.put("authData", msg.getData().getUserData());
+                    if (event.getData() != null
+                            && !StrUtil.isEmpty(event.getData().getUserData())) {
+                        requestData.put("authData", event.getData().getUserData());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -348,7 +351,7 @@ public class ChatManager extends BaseManager {
                     if (jsonData == null) {
                         // feed back empty
                         handleErrorMessage(
-                                msg,
+                                event,
                                 TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                                 "auth failed, feed back auth data is empty");
                     } else {
@@ -356,7 +359,7 @@ public class ChatManager extends BaseManager {
                         if (StrUtil.isEmpty(signature)) {
                             // signature data empty
                             handleErrorMessage(
-                                    msg,
+                                    event,
                                     TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                                     "auth failed, signature is empty");
                         } else {
@@ -370,7 +373,6 @@ public class ChatManager extends BaseManager {
                         data.setUserData(userData);
                         loginEvent.setData(data);
                         ChatLoginEventHandler responseMessage = new ChatLoginEventHandler();
-                        responseMessage.setCallback(mLoginCallback);
                         if (!send(loginEvent, responseMessage)) {
                             // TODO: 15-7-31 Cache and re-send when connected
                         }
@@ -378,40 +380,12 @@ public class ChatManager extends BaseManager {
                 } else {
                     // connection to user server error or user server feed back
                     // error
-                    handleErrorMessage(
-                            msg,
-                            TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
+                    handleErrorMessage(event, TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
                             "auth failed, connection to user server error or user server feed back error");
                 }
             }
         });
     }
-
-    private TSBEngineCallback<ChatUser> mLoginCallback = new TSBEngineCallback<ChatUser>() {
-        @Override
-        public void onSuccess(ChatUser t) {
-            LogUtil.debug(TAG, t.toString());
-            onLoginSuccess(t);
-
-            mChatUser = t;
-            mChatUser.setUserId(mLoginEvent.getData().getUserData());
-            if (!hasLogin()) {
-                // Chat user is null
-                // Call back when the user first login
-                if (mLoginEvent != null && mLoginEvent.getCallback() != null) {
-                    LogUtil.debug(TAG, t.toString());
-                    mLoginEvent.getCallback().onSuccess(t);
-                }
-            }
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            if (mLoginEvent != null && mLoginEvent.getCallback() != null) {
-                mLoginEvent.getCallback().onError(code, message);
-            }
-        }
-    };
 
     public void onLoginSuccess(ChatUser user) {
         mChatUser = user;

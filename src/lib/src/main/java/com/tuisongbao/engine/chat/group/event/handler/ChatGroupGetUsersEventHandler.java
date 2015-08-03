@@ -19,7 +19,7 @@ public class ChatGroupGetUsersEventHandler extends BaseEventHandler<List<ChatUse
     @Override
     protected List<ChatUser> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatUser> users = genCallbackData(request, response);
-        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
+        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
         dataSource.open();
 
         ChatGroupEventData requestData = ((ChatGroupGetUsersEvent)request).getData();

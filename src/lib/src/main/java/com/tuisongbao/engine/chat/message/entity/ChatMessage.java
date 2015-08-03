@@ -22,7 +22,7 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.io.File;
 
 public class ChatMessage implements Parcelable {
-    private final String TAG = ChatMessage.class.getSimpleName();
+    transient private final String TAG = ChatMessage.class.getSimpleName();
     /***
      * This value is not unique, it is the message's serial number in a conversation,
      * A different conversation may has a message which has a same messageId.
@@ -40,7 +40,7 @@ public class ChatMessage implements Parcelable {
 
     public ChatMessage(TSBEngine engine) {
         mEngine = engine;
-        mChatManager = mEngine.chatManager;
+        mChatManager = mEngine.getChatManager();
     }
 
     public static Gson getSerializer() {
@@ -58,7 +58,7 @@ public class ChatMessage implements Parcelable {
 
     public void setEngine(TSBEngine engine) {
         this.mEngine = engine;
-        mChatManager = engine.chatManager;
+        mChatManager = engine.getChatManager();
     }
 
     public ChatType getChatType() {

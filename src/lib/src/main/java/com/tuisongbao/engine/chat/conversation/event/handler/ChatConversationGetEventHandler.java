@@ -26,8 +26,8 @@ public class ChatConversationGetEventHandler extends BaseEventHandler<List<ChatC
     protected List<ChatConversation> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatConversation> changedConversations = genCallbackData(request, response);
 
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
-        String userId = mEngine.chatManager.getChatUser().getUserId();
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
+        String userId = engine.getChatManager().getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(changedConversations, userId);
 

@@ -141,7 +141,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void request() {
-        DemoApplication.engine.chatManager.conversationManager.getList(null, null, new TSBEngineCallback<List<ChatConversation>>() {
+        DemoApplication.getConversationManager().getList(null, null, new TSBEngineCallback<List<ChatConversation>>() {
 
             @Override
             public void onSuccess(final List<ChatConversation> t) {

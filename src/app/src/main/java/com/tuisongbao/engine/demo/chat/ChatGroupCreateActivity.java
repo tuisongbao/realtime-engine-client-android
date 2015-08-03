@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,6 +12,9 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatGroupCreateActivity extends Activity {
 
@@ -50,7 +50,8 @@ public class ChatGroupCreateActivity extends Activity {
 
     private void create() {
         List<String> members = new ArrayList<String>();
-        DemoApplication.engine.chatManager.groupManager.create(members,
+
+        DemoApplication.getGroupManager().create(members,
                 !mGroupIsPrivateToggleButton.isChecked(),
                 !mGroupInvitedPermissionToggleButton.isChecked(),
                 new TSBEngineCallback<ChatGroup>() {

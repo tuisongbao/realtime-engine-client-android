@@ -20,8 +20,8 @@ public class ChatGroupGetEventHandler extends BaseEventHandler<List<ChatGroup>> 
     protected List<ChatGroup> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatGroup> groups = genCallbackData(request, response);
 
-        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
-        String userId = mEngine.chatManager.getChatUser().getUserId();
+        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
+        String userId = engine.getChatManager().getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(groups, userId);
 

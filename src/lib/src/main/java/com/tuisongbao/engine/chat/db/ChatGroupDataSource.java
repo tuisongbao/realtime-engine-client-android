@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
@@ -23,12 +22,10 @@ public class ChatGroupDataSource {
     private SQLiteDatabase groupMemberDB;
     private ChatGroupSQLiteHelper groupSQLiteHelper;
     private ChatGroupUserSQLiteHelper groupMemberSQLiteHelper;
-    private ChatManager mChatManager;
     private TSBEngine mEngine;
 
     public ChatGroupDataSource(Context context, TSBEngine engine) {
         mEngine = engine;
-        mChatManager = engine.chatManager;
         groupSQLiteHelper = new ChatGroupSQLiteHelper(context);
         groupMemberSQLiteHelper = new ChatGroupUserSQLiteHelper(context);
     }

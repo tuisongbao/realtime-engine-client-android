@@ -38,7 +38,7 @@ public class ChatSettingsFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                DemoApplication.engine.chatManager.logout();
+                DemoApplication.engine.getChatManager().logout();
                 Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);

@@ -35,12 +35,12 @@ public class TSBEngineDataSink extends BaseEngineDataSink {
         RawEvent rawEvent = new Gson().fromJson(event, RawEvent.class);
         String eventName = rawEvent.getName();
         if (!StrUtil.isEmpty(rawEvent.getChannel()) || Protocol.isChannelEvent(eventName)) {
-            mEngine.channelManager.trigger(eventName, rawEvent);
+            mEngine.getChannelManager().trigger(eventName, rawEvent);
         } else if (Protocol.isServerResponseEvent(eventName)) {
             ResponseEventData data = new Gson().fromJson(rawEvent.getData(), ResponseEventData.class);
             trigger(String.valueOf(data.getTo()), rawEvent);
         } else if (Protocol.isChatEvent(eventName)) {
-            mEngine.chatManager.trigger(eventName, rawEvent);
+            mEngine.getChatManager().trigger(eventName, rawEvent);
         }
     }
 }

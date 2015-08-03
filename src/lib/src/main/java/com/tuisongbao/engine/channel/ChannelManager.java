@@ -50,14 +50,14 @@ public class ChannelManager extends BaseManager {
             }
 
             if (isPrivateChannel(channelName)) {
-                channel = new PrivateChannel(channelName, this);
+                channel = new PrivateChannel(channelName, engine);
             } else if (isPresenceChannel(channelName)) {
-                PresenceChannel presenceChannel = new PresenceChannel(channelName, this);
+                PresenceChannel presenceChannel = new PresenceChannel(channelName, engine);
                 presenceChannel.setAuthData(authData);
                 channel = presenceChannel;
             } else {
                 // If not specified prefix found, default is public channel.
-                channel = new Channel(channelName, this);
+                channel = new Channel(channelName, engine);
             }
             LogUtil.info(TAG, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);

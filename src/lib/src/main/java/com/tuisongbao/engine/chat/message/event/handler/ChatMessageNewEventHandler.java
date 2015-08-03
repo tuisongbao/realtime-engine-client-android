@@ -29,9 +29,9 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     @Override
     protected ChatMessage genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         ChatMessage message = genCallbackData(request, response);
-        ChatUser user = mEngine.chatManager.getChatUser();
+        ChatUser user = engine.getChatManager().getChatUser();
 
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
         dataSource.open();
         dataSource.upsertMessage(user.getUserId(), message);
         dataSource.close();
@@ -44,7 +44,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
         sendResponseEvent(response);
 
         ChatMessage message;
-        if (mEngine.chatManager.isCacheEnabled()) {
+        if (engine.getChatManager().isCacheEnabled()) {
             message = genCallbackDataWithCache(request, response);
         } else {
             message = genCallbackData(request, response);
@@ -59,7 +59,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
         data.setTo(response.getId());
         event.setData(data);
 
-        mEngine.connection.send(event);
+        engine.getConnection().send(event);
     }
 
     private void receivedMessage(final ChatMessage message) {
@@ -70,7 +70,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     }
 
     private final Class<? extends ChatIntentService> getChatIntentService() {
-        Class<? extends ChatIntentService> chatIntentService = mEngine.getEngineOptions().getChatIntentService();
+        Class<? extends ChatIntentService> chatIntentService = engine.getEngineOptions().getChatIntentService();
         if (chatIntentService == null) {
             chatIntentService = ChatIntentService.class;
         }

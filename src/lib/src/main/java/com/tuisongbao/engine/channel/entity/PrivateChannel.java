@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.channel.ChannelManager;
+import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
@@ -19,8 +19,8 @@ public class PrivateChannel extends Channel {
 
     protected String signature;
 
-    public PrivateChannel(String name, ChannelManager channelManager) {
-        super(name, channelManager);
+    public PrivateChannel(String name, TSBEngine engine) {
+        super(name, engine);
     }
 
     public void setSignature(String signature) {
@@ -29,7 +29,7 @@ public class PrivateChannel extends Channel {
 
     protected JSONObject getHttpRequestObjectOfAuth() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("socketId", mChannelManager.engine.connection.getSocketId());
+        json.put("socketId", engine.getConnection().getSocketId());
         json.put("channelName", channel);
 
         return json;
@@ -38,7 +38,7 @@ public class PrivateChannel extends Channel {
     @Override
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
-        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
+        PresenceChannel data = new PresenceChannel(channel, engine);
         data.setSignature(signature);
         message.setData(data);
 
@@ -69,7 +69,7 @@ public class PrivateChannel extends Channel {
                     return;
                 }
                 BaseRequest authRequest = new BaseRequest(
-                        HttpConstants.HTTP_METHOD_POST, mChannelManager.engine.getEngineOptions().getAuthEndpoint(), json.toString());
+                        HttpConstants.HTTP_METHOD_POST, engine.getEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse authResponse = authRequest.execute();
                 if (authResponse == null || !authResponse.isStatusOk()) {
                     callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Error accured when call auth server");

@@ -35,7 +35,7 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    DemoApplication.engine.chatManager.login(mEditTextAccount.getText().toString(), new TSBEngineCallback<ChatUser>() {
+                    DemoApplication.engine.getChatManager().login(mEditTextAccount.getText().toString(), new TSBEngineCallback<ChatUser>() {
 
                         @Override
                         public void onSuccess(ChatUser t) {

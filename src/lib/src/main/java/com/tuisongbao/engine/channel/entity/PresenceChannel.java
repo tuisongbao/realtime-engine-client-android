@@ -1,20 +1,20 @@
 package com.tuisongbao.engine.channel.entity;
 
+import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.channel.message.SubscribeEvent;
+import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.util.StrUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.tuisongbao.engine.channel.ChannelManager;
-import com.tuisongbao.engine.channel.message.SubscribeEvent;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.util.StrUtil;
 
 public class PresenceChannel extends PrivateChannel {
     private String channelData;
     private String authData;
 
-    public PresenceChannel(String name, ChannelManager channelManager) {
-        super(name, channelManager);
+    public PresenceChannel(String name, TSBEngine engine) {
+        super(name, engine);
     }
 
     public String getChannelData() {
@@ -44,7 +44,7 @@ public class PresenceChannel extends PrivateChannel {
     @Override
     protected SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
-        PresenceChannel data = new PresenceChannel(channel, mChannelManager);
+        PresenceChannel data = new PresenceChannel(channel, engine);
         data.setSignature(signature);
         data.setChannelData(channelData);
         message.setAuthData(authData);

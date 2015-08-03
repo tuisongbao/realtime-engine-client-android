@@ -18,7 +18,7 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
 
     @Override
     protected ChatMessage genCallbackDataWithCache(BaseEvent request, RawEvent response) {
-        String userId = mEngine.chatManager.getChatUser().getUserId();
+        String userId = engine.getChatManager().getChatUser().getUserId();
         ChatMessage responseMessage = genCallbackData(request, response);
         ChatMessage sentMessage = ((ChatMessageSendEvent)request).getData();
 
@@ -32,14 +32,14 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         }
         sentMessage.setFrom(userId);
 
-        if (sentMessage != null && mEngine.chatManager.isCacheEnabled()) {
-            ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        if (sentMessage != null && engine.getChatManager().isCacheEnabled()) {
+            ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
             dataSource.open();
             dataSource.upsertMessage(userId, sentMessage);
             dataSource.close();
         }
 
-        sentMessage.setEngine(mEngine);
+        sentMessage.setEngine(engine);
         return sentMessage;
     }
 

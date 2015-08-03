@@ -16,7 +16,7 @@ import java.util.List;
 public class ChatGroupJoinInvitationEventHandler extends BaseEventHandler<String> {
     @Override
     protected String genCallbackData(BaseEvent request, RawEvent response) {
-        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), mEngine);
+        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
         groupDataSource.open();
 
         ChatGroupEventData joinInvitationData = ((ChatGroupJoinInvitationEvent)request).getData();

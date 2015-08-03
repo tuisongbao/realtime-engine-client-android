@@ -30,7 +30,7 @@ public class ChatLoginEventHandler extends BaseEventHandler<ChatUser> {
 
         if (responseData.getOk()) {
             ChatLoginData data = ((ChatLoginEvent)request).getData();
-            ChatManager chatManager = mEngine.chatManager;
+            ChatManager chatManager = engine.getChatManager();
 
             // TODO: 15-8-3 Test, is it work ?
             ChatUser userDataInRequest = new Gson().fromJson(data.getUserData(), ChatUser.class);

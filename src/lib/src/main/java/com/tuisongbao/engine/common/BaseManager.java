@@ -21,10 +21,10 @@ public class BaseManager extends EventEmitter {
 
     public boolean send(BaseEvent event, IEventHandler response) {
         try {
-            BaseEvent sentEvent = engine.connection.send(event);
+            BaseEvent sentEvent = engine.getConnection().send(event);
             if (response != null) {
                 response.setEngine(engine);
-                engine.sink.setHandler(sentEvent, response);
+                engine.getSink().setHandler(sentEvent, response);
             }
         } catch (Exception e) {
             LogUtil.error(TAG, "Failed to send event " + event.getName());
