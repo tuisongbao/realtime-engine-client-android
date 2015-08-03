@@ -1,25 +1,26 @@
 package com.tuisongbao.engine.http.response;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.tuisongbao.engine.log.LogUtil;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.json.JSONObject;
 
-import com.tuisongbao.engine.log.LogUtil;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 
-public class BaseResponse
-{
-    HttpResponse mRresponse;
-    String mBody;
+public class BaseResponse {
+    private static final String TAG = BaseResponse.class.getSimpleName();
+
+    private HttpResponse mRresponse;
+    private String mBody;
 
     public BaseResponse(HttpResponse paramHttpResponse)
     {
         this.mRresponse = paramHttpResponse;
-        LogUtil.info(LogUtil.LOG_TAG_HTTP, this.toString());
+        LogUtil.info(TAG, this.toString());
     }
 
     public int status()

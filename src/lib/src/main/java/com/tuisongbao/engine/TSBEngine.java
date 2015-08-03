@@ -32,7 +32,7 @@ public final class TSBEngine {
         try {
             mEngineOptions = options;
             if (options == null || StrUtil.isEmpty(mEngineOptions.getAppId())) {
-                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                LogUtil.warn(TAG
                         , "No AppId, you do not have permission to use cool engine!");
                 return;
             }
@@ -43,18 +43,18 @@ public final class TSBEngine {
             mTSBEnginePipeline.addSink(sink);
 
             if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
-                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                LogUtil.warn(TAG
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 channelManager = new ChannelManager(this);
                 return;
             } else if (mEngineOptions.getChatIntentService() == null) {
-                LogUtil.warn(LogUtil.LOG_TAG_TSB_ENGINE
+                LogUtil.warn(TAG
                         , "No Intent service specified for receiving chat messages, " +
                             "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
                 // TODO: Init ChannelManager
                 channelManager = new ChannelManager(this);
             } else {
-                LogUtil.info(LogUtil.LOG_TAG_TSB_ENGINE,
+                LogUtil.info(TAG,
                         "Successfully load configurations for engine.");
                 // TODO: Init ChatManager and ChannelManager
                 chatManager = new ChatManager(this);

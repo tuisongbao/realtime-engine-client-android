@@ -1,8 +1,19 @@
 package com.tuisongbao.engine.http;
 
+import com.tuisongbao.engine.log.LogUtil;
+
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -15,25 +26,14 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-
-import com.tuisongbao.engine.log.LogUtil;
-
 public class HttpsClient {
+    private static final String TAG = HttpsClient.class.getSimpleName();
 
     public static DefaultHttpClient getDefaultHttpClient() {
         try {
             return new HttpsClient().getHttpsClient();
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_HTTP, "Get httpsClient", e);
+            LogUtil.error(TAG, "Get httpsClient", e);
         }
         return new HttpsClient().getHttpClient();
     }
@@ -90,7 +90,7 @@ public class HttpsClient {
 
         @Override
         public Socket createSocket(Socket socket, String host, int port,
-                boolean autoClose) throws IOException, UnknownHostException {
+                boolean autoClose) throws IOException {
             return mSslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
         }
 

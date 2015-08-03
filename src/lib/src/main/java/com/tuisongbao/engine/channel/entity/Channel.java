@@ -41,12 +41,12 @@ public class Channel extends EventEmitter {
     }
 
     public void subscribe() {
-        LogUtil.debug(LogUtil.LOG_TAG_CHANNEL, "Begin auth channel: " + channel);
+        LogUtil.debug(TAG, "Begin auth channel: " + channel);
         validate(new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
-                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation pass: " + t);
+                LogUtil.info(TAG, "Channel validation pass: " + t);
                 try {
                     sendSubscribeRequest();
                 } catch (Exception e) {
@@ -56,7 +56,7 @@ public class Channel extends EventEmitter {
 
             @Override
             public void onError(int code, String message) {
-                LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed: " + message);
+                LogUtil.info(TAG, "Channel validation failed: " + message);
                 handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
 
                 // remove reference from tsbchannel manager

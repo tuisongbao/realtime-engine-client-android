@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.engineio.pipeline;
 
-import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.engine.engineio.sink.IEngineDataSink;
 import com.tuisongbao.engine.engineio.source.IEngineDataSource;
@@ -39,7 +38,7 @@ public class TSBEnginePipeline implements IEnginePipeline {
             try {
                 sink.receive(event);
             } catch(DataSinkException e) {
-                LogUtil.warn(LogUtil.LOG_TAG_ENGINEIO, TAG + ": The sink " +
+                LogUtil.warn(TAG, "The sink " +
                         sink + " exploded when we sent a new message " +
                         "-- removing it from the pipeline: " + e);
                 deadSinks.add(sink);

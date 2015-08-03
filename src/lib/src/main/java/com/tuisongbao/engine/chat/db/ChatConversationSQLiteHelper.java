@@ -7,6 +7,8 @@ import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatConversationSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_CONVERSATION = "chatConversation";
+
+    private static final String TAG = ChatConversationSQLiteHelper.class.getSimpleName();
     private static final String DATABASE_NAME = "chatConversation.db";
     private static final int DATABASE_VERSION = 1;
     private static final String COLUMN_ID = "_id";
@@ -34,13 +36,13 @@ public class ChatConversationSQLiteHelper extends ChatBaseSQLiteHelper {
           + COLUMN_LAST_ACTIVE_AT + " text, "
           + COLUMN_GROUP_NAME + " text"
           + ");";
-        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, createDatabaseString);
+        LogUtil.debug(TAG, createDatabaseString);
         database.execSQL(createDatabaseString);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        LogUtil.warn(LogUtil.LOG_TAG_CHAT_CACHE, "Upgrading database from version " + oldVersion + " to "
+        LogUtil.warn(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_CONVERSATION);
         onCreate(database);

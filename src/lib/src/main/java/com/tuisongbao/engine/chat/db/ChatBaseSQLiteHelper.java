@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.chat.db;
 
-import java.io.File;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
@@ -14,7 +12,10 @@ import android.os.Environment;
 
 import com.tuisongbao.engine.log.LogUtil;
 
+import java.io.File;
+
 public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
+    private static final String TAG = ChatBaseSQLiteHelper.class.getSimpleName();
 
     public ChatBaseSQLiteHelper(Context context, String name,
                                 CursorFactory factory, int version) {
@@ -31,7 +32,7 @@ public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
                     public Cursor newCursor(SQLiteDatabase arg0, SQLiteCursorDriver arg1,
                             String arg2, SQLiteQuery arg3) {
                         // Log the db query operations.
-                        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, arg3.toString());
+                        LogUtil.verbose(TAG, arg3.toString());
                         return new SQLiteCursor(arg1, arg2, arg3);
                     }
                 }, version);

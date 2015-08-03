@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat.media;
 
-import java.io.IOException;
-import java.util.HashMap;
-
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -13,7 +10,12 @@ import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
+    private static final String TAG = ChatVoicePlayer.class.getSimpleName();
+
     private static MediaPlayer mMediaPlayer;
     private static ChatVoicePlayer mInstance;
     private ChatMessage currentPlayingMessage;
@@ -21,11 +23,11 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
     HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<ChatMessage, ChatVoicePlayer.OnErrorListener>();
 
     public interface OnStopListener {
-        public void onStop();
+        void onStop();
     }
 
     public interface OnErrorListener {
-        public void onError(String error);
+        void onError(String error);
     }
 
     public ChatVoicePlayer() {
@@ -46,7 +48,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             stopLastMedia();
             startPlay(message, stopListener, errorListener, progressCallback);
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -87,7 +89,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
                         });
                     }
                 } catch (IOException e) {
-                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+                    LogUtil.error(TAG, e);
                     callbackErrorListener(message, e.getMessage());
                 }
             }
@@ -127,7 +129,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
 
     @Override
     public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-        LogUtil.info(LogUtil.LOG_TAG_CHAT, arg1 + "; " + arg2);
+        LogUtil.info(TAG, arg1 + "; " + arg2);
         return false;
     }
 }

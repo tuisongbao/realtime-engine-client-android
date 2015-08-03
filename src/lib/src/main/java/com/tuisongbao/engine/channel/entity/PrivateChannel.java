@@ -15,11 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PrivateChannel extends Channel {
+    private static final String TAG = PrivateChannel.class.getSimpleName();
+
+    protected String signature;
+
     public PrivateChannel(String name, ChannelManager channelManager) {
         super(name, channelManager);
     }
-
-    protected String signature;
 
     public void setSignature(String signature) {
         this.signature = signature;
@@ -63,7 +65,7 @@ public class PrivateChannel extends Channel {
                     json = getHttpRequestObjectOfAuth();
                 } catch (JSONException e) {
                     callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Tuisongbao internal error");
-                    LogUtil.error(LogUtil.LOG_TAG_CHANNEL, "Channel validation failed.",  e);
+                    LogUtil.error(TAG, "Channel validation failed.",  e);
                     return;
                 }
                 BaseRequest authRequest = new BaseRequest(

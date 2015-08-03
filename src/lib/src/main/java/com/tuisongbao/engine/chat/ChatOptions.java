@@ -4,12 +4,10 @@ import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatOptions {
+    private static final String TAG = ChatOptions.class.getSimpleName();
+
     private TSBProgressCallback mProgressCallback;
     private int mLastPercent = 0;
-
-    public ChatOptions() {
-
-    }
 
     public ChatOptions(TSBProgressCallback callback) {
         mProgressCallback = callback;
@@ -20,7 +18,7 @@ public class ChatOptions {
             return;
         }
         if (percent > mLastPercent) {
-            LogUtil.debug(LogUtil.LOG_TAG_CHAT, "callbackProgress " + percent);
+            LogUtil.debug(TAG, "In progress... " + percent);
             mProgressCallback.progress(percent);
         }
     }

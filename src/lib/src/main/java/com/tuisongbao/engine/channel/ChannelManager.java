@@ -15,7 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class ChannelManager extends BaseManager {
-    private Map<String, Channel> mChannelMap = new HashMap<String, Channel>();
+    private static final String TAG = ChannelManager.class.getSimpleName();
+
+    private Map<String, Channel> mChannelMap = new HashMap<>();
 
     public ChannelManager(TSBEngine engine) {
         super(engine);
@@ -57,13 +59,13 @@ public class ChannelManager extends BaseManager {
                 // If not specified prefix found, default is public channel.
                 channel = new Channel(channelName, this);
             }
-            LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Subscribe channel: " + channelName);
+            LogUtil.info(TAG, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
             channel.subscribe();
             return channel;
 
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, "Channel subscribe failed.", e);
+            LogUtil.error(TAG, "Channel subscribe failed.", e);
             return null;
         }
     }
@@ -79,13 +81,13 @@ public class ChannelManager extends BaseManager {
                 mChannelMap.remove(channelName);
             }
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, "Channel subscribe failed.", e);
+            LogUtil.error(TAG, "Channel subscribe failed.", e);
         }
     }
 
     @Override
     protected void handleConnect(ConnectionEventData t) {
-        LogUtil.info(LogUtil.LOG_TAG_CHANNEL, "Engine connected, resend all subscribe channel request");
+        LogUtil.info(TAG, "Engine connected, resend all subscribe channel request");
         HashSet<Channel> values = new HashSet<Channel>(mChannelMap.values());
         for (Channel channel : values) {
             channel.subscribe();

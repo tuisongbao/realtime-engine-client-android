@@ -194,7 +194,7 @@ public class ChatManager extends BaseManager {
             }
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -275,7 +275,7 @@ public class ChatManager extends BaseManager {
             @Override
             public void onSuccess(JSONObject responseObject) {
                 try {
-                    LogUtil.info(LogUtil.LOG_TAG_CHAT, "Get response from QINIU " + responseObject.toString(4));
+                    LogUtil.info(TAG, "Get response from QINIU " + responseObject.toString(4));
                     ChatMediaMessageBody body = (ChatMediaMessageBody) message.getBody();
 
                     JsonObject file = new JsonObject();
@@ -300,7 +300,7 @@ public class ChatManager extends BaseManager {
                     message.setBody(body);
                     sendMessageRequest(message, callback);
                 } catch (Exception e) {
-                    LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+                    LogUtil.error(TAG, e);
                 }
             }
 
@@ -390,7 +390,7 @@ public class ChatManager extends BaseManager {
     private TSBEngineCallback<ChatUser> mLoginCallback = new TSBEngineCallback<ChatUser>() {
         @Override
         public void onSuccess(ChatUser t) {
-            LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
+            LogUtil.debug(TAG, t.toString());
             onLoginSuccess(t);
 
             mChatUser = t;
@@ -399,7 +399,7 @@ public class ChatManager extends BaseManager {
                 // Chat user is null
                 // Call back when the user first login
                 if (mLoginEvent != null && mLoginEvent.getCallback() != null) {
-                    LogUtil.debug(LogUtil.LOG_TAG_CHAT, t.toString());
+                    LogUtil.debug(TAG, t.toString());
                     mLoginEvent.getCallback().onSuccess(t);
                 }
             }

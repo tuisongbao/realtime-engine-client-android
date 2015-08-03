@@ -1,14 +1,11 @@
 package com.tuisongbao.engine.engineio.source;
 
+import com.tuisongbao.engine.engineio.exception.DataSourceException;
+import com.tuisongbao.engine.log.LogUtil;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import android.util.Log;
-
-import com.tuisongbao.engine.TSBEngineOptions;
-import com.tuisongbao.engine.engineio.exception.DataSourceException;
-import com.tuisongbao.engine.log.LogUtil;
 
 /**
  * Common functionality for data sources that read a stream of newline-separated
@@ -74,7 +71,7 @@ public class BaseEngineIODataSource extends BaseEngineDataSource
             // waiting for connection
             mConnectionChanged.await();
         } catch(InterruptedException e) {
-            LogUtil.debug(LogUtil.LOG_TAG_ENGINEIO, "Interrupted while waiting for a new " +
+            LogUtil.debug(TAG, "Interrupted while waiting for a new " +
                     "item for notification -- likely shutting down");
             stop();
         }

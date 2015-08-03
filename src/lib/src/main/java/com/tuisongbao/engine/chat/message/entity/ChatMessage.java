@@ -126,7 +126,7 @@ public class ChatMessage implements Parcelable {
                 return ((ChatMediaMessageBody)body).getLocalPath();
             }
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            LogUtil.error(TAG, e);
         }
         return "";
     }
@@ -138,7 +138,7 @@ public class ChatMessage implements Parcelable {
                 return ((ChatTextMessageBody)body).getText();
             }
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            LogUtil.error(TAG, e);
         }
         return "";
     }
@@ -277,7 +277,7 @@ public class ChatMessage implements Parcelable {
                 callback.onSuccess(message);
             }
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_CHAT, e);
+            LogUtil.error(TAG, e);
             callback.onError(Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
         }
     }

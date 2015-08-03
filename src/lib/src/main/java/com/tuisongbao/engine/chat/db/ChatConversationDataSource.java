@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatConversationDataSource {
-    private static final String TAG = "com.tuisongbao.engine.ChatConversationDataSource";
+    private static final String TAG = ChatConversationDataSource.class.getSimpleName();
     private static final String TABLE_CONVERSATION = ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
     private static final String TABLE_MESSAGE = ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
 
@@ -108,7 +108,7 @@ public class ChatConversationDataSource {
         }
         queryString = queryString + ";";
         cursor = conversationDB.rawQuery(queryString, null);
-        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " conversations by user "
+        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " conversations by user "
                 + userId + " and target " + target);
 
         cursor.moveToFirst();
@@ -151,7 +151,7 @@ public class ChatConversationDataSource {
             insert(conversation, userId);
         }
         if (insertMessage(message) > 0) {
-            LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + message);
+            LogUtil.verbose(TAG, "insert " + message);
         }
     }
 
@@ -195,7 +195,7 @@ public class ChatConversationDataSource {
                 + " LIMIT " + limit
                 + ";";
         cursor = messageDB.rawQuery(query, null);
-        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + cursor.getCount() + " messages between "
+        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " messages between "
                 + userId + " and " + target);
 
         cursor.moveToFirst();
@@ -217,7 +217,7 @@ public class ChatConversationDataSource {
         values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, 0);
         int rowsAffected = conversationDB.update(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION,
                 values, whereClause, new String[]{ userId, type.getName(), target });
-        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, rowsAffected + " rows affected when reset unread count between " + userId + " and " + target);
+        LogUtil.verbose(TAG, rowsAffected + " rows affected when reset unread count between " + userId + " and " + target);
     }
 
     public void remove(String userId, ChatType type, String target) {
@@ -226,7 +226,7 @@ public class ChatConversationDataSource {
                 + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = ?";
         int rowsAffected = conversationDB.delete(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, whereClause,
                 new String[]{ userId, type.getName(), target });
-        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Remove conversation:[type: " + type.getName() + ", target: " + target + "]"
+        LogUtil.verbose(TAG, "Remove conversation:[type: " + type.getName() + ", target: " + target + "]"
                 + " and " + rowsAffected + " rows affected");
 
         removeMessages(userId, type, target);
@@ -272,7 +272,7 @@ public class ChatConversationDataSource {
         values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         long id = conversationDB.insert(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
-        LogUtil.verbose(LogUtil.LOG_TAG_SQLITE, "insert " + conversation + " with return id " + id);
+        LogUtil.verbose(TAG, "insert " + conversation + " with return id " + id);
     }
 
     private void removeMessages(String userId, ChatType type, String target) {
@@ -288,7 +288,7 @@ public class ChatConversationDataSource {
             rowsAffected = messageDB.delete(ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE, whereClause,
                     new String[]{ userId, target, target, userId });
         }
-        LogUtil.info(LogUtil.LOG_TAG_CHAT_CACHE, "Removed " + rowsAffected + " messages between " + userId + " and " + target);
+        LogUtil.info(TAG, "Removed " + rowsAffected + " messages between " + userId + " and " + target);
     }
 
     /***
@@ -309,7 +309,7 @@ public class ChatConversationDataSource {
 
         int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
                 new String[]{ userId, conversation.getTarget() });
-        LogUtil.verbose(LogUtil.LOG_TAG_CHAT_CACHE, "Update " + conversation + " and " + rowsAffected + " rows affected");
+        LogUtil.verbose(TAG, "Update " + conversation + " and " + rowsAffected + " rows affected");
         return rowsAffected;
     }
 

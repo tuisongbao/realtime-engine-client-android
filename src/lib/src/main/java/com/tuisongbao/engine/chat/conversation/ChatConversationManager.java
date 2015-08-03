@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatConversationManager extends BaseManager {
+    private static final String TAG = ChatConversationManager.class.getSimpleName();
+
     private ChatManager mChatManager;
     private ChatConversationDataSource dataSource;
 
@@ -70,7 +72,7 @@ public class ChatConversationManager extends BaseManager {
             sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -110,7 +112,7 @@ public class ChatConversationManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -149,7 +151,7 @@ public class ChatConversationManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -207,7 +209,7 @@ public class ChatConversationManager extends BaseManager {
             requestMissingMessagesInLocalCache(chatType, target, startMessageId, endMessageId, limit, callback);
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -232,7 +234,7 @@ public class ChatConversationManager extends BaseManager {
         // Query local data
         dataSource.open();
         List<ChatMessage> messages = dataSource.getMessages(currentUserId, chatType, target, startMessageId, endMessageId, limit);
-        LogUtil.debug(LogUtil.LOG_TAG_CHAT_CACHE, "Get " + messages.size() + " messages");
+        LogUtil.debug(TAG, "Get " + messages.size() + " messages");
         dataSource.close();
 
         // if startMessageId is null, pull the latest messages.

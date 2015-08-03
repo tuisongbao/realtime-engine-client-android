@@ -144,7 +144,7 @@ public class AutoReconnectConnection extends Connection {
             }
             LogUtil.info(TAG, "End to sleep： " + mReconnectGap);
         } catch (Exception e) {
-            LogUtil.error(LogUtil.LOG_TAG_ENGINEIO, "Connection sleep exception", e);
+            LogUtil.error(TAG, "Connection sleep exception", e);
         }
         mReconnectTimes++;
     }

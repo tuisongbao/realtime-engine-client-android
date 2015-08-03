@@ -33,6 +33,8 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.util.List;
 
 public class ChatGroupManager extends BaseManager {
+    private static final String TAG = ChatGroupManager.class.getSimpleName();
+
     private ChatGroupDataSource dataSource;
     private ChatManager mChatManager;
 
@@ -89,7 +91,7 @@ public class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -121,7 +123,7 @@ public class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
 
     }
@@ -158,7 +160,7 @@ public class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -198,7 +200,7 @@ public class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -238,7 +240,7 @@ public class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
@@ -273,7 +275,7 @@ public class ChatGroupManager extends BaseManager {
             send(message, response);
         } catch (Exception e) {
             handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
-            LogUtil.error(LogUtil.LOG_TAG_UNCAUGHT_EX, e);
+            LogUtil.error(TAG, e);
         }
     }
 
