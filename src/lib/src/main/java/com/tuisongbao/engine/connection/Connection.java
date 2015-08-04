@@ -8,7 +8,6 @@ import com.github.nkzawa.engineio.client.transports.WebSocket;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
@@ -25,10 +24,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 // TODO: 15-7-31 Use EventEmitter to handle listeners
 public class Connection extends BaseEngineIODataSource {
@@ -136,7 +131,6 @@ public class Connection extends BaseEngineIODataSource {
     protected Socket mSocket;
     protected TSBEngine mEngine;
     protected State mLastState;
-    protected ConcurrentMap<String, Set<TSBEngineBindCallback>> mEventListeners = new ConcurrentHashMap<>();
 
     private Long mRequestId = 1L;
     private Options mOptions = new Options();
@@ -160,7 +154,7 @@ public class Connection extends BaseEngineIODataSource {
     public void connect() {
         LogUtil.info(TAG, "Connecting...");
 
-        callbackListeners(ConnectionEvent.Connecting);
+        trigger(ConnectionEvent.Connecting.name);
 
         String appId = mEngine.getEngineOptions().getAppId();
         BaseRequest request = new BaseRequest(HttpConstants.HTTP_METHOD_GET,
@@ -194,78 +188,23 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    /***
-     * Bind sink to the connectionEvent, when connectionEvent takes place, sink will be called. Support multiple listeners binding to a connectionEvent, but
-     * if you bind multiple same listeners to a connectionEvent, sink only be called once.
-     *
-     * @param connectionEvent
-     * @param callback
-     * @return
-     */
-    public boolean bind(ConnectionEvent connectionEvent, TSBEngineBindCallback callback) {
-        try {
-            Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
-            if (listeners == null) {
-                listeners = new HashSet<>();
-            }
-            synchronized (listeners) {
-
-                listeners.add(callback);
-                mEventListeners.put(connectionEvent.name, listeners);
-            }
-            return true;
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-            return false;
-        }
+    public void bind(ConnectionEvent event, Listener listener) {
+        bind(event.name, listener);
     }
 
-    /***
-     * Unbind sink from a connectionEvent.
-     *
-     * @param connectionEvent
-     * @param callback Optional, Can be null, which means remove all listeners from the connectionEvent
-     * @return
-     */
-    public boolean unbind(ConnectionEvent connectionEvent, TSBEngineBindCallback callback) {
-        // TODO: 15-7-31 Test this API
-        try {
-            Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
-            if (listeners == null) {
-                return true;
-            }
-            if (callback == null) {
-                mEventListeners.remove(connectionEvent.name);
-                return true;
-            }
-            synchronized (listeners) {
-                listeners.remove(callback);
-                mEventListeners.put(connectionEvent.name, listeners);
-                return true;
-            }
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-            return false;
-        }
+    public void unbind(ConnectionEvent event, Listener listener) {
+        unbind(event.name, listener);
     }
 
-    protected void callbackListeners(ConnectionEvent connectionEvent, Object... args) {
-        Set<TSBEngineBindCallback> listeners = mEventListeners.get(connectionEvent.name);
-        if (listeners == null) {
-            return;
-        }
-        synchronized (listeners) {
-            for (TSBEngineBindCallback listener: listeners) {
-                listener.onEvent(connectionEvent.name, args);
-            }
-        }
+    public void unbind(ConnectionEvent event) {
+        unbind(event.name);
     }
 
     protected void updateState(State state) {
         if (state == mLastState) return;
 
         LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
-        callbackListeners(ConnectionEvent.StateChanged, mLastState, state);
+        trigger(ConnectionEvent.StateChanged.name, mLastState, state);
 
         mLastState = state;
     }
@@ -329,7 +268,7 @@ public class Connection extends BaseEngineIODataSource {
                         } catch (JSONException e) {
                             LogUtil.info(TAG, "Handle Message Exception [msg="
                                     + e.getLocalizedMessage() + "]");
-                            callbackListeners(ConnectionEvent.Error);
+                            trigger(ConnectionEvent.Error.name);
                         }
                     }
                 }
@@ -386,7 +325,7 @@ public class Connection extends BaseEngineIODataSource {
         if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
-            callbackListeners(ConnectionEvent.Error);
+            trigger(ConnectionEvent.Error.name);
             disconnect();
         } else if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
             // TODO: Notify listeners

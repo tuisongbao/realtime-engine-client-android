@@ -1,7 +1,6 @@
 package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.connection.Connection;
@@ -17,9 +16,9 @@ public class BaseManager extends EventEmitter {
 
     public BaseManager(TSBEngine engine) {
         this.engine = engine;
-        engine.getConnection().bind(Connection.ConnectionEvent.StateChanged, new TSBEngineBindCallback() {
+        engine.getConnection().bind(Connection.ConnectionEvent.StateChanged, new Listener() {
             @Override
-            public void onEvent(String name, Object... args) {
+            public void call(Object... args) {
                 String toState = args[1].toString();
                 if (StrUtil.isEqual(toState, Connection.State.Connected.getName())) {
                     connected();

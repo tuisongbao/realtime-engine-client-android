@@ -26,7 +26,6 @@ import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
-import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -128,7 +127,7 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void listenLoginAndLogoutEvent() {
-        DemoApplication.engine.getChannelManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 ChatUser user = (ChatUser)args[0];
@@ -138,50 +137,48 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void listenUserPresenceEvent() {
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_PRESENCE_CHANGED,
-                new TSBEngineBindCallback() {
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_PRESENCE_CHANGED, new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                runOnUiThread(new Runnable() {
 
                     @Override
-                    public void onEvent(String bindName, final Object... args) {
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                ChatUserPresenceData data = (ChatUserPresenceData)args[1];
-                                showToaster(data.getUserId() + " changed to " + data.getChangedTo());
-                            }
-                        });
+                    public void run() {
+                        ChatUserPresenceData data = (ChatUserPresenceData)args[1];
+                        showToaster(data.getUserId() + " changed to " + data.getChangedTo());
                     }
                 });
+            }
+        });
     }
 
     private void listenConnectionEvent() {
         Connection connection = DemoApplication.engine.getConnection();
-        connection.bind(Connection.ConnectionEvent.StateChanged, new TSBEngineBindCallback() {
+        connection.bind(Connection.ConnectionEvent.StateChanged, new Emitter.Listener() {
             @Override
-            public void onEvent(String name, Object... args) {
-                showToaster(name + " from " + args[0] + " to " + args[1]);
+            public void call(Object... args) {
+                showToaster("Connection state changed from " + args[1] + " to " + args[2]);
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.ConnectingIn, new TSBEngineBindCallback() {
+        connection.bind(Connection.ConnectionEvent.ConnectingIn, new Emitter.Listener() {
             @Override
-            public void onEvent(String name, Object... args) {
-                showToaster(name + " " + args[0] + " seconds");
+            public void call(Object... args) {
+                showToaster("Connecting in " + args[1] + " seconds");
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.Connecting, new TSBEngineBindCallback() {
+        connection.bind(Connection.ConnectionEvent.Connecting, new Emitter.Listener() {
             @Override
-            public void onEvent(String name, Object... args) {
-                showToaster(name);
+            public void call(Object... args) {
+                showToaster("Connecting");
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.Error, new TSBEngineBindCallback() {
+        connection.bind(Connection.ConnectionEvent.Error, new Emitter.Listener() {
             @Override
-            public void onEvent(String name, Object... args) {
-                showToaster(name + " reason:" + args[0]);
+            public void call(Object... args) {
+                showToaster("Connection error, " + args[1]);
             }
         });
     }

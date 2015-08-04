@@ -11,8 +11,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.channel.entity.Channel;
-import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
+import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 
@@ -49,7 +50,7 @@ public class PubSubActivity extends Activity {
         mSubscribeChannelButton.setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(View arg0) {
+            public void onClick(final View arg0) {
                 String channelName = mSubscribeChannelEditText.getText().toString();
                 String authData = mSubscribeChannelAuthDataEditText.getText().toString();
                 if (channelName == null || channelName.trim().length() < 1) {
@@ -57,18 +58,16 @@ public class PubSubActivity extends Activity {
                     return;
                 }
                 Channel channel = DemoApplication.getChannelManager().subscribe(channelName, authData);
-                TSBEngineBindCallback callback = new TSBEngineBindCallback() {
-
+                Emitter.Listener listener = new Emitter.Listener() {
                     @Override
-                    public void onEvent(String channelName, Object... args) {
-                        String eventName = (String)args[0];
-                        String data = (String)args[1];
-                        refreshEventList(channelName, eventName, data);
+                    public void call(Object... args) {
+                        RawEvent event = (RawEvent)args[0];
+                        refreshEventList(event.getChannel(), event.getName(), event.getData().toString());
                     }
                 };
-                channel.bind("engine:subscription_succeeded", callback);
-                channel.bind("engine:subscription_error", callback);
-                channel.bind("cool-event", callback);
+                channel.bind("engine:subscription_succeeded", listener);
+                channel.bind("engine:subscription_error", listener);
+                channel.bind("cool-event", listener);
             }
         });
 

@@ -5,17 +5,11 @@ import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
 import org.json.JSONException;
-
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Channel extends EventEmitter {
     private static final String TAG = "TSB" + Channel.class.getSimpleName();
@@ -26,7 +20,6 @@ public class Channel extends EventEmitter {
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
      */
     protected String channel;
-    transient ConcurrentMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>> eventHandlers = new ConcurrentHashMap<String, CopyOnWriteArrayList<TSBEngineBindCallback>>();
 
     public Channel(String name, TSBEngine engine) {
         this.engine = engine;
@@ -58,7 +51,7 @@ public class Channel extends EventEmitter {
             @Override
             public void onError(ResponseError error) {
                 LogUtil.info(TAG, "Channel validation failed: " + error.getMessage());
-                handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), error.getMessage());
+                trigger(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), error.getMessage());
 
                 // remove reference from tsbchannel manager
                 engine.getChannelManager().unsubscribe(channel);
@@ -75,8 +68,6 @@ public class Channel extends EventEmitter {
 
             // Remove listeners on engineIO layer
             engine.getChannelManager().unbind(channel);
-
-            eventHandlers = new ConcurrentHashMap<>();
         } catch (Exception e) {
 
         }
@@ -104,16 +95,6 @@ public class Channel extends EventEmitter {
     @Override
     public String toString() {
         return "channel name:" + this.channel;
-    }
-
-    protected void handleErrorMessage(String eventName, String errorData) {
-        List<TSBEngineBindCallback> errorCallbacks = eventHandlers.get(eventName);
-        if (errorCallbacks == null) {
-            return;
-        }
-        for (TSBEngineBindCallback callback : errorCallbacks) {
-            callback.onEvent(getName(), eventName, errorData);
-        }
     }
 
     /***
