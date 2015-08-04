@@ -3,6 +3,7 @@ package com.tuisongbao.engine.chat.message.event.handler;
 import android.content.Intent;
 
 import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
@@ -18,7 +19,6 @@ import com.tuisongbao.engine.chat.ChatIntentService;
  */
 public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     private final String TAG = ChatMessageNewEventHandler.class.getSimpleName();
-    private long mRequestId;
 
     @Override
     public ChatMessage genCallbackData(BaseEvent request, RawEvent response) {
@@ -50,6 +50,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
             message = genCallbackData(request, response);
         }
         receivedMessage(message);
+        engine.getChatManager().trigger(ChatManager.EVENT_MESSAGE_NEW, message);
     }
 
     private void sendResponseEvent(RawEvent response) {

@@ -34,7 +34,7 @@ public class Protocol {
     public static final String EVENT_NAME_PATTERN_RESPONSE = "^engine_response$";
 
     public static final String EVENT_NAME_MESSAGE_NEW = "engine_chat:message:new";
-    public static final String EVENT_NAME_PRESENCE_CHANGE = "engine_chat:user:presenceChanged";
+    public static final String EVENT_NAME_USER_PRESENCE_CHANGE = "engine_chat:user:presenceChanged";
 
     // connection
     public static final String EVENT_NAME_CONNECTION_ESTABLISHED = "engine_connection:established";
@@ -98,10 +98,6 @@ public class Protocol {
 
     // channel code
     public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = -2001;
-
-    public static JSONObject parseEvent(String eventString) throws JSONException {
-        return new JSONObject(eventString);
-    }
 
     public static boolean isConnectionEvent(String eventName) {
         Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CONNECTION, Pattern.CASE_INSENSITIVE);

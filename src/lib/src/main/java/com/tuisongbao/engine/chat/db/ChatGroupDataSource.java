@@ -265,7 +265,6 @@ public class ChatGroupDataSource {
     private ChatUser createGroupUser(Cursor cursor) {
         ChatUser user = new ChatUser();
         user.setUserId(cursor.getString(2));
-        user.setPresence(cursor.getString(3));
 
         return user;
     }

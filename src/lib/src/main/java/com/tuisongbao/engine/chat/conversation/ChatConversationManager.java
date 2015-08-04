@@ -213,14 +213,20 @@ public class ChatConversationManager extends BaseManager {
     }
 
     public void sendMessage(final ChatMessage message, final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
-        mChatManager.sendMessage(message, callback, options);
+        mChatManager.getMessageManager().sendMessage(message, callback, options);
     }
 
     /***
      * Remove all conversations and related messages from local database.
      */
     public void clearCache() {
-        dataSource.deleteAllData();
+        try {
+            dataSource.open();
+            dataSource.deleteAllData();
+            dataSource.close();
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+        }
     }
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,

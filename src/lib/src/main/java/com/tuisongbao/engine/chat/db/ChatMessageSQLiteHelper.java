@@ -28,7 +28,7 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String COLUMN_FILE_SIZE = "size";
     public static final String COLUMN_FILE_MIMETYPE = "mimeType";
     /**
-     * image's width & height
+     * image's width and height
      */
     public static final String COLUMN_FILE_WIDTH = "width";
     public static final String COLUMN_FILE_HEIGHT = "height";
@@ -56,7 +56,7 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
         String createDatabaseString = "create table if not exists "
           + TABLE_CHAT_MESSAGE + "(" + COLUMN_ID
           + " text primary key, "
-          + COLUMN_MESSAGE_ID + " integersq not null, "
+          + COLUMN_MESSAGE_ID + " integer not null, "
           + COLUMN_FROM + " text not null, "
           + COLUMN_TO + " text not null, "
           + COLUMN_CHAT_TYPE + " text not null, "

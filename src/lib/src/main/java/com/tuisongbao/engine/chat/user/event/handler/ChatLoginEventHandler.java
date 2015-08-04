@@ -37,7 +37,7 @@ public class ChatLoginEventHandler extends BaseEventHandler<ChatUser> {
             ChatUser user = genCallbackData(request, response);
             user.setUserId(userDataInRequest.getUserId());
             user.setNickname(userDataInRequest.getNickname());
-            chatManager.onLoginSuccess(user);
+            chatManager.onLogin(user);
 
             if (callback != null) {
                 callback.onSuccess(user);

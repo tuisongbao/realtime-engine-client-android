@@ -172,13 +172,15 @@ public class ChatConversationDataSource {
         return  lastMessage;
     }
 
-
-    /**
-     * Conversation's type and target map the message's type and to field relatively.
+    /***
      *
+     * @param userId
      * @param type
      * @param target
-     * @return List<ChatMessage>
+     * @param startMessageId
+     * @param endMessageId
+     * @param limit
+     * @return
      */
     public List<ChatMessage> getMessages(String userId, ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
         List<ChatMessage> messages = new ArrayList<ChatMessage>();

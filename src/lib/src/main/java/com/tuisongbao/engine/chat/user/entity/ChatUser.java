@@ -6,10 +6,6 @@ public class ChatUser {
     private String userId;
     private String nickname;
     private String uploadToken;
-    /**
-     * 在线状态， online 或 offline
-     */
-    private String presence;
 
     public boolean isNew() {
         return isNew;
@@ -29,14 +25,6 @@ public class ChatUser {
 
     public String getUploadToken() {
         return this.uploadToken;
-    }
-
-    public void setPresence(String presence) {
-        this.presence = presence;
-    }
-
-    public String getPresence() {
-        return presence;
     }
 
     public String getNickname() {
