@@ -2,10 +2,9 @@ package com.tuisongbao.engine.channel;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.entity.Channel;
-import com.tuisongbao.engine.channel.entity.PrivateChannel;
 import com.tuisongbao.engine.channel.entity.PresenceChannel;
+import com.tuisongbao.engine.channel.entity.PrivateChannel;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -15,7 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class ChannelManager extends BaseManager {
-    private static final String TAG = ChannelManager.class.getSimpleName();
+    private static final String TAG = "TSB" + ChannelManager.class.getSimpleName();
 
     private Map<String, Channel> mChannelMap = new HashMap<>();
 
@@ -86,8 +85,8 @@ public class ChannelManager extends BaseManager {
     }
 
     @Override
-    protected void handleConnect(ConnectionEventData t) {
-        LogUtil.info(TAG, "Engine connected, resend all subscribe channel request");
+    protected void connected() {
+        LogUtil.info(TAG, "Rcoesend all subscribe channel request");
         HashSet<Channel> values = new HashSet<Channel>(mChannelMap.values());
         for (Channel channel : values) {
             channel.subscribe();

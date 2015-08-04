@@ -18,7 +18,7 @@ import com.tuisongbao.engine.demo.pubsub.PubSubActivity;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class LoginActivity extends Activity {
-    private static String TAG = "com.tuisongbao.android.engine.demo:LoginActivity";
+    private static String TAG = "TSB" + "com.tuisongbao.android.engine.demo:LoginActivity";
     private EditText mEditTextAccount;
     private Button mButtonLogin;
     private Button mPubSubButton;

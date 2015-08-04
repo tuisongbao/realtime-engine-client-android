@@ -13,7 +13,7 @@ import com.tuisongbao.engine.log.LogUtil;
 import java.util.List;
 
 public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler {
-    private final String TAG = ChatMessageMultiGetEventHandler.class.getSimpleName();
+    private final String TAG = "TSB" + ChatMessageMultiGetEventHandler.class.getSimpleName();
 
     private int requestCount = 0;
     private Long startMessageId;

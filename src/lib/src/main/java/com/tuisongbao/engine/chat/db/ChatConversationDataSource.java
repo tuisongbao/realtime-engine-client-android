@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatConversationDataSource {
-    private static final String TAG = ChatConversationDataSource.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatConversationDataSource.class.getSimpleName();
     private static final String TABLE_CONVERSATION = ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION;
     private static final String TABLE_MESSAGE = ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE;
 

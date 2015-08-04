@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  */
 public class TSBEnginePipeline implements IEnginePipeline {
-    private static final String TAG = TSBEnginePipeline.class.getSimpleName();
+    private static final String TAG = "TSB" + TSBEnginePipeline.class.getSimpleName();
     private CopyOnWriteArrayList<IEngineDataSink> mSinks =
             new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<IEngineDataSource> mSources =

@@ -70,7 +70,7 @@ public class ChatConversationActivity extends Activity implements
     public final static String BROADCAST_ACTION_MESSAGE_SENT_PROGRESS = "com.tuisongbao.demo.ChatConversationActivity.MessageSent.progress";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.demo.ChatConversationActivity.ExtraMessage";
     public static final String EXTRA_CONVERSATION = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
-    private static final String TAG = "Conversation Activity";
+    private static final String TAG = "TSB" + "TSB" + "Conversation Activity";
 
     private static final int REQUEST_CODE_IMAGE = 1;
     private static final int REQUEST_CODE_TAKE_VIDEO = 2;

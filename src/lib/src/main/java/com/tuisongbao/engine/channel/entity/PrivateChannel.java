@@ -15,7 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PrivateChannel extends Channel {
-    private static final String TAG = PrivateChannel.class.getSimpleName();
+    private static final String TAG = "TSB" + PrivateChannel.class.getSimpleName();
 
     protected String signature;
 

@@ -14,7 +14,7 @@ import com.tuisongbao.engine.util.StrUtil;
 
 public class ChatVoiceRecorder {
     public static final String INTENT_ACTION_TAKE_VIDEO = "com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO";
-    private static final String TAG = "com.tuisongbao.android.engine.media.TSBMediaRecorder";
+    private static final String TAG = "TSB" + "com.tuisongbao.android.engine.media.TSBMediaRecorder";
 
     private MediaRecorder mRecorder;
     private String mCurrentVoiceFileName;

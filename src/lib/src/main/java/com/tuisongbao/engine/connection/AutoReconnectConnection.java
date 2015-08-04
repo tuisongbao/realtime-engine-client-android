@@ -10,7 +10,7 @@ import com.tuisongbao.engine.util.StrUtil;
  * Created by root on 15-7-29.
  */
 public class AutoReconnectConnection extends Connection {
-    private static final String TAG = AutoReconnectConnection.class.getSimpleName();
+    private static final String TAG = "TSB" + AutoReconnectConnection.class.getSimpleName();
     /**
      * 重连次数间隔
      */
@@ -137,12 +137,12 @@ public class AutoReconnectConnection extends Connection {
             }
         }
         try {
-            LogUtil.info(TAG, "Start to sleep： " + mReconnectGap);
+            LogUtil.verbose(TAG, "Start to sleep： " + mReconnectGap);
             if (mReconnectGap > 0) {
                 callbackListeners(ConnectionEvent.ConnectingIn, mReconnectGap);
                 Thread.sleep(mReconnectGap);
             }
-            LogUtil.info(TAG, "End to sleep： " + mReconnectGap);
+            LogUtil.verbose(TAG, "End to sleep： " + mReconnectGap);
         } catch (Exception e) {
             LogUtil.error(TAG, "Connection sleep exception", e);
         }

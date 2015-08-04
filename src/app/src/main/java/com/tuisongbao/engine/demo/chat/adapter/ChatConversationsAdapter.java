@@ -20,7 +20,7 @@ import com.tuisongbao.engine.demo.utils.ToolUtils;
 import java.util.List;
 
 public class ChatConversationsAdapter extends BaseAdapter {
-    private static final String TAG = "com.tuisongbao.android.engine.chat.ChatConversationsAdapter";
+    private static final String TAG = "TSB" + "com.tuisongbao.android.engine.chat.ChatConversationsAdapter";
     private Context mContext;
     private List<ChatConversation> mListConversation;
 

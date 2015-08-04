@@ -22,7 +22,7 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.io.File;
 
 public class ChatMessage implements Parcelable {
-    transient private final String TAG = ChatMessage.class.getSimpleName();
+    transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
     /***
      * This value is not unique, it is the message's serial number in a conversation,
      * A different conversation may has a message which has a same messageId.

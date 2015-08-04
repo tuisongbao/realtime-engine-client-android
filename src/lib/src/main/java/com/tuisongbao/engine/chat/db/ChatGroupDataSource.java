@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatGroupDataSource {
-    private static final String TAG = ChatGroupDataSource.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatGroupDataSource.class.getSimpleName();
 
     private SQLiteDatabase groupDB;
     private SQLiteDatabase groupMemberDB;

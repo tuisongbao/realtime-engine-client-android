@@ -32,7 +32,7 @@ import java.util.List;
 public class ChatConversationsFragment extends Fragment {
 
     private static ChatConversationsFragment mConversationsFragment;
-    private static final String TAG = ChatConversationsFragment.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatConversationsFragment.class.getSimpleName();
 
     private View mRootView;
     private ListView mConversationsListView;

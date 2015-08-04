@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
-    private static final String TAG = ChatVoicePlayer.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatVoicePlayer.class.getSimpleName();
 
     private static MediaPlayer mMediaPlayer;
     private static ChatVoicePlayer mInstance;

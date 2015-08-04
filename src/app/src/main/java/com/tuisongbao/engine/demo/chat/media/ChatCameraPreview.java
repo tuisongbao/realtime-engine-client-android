@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class ChatCameraPreview extends ViewGroup implements SurfaceHolder.Callback {
-    private final String TAG = "Preview";
+    private final String TAG = "TSB" + "Preview";
 
     SurfaceView mSurfaceView;
     SurfaceHolder mHolder;

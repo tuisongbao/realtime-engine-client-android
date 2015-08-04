@@ -27,7 +27,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class HttpsClient {
-    private static final String TAG = HttpsClient.class.getSimpleName();
+    private static final String TAG = "TSB" + HttpsClient.class.getSimpleName();
 
     public static DefaultHttpClient getDefaultHttpClient() {
         try {

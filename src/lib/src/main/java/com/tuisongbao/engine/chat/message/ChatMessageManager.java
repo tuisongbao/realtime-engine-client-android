@@ -34,7 +34,7 @@ import java.util.Map;
  * Created by root on 15-8-3.
  */
 public class ChatMessageManager extends BaseManager {
-    private static final String TAG = ChatMessageManager.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatMessageManager.class.getSimpleName();
 
     public ChatMessageManager(TSBEngine engine) {
         super(engine);

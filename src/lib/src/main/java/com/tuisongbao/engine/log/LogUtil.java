@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class LogUtil {
-    private static final String TAG = LogUtil.class.getSimpleName();
+    private static final String TAG = "TSB" + LogUtil.class.getSimpleName();
     private static final String LOG_FILE_NAME_STRING = "push-error-logs.txt";
 
 

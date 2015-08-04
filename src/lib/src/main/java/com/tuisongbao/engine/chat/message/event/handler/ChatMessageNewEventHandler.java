@@ -18,7 +18,7 @@ import com.tuisongbao.engine.chat.ChatIntentService;
  * Created by root on 15-8-2.
  */
 public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
-    private final String TAG = ChatMessageNewEventHandler.class.getSimpleName();
+    private final String TAG = "TSB" + ChatMessageNewEventHandler.class.getSimpleName();
 
     @Override
     public ChatMessage genCallbackData(BaseEvent request, RawEvent response) {

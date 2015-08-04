@@ -27,10 +27,10 @@ public class ChatLoginEventHandler extends BaseEventHandler<ChatUser> {
         Gson gson = new Gson();
         ResponseEventData responseData = gson.fromJson(response.getData(), ResponseEventData.class);
         TSBEngineCallback callback = (TSBEngineCallback)getCallback();
+        ChatManager chatManager = engine.getChatManager();
 
         if (responseData.getOk()) {
             ChatLoginData data = ((ChatLoginEvent)request).getData();
-            ChatManager chatManager = engine.getChatManager();
 
             // TODO: 15-8-3 Test, is it work ?
             ChatUser userDataInRequest = new Gson().fromJson(data.getUserData(), ChatUser.class);
@@ -43,6 +43,8 @@ public class ChatLoginEventHandler extends BaseEventHandler<ChatUser> {
                 callback.onSuccess(user);
             }
         } else {
+            chatManager.onLogout();
+
             ResponseError error = gson.fromJson(responseData.getResult(), ResponseError.class);
             callback.onError(error.getCode(), error.getMessage());
         }

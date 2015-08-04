@@ -10,7 +10,7 @@ import java.util.UUID;
  * General-purpose string utilities.
  */
 public class StrUtil {
-    private static final String TAG = StrUtil.class.getSimpleName();
+    private static final String TAG = "TSB" + StrUtil.class.getSimpleName();
 
     public static final String CODE_FORMAT1_CONNECTOR_1 = "&";
     public static final String CODE_FORMAT1_CONNECTOR_2 = "#";

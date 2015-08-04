@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatConversationManager extends BaseManager {
-    private static final String TAG = ChatConversationManager.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
 
     private ChatManager mChatManager;
     private ChatConversationDataSource dataSource;

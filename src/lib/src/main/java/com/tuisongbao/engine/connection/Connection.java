@@ -50,7 +50,7 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    enum State {
+    public enum State {
         Initialized("initialized"),
         Connected("connected"),
         Disconnected("disconnected");
@@ -59,6 +59,10 @@ public class Connection extends BaseEngineIODataSource {
 
         State(String name) {
             this.name = name;
+        }
+
+        public String getName() {
+            return name;
         }
 
         @Override
@@ -124,7 +128,7 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    private static final String TAG = Connection.class.getSimpleName();
+    private static final String TAG = "TSB" + Connection.class.getSimpleName();
     /***
      * Record the last error received from server. If socket closed unexpectedly, use the strategy in this error to reconnect.
      */
@@ -318,10 +322,9 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Message receive");
+                    LogUtil.info(TAG, "Socket Message receive " + args[0].toString());
                     if (args != null && args.length > 0) {
                         try {
-                            LogUtil.info(TAG, "Got event:" + args[0].toString());
                             onEvent(args[0].toString());
                         } catch (JSONException e) {
                             LogUtil.info(TAG, "Handle Message Exception [msg="
@@ -347,19 +350,19 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Flush [msg=" + getArgsMSG(args) + "]");
+                    LogUtil.verbose(TAG, "Socket Flush [msg=" + getArgsMSG(args) + "]");
                 }
             }).on(Socket.EVENT_TRANSPORT, new Emitter.Listener() {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Transport [msg=" + getArgsMSG(args) + "]");
+                    LogUtil.verbose(TAG, "Socket Transport [msg=" + getArgsMSG(args) + "]");
                 }
             }).on(Socket.EVENT_HANDSHAKE, new Emitter.Listener() {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket HandShake");
+                    LogUtil.verbose(TAG, "Socket HandShake");
                     if (args != null && args.length > 0 && args[0] instanceof HandshakeData) {
                         LogUtil.info(TAG, "Socket HandShake [mSocketId=" + ((HandshakeData) args[0]).sid + "]");
                     }
@@ -389,6 +392,8 @@ public class Connection extends BaseEngineIODataSource {
             // TODO: Notify listeners
             LogUtil.info(TAG, "Connected");
             updateState(State.Connected);
+        } else {
+            LogUtil.info(TAG, "Unknown event " + eventName + " with message " + data.getMessage());
         }
     }
 

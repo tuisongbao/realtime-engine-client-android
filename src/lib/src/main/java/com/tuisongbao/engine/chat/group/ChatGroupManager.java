@@ -28,7 +28,7 @@ import com.tuisongbao.engine.util.StrUtil;
 import java.util.List;
 
 public class ChatGroupManager extends BaseManager {
-    private static final String TAG = ChatGroupManager.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatGroupManager.class.getSimpleName();
 
     private ChatGroupDataSource dataSource;
     private ChatManager mChatManager;

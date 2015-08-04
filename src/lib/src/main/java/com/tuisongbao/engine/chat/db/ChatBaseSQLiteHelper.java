@@ -15,7 +15,7 @@ import com.tuisongbao.engine.log.LogUtil;
 import java.io.File;
 
 public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
-    private static final String TAG = ChatBaseSQLiteHelper.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatBaseSQLiteHelper.class.getSimpleName();
 
     public ChatBaseSQLiteHelper(Context context, String name,
                                 CursorFactory factory, int version) {

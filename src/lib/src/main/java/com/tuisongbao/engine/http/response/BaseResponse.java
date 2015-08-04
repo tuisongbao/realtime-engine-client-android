@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 
 
 public class BaseResponse {
-    private static final String TAG = BaseResponse.class.getSimpleName();
+    private static final String TAG = "TSB" + BaseResponse.class.getSimpleName();
 
     private HttpResponse mRresponse;
     private String mBody;

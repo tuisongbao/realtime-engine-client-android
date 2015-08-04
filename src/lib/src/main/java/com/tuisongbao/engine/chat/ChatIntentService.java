@@ -11,7 +11,7 @@ public class ChatIntentService extends IntentService {
     public final static String INTENT_ACTION_RECEIVED_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE";
     public final static String INTENT_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_EXTRA_KEY_MESSAGE";
 
-    private static final String TAG = ChatIntentService.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatIntentService.class.getSimpleName();
 
     public ChatIntentService() {
         this(TAG);

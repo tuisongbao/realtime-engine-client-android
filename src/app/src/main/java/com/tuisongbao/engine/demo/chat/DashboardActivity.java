@@ -39,7 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DashboardActivity extends FragmentActivity {
-    private static final String TAG = DashboardActivity.class.getSimpleName();
+    private static final String TAG = "TSB" + "TSB" + DashboardActivity.class.getSimpleName();
 
     private TextView mConversationTextView, mContactsTextView, mSettingsTextView;
     private ViewPager mViewPager;
@@ -164,18 +164,21 @@ public class DashboardActivity extends FragmentActivity {
                 showToaster(name + " from " + args[0] + " to " + args[1]);
             }
         });
+
         connection.bind(Connection.ConnectionEvent.ConnectingIn, new TSBEngineBindCallback() {
             @Override
             public void onEvent(String name, Object... args) {
                 showToaster(name + " " + args[0] + " seconds");
             }
         });
+
         connection.bind(Connection.ConnectionEvent.Connecting, new TSBEngineBindCallback() {
             @Override
             public void onEvent(String name, Object... args) {
                 showToaster(name);
             }
         });
+
         connection.bind(Connection.ConnectionEvent.Error, new TSBEngineBindCallback() {
             @Override
             public void onEvent(String name, Object... args) {

@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  */
 public abstract class BaseEngineDataSink extends EventEmitter implements IEngineDataSink {
-    private final static String TAG = BaseEngineDataSink.class.getSimpleName();
+    private final static String TAG = "TSB" + BaseEngineDataSink.class.getSimpleName();
 
     private NotificationThread mNotificationThread = new NotificationThread();
     private Lock mNotificationsLock = new ReentrantLock();

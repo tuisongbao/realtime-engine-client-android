@@ -8,7 +8,7 @@ import com.tuisongbao.engine.log.LogUtil;
 public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_MESSAGE = "chatMessage";
 
-    private static final String TAG = ChatMessageSQLiteHelper.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatMessageSQLiteHelper.class.getSimpleName();
     private static final String DATABASE_NAME = "chatMessage.db";
     private static final int DATABASE_VERSION = 1;
 

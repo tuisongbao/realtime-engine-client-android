@@ -11,7 +11,7 @@ import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
 public final class TSBEngine {
-    private static final String TAG = TSBEngine.class.getSimpleName();
+    private static final String TAG = "TSB" + TSBEngine.class.getSimpleName();
 
     private AutoReconnectConnection connection;
     private ChatManager chatManager;

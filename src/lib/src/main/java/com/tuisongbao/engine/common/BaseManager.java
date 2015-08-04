@@ -1,22 +1,34 @@
 package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
-import com.tuisongbao.engine.connection.entity.ConnectionEventData;
+import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.util.StrUtil;
 
 public class BaseManager extends EventEmitter {
     public static TSBEngine engine;
 
-    private static final String TAG = BaseManager.class.getSimpleName();
+    private static final String TAG = "TSB" + BaseManager.class.getSimpleName();
 
     public BaseManager() {}
 
     public BaseManager(TSBEngine engine) {
         this.engine = engine;
-        // TODO: Bind connection status sink
+        engine.getConnection().bind(Connection.ConnectionEvent.StateChanged, new TSBEngineBindCallback() {
+            @Override
+            public void onEvent(String name, Object... args) {
+                String toState = args[1].toString();
+                if (StrUtil.isEqual(toState, Connection.State.Connected.getName())) {
+                    connected();
+                } else if (StrUtil.isEqual(toState, Connection.State.Disconnected.getName())) {
+                    disconnected();
+                }
+            }
+        });
     }
 
     public boolean send(BaseEvent event, IEventHandler response) {
@@ -38,11 +50,11 @@ public class BaseManager extends EventEmitter {
         callback.onError(code, message);
     }
 
-    protected void handleConnect(ConnectionEventData t) {
-        // empty
+    protected void connected() {
+        LogUtil.info(TAG, "Connected");
     }
 
-    protected void handleDisconnect(int code, String message) {
-        // empty
+    protected void disconnected() {
+        LogUtil.info(TAG, "Disconnected");
     }
 }

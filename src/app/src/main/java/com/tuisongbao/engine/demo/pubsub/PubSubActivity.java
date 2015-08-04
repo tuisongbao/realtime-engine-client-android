@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PubSubActivity extends Activity {
-    private static String TAG = "com.tuisongbao.android.engine.demo:PubSubActivity";
+    private static String TAG = "TSB" + "com.tuisongbao.android.engine.demo:PubSubActivity";
 
     private Button mSubscribeChannelButton;
     private Button mUnsubscribeChannelButton;

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Channel extends EventEmitter {
-    private static final String TAG = Channel.class.getSimpleName();
+    private static final String TAG = "TSB" + Channel.class.getSimpleName();
 
     protected TSBEngine engine;
 

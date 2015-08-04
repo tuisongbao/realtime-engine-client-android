@@ -4,7 +4,7 @@ import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatOptions {
-    private static final String TAG = ChatOptions.class.getSimpleName();
+    private static final String TAG = "TSB" + ChatOptions.class.getSimpleName();
 
     private TSBProgressCallback mProgressCallback;
     private int mLastPercent = 0;

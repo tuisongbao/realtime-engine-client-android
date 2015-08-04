@@ -19,7 +19,7 @@ import com.tuisongbao.engine.log.LogUtil;
 
 public class BaseRequest extends HttpEntityEnclosingRequestBase
 {
-    private static final String TAG = BaseRequest.class.getSimpleName();
+    private static final String TAG = "TSB" + BaseRequest.class.getSimpleName();
     String method;
     DefaultHttpClient httpClient;
     String params;

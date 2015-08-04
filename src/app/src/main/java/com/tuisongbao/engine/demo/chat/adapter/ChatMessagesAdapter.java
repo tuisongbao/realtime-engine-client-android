@@ -35,7 +35,7 @@ import com.tuisongbao.engine.demo.utils.ToolUtils;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class ChatMessagesAdapter extends BaseAdapter {
-    private static final String TAG = "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
+    private static final String TAG = "TSB" + "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
     private Context mContext;
     private List<ChatMessage> mMessageList;
 

@@ -13,7 +13,7 @@ import com.tuisongbao.engine.log.LogUtil;
 import org.json.JSONObject;
 
 public abstract class ChatMessageBody implements Parcelable {
-    private static final String TAG = "com.tuisongbao.engine.ChatMessageBody";
+    private static final String TAG = "TSB" + "com.tuisongbao.engine.ChatMessageBody";
 
     /**
      * The extra of JSONObject type would create 'namevaluepairs' field after serialization by gson.

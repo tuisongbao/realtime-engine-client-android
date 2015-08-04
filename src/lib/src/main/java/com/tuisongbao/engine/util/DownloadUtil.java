@@ -16,7 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class DownloadUtil {
-    private static final String TAG = DownloadUtil.class.getSimpleName();
+    private static final String TAG = "TSB" + DownloadUtil.class.getSimpleName();
     /***
      * Download image and save to local, return path of the local image file.
      *

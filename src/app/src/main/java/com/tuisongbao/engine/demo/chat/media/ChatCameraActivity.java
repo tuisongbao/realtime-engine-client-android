@@ -35,7 +35,7 @@ public class ChatCameraActivity extends Activity {
     public static final String EXTRA_PHOTO = "com.tuisongbao.android.engine.TSBTakeVideoActivity.result.photo";
     public static final String EXTRA_VIDEO = "com.tuisongbao.android.engine.TSBTakeVideoActivity.result.video";
 
-    private static final String TAG = "com.tuisongbao.android.engine.chat.media.TSBTakeVideoActivity";
+    private static final String TAG = "TSB" + "com.tuisongbao.android.engine.chat.media.TSBTakeVideoActivity";
 
     private ChatCameraPreview mPreview;
     private Activity mActivity;

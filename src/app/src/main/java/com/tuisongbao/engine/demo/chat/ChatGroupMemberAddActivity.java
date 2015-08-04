@@ -17,7 +17,7 @@ import com.tuisongbao.engine.util.StrUtil;
 
 public class ChatGroupMemberAddActivity extends Activity {
 
-    public static final String TAG = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity";
+    public static final String TAG = "TSB" + "TSB" + "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity";
     public static final String EXTRA_KEY_GROUP = "com.tuisongbao.android.engine.demo.chat.ChatGroupMemberActivity.EXTRA_KEY_GROUP";
 
     private ChatGroup mGroup;
