@@ -25,28 +25,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
-// TODO: 15-7-31 Use EventEmitter to handle listeners
 public class Connection extends BaseEngineIODataSource {
-    public enum ConnectionEvent {
-        StateChanged("state_changed"),
-        ConnectingIn("connecting_in"),
-        Connecting("connecting"),
-        Error("error");
-
-        private String name;
-
-        ConnectionEvent(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-    }
+    public static final String EVENT_STATE_CHANGED = "state_changed";
+    public static final String EVENT_CONNECTING = "connecting";
+    public static final String EVENT_CONNECT_IN = "connecting_in";
+    public static final String EVENT_ERROR = "error";
 
     public enum State {
         Initialized("initialized"),
+        Connecting("connecting"),
         Connected("connected"),
         Disconnected("disconnected");
 
@@ -151,14 +138,17 @@ public class Connection extends BaseEngineIODataSource {
         return mSocket.id();
     }
 
+    @Override
     public void connect() {
         LogUtil.info(TAG, "Connecting...");
 
-        trigger(ConnectionEvent.Connecting.name);
+        if (mLastState != State.Connecting) {
+            trigger(EVENT_CONNECTING);
+            mLastState = State.Connecting;
+        }
 
         String appId = mEngine.getEngineOptions().getAppId();
-        BaseRequest request = new BaseRequest(HttpConstants.HTTP_METHOD_GET,
-                HttpConstants.ENGINE_SERVER_REQUEST_URL
+        BaseRequest request = new BaseRequest(HttpConstants.HTTP_METHOD_GET, HttpConstants.ENGINE_SERVER_REQUEST_URL
                         + "?" + appId);
         BaseResponse response = request.execute();
         if (response != null && response.isStatusOk()) {
@@ -188,23 +178,11 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    public void bind(ConnectionEvent event, Listener listener) {
-        bind(event.name, listener);
-    }
-
-    public void unbind(ConnectionEvent event, Listener listener) {
-        unbind(event.name, listener);
-    }
-
-    public void unbind(ConnectionEvent event) {
-        unbind(event.name);
-    }
-
     protected void updateState(State state) {
         if (state == mLastState) return;
 
         LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
-        trigger(ConnectionEvent.StateChanged.name, mLastState, state);
+        trigger(EVENT_STATE_CHANGED, mLastState, state);
 
         mLastState = state;
     }
@@ -217,7 +195,7 @@ public class Connection extends BaseEngineIODataSource {
     public BaseEvent send(BaseEvent event) {
         event.setId(getRequestId());
         String eventString = event.serialize();
-        LogUtil.info(TAG, "Send rawEvent:" + eventString);
+        LogUtil.verbose(TAG, "Send rawEvent:" + eventString);
         mSocket.send(eventString);
         return event;
     }
@@ -261,14 +239,14 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Message receive " + args[0].toString());
+                    LogUtil.verbose(TAG, "Socket Message receive " + args[0].toString());
                     if (args != null && args.length > 0) {
                         try {
                             onEvent(args[0].toString());
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             LogUtil.info(TAG, "Handle Message Exception [msg="
                                     + e.getLocalizedMessage() + "]");
-                            trigger(ConnectionEvent.Error.name);
+                            trigger(EVENT_ERROR);
                         }
                     }
                 }
@@ -276,7 +254,7 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Error [msg="
+                    LogUtil.error(TAG, "Socket Error [msg="
                             + ((Exception) args[0]).getLocalizedMessage());
                 }
             }).on(Socket.EVENT_CLOSE, new Emitter.Listener() {
@@ -325,10 +303,9 @@ public class Connection extends BaseEngineIODataSource {
         if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
-            trigger(ConnectionEvent.Error.name);
+            trigger(EVENT_ERROR);
             disconnect();
         } else if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
-            // TODO: Notify listeners
             LogUtil.info(TAG, "Connected");
             updateState(State.Connected);
         } else {
@@ -343,10 +320,11 @@ public class Connection extends BaseEngineIODataSource {
         if (Protocol.isConnectionEvent(eventName)) {
             ConnectionEventData connectionData = gson.fromJson(rawEvent.getData(), ConnectionEventData.class);
             handleConnectionEvent(eventName, connectionData);
-        } else {
-            // TODO: 15-8-3 Validate event, ensure it from TuiSongBao
+        } else if (Protocol.isValidEvent(eventName)) {
             // Notify the pipeline which will ferries data to sink
             dispatchEvent(eventString);
+        } else {
+            LogUtil.warn(TAG, "Received unknown event");
         }
     }
 

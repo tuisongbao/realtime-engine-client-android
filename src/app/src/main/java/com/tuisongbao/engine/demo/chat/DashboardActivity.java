@@ -134,51 +134,52 @@ public class DashboardActivity extends FragmentActivity {
                 showToaster("Auto login success");
             }
         });
+
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_FAILED, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                showToaster("Auto login failed");
+            }
+        });
     }
 
     private void listenUserPresenceEvent() {
         DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_PRESENCE_CHANGED, new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        ChatUserPresenceData data = (ChatUserPresenceData)args[1];
-                        showToaster(data.getUserId() + " changed to " + data.getChangedTo());
-                    }
-                });
+                ChatUserPresenceData data = (ChatUserPresenceData)args[0];
+                showToaster(data.getUserId() + " changed to " + data.getChangedTo());
             }
         });
     }
 
     private void listenConnectionEvent() {
         Connection connection = DemoApplication.engine.getConnection();
-        connection.bind(Connection.ConnectionEvent.StateChanged, new Emitter.Listener() {
+        connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                showToaster("Connection state changed from " + args[1] + " to " + args[2]);
+                showToaster("Connection state changed from " + args[0] + " to " + args[1]);
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.ConnectingIn, new Emitter.Listener() {
+        connection.bind(Connection.EVENT_CONNECT_IN, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                showToaster("Connecting in " + args[1] + " seconds");
+                showToaster("Connecting in " + args[0] + " seconds");
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.Connecting, new Emitter.Listener() {
+        connection.bind(Connection.EVENT_CONNECTING, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 showToaster("Connecting");
             }
         });
 
-        connection.bind(Connection.ConnectionEvent.Error, new Emitter.Listener() {
+        connection.bind(Connection.EVENT_ERROR, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                showToaster("Connection error, " + args[1]);
+                showToaster("Connection error, " + args[0]);
             }
         });
     }
@@ -187,7 +188,7 @@ public class DashboardActivity extends FragmentActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
     }

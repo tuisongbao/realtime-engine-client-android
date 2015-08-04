@@ -1,10 +1,5 @@
 package com.tuisongbao.engine.common;
 
-import com.tuisongbao.engine.util.StrUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,22 +7,11 @@ public class Protocol {
 
     // request key
     public static final String REQUEST_KEY_WS_ADDR = "addr";
-    public static final String REQUEST_KEY_NAME = "name";
-    public static final String REQUEST_KEY_ID = "id";
-    public static final String REQUEST_KEY_CHANNEL = "channel";
-    public static final String REQUEST_KEY_DATA = "data";
     public static final String REQUEST_KEY_CODE = "code";
     public static final String REQUEST_KEY_ERROR_MESSAGE = "message";
-    public static final String REQUEST_KEY_RESPONSE_OK = "ok";
-    public static final String REQUEST_KEY_RESPONSE_RESULT = "result";
-    public static final String REQUEST_KEY_RESPONSE_ERROR = "error";
-    public static final String REQUEST_KEY_RESPONSE_TO = "to";
-    public static final String REQUEST_KEY_RECONNECTION_STRATEGY = "reconnectStrategy";
-    public static final String REQUEST_KEY_RECONNECTION_IN = "reconnectIn";
-    public static final String REQUEST_KEY_RECONNECTION_INMAX = "reconnectInMax";
 
     // common
-    public static final String EVENT_NAME_PATTERN_INTERNAL = "^engine_";
+    public static final String EVENT_NAME_PATTERN_VALID = "^engine_";
     public static final String EVENT_NAME_PATTERN_CONNECTION = "^engine_connection";
     public static final String EVENT_NAME_PATTERN_CHANNEL = "^engine_channel";
     public static final String EVENT_NAME_PATTERN_CHAT = "^engine_chat";
@@ -55,10 +39,7 @@ public class Protocol {
      * 10000 10000 ... 。
      */
     public static final String CONNECTION_STRATEGY_BACKOFF = "backoff";
-    /**
-     * static default reconnection
-     */
-    public static final int CONNECTION_STRATEGY_STATIC_DEFAULT_RECONNECTIN = 10000;
+
     /**
      * backoff default reconnection
      */
@@ -80,24 +61,13 @@ public class Protocol {
      */
     public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY = 3;
 
-    // channel name
-    public static final String CHANNEL_NAME_SUBSCRIPTION_SUCCEEDED = "engine_channel:subscription_succeeded";
     public static final String CHANNEL_NAME_SUBSCRIPTION_ERROR = "engine_channel:subscription_error";
-    public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED = "engine_channel:unsubscription_succeeded";
-    public static final String CHANNEL_NAME_UNSUBSCRIPTION_SUCCEEDED_ERROR = "engine_channel:unsubscription_error";
 
-    // chat name
-    public static final String CHAT_NAME_NEW_MESSAGE = "engine_chat:message:new";
-
-    // common code
-    public static final int ENGINE_CODE_UNKNOWN = -9001;
-    public static final int ENGINE_CODE_SUCCESS = 0;
-    public static final int ENGINE_CODE_INVALID_OPERATION = -9002;
-    public static final String ENGINE_MESSAGE_UNKNOWN_ERROR = "TuiSongBao internal error, please contact us";
-    public static final int CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED = -1003;
-
-    // channel code
-    public static final int CHANNEL_CODE_INVALID_OPERATION_ERROR = -2001;
+    public static boolean isValidEvent(String eventName) {
+        Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_VALID, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pat.matcher(eventName);
+        return matcher.find();
+    }
 
     public static boolean isConnectionEvent(String eventName) {
         Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CONNECTION, Pattern.CASE_INSENSITIVE);
@@ -121,31 +91,5 @@ public class Protocol {
         Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_CHAT, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pat.matcher(eventName);
         return matcher.find();
-    }
-
-    public static String genErrorJsonString(int code, String message) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put(REQUEST_KEY_CODE, code);
-            json.put(REQUEST_KEY_ERROR_MESSAGE, StrUtil.strNotNull(message));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json.toString();
-    }
-
-
-    private static final String getValue(String src, String prefix) {
-        if (StrUtil.isEmpty(src)) {
-            return "";
-        } else if (StrUtil.isEmpty(prefix)) {
-            return src;
-        } else {
-            if (src.startsWith(prefix)) {
-                return src.substring(prefix.length());
-            } else {
-                return src;
-            }
-        }
     }
 }

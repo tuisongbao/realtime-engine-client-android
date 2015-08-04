@@ -177,7 +177,6 @@ public class ChatGroup implements Parcelable {
 
         @Override
         public ChatGroup[] newArray(int arg0) {
-            // TODO Auto-generated method stub
             return null;
         }
     };

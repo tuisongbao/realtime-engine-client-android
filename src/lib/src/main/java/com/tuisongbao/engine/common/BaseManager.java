@@ -16,7 +16,7 @@ public class BaseManager extends EventEmitter {
 
     public BaseManager(TSBEngine engine) {
         this.engine = engine;
-        engine.getConnection().bind(Connection.ConnectionEvent.StateChanged, new Listener() {
+        engine.getConnection().bind(Connection.EVENT_STATE_CHANGED, new Listener() {
             @Override
             public void call(Object... args) {
                 String toState = args[1].toString();

@@ -44,7 +44,6 @@ public class ChatMessage implements Parcelable {
     }
 
     public static Gson getSerializer() {
-        // TODO: 15-8-2 Remove this after supporting deserialize in BaseEvent
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(ChatType.class,
                 new ChatMessageChatTypeSerializer());
@@ -256,7 +255,6 @@ public class ChatMessage implements Parcelable {
                         downloading = false;
                         body.setLocalPath(filePath);
 
-                        // TODO: Get cache status and update DB
                         if (mChatManager.isCacheEnabled()) {
                             dataSource.open();
                             dataSource.upsertMessage(mChatManager.getChatUser().getUserId(), message);
