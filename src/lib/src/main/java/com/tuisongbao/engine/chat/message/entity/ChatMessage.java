@@ -12,9 +12,9 @@ import com.tuisongbao.engine.chat.serializer.ChatMessageBodySerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.DownloadUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -225,12 +225,12 @@ public class ChatMessage implements Parcelable {
         final ChatMessage message = this;
 
         if (getBody().getType() == TYPE.TEXT) {
-            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "Text message has no resource to download");
+            LogUtil.warn(TAG, "Message type is text!");
             return;
         }
 
         if (downloading) {
-            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "Downloading is in process!");
+            LogUtil.warn(TAG, "Downloading is in progress");
             return;
         }
 
@@ -268,9 +268,9 @@ public class ChatMessage implements Parcelable {
                     }
 
                     @Override
-                    public void onError(int code, String message) {
+                    public void onError(ResponseError error) {
                         downloading = false;
-                        callback.onError(code, message);
+                        callback.onError(error);
                     }
                 }, progressCallback);
             } else {
@@ -278,7 +278,7 @@ public class ChatMessage implements Parcelable {
             }
         } catch (Exception e) {
             LogUtil.error(TAG, e);
-            callback.onError(Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(mEngine.getUnhandledResponseError());
         }
     }
 

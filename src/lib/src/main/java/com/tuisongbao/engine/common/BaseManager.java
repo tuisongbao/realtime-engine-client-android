@@ -2,7 +2,6 @@ package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.connection.Connection;
@@ -43,11 +42,6 @@ public class BaseManager extends EventEmitter {
             return false;
         }
         return true;
-    }
-
-    public <T> void handleErrorMessage(TSBEngineCallback<T> callback,
-            int code, String message) {
-        callback.onError(code, message);
     }
 
     protected void connected() {

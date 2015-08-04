@@ -17,9 +17,8 @@ import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageSendEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -50,37 +49,6 @@ public class ChatMessageManager extends BaseManager {
     public void sendMessage(final ChatMessage message,
                             final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         try {
-            if (!engine.getChatManager().hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (message == null) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: message can't not be empty");
-                return;
-            }
-            if (message.getChatType() == null) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: message chat type can't not be empty");
-                return;
-            }
-            if (StrUtil.isEmpty(message.getRecipient())) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: message recipient id can't not be empty");
-                return;
-            }
-            if (message.getBody() == null) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: message body can't not be empty");
-                return;
-            }
-
             ChatMessage.TYPE messageType = message.getBody().getType();
             if (messageType == ChatMessage.TYPE.TEXT) {
                 sendMessageRequest(message, callback);
@@ -88,7 +56,7 @@ public class ChatMessageManager extends BaseManager {
                 sendMediaMessage(message, callback, options);
             }
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -106,7 +74,9 @@ public class ChatMessageManager extends BaseManager {
     private void sendMediaMessage(final ChatMessage message, final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         TSBEngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
         if (!uploadMessageResourceToQiniu(message, handlerCallback, options)) {
-            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Failed to get resource of the message.");
+            ResponseError error = new ResponseError();
+            error.setMessage("Can not find the source you specified.");
+            callback.onError(error);
         }
     }
 
@@ -141,7 +111,9 @@ public class ChatMessageManager extends BaseManager {
             public void complete(String key, ResponseInfo info, JSONObject responseObject) {
                 Log.i(TAG, "Get response of qiniu, info: " + info.isOK() + " error: " + info.error);
                 if (!info.isOK()) {
-                    responseHandler.onError(Protocol.ENGINE_CODE_UNKNOWN, info.error);
+                    ResponseError error = new ResponseError();
+                    error.setMessage("Failed to upload source");
+                    responseHandler.onError(error);
                 } else {
                     responseHandler.onSuccess(responseObject);
                 }
@@ -187,8 +159,8 @@ public class ChatMessageManager extends BaseManager {
             }
 
             @Override
-            public void onError(int code, String message) {
-                callback.onError(code, message);
+            public void onError(ResponseError error) {
+                callback.onError(error);
             }
         };
         return responseHandler;

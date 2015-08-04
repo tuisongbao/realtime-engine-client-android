@@ -14,8 +14,8 @@ import com.tuisongbao.engine.chat.user.event.handler.ChatLoginEventHandler;
 import com.tuisongbao.engine.chat.user.event.handler.ChatUserPresenceChangedEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
@@ -28,6 +28,8 @@ import org.json.JSONObject;
 public class ChatManager extends BaseManager {
     public static final String EVENT_MESSAGE_NEW = "message:new";
     public static final String EVENT_PRESENCE_CHANGED = "user:presenceChanged";
+    public static final String EVENT_LOGIN_SUCCEEDED = "login:succeeded";
+    public static final String EVENT_LOGIN_FAILED = "login:failed";
 
     private static final String TAG = "TSB" + ChatManager.class.getSimpleName();
 
@@ -38,63 +40,70 @@ public class ChatManager extends BaseManager {
     private ChatUser mChatUser;
     private boolean mIsCacheEnabled = false;
     private String mUserData;
-    private TSBEngineCallback mLoginCallback;
+    private TSBEngineCallback mAuthCallback;
 
     public ChatManager(TSBEngine engine) {
         super(engine);
+
+        bind(EVENT_LOGIN_SUCCEEDED, new Listener() {
+            @Override
+            public void call(Object... args) {
+                LogUtil.info(TAG, "Login success");
+                onLogin((ChatUser) args[0]);
+            }
+        });
+
+        bind(EVENT_LOGIN_FAILED, new Listener() {
+            @Override
+            public void call(Object... args) {
+                LogUtil.info(TAG, "Login failed");
+                onLogout();
+            }
+        });
     }
 
     public ChatUser getChatUser() {
         return mChatUser;
     }
 
-
-    /**
-     * 聊天登录
-     *
-     * @param userData
-     *            用户信息
-     * @param callback
-     */
-    public void login(final String userData, final TSBEngineCallback<ChatUser> callback) {
-        if (hasLogin()) {
-            callback.onSuccess(getChatUser());
-            LogUtil.warn(TAG, "Duplicate login");
-            return;
-        }
-
-        // Cache this for auto login
-        mUserData = userData;
-        mLoginCallback = new TSBEngineCallback<ChatLoginData>() {
-
-            @Override
-            public void onSuccess(ChatLoginData data) {
-                ChatLoginEvent event = new ChatLoginEvent();
-                event.setData(data);
-                ChatLoginEventHandler handler = new ChatLoginEventHandler();
-                handler.setCallback(callback);
-                send(event, handler);
+    public void login(final String userData) {
+        try {
+            if (hasLogin()) {
+                trigger(EVENT_LOGIN_SUCCEEDED, getChatUser());
+                LogUtil.warn(TAG, "Duplicate login");
+                return;
             }
 
-            @Override
-            public void onError(int code, String message) {
-                callback.onError(code, message);
-            }
-        };
+            // Cache this for auto login
+            mUserData = userData;
+            mAuthCallback = new TSBEngineCallback<ChatLoginData>() {
 
-        if (engine.getConnection().isConnected()) {
-            auth(userData, mLoginCallback);
-        } else {
-            // TODO: Set timer, onResponse error if timeout.
-            callback.onError(TSBEngineConstants.CONNECTION_CODE_CONNECTION_SEND_MESSAGE_FAILED,
-                    "Can't connect to engine server");
+                @Override
+                public void onSuccess(ChatLoginData data) {
+                    LogUtil.verbose(TAG, "Auth success");
+                    ChatLoginEvent event = new ChatLoginEvent();
+                    event.setData(data);
+                    ChatLoginEventHandler handler = new ChatLoginEventHandler();
+                    send(event, handler);
+                }
+
+                @Override
+                public void onError(ResponseError error) {
+                    LogUtil.verbose(TAG, "Auth failed");
+                    onLogout();
+                }
+            };
+
+            if (engine.getConnection().isConnected()) {
+                auth(userData, mAuthCallback);
+            } else {
+                // TODO: Set timer, trigger error if timeout.
+            }
+        } catch (Exception e) {
+
         }
     }
 
-    /**
-     * 退出登录
-     *
-     */
     public void logout() {
         try {
             if (!hasLogin()) {
@@ -153,7 +162,7 @@ public class ChatManager extends BaseManager {
     protected void connected() {
         if (hasLogin()) {
             // Auto login if connection is available.
-            auth(mUserData, mLoginCallback);
+            auth(mUserData, mAuthCallback);
         }
     }
 
@@ -186,25 +195,25 @@ public class ChatManager extends BaseManager {
                         authRequestData);
                 BaseResponse response = request.execute();
                 if (response == null || !response.isStatusOk()) {
-                    handleErrorMessage(callback, TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
-                            "auth failed, connection to user server error or user server feed back error");
+                    ResponseError error = new ResponseError();
+                    error.setMessage("Auth failed, connection to user server error or user server feed back error");
+                    callback.onError(error);
                     return;
                 }
                 JSONObject jsonData = response.getJSONData();
                 if (jsonData == null) {
-                    handleErrorMessage(callback,
-                            TSBEngineConstants.TSBENGINE_CHAT_CODE_LOGIN_FAILED,
-                            "auth failed, auth data from auth endpoint is empty");
+                    ResponseError error = new ResponseError();
+                    error.setMessage("Auth failed, auth data from auth endpoint is empty");
+                    callback.onError(error);
                     return;
                 }
-
                 ChatLoginData data = new Gson().fromJson(jsonData.toString(), ChatLoginData.class);
                 callback.onSuccess(data);
             }
         });
     }
 
-    public void onLogin(ChatUser user) {
+    private void onLogin(ChatUser user) {
         mChatUser = user;
 
         // Init groups and conversations
@@ -216,11 +225,11 @@ public class ChatManager extends BaseManager {
         bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler());
     }
 
-    public void onLogout() {
+    private void onLogout() {
         mChatUser = null;
 
         mUserData = null;
-        mLoginCallback = null;
+        mAuthCallback = null;
 
         unbind(Protocol.EVENT_NAME_MESSAGE_NEW);
         unbind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE);

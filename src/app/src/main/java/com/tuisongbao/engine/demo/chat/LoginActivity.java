@@ -9,8 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -18,7 +19,8 @@ import com.tuisongbao.engine.demo.pubsub.PubSubActivity;
 import com.tuisongbao.engine.util.StrUtil;
 
 public class LoginActivity extends Activity {
-    private static String TAG = "TSB" + "com.tuisongbao.android.engine.demo:LoginActivity";
+    private static String TAG = "TSB" + LoginActivity.class.getSimpleName();
+
     private EditText mEditTextAccount;
     private Button mButtonLogin;
     private Button mPubSubButton;
@@ -35,25 +37,20 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    DemoApplication.engine.getChatManager().login(mEditTextAccount.getText().toString(), new TSBEngineCallback<ChatUser>() {
-
+                    DemoApplication.engine.getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
                         @Override
-                        public void onSuccess(ChatUser t) {
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    LoginCache.setUserId(mEditTextAccount.getText().toString());
-                                    Intent intent = new Intent(LoginActivity.this,
-                                            DashboardActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            });
+                        public void call(Object... args) {
+                            ChatUser user = (ChatUser)args[0];
+                            LoginCache.setUserId(user.getUserId());
+                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
-
+                    });
+                    DemoApplication.engine.getChatManager().bindOnce(ChatManager.EVENT_LOGIN_FAILED, new Emitter.Listener() {
                         @Override
-                        public void onError(int code, String message) {
+                        public void call(Object... args) {
+                            ChatUser user = (ChatUser)args[0];
                             runOnUiThread(new Runnable() {
 
                                 @Override
@@ -63,6 +60,7 @@ public class LoginActivity extends Activity {
                             });
                         }
                     });
+                    DemoApplication.engine.getChatManager().login(mEditTextAccount.getText().toString());
                 }
             }
         });
@@ -93,5 +91,4 @@ public class LoginActivity extends Activity {
         }
         return true;
     }
-
 }

@@ -42,6 +42,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
@@ -70,7 +71,7 @@ public class ChatConversationActivity extends Activity implements
     public final static String BROADCAST_ACTION_MESSAGE_SENT_PROGRESS = "com.tuisongbao.demo.ChatConversationActivity.MessageSent.progress";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.demo.ChatConversationActivity.ExtraMessage";
     public static final String EXTRA_CONVERSATION = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
-    private static final String TAG = "TSB" + "TSB" + "Conversation Activity";
+    private static final String TAG = ChatConversationActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_IMAGE = 1;
     private static final int REQUEST_CODE_TAKE_VIDEO = 2;
@@ -118,12 +119,12 @@ public class ChatConversationActivity extends Activity implements
         }
 
         @Override
-        public void onError(int code, final String message) {
+        public void onError(final ResponseError error) {
             runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
-                    Log.e(TAG, "Failed to send message with error " + message);
+                    Log.e(TAG, error.getMessage());
                     mMessagesAdapter.refresh(mMessageList);
                     mMessagesListView.setSelection(mMessageList.size() - 1);
                     Toast.makeText(ChatConversationActivity.this,
@@ -545,7 +546,7 @@ public class ChatConversationActivity extends Activity implements
                     }
 
                     @Override
-                    public void onError(int code, String message) {
+                    public void onError(ResponseError error) {
                         runOnUiThread(new Runnable() {
 
                             @Override

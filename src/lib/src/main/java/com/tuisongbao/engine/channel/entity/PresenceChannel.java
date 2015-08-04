@@ -4,6 +4,7 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.util.StrUtil;
 
 import org.json.JSONException;
@@ -56,7 +57,9 @@ public class PresenceChannel extends PrivateChannel {
     @Override
     protected void validate(TSBEngineCallback<String> callback) {
         if (StrUtil.isEmpty(authData)) {
-            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "AuthData is required when subscribe a presence channel");
+            ResponseError error = new ResponseError();
+            error.setMessage("AuthData is required when subscribe a presence channel");
+            callback.onError(error);
             return;
         }
         super.validate(callback);
@@ -72,7 +75,9 @@ public class PresenceChannel extends PrivateChannel {
         }
         channelData = data.optString("channelData");
         if (StrUtil.isEmpty(channelData)) {
-            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, channelData field is empty");
+            ResponseError error = new ResponseError();
+            error.setMessage("Auth failed, channelData field is empty");
+            callback.onError(error);
             return false;
         }
         callback.onSuccess("OK");

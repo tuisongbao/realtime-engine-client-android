@@ -7,6 +7,7 @@ import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
 import org.json.JSONException;
@@ -55,9 +56,9 @@ public class Channel extends EventEmitter {
             }
 
             @Override
-            public void onError(int code, String message) {
-                LogUtil.info(TAG, "Channel validation failed: " + message);
-                handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), message);
+            public void onError(ResponseError error) {
+                LogUtil.info(TAG, "Channel validation failed: " + error.getMessage());
+                handleErrorMessage(formatEventName(Protocol.CHANNEL_NAME_SUBSCRIPTION_ERROR), error.getMessage());
 
                 // remove reference from tsbchannel manager
                 engine.getChannelManager().unsubscribe(channel);

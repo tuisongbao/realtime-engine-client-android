@@ -3,9 +3,9 @@ package com.tuisongbao.engine.util;
 import android.os.Environment;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.io.File;
@@ -29,7 +29,9 @@ public class DownloadUtil {
         LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
         final String[] splits = urlString.split("/");
         if (StrUtil.isEmpty(urlString) || splits.length < 1) {
-            callback.onError(Protocol.ENGINE_CODE_INVALID_OPERATION, "The resource url String is invalid.");
+            ResponseError error = new ResponseError();
+            error.setMessage("The resource url String is invalid");
+            callback.onError(error);
             return;
         }
         ExecutorUtil.getThreadQueue().execute(new Runnable() {
@@ -54,7 +56,10 @@ public class DownloadUtil {
                     }
                     downloadFileWithProgress(urlString, outputFileName, folder, callback, progressCallback);
                 } catch (Exception e) {
-                    callback.onError(Protocol.ENGINE_CODE_UNKNOWN, "The resource url String is invalid.");
+                    ResponseError error = new ResponseError();
+                    error.setMessage(e.getMessage());
+                    callback.onError(error);
+                    LogUtil.error(TAG, e);
                 }
             }
         });

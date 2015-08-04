@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupUserAdapter;
 
@@ -124,7 +125,7 @@ public class ChatGroupMemberActivity extends Activity {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 runOnUiThread(new Runnable() {
 
                     @Override
@@ -152,7 +153,7 @@ public class ChatGroupMemberActivity extends Activity {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 runOnUiThread(new Runnable() {
 
                     @Override
@@ -180,7 +181,7 @@ public class ChatGroupMemberActivity extends Activity {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 runOnUiThread(new Runnable() {
 
                     @Override

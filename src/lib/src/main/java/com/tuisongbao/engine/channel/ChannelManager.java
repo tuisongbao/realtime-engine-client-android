@@ -5,7 +5,6 @@ import com.tuisongbao.engine.channel.entity.Channel;
 import com.tuisongbao.engine.channel.entity.PresenceChannel;
 import com.tuisongbao.engine.channel.entity.PrivateChannel;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -29,14 +28,6 @@ public class ChannelManager extends BaseManager {
         });
     }
 
-    /**
-     * 用于订阅channel，如需要订阅Private Channel，名字必须使用 private- 前缀
-     * {@link TSBEngineConstants#TSBENGINE_CHANNEL_PREFIX_PRIVATE}，如需要订阅Presence
-     * Channel，名字必须使用 presence- 前缀
-     * {@link TSBEngineConstants#TSBENGINE_CHANNEL_PREFIX_PRESENCE}。
-     *
-     * @param authData
-     */
     public Channel subscribe(String channelName, String authData) {
         try {
             // unique instance return if the channel's name is same.
@@ -86,7 +77,7 @@ public class ChannelManager extends BaseManager {
 
     @Override
     protected void connected() {
-        LogUtil.info(TAG, "Rcoesend all subscribe channel request");
+        LogUtil.info(TAG, "Resend all subscribe channel request");
         HashSet<Channel> values = new HashSet<Channel>(mChannelMap.values());
         for (Channel channel : values) {
             channel.subscribe();
@@ -94,12 +85,10 @@ public class ChannelManager extends BaseManager {
     }
 
     private boolean isPrivateChannel(String channel) {
-        return channel
-                .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRIVATE);
+        return channel.startsWith("private-");
     }
 
     private boolean isPresenceChannel(String channel) {
-        return channel
-                .startsWith(TSBEngineConstants.TSBENGINE_CHANNEL_PREFIX_PRESENCE);
+        return channel.startsWith("presence-");
     }
 }

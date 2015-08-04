@@ -52,7 +52,7 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
             ((TSBEngineCallback)callback).onSuccess(data);
         } else {
             ResponseError error = new Gson().fromJson(responseData.getError(), ResponseError.class);
-            ((TSBEngineCallback) callback).onError(error.getCode(), error.getMessage());
+            ((TSBEngineCallback) callback).onError(error);
         }
     }
 }

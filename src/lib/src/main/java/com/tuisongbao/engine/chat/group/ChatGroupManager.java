@@ -19,11 +19,9 @@ import com.tuisongbao.engine.chat.group.event.handler.ChatGroupLeaveEventHandler
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupRemoveUsersEventHandler;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
 
 import java.util.List;
 
@@ -67,13 +65,6 @@ public class ChatGroupManager extends BaseManager {
     public void create(List<String> members, boolean isPublic, boolean userCanInvite,
             TSBEngineCallback<ChatGroup> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-
             ChatGroupCreateEvent event = new ChatGroupCreateEvent();
             ChatGroupEventData data = new ChatGroupEventData();
             data.setInviteUserIds(members);
@@ -85,7 +76,7 @@ public class ChatGroupManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -93,9 +84,9 @@ public class ChatGroupManager extends BaseManager {
     public void getList(String groupId, TSBEngineCallback<List<ChatGroup>> callback) {
         try {
             if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
+                ResponseError error = new ResponseError();
+                error.setMessage("Permission denny: need to login");
+                callback.onError(error);
                 return;
             }
 
@@ -117,7 +108,7 @@ public class ChatGroupManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
 
@@ -133,18 +124,6 @@ public class ChatGroupManager extends BaseManager {
     public void getUsers(String groupId,
             TSBEngineCallback<List<ChatUser>> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (StrUtil.isEmpty(groupId)) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group id can't be not empty");
-                return;
-            }
             ChatGroupGetUsersEvent event = new ChatGroupGetUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
@@ -154,7 +133,7 @@ public class ChatGroupManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -171,19 +150,6 @@ public class ChatGroupManager extends BaseManager {
     public void joinInvitation(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group id or user ids can't not be empty");
-                return;
-            }
-
             ChatGroupJoinInvitationEvent event = new ChatGroupJoinInvitationEvent();
             ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
@@ -194,7 +160,7 @@ public class ChatGroupManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -211,19 +177,6 @@ public class ChatGroupManager extends BaseManager {
     public void removeUsers(String groupId, List<String> userIds,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (StrUtil.isEmpty(groupId) || userIds == null || userIds.isEmpty()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group id or user ids can't not be empty");
-                return;
-            }
-
             ChatGroupRemoveUsersEvent event = new ChatGroupRemoveUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
@@ -234,7 +187,7 @@ public class ChatGroupManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -248,19 +201,6 @@ public class ChatGroupManager extends BaseManager {
      */
     public void leave(String groupId, TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (StrUtil.isEmpty(groupId)) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: group id can not be empty");
-                return;
-            }
-
             ChatGroupLeaveEvent event = new ChatGroupLeaveEvent();
             ChatGroupEventData data = new ChatGroupEventData();
             data.setGroupId(groupId);
@@ -269,7 +209,7 @@ public class ChatGroupManager extends BaseManager {
             response.setCallback(callback);
             send(event, response);
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }

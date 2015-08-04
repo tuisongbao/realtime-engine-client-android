@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
@@ -162,7 +163,7 @@ public class ChatConversationsFragment extends Fragment {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
@@ -198,7 +199,7 @@ public class ChatConversationsFragment extends Fragment {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
@@ -223,7 +224,7 @@ public class ChatConversationsFragment extends Fragment {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 Toast.makeText(getActivity(), "重置未读消息失败，请稍后再试", Toast.LENGTH_LONG).show();
             }
         });

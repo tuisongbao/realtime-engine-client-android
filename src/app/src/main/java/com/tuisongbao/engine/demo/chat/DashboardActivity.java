@@ -21,8 +21,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
 import com.tuisongbao.engine.common.callback.TSBEngineBindCallback;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.DemoApplication;
@@ -32,11 +35,7 @@ import com.tuisongbao.engine.demo.chat.fragment.ChatContactsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatConversationsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatSettingsFragment;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.util.StrUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class DashboardActivity extends FragmentActivity {
     private static final String TAG = "TSB" + "TSB" + DashboardActivity.class.getSimpleName();
@@ -122,8 +121,24 @@ public class DashboardActivity extends FragmentActivity {
             }
         });
 
-        DemoApplication.engine.getChatManager().bind(
-                TSBEngineConstants.TSBENGINE_BIND_NAME_CHAT_PRESENCE_CHANGED,
+        registerBroadcast();
+        listenConnectionEvent();
+        listenLoginAndLogoutEvent();
+        listenUserPresenceEvent();
+    }
+
+    private void listenLoginAndLogoutEvent() {
+        DemoApplication.engine.getChannelManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                ChatUser user = (ChatUser)args[0];
+                showToaster("Auto login success");
+            }
+        });
+    }
+
+    private void listenUserPresenceEvent() {
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_PRESENCE_CHANGED,
                 new TSBEngineBindCallback() {
 
                     @Override
@@ -132,28 +147,12 @@ public class DashboardActivity extends FragmentActivity {
 
                             @Override
                             public void run() {
-                                String data = (String)args[2];
-                                if (!StrUtil.isEmpty(data)) {
-                                    try {
-                                        JSONObject json = new JSONObject(data);
-                                        String userId = json
-                                                .getString("userId");
-                                        String status = json
-                                                .getString("changedTo");
-                                        Toast.makeText(
-                                                DashboardActivity.this,
-                                                userId + " change to " + status,
-                                                Toast.LENGTH_LONG).show();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
+                                ChatUserPresenceData data = (ChatUserPresenceData)args[1];
+                                showToaster(data.getUserId() + " changed to " + data.getChangedTo());
                             }
                         });
                     }
                 });
-        registerBroadcast();
-        listenConnectionEvent();
     }
 
     private void listenConnectionEvent() {

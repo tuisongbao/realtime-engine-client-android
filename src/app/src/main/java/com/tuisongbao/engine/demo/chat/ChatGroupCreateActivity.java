@@ -10,6 +10,7 @@ import android.widget.ToggleButton;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 
@@ -70,7 +71,7 @@ public class ChatGroupCreateActivity extends Activity {
                     }
 
                     @Override
-                    public void onError(int code, String message) {
+                    public void onError(ResponseError error) {
                         runOnUiThread(new Runnable() {
 
                             @Override

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
 import com.tuisongbao.engine.engineio.pipeline.TSBEnginePipeline;
 import com.tuisongbao.engine.engineio.sink.TSBEngineDataSink;
@@ -92,5 +93,12 @@ public final class TSBEngine {
 
     public TSBEnginePipeline getPipeline() {
         return pipeline;
+    }
+
+
+    public ResponseError getUnhandledResponseError() {
+        ResponseError error = new ResponseError();
+        error.setMessage("Unhandled exception occur!");
+        return error;
     }
 }

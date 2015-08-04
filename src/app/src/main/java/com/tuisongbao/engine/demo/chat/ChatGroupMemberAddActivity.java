@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.demo.chat;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,8 +9,12 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.util.StrUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChatGroupMemberAddActivity extends Activity {
 
@@ -70,7 +71,7 @@ public class ChatGroupMemberAddActivity extends Activity {
                 }
 
                 @Override
-                public void onError(int code, String message) {
+                public void onError(ResponseError error) {
                     runOnUiThread(new Runnable() {
 
                         @Override

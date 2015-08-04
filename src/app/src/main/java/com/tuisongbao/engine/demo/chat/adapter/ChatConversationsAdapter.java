@@ -14,6 +14,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 
@@ -119,7 +120,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
 
             }
         });

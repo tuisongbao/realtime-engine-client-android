@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.demo.chat.adapter;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,6 +22,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -34,8 +33,10 @@ import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer.OnStopListener;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 import com.tuisongbao.engine.util.StrUtil;
 
+import java.util.List;
+
 public class ChatMessagesAdapter extends BaseAdapter {
-    private static final String TAG = "TSB" + "com.tuisongbao.android.engine.chat.ChatMessagesAdapter";
+    private static final String TAG = ChatMessagesAdapter.class.getSimpleName();
     private Context mContext;
     private List<ChatMessage> mMessageList;
 
@@ -255,7 +256,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
 
                     @Override
@@ -299,7 +300,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     }
 
                     @Override
-                    public void onError(int code, String message) {
+                    public void onError(ResponseError error) {
 
                     }
                 }, new TSBProgressCallback() {

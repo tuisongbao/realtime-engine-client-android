@@ -18,8 +18,6 @@ import com.tuisongbao.engine.chat.message.event.handler.ChatMessageGetEventHandl
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageMultiGetEventHandler;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.TSBEngineConstants;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
@@ -54,13 +52,6 @@ public class ChatConversationManager extends BaseManager {
     public void getList(ChatType chatType, String target,
             TSBEngineCallback<List<ChatConversation>> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-
             String lastActiveAt = null;
             if (dataSource != null) {
                 dataSource.open();
@@ -70,7 +61,7 @@ public class ChatConversationManager extends BaseManager {
             }
             sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -110,7 +101,7 @@ public class ChatConversationManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -127,18 +118,6 @@ public class ChatConversationManager extends BaseManager {
     public void delete(ChatType chatType, String target,
             TSBEngineCallback<String> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (chatType == null || StrUtil.isEmpty(target)) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: type or target can't not be empty");
-                return;
-            }
             ChatConversationDeleteEvent event = new ChatConversationDeleteEvent();
             ChatConversation data = new ChatConversation(engine);
             data.setType(chatType);
@@ -149,7 +128,7 @@ public class ChatConversationManager extends BaseManager {
             send(event, response);
 
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }
@@ -172,25 +151,6 @@ public class ChatConversationManager extends BaseManager {
             Long endMessageId, int limit,
             TSBEngineCallback<List<ChatMessage>> callback) {
         try {
-            if (!mChatManager.hasLogin()) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_PERMISSION_DENNY,
-                        "permission denny: need to login");
-                return;
-            }
-            if (chatType == null) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: chat type ocan't not be empty");
-                return;
-            }
-            if (StrUtil.isEmpty(target)) {
-                handleErrorMessage(callback,
-                        TSBEngineConstants.TSBENGINE_CODE_ILLEGAL_PARAMETER,
-                        "illegal parameter: recipiet id can't not be empty");
-                return;
-            }
-
             // No need to query if startMessageId is less or equal to 0
             if (startMessageId != null && startMessageId <= 0) {
                 callback.onSuccess(new ArrayList<ChatMessage>());
@@ -207,7 +167,7 @@ public class ChatConversationManager extends BaseManager {
 
             requestMissingMessagesInLocalCache(chatType, target, startMessageId, endMessageId, limit, callback);
         } catch (Exception e) {
-            handleErrorMessage(callback, Protocol.ENGINE_CODE_UNKNOWN, Protocol.ENGINE_MESSAGE_UNKNOWN_ERROR);
+            callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
     }

@@ -8,6 +8,7 @@ import android.media.MediaPlayer.OnPreparedListener;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.io.IOException;
@@ -95,8 +96,8 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             }
 
             @Override
-            public void onError(int code, String errorMessage) {
-                callbackErrorListener(message, errorMessage);
+            public void onError(ResponseError error) {
+                callbackErrorListener(message, error.getMessage());
             }
         }, progressCallback);
     }

@@ -15,6 +15,7 @@ import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupAdapter;
@@ -93,7 +94,7 @@ public class ChatGroupsActivity extends Activity {
             }
 
             @Override
-            public void onError(int code, String message) {
+            public void onError(ResponseError error) {
                 runOnUiThread(new Runnable() {
 
                     @Override

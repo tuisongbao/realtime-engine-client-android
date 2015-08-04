@@ -4,6 +4,8 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
+import com.tuisongbao.engine.common.entity.ResponseEvent;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
@@ -48,7 +50,9 @@ public class PrivateChannel extends Channel {
     protected boolean validateResponseDataOfAuth(JSONObject data, TSBEngineCallback<String> callback) {
         signature = data.optString("signature");
         if (StrUtil.isEmpty(signature)) {
-            callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, Signature field is empty");
+            ResponseError error = new ResponseError();
+            error.setMessage("Auth failed");
+            callback.onError(error);
             return false;
         }
         return true;
@@ -60,11 +64,12 @@ public class PrivateChannel extends Channel {
 
             @Override
             public void run() {
-                JSONObject json = null;
+                JSONObject json;
+                ResponseError error = new ResponseError();
                 try {
                     json = getHttpRequestObjectOfAuth();
                 } catch (JSONException e) {
-                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Tuisongbao internal error");
+                    callback.onError(engine.getUnhandledResponseError());
                     LogUtil.error(TAG, "Channel validation failed.",  e);
                     return;
                 }
@@ -72,13 +77,15 @@ public class PrivateChannel extends Channel {
                         HttpConstants.HTTP_METHOD_POST, engine.getEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse authResponse = authRequest.execute();
                 if (authResponse == null || !authResponse.isStatusOk()) {
-                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Error accured when call auth server");
+                    error.setMessage("Error accured when call auth server");
+                    callback.onError(error);
                     return;
                 }
 
                 JSONObject jsonData = authResponse.getJSONData();
                 if (jsonData == null) {
-                    callback.onError(Protocol.CHANNEL_CODE_INVALID_OPERATION_ERROR, "Auth failed, auth server response nothing");
+                    error.setMessage("Auth failed, auth server response nothing");
+                    callback.onError(error);
                     return;
                 }
                 if (validateResponseDataOfAuth(jsonData, callback)) {
