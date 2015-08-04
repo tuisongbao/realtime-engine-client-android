@@ -34,10 +34,11 @@ public class ChatLoginEventHandler extends BaseEventHandler<ChatUser> {
             ChatUser user = genCallbackData(request, response);
             user.setUserId(userDataInRequest.getUserId());
             user.setNickname(userDataInRequest.getNickname());
-            chatManager.trigger(ChatManager.EVENT_LOGIN_SUCCEEDED, user);
+
+            chatManager.onLoginSuccess(user);
         } else {
             ResponseError error = gson.fromJson(responseData.getResult(), ResponseError.class);
-            chatManager.trigger(ChatManager.EVENT_LOGIN_FAILED, error.getCode(), error.getMessage());
+            chatManager.onLoginFailed(error);
         }
     }
 }

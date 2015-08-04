@@ -27,8 +27,8 @@ public class EventEmitter extends Emitter {
     }
 
     public void trigger(String event, Object... args) {
-        super.emit(event, args);
         LogUtil.verbose(TAG, "Send " + event + " to " + listeners(event).size() + " listeners");
+        super.emit(event, args);
     }
 
     public void unbind(String event) {

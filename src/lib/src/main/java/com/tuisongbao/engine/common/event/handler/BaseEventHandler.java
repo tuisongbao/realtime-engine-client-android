@@ -2,7 +2,6 @@ package com.tuisongbao.engine.common.event.handler;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.callback.ITSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -12,18 +11,18 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
     protected TSBEngine engine;
-    private ITSBEngineCallback mCallback;
+    private TSBEngineCallback mCallback;
 
     @Override
     public void setEngine(TSBEngine engine) {
         this.engine = engine;
     }
 
-    public void setCallback(ITSBEngineCallback callback) {
+    public void setCallback(TSBEngineCallback callback) {
         mCallback = callback;
     }
 
-    public ITSBEngineCallback getCallback() {
+    public TSBEngineCallback getCallback() {
         return mCallback;
     }
 
@@ -37,7 +36,7 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
 
     @Override
     public void onResponse(BaseEvent request, RawEvent response) {
-        ITSBEngineCallback callback = getCallback();
+        TSBEngineCallback callback = getCallback();
         if (callback == null) {
             return;
         }

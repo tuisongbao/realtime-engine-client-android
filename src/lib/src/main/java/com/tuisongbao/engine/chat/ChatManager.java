@@ -21,6 +21,7 @@ import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.ExecutorUtil;
+import com.tuisongbao.engine.util.StrUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,22 +45,6 @@ public class ChatManager extends BaseManager {
 
     public ChatManager(TSBEngine engine) {
         super(engine);
-
-        bind(EVENT_LOGIN_SUCCEEDED, new Listener() {
-            @Override
-            public void call(Object... args) {
-                LogUtil.info(TAG, "Login success");
-                onLogin((ChatUser) args[0]);
-            }
-        });
-
-        bind(EVENT_LOGIN_FAILED, new Listener() {
-            @Override
-            public void call(Object... args) {
-                LogUtil.info(TAG, "Login failed");
-                onLogout();
-            }
-        });
     }
 
     public ChatUser getChatUser() {
@@ -68,18 +53,20 @@ public class ChatManager extends BaseManager {
 
     public void login(final String userData) {
         try {
-            if (hasLogin()) {
+            if (StrUtil.isEqual(userData, mUserData)) {
                 trigger(EVENT_LOGIN_SUCCEEDED, getChatUser());
                 LogUtil.warn(TAG, "Duplicate login");
                 return;
+            } else {
+                failedAllPendingEvents();
             }
 
-            // Cache this for auto login
-            mUserData = userData;
             mAuthCallback = new TSBEngineCallback<ChatLoginData>() {
 
                 @Override
                 public void onSuccess(ChatLoginData data) {
+                    mUserData = userData;
+
                     LogUtil.verbose(TAG, "Auth success");
                     ChatLoginEvent event = new ChatLoginEvent();
                     event.setData(data);
@@ -96,12 +83,12 @@ public class ChatManager extends BaseManager {
 
             if (engine.getConnection().isConnected()) {
                 auth(userData, mAuthCallback);
-            } else {
-                // TODO: Set timer, trigger error if timeout.
+                return;
             }
         } catch (Exception e) {
-
+            LogUtil.error(TAG, e);
         }
+        trigger(EVENT_LOGIN_FAILED);
     }
 
     public void logout() {
@@ -109,17 +96,12 @@ public class ChatManager extends BaseManager {
             if (!hasLogin()) {
                 return;
             }
-            if (engine.getConnection().isConnected()) {
-                ChatLogoutEvent message = new ChatLogoutEvent();
-                if (send(message, null)) {
-                    onLogout();
-                    return;
-                }
-            }
+            onLogout();
+            ChatLogoutEvent event = new ChatLogoutEvent();
+            send(event, null);
         } catch (Exception e) {
-            LogUtil.error(TAG, "Logout failed", e);
+            LogUtil.error(TAG, e);
         }
-        // TODO: 15-8-4 Set timer and try to re-logout like login
     }
 
     public void enableCache() {
@@ -136,7 +118,8 @@ public class ChatManager extends BaseManager {
 
     public void clearCache() {
         try {
-            // TODO: Clear group and conversation data
+            groupManager.clearCache();
+            conversationManager.clearCache();
         } catch (Exception e) {
             LogUtil.error(TAG, e);
         }
@@ -160,15 +143,12 @@ public class ChatManager extends BaseManager {
 
     @Override
     protected void connected() {
+        super.connected();
+
         if (hasLogin()) {
             // Auto login if connection is available.
             auth(mUserData, mAuthCallback);
         }
-    }
-
-    @Override
-    protected void disconnected() {
-
     }
 
     private JSONObject getAuthParams(String userData) {
@@ -213,7 +193,7 @@ public class ChatManager extends BaseManager {
         });
     }
 
-    private void onLogin(ChatUser user) {
+    public void onLoginSuccess(ChatUser user) {
         mChatUser = user;
 
         // Init groups and conversations
@@ -223,9 +203,17 @@ public class ChatManager extends BaseManager {
 
         bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler());
         bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler());
+
+        trigger(EVENT_LOGIN_SUCCEEDED, mChatUser);
     }
 
-    private void onLogout() {
+    public void onLoginFailed(ResponseError error) {
+        mAuthCallback = null;
+
+        trigger(EVENT_LOGIN_FAILED, error);
+    }
+
+    public void onLogout() {
         mChatUser = null;
 
         mUserData = null;

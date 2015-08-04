@@ -25,6 +25,30 @@ public class LoginActivity extends Activity {
     private Button mButtonLogin;
     private Button mPubSubButton;
 
+    private Emitter.Listener mLoginSuccessListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            ChatUser user = (ChatUser) args[0];
+            LoginCache.setUserId(user.getUserId());
+            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    };
+
+    private Emitter.Listener mLoginFailedListener = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,29 +61,6 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    DemoApplication.engine.getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            ChatUser user = (ChatUser)args[0];
-                            LoginCache.setUserId(user.getUserId());
-                            Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
-                    DemoApplication.engine.getChatManager().bindOnce(ChatManager.EVENT_LOGIN_FAILED, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            ChatUser user = (ChatUser)args[0];
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_LONG).show();
-                                }
-                            });
-                        }
-                    });
                     DemoApplication.engine.getChatManager().login(mEditTextAccount.getText().toString());
                 }
             }
@@ -90,5 +91,21 @@ public class LoginActivity extends Activity {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_FAILED, mLoginFailedListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
+        DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_LOGIN_FAILED, mLoginFailedListener);
     }
 }

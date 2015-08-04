@@ -167,7 +167,6 @@ public class Connection extends BaseEngineIODataSource {
                 }
             }
         }
-        // TODO: Handle connect failed
     }
 
     @Override

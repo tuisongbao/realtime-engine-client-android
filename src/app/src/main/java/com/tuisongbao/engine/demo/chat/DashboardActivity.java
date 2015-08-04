@@ -36,6 +36,10 @@ import com.tuisongbao.engine.demo.chat.fragment.ChatSettingsFragment;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.engine.util.StrUtil;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 public class DashboardActivity extends FragmentActivity {
     private static final String TAG = "TSB" + "TSB" + DashboardActivity.class.getSimpleName();
 
@@ -46,11 +50,16 @@ public class DashboardActivity extends FragmentActivity {
     private ChatContactsFragment mContactsFragment;
     private ChatSettingsFragment mSettingsFragment;
     private int mCurrentPage = 0;
+    private ChatManager mChatManager;
+
+    private Map<String, Emitter.Listener> mListenersMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        mChatManager = DemoApplication.engine.getChatManager();
 
         mConversationTextView = (TextView) findViewById(R.id.dashboard_textview_conversations);
         mContactsTextView = (TextView) findViewById(R.id.dashboard_textview_contacts);
@@ -121,67 +130,68 @@ public class DashboardActivity extends FragmentActivity {
         });
 
         registerBroadcast();
-        listenConnectionEvent();
-        listenLoginAndLogoutEvent();
-        listenUserPresenceEvent();
+
+        initAllListeners();
+        manageListeners(true);
     }
 
-    private void listenLoginAndLogoutEvent() {
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
+    private void initAllListeners() {
+        mListenersMap.put(ChatManager.EVENT_LOGIN_SUCCEEDED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                ChatUser user = (ChatUser)args[0];
                 showToaster("Auto login success");
             }
         });
-
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_LOGIN_FAILED, new Emitter.Listener() {
+        mListenersMap.put(ChatManager.EVENT_LOGIN_FAILED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 showToaster("Auto login failed");
             }
         });
-    }
-
-    private void listenUserPresenceEvent() {
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_PRESENCE_CHANGED, new Emitter.Listener() {
+        mListenersMap.put(ChatManager.EVENT_PRESENCE_CHANGED, new Emitter.Listener() {
             @Override
-            public void call(final Object... args) {
-                ChatUserPresenceData data = (ChatUserPresenceData)args[0];
+            public void call(Object... args) {
+                ChatUserPresenceData data = (ChatUserPresenceData) args[0];
                 showToaster(data.getUserId() + " changed to " + data.getChangedTo());
             }
         });
-    }
-
-    private void listenConnectionEvent() {
-        Connection connection = DemoApplication.engine.getConnection();
-        connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                showToaster("Connection state changed from " + args[0] + " to " + args[1]);
-            }
-        });
-
-        connection.bind(Connection.EVENT_CONNECT_IN, new Emitter.Listener() {
+        mListenersMap.put(Connection.EVENT_CONNECT_IN, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
                 showToaster("Connecting in " + args[0] + " seconds");
             }
         });
-
-        connection.bind(Connection.EVENT_CONNECTING, new Emitter.Listener() {
+        mListenersMap.put(Connection.EVENT_CONNECTING, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                showToaster("Connecting");
+                showToaster("Connecting...");
             }
         });
-
-        connection.bind(Connection.EVENT_ERROR, new Emitter.Listener() {
+        mListenersMap.put(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                showToaster("Connection error, " + args[0]);
+                showToaster("Connection state changed from " + args[0] + " to " + args[1]);
             }
         });
+        mListenersMap.put(Connection.EVENT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                showToaster("Connection error," + args[0]);
+            }
+        });
+    }
+
+    private void manageListeners(boolean isBind) {
+        Iterator<String> events = mListenersMap.keySet().iterator();
+        while (events.hasNext()) {
+            String event = events.next();
+            Emitter.Listener listener = mListenersMap.get(event);
+            if (isBind) {
+                mChatManager.bind(event, listener);
+            } else {
+                mChatManager.unbind(event, listener);
+            }
+        }
     }
 
     private void showToaster(final String message) {
@@ -268,6 +278,7 @@ public class DashboardActivity extends FragmentActivity {
         super.onDestroy();
 
         unregisterBroadcast();
+        manageListeners(false);
     }
 
     private void showAddUserDialog() {
