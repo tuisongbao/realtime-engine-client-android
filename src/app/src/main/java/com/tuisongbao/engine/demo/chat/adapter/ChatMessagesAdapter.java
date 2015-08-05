@@ -17,9 +17,7 @@ import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -138,28 +136,28 @@ public class ChatMessagesAdapter extends BaseAdapter {
             voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_reply_content_voice);
         }
 
-        ChatMessageBody messageBody = message.getContent();
-        if (messageBody.getType() == TYPE.TEXT) {
+        ChatMessageContent content = message.getContent();
+        if (content.getType() == TYPE.TEXT) {
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
-            textView.setText(messageBody != null ? message.getText() : "");
+            textView.setText(content != null ? message.getContent().getText() : "");
             textView.setTextSize(17);
 
-        } else if (messageBody.getType() == TYPE.IMAGE) {
+        } else if (content.getType() == TYPE.IMAGE) {
             imageView.setVisibility(View.VISIBLE);
             voiceButton.setVisibility(View.GONE);
 
             showImageMessage(message, convertView, imageView, textView);
 
-        } else if (messageBody.getType() == TYPE.VOICE) {
+        } else if (content.getType() == TYPE.VOICE) {
             textView.setVisibility(View.GONE);
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.VISIBLE);
 
             showVoiceMessage(message, convertView, voiceButton);
-        } else if (messageBody.getType() == TYPE.VIDEO) {
+        } else if (content.getType() == TYPE.VIDEO) {
             textView.setVisibility(View.GONE);
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.VISIBLE);
@@ -169,8 +167,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVoiceMessage(final ChatMessage message, View convertView, final Button voiceButton) {
-        ChatVoiceMessageBody body = (ChatVoiceMessageBody)message.getContent();
-        final String duration = body.getDuration();
+        ChatMessageContent content = message.getContent();
+        final double duration = content.getFile().getDuration();
         voiceButton.setText("voice: " + duration);
 
         // TODO: set different width measured by duration.
@@ -227,7 +225,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             public void run() {
                                 voiceButton.setText(percent + "%");
                                 if (percent == 100) {
-                                    voiceButton.setText(duration);
+                                    voiceButton.setText(String.valueOf(duration));
                                 }
                             }
                         });
@@ -239,15 +237,15 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final ChatMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        message.downloadResource(new TSBEngineCallback<ChatMessage>() {
+        message.downloadImage(false, new TSBEngineCallback<String>() {
 
             @Override
-            public void onSuccess(final ChatMessage message) {
-                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+            public void onSuccess(final String filePath) {
+                ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        Bitmap bmp = BitmapFactory.decodeFile(message.getResourcePath());
+                        Bitmap bmp = BitmapFactory.decodeFile(filePath);
                         imageView.setImageBitmap(bmp);
                         imageView.setVisibility(View.VISIBLE);
                         textView.setVisibility(View.GONE);
@@ -257,7 +255,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             @Override
             public void onError(ResponseError error) {
-                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+                ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
@@ -269,7 +267,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             @Override
             public void progress(final int percent) {
-                ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+                ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
@@ -281,8 +279,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVideoWidget(final ChatMessage message, View convertView, final Button voiceButton) {
-        final ChatVideoMessageBody body = (ChatVideoMessageBody)message.getContent();
-        final String duration = body.getDuration();
+        final ChatMessageContent content = message.getContent();
+        final double duration = content.getFile().getDuration();
         voiceButton.setText("video: " + duration);
 
         voiceButton.setTag("idle");
@@ -290,12 +288,12 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
             @Override
             public void onClick(View arg0) {
-                message.downloadResource(new TSBEngineCallback<ChatMessage>() {
+                message.downloadVideoThumb(new TSBEngineCallback<String>() {
 
                     @Override
-                    public void onSuccess(ChatMessage t) {
+                    public void onSuccess(String filePath) {
                         Intent intent = new Intent(mContext.getApplicationContext(), ChatVideoPlayerActivity.class);
-                        intent.putExtra(ChatVideoPlayerActivity.EXTRA_VIDEO_PATH, message.getResourcePath());
+                        intent.putExtra(ChatVideoPlayerActivity.EXTRA_VIDEO_PATH, filePath);
                         mContext.startActivity(intent);
                     }
 
@@ -313,7 +311,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             public void run() {
                                 voiceButton.setText(percent + "%");
                                 if (percent == 100) {
-                                    voiceButton.setText(duration);
+                                    voiceButton.setText(String.valueOf(duration));
                                 }
                             }
                         });

@@ -1,33 +1,38 @@
 package com.tuisongbao.engine.demo.utils;
 
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
+import com.tuisongbao.engine.util.StrUtil;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.event.entity.ChatEvent;
-import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.util.StrUtil;
-
 public class ToolUtils {
     public static String getEventMessage(ChatMessage message) {
+        if (true) {
+            // TODO: 15-8-5 Generate event message
+            return "Event received";
+        }
         if (message.getContent().getType() != TYPE.EVENT) {
             return "";
         }
 
-        ChatEventMessageBody body = (ChatEventMessageBody)message.getContent();
-        ChatEvent event = body.getEventType();
+        ChatMessageContent body = message.getContent();
+        ChatMessageEventContent event = body.getEvent();
         String maker = message.getFrom();
-        String target = body.getEventTarget();
+        String target = event.getTarget();
         String eventMessage = "";
-        if (event == ChatEvent.GroupJoined) {
+        ChatMessageEventContent.TYPE eventType = event.getType();
+        if (eventType == ChatMessageEventContent.TYPE.GroupJoined) {
             eventMessage = String.format("%s 邀请 %s 加入群组", maker, target);
-        } else if (event == ChatEvent.GroupRemoved) {
+        } else if (eventType == ChatMessageEventContent.TYPE.GroupRemoved) {
             eventMessage = String.format("%s 被 %s 移出群组", target, maker);
-        } else if (event == ChatEvent.GroupDismissed) {
+        } else if (eventType == ChatMessageEventContent.TYPE.GroupDismissed) {
             eventMessage = String.format("%s 解散了该群", maker);
         }
         return eventMessage;

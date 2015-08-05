@@ -3,8 +3,8 @@ package com.tuisongbao.engine.chat.message.event.handler;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
-import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -22,13 +22,15 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         ChatMessage responseMessage = genCallbackData(request, response);
         ChatMessage sentMessage = ((ChatMessageSendEvent)request).getData();
 
-        if (responseMessage.getContent() != null) {
+        ChatMessageContent responseMessageContent = responseMessage.getContent();
+        if (responseMessageContent != null) {
             // Media message, get download url and update DB
-            ChatMediaMessageBody body = (ChatMediaMessageBody)sentMessage.getContent();
-            String downloadUrl = ((ChatMediaMessageBody)responseMessage.getContent()).getDownloadUrl();
-            body.setDownloadUrl(downloadUrl);
 
-            sentMessage.setContent(body);
+            ChatMessageContent content = new ChatMessageContent();
+            content.getFile().setUrl(responseMessageContent.getFile().getUrl());
+            content.getFile().setThumbUrl(responseMessageContent.getFile().getThumbUrl());
+
+            sentMessage.setContent(content);
         }
         sentMessage.setFrom(userId);
 

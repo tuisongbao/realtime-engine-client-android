@@ -1,15 +1,13 @@
 package com.tuisongbao.engine.chat.message.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
-import com.tuisongbao.engine.chat.serializer.ChatMessageBodySerializer;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
@@ -21,7 +19,7 @@ import com.tuisongbao.engine.util.StrUtil;
 
 import java.io.File;
 
-public class ChatMessage implements Parcelable {
+public class ChatMessage {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
     /***
      * This value is not unique, it is the message's serial number in a conversation,
@@ -31,16 +29,15 @@ public class ChatMessage implements Parcelable {
     private ChatType type = ChatType.SingleChat;
     private String from;
     private String to;
-    private ChatMessageBody content;
+    private ChatMessageContent content;
     private String createdAt;
 
-    transient private boolean downloading = false;
     transient private ChatManager mChatManager;
     transient private TSBEngine mEngine;
+    transient private boolean downloadingThumbnail = false;
+    transient private boolean downloadingOriginal = false;
 
-    public ChatMessage(TSBEngine engine) {
-        mEngine = engine;
-        mChatManager = mEngine.getChatManager();
+    public ChatMessage() {
     }
 
     public static Gson getSerializer() {
@@ -49,10 +46,22 @@ public class ChatMessage implements Parcelable {
                 new ChatMessageChatTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class,
                 new ChatMessageTypeSerializer());
-        gsonBuilder.registerTypeAdapter(ChatMessageBody.class,
-                new ChatMessageBodySerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageContentSerializer.class,
+                new ChatMessageContentSerializer());
 
         return gsonBuilder.create();
+    }
+
+    public static ChatMessage deserialize(TSBEngine engine, String jsonString) {
+        ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
+        message.mEngine = engine;
+        message.mChatManager = engine.getChatManager();
+
+        return message;
+    }
+
+    public String serialize() {
+        return getSerializer().toJson(this);
     }
 
     public void setEngine(TSBEngine engine) {
@@ -96,11 +105,11 @@ public class ChatMessage implements Parcelable {
         return this;
     }
 
-    public ChatMessageBody getContent() {
+    public ChatMessageContent getContent() {
         return content;
     }
 
-    public ChatMessage setContent(ChatMessageBody content) {
+    public ChatMessage setContent(ChatMessageContent content) {
         this.content = content;
         return this;
     }
@@ -120,21 +129,9 @@ public class ChatMessage implements Parcelable {
      */
     public String getResourcePath() {
         try {
-            ChatMessageBody body = getContent();
             if (isMediaMessage()) {
-                return ((ChatMediaMessageBody)body).getLocalPath();
-            }
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-        }
-        return "";
-    }
-
-    public String getText() {
-        try {
-            ChatMessageBody body = getContent();
-            if (body.getType() == TYPE.TEXT) {
-                return ((ChatTextMessageBody)body).getText();
+                ChatMessageContent content = getContent();
+                return content.getFile().getFilePath();
             }
         } catch (Exception e) {
             LogUtil.error(TAG, e);
@@ -177,107 +174,101 @@ public class ChatMessage implements Parcelable {
         }
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public void downloadImage(boolean isOriginal, final TSBEngineCallback<String> callback, final TSBProgressCallback progressCallback) {
+        downloadResource(isOriginal, callback, progressCallback);
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(messageId);
-        dest.writeString(type == null ? "" : type.getName());
-        dest.writeString(from);
-        dest.writeString(to);
-        dest.writeString(createdAt);
-        dest.writeParcelable(content, flags);
+    public void downloadVoice(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+        downloadResource(true, callback, progressCallback);
     }
 
-    public void readFromParcel(Parcel in) {
-        messageId = in.readLong();
-        String nameType = in.readString();
-        type = StrUtil.isEmpty(nameType) ? null : ChatType.getType(nameType);
-        from = in.readString();
-        to = in.readString();
-        createdAt = in.readString();
-        content = in.readParcelable(ChatMessageBody.class.getClassLoader());
+    public void downloadVideoThumb(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+        downloadResource(false, callback, progressCallback);
     }
 
-    public static final Parcelable.Creator<ChatMessage> CREATOR =
-            new Parcelable.Creator<ChatMessage>() {
-        @Override
-        public ChatMessage createFromParcel(Parcel in) {
-            return new ChatMessage(in);
+    public void downloadVideo(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+        downloadResource(true, callback, progressCallback);
+    }
+
+    private ResponseError permissionCheck() {
+        if (!isMediaMessage()) {
+            ResponseError error = new ResponseError();
+            error.setMessage("No resource to download, this is not a media message.");
+            return error;
+        }
+        return null;
+    }
+
+    private boolean isFileExists(String filePath) {
+        if (StrUtil.isEmpty(filePath)) {
+            return false;
+        }
+        File fileTest = new File(filePath);
+        if (!fileTest.exists()) {
+            LogUtil.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
+            return false;
+        }
+        return true;
+    }
+
+    private void downloadResource(final boolean isOriginal, final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+        ResponseError error = permissionCheck();
+        if (error != null) {
+            callback.onError(error);
+            return;
         }
 
-        @Override
-        public ChatMessage[] newArray(int size) {
-            return new ChatMessage[size];
+        String filePath;
+        String downloadUrl;
+        final boolean isDownloading;
+        ChatMessageFileContent file = getContent().getFile();
+        if (isOriginal) {
+            filePath = file.getFilePath();
+            downloadUrl = file.getUrl();
+            isDownloading = downloadingOriginal;
+        } else {
+            filePath = file.getThumbnailPath();
+            downloadUrl = file.getThumbUrl();
+            isDownloading = downloadingThumbnail;
         }
-    };
 
-    private ChatMessage(Parcel in) {
-        readFromParcel(in);
-    }
+        if (isDownloading) {
+            return;
+        }
 
-    public void downloadResource(final TSBEngineCallback<ChatMessage> callback, final TSBProgressCallback progressCallback) {
-        final ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        if (isFileExists(filePath)) {
+            callback.onSuccess(filePath);
+            return;
+        }
+
         final ChatMessage message = this;
+        DownloadUtil.downloadResourceIntoLocal(downloadUrl, content.getType(), new TSBEngineCallback<String>() {
 
-        if (getContent().getType() == TYPE.TEXT) {
-            LogUtil.warn(TAG, "Message type is text!");
-            return;
-        }
+            @Override
+            public void onSuccess(String filePath) {
+                content.getFile().setFilePath(filePath);
 
-        if (downloading) {
-            LogUtil.warn(TAG, "Downloading is in progress");
-            return;
-        }
-
-        final ChatMediaMessageBody body = (ChatMediaMessageBody) getContent();
-        String localPath = body.getLocalPath();
-        String downloadUrl = body.getDownloadUrl();
-        try {
-            boolean needDownload = StrUtil.isEmpty(localPath);
-            if (!needDownload) {
-                File fileTest = new File(localPath);
-                if (!fileTest.exists()) {
-                    needDownload = true;
-                    LogUtil.verbose(TAG, "Local file at " + localPath + " is no longer exists, need to download again" );
+                if (mChatManager.isCacheEnabled()) {
+                    ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+                    dataSource.open();
+                    dataSource.upsertMessage(mChatManager.getChatUser().getUserId(), message);
+                    LogUtil.verbose(TAG, "Update message local path " + message);
+                    dataSource.close();
                 }
+
+                if (isOriginal) {
+                    downloadingOriginal = false;
+                } else {
+                    downloadingThumbnail = false;
+                }
+                callback.onSuccess(filePath);
             }
 
-            if (needDownload) {
-                downloading = true;
-                DownloadUtil.downloadResourceIntoLocal(downloadUrl, body.getType(), new TSBEngineCallback<String>() {
-
-                    @Override
-                    public void onSuccess(String filePath) {
-                        downloading = false;
-                        body.setFilePath(filePath);
-
-                        if (mChatManager.isCacheEnabled()) {
-                            dataSource.open();
-                            dataSource.upsertMessage(mChatManager.getChatUser().getUserId(), message);
-                            LogUtil.verbose(TAG, "Update message local path " + message);
-                            dataSource.close();
-                        }
-                        message.setContent(body);
-                        callback.onSuccess(message);
-                    }
-
-                    @Override
-                    public void onError(ResponseError error) {
-                        downloading = false;
-                        callback.onError(error);
-                    }
-                }, progressCallback);
-            } else {
-                callback.onSuccess(message);
+            @Override
+            public void onError(ResponseError error) {
+                callback.onError(error);
             }
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-            callback.onError(mEngine.getUnhandledResponseError());
-        }
+        }, progressCallback);
     }
 
     @Override
@@ -287,7 +278,7 @@ public class ChatMessage implements Parcelable {
     }
 
     private boolean isMediaMessage() {
-        TYPE bodyType = getContent().getType();
-        return bodyType == TYPE.IMAGE || bodyType == TYPE.VOICE || bodyType == TYPE.VIDEO;
+        TYPE contentType = getContent().getType();
+        return contentType == TYPE.IMAGE || contentType == TYPE.VOICE || contentType == TYPE.VIDEO;
     }
 }

@@ -32,8 +32,9 @@ public class ChatIntentService extends IntentService {
 
     private void handleMessages(Intent intent) {
         if (INTENT_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
-            ChatMessage msg = intent.getParcelableExtra(INTENT_EXTRA_KEY_MESSAGE);
-            onMessage(this, msg);
+            String msg = intent.getParcelableExtra(INTENT_EXTRA_KEY_MESSAGE);
+            ChatMessage message = ChatMessage.getSerializer().fromJson(msg, ChatMessage.class);
+            onMessage(this, message);
         }
     }
 

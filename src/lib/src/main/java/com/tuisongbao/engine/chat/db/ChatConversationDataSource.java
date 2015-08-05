@@ -5,24 +5,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +109,8 @@ public class ChatConversationDataSource {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             ChatConversation conversation = createConversation(cursor);
-            conversation.setLastMessage(getLastMessage(userId, conversation.getType(), conversation.getTarget()));
+            ChatMessage lastMessage = getLastMessage(userId, conversation.getType(), conversation.getTarget());
+            conversation.setLastMessage(lastMessage);
             conversations.add(conversation);
             cursor.moveToNext();
         }
@@ -245,15 +241,11 @@ public class ChatConversationDataSource {
         String whereClause = ChatMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
-        ChatMessageBody body = message.getContent();
-        if (body != null && isMediaMessage(message)) {
-            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)body;
-            String localPath = mediaBody.getLocalPath();
-            if (!StrUtil.isEmpty(localPath)) {
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, localPath);
-            }
+        ChatMessageContent content = message.getContent();
+        if (content != null && isMediaMessage(message)) {
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGIN_PATH, content.getFile().getFilePath());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, content.getFile().getThumbnailPath());
         }
-
         values.put(ChatMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
         return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
@@ -326,63 +318,43 @@ public class ChatConversationDataSource {
     }
 
     private ChatMessage createMessage(Cursor cursor) {
-        ChatMessage message = new ChatMessage(mEngine);
+        ChatMessage message = new ChatMessage();
         message.setMessageId(cursor.getLong(1));
         message.setFrom(cursor.getString(2));
         message.setRecipient(cursor.getString(3));
         message.setChatType(ChatType.getType(cursor.getString(4)));
 
         String contentType = cursor.getString(6);
-        ChatMessageBody body = null;
+        ChatMessageContent content = new ChatMessageContent();
+        content.setType(TYPE.getType(contentType));
         if (StrUtil.isEqual(TYPE.TEXT.getName(), contentType)) {
-            ChatTextMessageBody textBody = new ChatTextMessageBody();
-            textBody.setText(cursor.getString(5));
-
-            body = textBody;
+            content.setText(cursor.getString(5));
         } else if (StrUtil.isEqual(TYPE.EVENT.getName(), contentType)) {
-            ChatEventMessageBody eventBody = new ChatEventMessageBody();
-            JsonObject event = new JsonObject();
-            event.addProperty(ChatEventMessageBody.EVENT_TYPE, cursor.getString(14));
-            event.addProperty(ChatEventMessageBody.EVENT_TARGET, cursor.getString(15));
-            eventBody.setEvent(event);
+            ChatMessageEventContent event = new ChatMessageEventContent();
+            event.setType(event.getType(cursor.getString(16)));
+            event.setTarget(cursor.getString(17));
 
-            body = eventBody;
+            content.setEvent(event);
         } else {
-            ChatMediaMessageBody mediaBody = null;
-            if (StrUtil.isEqual(TYPE.IMAGE.getName(), contentType)) {
-                ChatImageMessageBody imageBody = new ChatImageMessageBody();
-                imageBody.setWidth(cursor.getInt(11));
-                imageBody.setHeight(cursor.getInt(12));
-                mediaBody = imageBody;
-            } else if (StrUtil.isEqual(TYPE.VOICE.getName(), contentType)) {
-                ChatVoiceMessageBody voiceBody = new ChatVoiceMessageBody();
-                voiceBody.setDuration(cursor.getString(13));
-                mediaBody = voiceBody;
-            } else if (StrUtil.isEqual(TYPE.VIDEO.getName(), contentType)) {
-                ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
-                videoBody.setDuration(cursor.getString(13));
-                mediaBody = videoBody;
-            }
-            mediaBody.setFilePath(cursor.getString(7));
-            mediaBody.setDownloadUrl(cursor.getString(8));
-            mediaBody.setSize(cursor.getString(9));
-            mediaBody.setMimeType(cursor.getString(10));
+            ChatMessageFileContent file = new ChatMessageFileContent();
+            file.setFrame(cursor.getInt(13), cursor.getInt(14));
+            file.setDuration(cursor.getDouble(15));
+            file.setFilePath(cursor.getString(7));
+            file.setUrl(cursor.getString(8));
+            file.setThumbnailPath(cursor.getString(9));
+            file.setThumbUrl(cursor.getString(10));
+            file.setSize(cursor.getDouble(11));
+            file.setMimeType(cursor.getString(12));
 
-            body = mediaBody;
+            content.setFile(file);
         }
 
-        String extraString = cursor.getString(16);
-        if (extraString != null && extraString.length() > 0) {
-            try {
-                JsonParser parser = new JsonParser();
-                JsonObject extraInJson = (JsonObject)parser.parse(extraString);
-                body.setExtra(extraInJson);
-            } catch (Exception e) {
-                LogUtil.error(TAG, e);
-            }
-        }
-        message.setContent(body);
-        message.setCreatedAt(cursor.getString(17));
+        String extraString = cursor.getString(18);
+        Gson gson = new Gson();
+        content.setExtra(gson.fromJson(extraString, JsonObject.class));
+
+        message.setContent(content);
+        message.setCreatedAt(cursor.getString(19));
 
         return message;
     }
@@ -414,36 +386,28 @@ public class ChatConversationDataSource {
         values.put(ChatMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
         values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getContent().getType().getName());
 
+        ChatMessageContent content = message.getContent();
         if (message.getContent().getType() == TYPE.TEXT) {
-            ChatTextMessageBody textMessageBody = (ChatTextMessageBody)message.getContent();
-            values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
+            values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, content.getText());
         } else if (isMediaMessage(message)) {
-            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getContent();
+            ChatMessageFileContent file = content.getFile();
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGIN_PATH, file.getFilePath());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_URL, file.getUrl());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMB_URL, file.getThumbUrl());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_SIZE, file.getSize());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, file.getMimeType());
 
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_SIZE, mediaBody.getSize());
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_MIMETYPE, mediaBody.getMimeType());
-
-            if (mediaBody instanceof ChatImageMessageBody) {
-                ChatImageMessageBody imageBody = (ChatImageMessageBody)mediaBody;
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_WIDTH, imageBody.getWidth());
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_HEIGHT, imageBody.getHeight());
-            } else if (mediaBody instanceof ChatVoiceMessageBody) {
-                ChatVoiceMessageBody voiceBody = (ChatVoiceMessageBody)mediaBody;
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, voiceBody.getDuration());
-            } else if (mediaBody instanceof ChatVideoMessageBody) {
-                ChatVideoMessageBody videoBody = (ChatVideoMessageBody)mediaBody;
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
-            }
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_WIDTH, file.getWidth());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_HEIGHT, file.getHeight());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, file.getDuration());
 
         } else if (message.getContent().getType() == TYPE.EVENT) {
-            ChatEventMessageBody eventBody = (ChatEventMessageBody)message.getContent();
-            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
-            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
+            ChatMessageEventContent event = message.getContent().getEvent();
+            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TYPE, event.getType().getName());
+            values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TARGET, event.getTarget());
         }
 
-        JSONObject extra = message.getContent().getExtra();
+        JsonElement extra = message.getContent().getExtra();
         LogUtil.debug(TAG, extra + "");
         if (extra != null) {
             values.put(ChatMessageSQLiteHelper.COLUMN_EXTRA, extra.toString());

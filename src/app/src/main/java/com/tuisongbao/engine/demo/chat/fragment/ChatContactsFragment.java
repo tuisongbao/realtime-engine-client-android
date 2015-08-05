@@ -86,7 +86,7 @@ public class ChatContactsFragment extends Fragment {
                 conversation.setTarget(mFriendsList.get(arg2).getUserId());
                 conversation.setType(ChatType.SingleChat);
 
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation.serialize());
                 startActivity(intent);
             }
         });

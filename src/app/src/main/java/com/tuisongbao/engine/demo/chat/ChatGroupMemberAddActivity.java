@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.util.StrUtil;
 
@@ -29,7 +30,8 @@ public class ChatGroupMemberAddActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_member_add);
         mEditText = (EditText) findViewById(R.id.group_member_add_edittext);
-        mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
+        String groupString = getIntent().getStringExtra(EXTRA_KEY_GROUP);
+        mGroup = ChatGroup.deserialize(DemoApplication.engine, groupString);
     }
 
     @Override

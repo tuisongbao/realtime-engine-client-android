@@ -19,6 +19,7 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
+import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatGroupUserAdapter;
 
@@ -42,7 +43,8 @@ public class ChatGroupMemberActivity extends Activity {
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
         mListGroupUser = new ArrayList<ChatUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
-        mGroup = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
+        String groupString = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
+        mGroup = ChatGroup.deserialize(DemoApplication.engine, groupString);
 
         mAdapter = new ChatGroupUserAdapter(mListGroupUser, this);
         mListViewGroupUser.setAdapter(mAdapter);
@@ -96,7 +98,7 @@ public class ChatGroupMemberActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.group_member_add) {
             Intent intent = new Intent(this, ChatGroupMemberAddActivity.class);
-            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP, mGroup);
+            intent.putExtra(ChatGroupMemberAddActivity.EXTRA_KEY_GROUP, mGroup.serialize());
             startActivity(intent);
             return true;
         }

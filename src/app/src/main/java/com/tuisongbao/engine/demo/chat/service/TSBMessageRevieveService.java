@@ -15,7 +15,7 @@ public class TSBMessageRevieveService extends ChatIntentService {
     public void onMessage(Context context, ChatMessage msg) {
         super.onMessage(context, msg);
         Intent intent = new Intent(BROADCAST_ACTION_RECEIVED_MESSAGE);
-        intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, msg);
+        intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, msg.serialize());
         sendBroadcast(intent);
     }
 }

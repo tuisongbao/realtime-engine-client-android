@@ -66,7 +66,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     private void receivedMessage(final ChatMessage message) {
         Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
         intent.setAction(ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE);
-        intent.putExtra(ChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message);
+        intent.putExtra(ChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message.serialize());
         TSBEngine.getContext().startService(intent);
     }
 

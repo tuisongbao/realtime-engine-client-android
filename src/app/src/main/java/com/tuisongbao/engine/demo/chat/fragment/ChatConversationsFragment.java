@@ -39,7 +39,7 @@ public class ChatConversationsFragment extends Fragment {
     private ListView mConversationsListView;
     private List<ChatConversation> mConversationList;
     private ChatConversationsAdapter mConversationsAdapter;
-    private HashMap<String, ChatConversation> mConversationHashMap = new HashMap<String, ChatConversation>();
+    private HashMap<String, ChatConversation> mConversationHashMap = new HashMap<>();
     private ChatConversation mClickedChatConversation;
 
     public static ChatConversationsFragment getInstance() {
@@ -74,7 +74,7 @@ public class ChatConversationsFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedChatConversation);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedChatConversation.serialize());
                 startActivity(intent);
             }
         });

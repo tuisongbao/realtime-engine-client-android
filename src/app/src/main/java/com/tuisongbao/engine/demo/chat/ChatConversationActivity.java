@@ -34,12 +34,11 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatTextMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVideoMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -100,12 +99,6 @@ public class ChatConversationActivity extends Activity implements
             t.setFrom(LoginCache.getUserId());
             mMessageList.add(t);
 
-            // Notify dashboard to update the latest message of this conversation
-            Intent intent = new Intent(
-                    BROADCAST_ACTION_MESSAGE_SENT);
-            intent.putExtra(BROADCAST_EXTRA_KEY_MESSAGE, t);
-            sendBroadcast(intent);
-
             runOnUiThread(new Runnable() {
 
                 @Override
@@ -138,8 +131,8 @@ public class ChatConversationActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        mConversation = getIntent().getParcelableExtra(EXTRA_CONVERSATION);
-        mConversation.setOwner(DemoApplication.engine);
+        String conversationString = getIntent().getStringExtra(EXTRA_CONVERSATION);
+        mConversation = ChatConversation.deserialize(DemoApplication.engine, conversationString);
 
         mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
         mContentEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
@@ -187,9 +180,10 @@ public class ChatConversationActivity extends Activity implements
 
             @Override
             public void onClick(View v) {
-                ChatMessageBody body = new ChatTextMessageBody(mContentEditText
-                        .getText().toString());
-                mConversation.sendMessage(body, sendMessageCallback);
+                ChatMessageContent content = new ChatMessageContent();
+                content.setType(ChatMessage.TYPE.TEXT);
+                content.setText(mContentEditText.getText().toString());
+                mConversation.sendMessage(content, sendMessageCallback);
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
@@ -379,14 +373,14 @@ public class ChatConversationActivity extends Activity implements
             getLoaderManager().restartLoader(0, null, this);
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
             String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
-            ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
-            videoBody.setFilePath(videoPath);
-            mConversation.sendMessage(videoBody, sendMessageCallback);
+            ChatMessageVideoContent content = new ChatMessageVideoContent();
+            content.setFilePath(videoPath);
+            mConversation.sendMessage(content, sendMessageCallback);
         } else if (requestCode == REQUEST_CODE_PHOTO && resultCode == RESULT_OK) {
             String photoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_PHOTO);
-            ChatImageMessageBody imageBody = new ChatImageMessageBody();
-            imageBody.setFilePath(photoPath);
-            mConversation.sendMessage(imageBody, sendMessageCallback);
+            ChatMessageImageContent content = new ChatMessageImageContent();
+            content.setFilePath(photoPath);
+            mConversation.sendMessage(content, sendMessageCallback);
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -409,7 +403,7 @@ public class ChatConversationActivity extends Activity implements
             ChatGroup group = new ChatGroup(DemoApplication.engine);
             group.setGroupId(mConversation.getTarget());
             Intent intent = new Intent(this, ChatGroupMemberActivity.class);
-            intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group);
+            intent.putExtra(ChatGroupMemberActivity.EXTRA_KEY_GROUP, group.serialize());
             startActivity(intent);
             return true;
         }
@@ -511,9 +505,9 @@ public class ChatConversationActivity extends Activity implements
     }
 
     private void sendVoiceMessage(String filePath) {
-        ChatVoiceMessageBody body = new ChatVoiceMessageBody();
-        body.setFilePath(filePath);
-        mConversation.sendMessage(body, sendMessageCallback);
+        ChatMessageVoiceContent content = new ChatMessageVoiceContent();
+        content.setFilePath(filePath);
+        mConversation.sendMessage(content, sendMessageCallback);
     }
 
     private void request() {
@@ -567,9 +561,10 @@ public class ChatConversationActivity extends Activity implements
                     "Send failed, file not exist", Toast.LENGTH_LONG).show();
             return;
         }
-        ChatImageMessageBody body = new ChatImageMessageBody();
-        body.setFilePath(filePath);
-        mConversation.sendMessage(body, sendMessageCallback);
+
+        ChatMessageImageContent content = new ChatMessageImageContent();
+        content.setFilePath(filePath);
+        mConversation.sendMessage(content, sendMessageCallback);
     }
 
     private void registerBroadcast() {
@@ -591,8 +586,9 @@ public class ChatConversationActivity extends Activity implements
             if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
                     .equals(action)) {
                 String target = mConversation.getTarget();
-                ChatMessage message = intent
+                String messageString = intent
                         .getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                ChatMessage message = ChatMessage.getSerializer().fromJson(messageString, ChatMessage.class);
                 Log.i(TAG,
                         "App get " + message.toString() + " to "
                                 + message.getRecipient()

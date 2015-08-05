@@ -2,7 +2,6 @@ package com.tuisongbao.engine.demo.chat.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,6 @@ import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 
@@ -93,37 +90,19 @@ public class ChatConversationsAdapter extends BaseAdapter {
         // Show the latest message
         final TextView messageTextView = (TextView) convertView
                 .findViewById(R.id.list_item_conversation_latest_message);
-        conversation.getMessages(null, null, 1, new TSBEngineCallback<List<ChatMessage>>() {
 
-            @Override
-            public void onSuccess(List<ChatMessage> t) {
-                if (t != null && t.size() > 0) {
-                    final ChatMessage message = t.get(0);
-                    ((FragmentActivity)mContext).runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            String simplifiedMessage = message.getText();
-                            TYPE messageType = message.getContent().getType();
-                            if (messageType == TYPE.IMAGE) {
-                                simplifiedMessage = "[图片]";
-                            } else if (messageType == TYPE.VOICE) {
-                                simplifiedMessage = "[语音]";
-                            } else if (messageType == TYPE.EVENT) {
-                                simplifiedMessage = ToolUtils.getEventMessage(message);
-                            }
-                            messageTextView.setText(simplifiedMessage);
-                            messageTextView.setTextColor(mContext.getResources().getColor(R.color.gray));
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onError(ResponseError error) {
-
-            }
-        });
+        ChatMessage lastMessage = conversation.getLastMessage();
+        String simplifiedMessage = lastMessage.getContent().getText();
+        TYPE messageType = lastMessage.getContent().getType();
+        if (messageType == TYPE.IMAGE) {
+            simplifiedMessage = "[图片]";
+        } else if (messageType == TYPE.VOICE) {
+            simplifiedMessage = "[语音]";
+        } else if (messageType == TYPE.EVENT) {
+            simplifiedMessage = ToolUtils.getEventMessage(lastMessage);
+        }
+        messageTextView.setText(simplifiedMessage);
+        messageTextView.setTextColor(mContext.getResources().getColor(R.color.gray));
 
         return convertView;
     }

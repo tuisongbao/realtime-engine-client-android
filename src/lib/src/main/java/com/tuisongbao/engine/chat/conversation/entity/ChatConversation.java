@@ -1,19 +1,20 @@
 package com.tuisongbao.engine.chat.conversation.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
+import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.List;
 
-public class ChatConversation implements Parcelable {
+public class ChatConversation {
+    transient private static final String TAG = ChatConversation.class.getSimpleName();
+
     private ChatType type;
     private String target;
     private int unreadMessageCount;
@@ -26,6 +27,24 @@ public class ChatConversation implements Parcelable {
     public ChatConversation(TSBEngine engine) {
         mEngine = engine;
         mConversationManager = engine.getChatManager().getConversationManager();
+    }
+
+    public static ChatConversation deserialize(TSBEngine engine, String jsonString) {
+        try {
+            ChatConversation conversation = getSerializer().fromJson(jsonString, ChatConversation.class);
+            conversation.mEngine = engine;
+            conversation.mConversationManager = engine.getChatManager().getConversationManager();
+
+            return conversation;
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+            return null;
+        }
+    }
+
+    public String serialize() {
+        String stream = getSerializer().toJson(this);
+        return stream;
     }
 
     public ChatType getType() {
@@ -66,16 +85,6 @@ public class ChatConversation implements Parcelable {
 
     public void setLastMessage(ChatMessage lastMessage) {
         this.lastMessage = lastMessage;
-    }
-
-    /***
-     * After parceling, the conversation will lost the conversation manager context. so you have to recover it after you get conversation from parcel.
-     *
-     * @param engine
-     */
-    public void setOwner(TSBEngine engine) {
-        mEngine = engine;
-        mConversationManager = engine.getChatManager().getConversationManager();
     }
 
     /***
@@ -120,14 +129,18 @@ public class ChatConversation implements Parcelable {
      * @param callback
      *          可选
      */
-    public void sendMessage(ChatMessageBody body, TSBEngineCallback<ChatMessage> callback) {
-        sendMessage(body, callback, null);
+    public ChatMessage sendMessage(ChatMessageContent body, TSBEngineCallback<ChatMessage> callback) {
+        return sendMessage(body, callback, null);
     }
 
-    private void sendMessage(ChatMessageBody body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
-        ChatMessage message = new ChatMessage(mEngine);
+    private ChatMessage sendMessage(ChatMessageContent body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
+        ChatMessage message = new ChatMessage();
         message.setContent(body).setChatType(type).setRecipient(target);
-        mEngine.getChatManager().getMessageManager().sendMessage(message, callback, options);
+        return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, options);
+    }
+
+    private static Gson getSerializer() {
+        return ChatMessage.getSerializer();
     }
 
     @Override
@@ -135,37 +148,4 @@ public class ChatConversation implements Parcelable {
         return String.format("ChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s]"
                 , type.getName(), target, unreadMessageCount, lastActiveAt);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flag) {
-        out.writeString(type.getName());
-        out.writeString(target);
-        out.writeInt(unreadMessageCount);
-        out.writeString(lastActiveAt);
-    }
-
-    private ChatConversation(Parcel in) {
-        setType(ChatType.getType(in.readString()));
-        setTarget(in.readString());
-        setUnreadMessageCount(in.readInt());
-        setLastActiveAt(in.readString());
-    }
-
-    public static final Parcelable.Creator<ChatConversation> CREATOR =
-            new Parcelable.Creator<ChatConversation>() {
-        @Override
-        public ChatConversation createFromParcel(Parcel in) {
-            return new ChatConversation(in);
-        }
-
-        @Override
-        public ChatConversation[] newArray(int arg0) {
-            return null;
-        }
-    };
 }

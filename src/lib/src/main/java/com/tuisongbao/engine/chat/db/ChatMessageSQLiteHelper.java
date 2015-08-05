@@ -23,8 +23,10 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     /**
      * file properties
      */
-    public static final String COLUMN_FILE_LOCAL_PATH = "localPath";
-    public static final String COLUMN_FILE_DOWNLOAD_URL = "downloadUrl";
+    public static final String COLUMN_FILE_ORIGIN_PATH = "originPath";
+    public static final String COLUMN_FILE_URL = "Url";
+    public static final String COLUMN_FILE_THUMBNAIL_PATH = "thumbnailPath";
+    public static final String COLUMN_FILE_THUMB_URL = "thumbUrl";
     public static final String COLUMN_FILE_SIZE = "size";
     public static final String COLUMN_FILE_MIMETYPE = "mimeType";
     /**
@@ -54,28 +56,30 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         String createDatabaseString = "create table if not exists "
-          + TABLE_CHAT_MESSAGE + "(" + COLUMN_ID
-          + " text primary key, "
-          + COLUMN_MESSAGE_ID + " integer not null, "
-          + COLUMN_FROM + " text not null, "
-          + COLUMN_TO + " text not null, "
-          + COLUMN_CHAT_TYPE + " text not null, "
-          + COLUMN_CONTENT + " text, "
-          + COLUMN_CONTENT_TYPE + " text not null, "
+            + TABLE_CHAT_MESSAGE + "(" + COLUMN_ID
+            + " text primary key, "
+            + COLUMN_MESSAGE_ID + " integer not null, "
+            + COLUMN_FROM + " text not null, "
+            + COLUMN_TO + " text not null, "
+            + COLUMN_CHAT_TYPE + " text not null, "
+            + COLUMN_CONTENT + " text, "
+            + COLUMN_CONTENT_TYPE + " text not null, "
 
-          + COLUMN_FILE_LOCAL_PATH + " text, "
-          + COLUMN_FILE_DOWNLOAD_URL + " text, "
-          + COLUMN_FILE_SIZE + " text, "
-          + COLUMN_FILE_MIMETYPE + " text, "
-          + COLUMN_FILE_WIDTH + " integer, "
-          + COLUMN_FILE_HEIGHT + " integer, "
-          + COLUMN_FILE_DURATION + " text, "
+            + COLUMN_FILE_ORIGIN_PATH + " text, "
+            + COLUMN_FILE_URL + " text, "
+            + COLUMN_FILE_THUMBNAIL_PATH + " text, "
+            + COLUMN_FILE_THUMB_URL + " text, "
+            + COLUMN_FILE_SIZE + " double, "
+            + COLUMN_FILE_MIMETYPE + " text, "
+            + COLUMN_FILE_WIDTH + " integer, "
+            + COLUMN_FILE_HEIGHT + " integer, "
+            + COLUMN_FILE_DURATION + " double, "
 
-          + COLUMN_EVENT_TYPE + " text, "
-          + COLUMN_EVENT_TARGET + " text, "
-          + COLUMN_EXTRA + " text, "
-          + COLUMN_CREATED_AT + " text not null"
-          + ");";
+            + COLUMN_EVENT_TYPE + " text, "
+            + COLUMN_EVENT_TARGET + " text, "
+            + COLUMN_EXTRA + " text, "
+            + COLUMN_CREATED_AT + " text not null"
+            + ");";
         LogUtil.debug(TAG, createDatabaseString);
         database.execSQL(createDatabaseString);
     }
@@ -83,7 +87,7 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         LogUtil.warn(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
+                      + newVersion + ", which will destroy all old data");
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_MESSAGE);
         onCreate(database);
     }

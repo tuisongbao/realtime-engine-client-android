@@ -2,7 +2,6 @@ package com.tuisongbao.engine.chat.message;
 
 import android.util.Log;
 
-import com.google.gson.JsonObject;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UpProgressHandler;
@@ -10,10 +9,9 @@ import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.ChatOptions;
-import com.tuisongbao.engine.chat.message.entity.ChatImageMessageBody;
-import com.tuisongbao.engine.chat.message.entity.ChatMediaMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatVoiceMessageBody;
+import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageSendEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
@@ -22,7 +20,6 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.util.StrUtil;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -46,9 +43,10 @@ public class ChatMessageManager extends BaseManager {
      *            消息
      * @param callback
      */
-    public void sendMessage(final ChatMessage message,
+    public ChatMessage sendMessage(final ChatMessage message,
                             final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         try {
+            message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
             if (messageType == ChatMessage.TYPE.TEXT) {
                 sendMessageRequest(message, callback);
@@ -59,9 +57,10 @@ public class ChatMessageManager extends BaseManager {
             callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
+        return message;
     }
 
-    private void sendMessageRequest(ChatMessage message, TSBEngineCallback<ChatMessage> callback) throws JSONException {
+    private void sendMessageRequest(ChatMessage message, TSBEngineCallback<ChatMessage> callback)  {
         ChatMessageSendEvent request = new ChatMessageSendEvent();
         message.setCreatedAt(StrUtil.getTimeStringIOS8061(new Date()));
         request.setData(message);
@@ -82,8 +81,8 @@ public class ChatMessageManager extends BaseManager {
 
     private boolean uploadMessageResourceToQiniu(ChatMessage message, final TSBEngineCallback<JSONObject> responseHandler,
                                                  final ChatOptions options) {
-        ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getContent();
-        String filePath = mediaBody.getLocalPath();
+        ChatMessageContent content = message.getContent();
+        String filePath = content.getFile().getFilePath();
         if (StrUtil.isEmpty(filePath)) {
             return false;
         }
@@ -128,33 +127,37 @@ public class ChatMessageManager extends BaseManager {
 
             @Override
             public void onSuccess(JSONObject responseObject) {
+                ChatMessageContent content = message.getContent();
+                ChatMessageFileContent file = new ChatMessageFileContent();
                 try {
-                    LogUtil.info(TAG, "Get response from QINIU " + responseObject.toString(4));
-                    ChatMediaMessageBody body = (ChatMediaMessageBody) message.getContent();
-
-                    JsonObject file = new JsonObject();
-                    file.addProperty(ChatImageMessageBody.KEY, responseObject.getString("key"));
-                    file.addProperty(ChatImageMessageBody.ETAG, responseObject.getString("etag"));
-                    file.addProperty(ChatImageMessageBody.NAME, responseObject.getString("fname"));
-                    file.addProperty(ChatImageMessageBody.SIZE, responseObject.getString("fsize"));
-                    file.addProperty(ChatImageMessageBody.MIME_TYPE, responseObject.getString("mimeType"));
-
-                    ChatMessage.TYPE messageType = body.getType();
-                    if (messageType == ChatMessage.TYPE.IMAGE) {
-                        JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
-                        file.addProperty(ChatImageMessageBody.IMAGE_INFO_WIDTH, imageInfoInResponse.getInt("width"));
-                        file.addProperty(ChatImageMessageBody.IMAGE_INFO_HEIGHT, imageInfoInResponse.getInt("height"));
-                        body.setFile(file);
-                    } else if (messageType == ChatMessage.TYPE.VOICE || messageType == ChatMessage.TYPE.VIDEO) {
-                        JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
-                        file.addProperty(ChatVoiceMessageBody.VOICE_INFO_DURATION, formatInfoInResponse.getString("duration"));
-                        body.setFile(file);
-                    }
-                    body.setFile(file);
-                    message.setContent(body);
-                    sendMessageRequest(message, callback);
+                    file.setKey(responseObject.getString("key"));
                 } catch (Exception e) {
                     LogUtil.error(TAG, e);
+
+                    // If can not get key from response, Server can not generate download url, so call error directly.
+                    ResponseError error = new ResponseError();
+                    error.setMessage("Failed to upload resource");
+                    callback.onError(error);
+                    return;
+                }
+                try {
+                    LogUtil.info(TAG, "Get response from QINIU " + responseObject.toString(4));
+
+                    ChatMessage.TYPE messageType = content.getType();
+                    if (messageType == ChatMessage.TYPE.IMAGE) {
+                        JSONObject imageInfoInResponse = responseObject.getJSONObject("imageInfo");
+                        file.setFrame(imageInfoInResponse.getInt("width"), imageInfoInResponse.getInt("height"));
+                    } else if (messageType == ChatMessage.TYPE.VOICE || messageType == ChatMessage.TYPE.VIDEO) {
+                        JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
+                        file.setDuration(formatInfoInResponse.getDouble("duration"));
+                    }
+                } catch (Exception e) {
+                    LogUtil.error(TAG, e);
+                } finally {
+                    // If some exception occurs when parsing the other properties, do not block sending message.
+                    content.setFile(file);
+                    message.setContent(content);
+                    sendMessageRequest(message, callback);
                 }
             }
 

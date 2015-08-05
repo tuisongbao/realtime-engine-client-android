@@ -1,8 +1,6 @@
 package com.tuisongbao.engine.chat.group.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
+import com.google.gson.Gson;
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
@@ -10,7 +8,7 @@ import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 
 import java.util.List;
 
-public class ChatGroup implements Parcelable {
+public class ChatGroup {
     private String groupId;
     private String owner;
     private boolean isPublic;
@@ -30,6 +28,18 @@ public class ChatGroup implements Parcelable {
     public ChatGroup(TSBEngine engine) {
         mEngine = engine;
         mGroupManager = mEngine.getChatManager().getGroupManager();
+    }
+
+    public static ChatGroup deserialize(TSBEngine engine, String jsonString) {
+        ChatGroup group = getSerializer().fromJson(jsonString, ChatGroup.class);
+        group.mEngine = engine;
+        group.mGroupManager = engine.getChatManager().getGroupManager();
+
+        return group;
+    }
+
+    public String serialize() {
+        return getSerializer().toJson(this);
     }
 
     public String getGroupId() {
@@ -136,48 +146,13 @@ public class ChatGroup implements Parcelable {
         mGroupManager.leave(groupId, callback);
     }
 
+    private static Gson getSerializer() {
+        return new Gson();
+    }
+
     @Override
     public String toString() {
         return String.format("ChatGroup[groupId: %s, owner: %s, isPublic: %s, userCanInvite: %s, userCount: %s, userCountLimit: %s"
                 , groupId, owner, isPublic, userCanInvite, userCount, userCountLimit);
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel out, int flag) {
-        out.writeString(groupId);
-        out.writeString(owner);
-        out.writeInt(isPublic ? 1 : 0);
-        out.writeInt(userCanInvite ? 1 : 0);
-        out.writeInt(userCount);
-        out.writeInt(userCountLimit);
-        out.writeString(lastActiveAt);
-    }
-
-    private ChatGroup(Parcel in) {
-        setGroupId(in.readString());
-        setOwner(in.readString());
-        setIsPublic(in.readInt() == 0 ? false : true);
-        setUserCanInvite(in.readInt() == 0 ? false : true);
-        setUserCount(in.readInt());
-        setUserCountLimit(in.readInt());
-        setLastActiveAt(in.readString());
-    }
-
-    public static final Parcelable.Creator<ChatGroup> CREATOR =
-            new Parcelable.Creator<ChatGroup>() {
-        @Override
-        public ChatGroup createFromParcel(Parcel in) {
-            return new ChatGroup(in);
-        }
-
-        @Override
-        public ChatGroup[] newArray(int arg0) {
-            return null;
-        }
-    };
 }

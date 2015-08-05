@@ -49,7 +49,7 @@ public class ChatGroupsActivity extends Activity {
 
                 Intent intent = new Intent(ChatGroupsActivity.this,
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation.serialize());
                 startActivity(intent);
             }
         });
