@@ -4,11 +4,12 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatGroupGetEvent extends BaseEvent<ChatGroupEventData> {
-
-    public static final String NAME = "engine_chat:group:get";
+    private static final String TAG = ChatGroupGetEvent.class.getSimpleName();
 
     public ChatGroupGetEvent() {
-        super(NAME);
-    }
+        super("engine_chat:group:get");
 
+        serializeFields.add("groupId");
+        serializeFields.add("lastActiveAt");
+    }
 }

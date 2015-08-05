@@ -6,14 +6,13 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.tuisongbao.engine.chat.event.event.ChatEventMessageBody;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.log.LogUtil;
 
 import org.json.JSONObject;
 
 public abstract class ChatMessageBody implements Parcelable {
-    private static final String TAG = "TSB" + "com.tuisongbao.engine.ChatMessageBody";
+    private static final String TAG = "TSB" + ChatMessageBody.class.getSimpleName();
 
     /**
      * The extra of JSONObject type would create 'namevaluepairs' field after serialization by gson.
@@ -63,26 +62,6 @@ public abstract class ChatMessageBody implements Parcelable {
             LogUtil.error(TAG, e);
         }
         return extraInJSON;
-    }
-
-    public static ChatMessageBody createMessage(TYPE type) {
-        ChatMessageBody body = null;
-        if (type == null) {
-            body = new ChatTextMessageBody();
-        }
-        if (type == TYPE.TEXT) {
-            body = new ChatTextMessageBody();
-        } else if (type == TYPE.IMAGE) {
-            body = new ChatImageMessageBody();
-            body.setType(TYPE.IMAGE);
-        } else if (type == TYPE.VOICE) {
-            body = new ChatVoiceMessageBody();
-            body.setType(TYPE.VOICE);
-        } else if (type == TYPE.EVENT) {
-            body = new ChatEventMessageBody();
-            body.setType(TYPE.EVENT);
-        }
-        return body;
     }
 
     @Override

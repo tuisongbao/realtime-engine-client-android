@@ -104,7 +104,7 @@ public class ChatConversationsAdapter extends BaseAdapter {
                         @Override
                         public void run() {
                             String simplifiedMessage = message.getText();
-                            TYPE messageType = message.getBody().getType();
+                            TYPE messageType = message.getContent().getType();
                             if (messageType == TYPE.IMAGE) {
                                 simplifiedMessage = "[图片]";
                             } else if (messageType == TYPE.VOICE) {

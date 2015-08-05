@@ -9,13 +9,10 @@ import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class ChatMessageGetEvent extends
-        BaseEvent<ChatMessageGetData> {
-
-    public static final String NAME = "engine_chat:message:get";
+public class ChatMessageGetEvent extends BaseEvent<ChatMessageGetData> {
 
     public ChatMessageGetEvent() {
-        super(NAME);
+        super("engine_chat:message:get");
     }
 
     @Override
@@ -27,5 +24,4 @@ public class ChatMessageGetEvent extends
                 new ChatMessageTypeSerializer());
         return gsonBuilder.create();
     }
-
 }

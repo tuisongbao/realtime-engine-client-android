@@ -245,7 +245,7 @@ public class ChatConversationDataSource {
         String whereClause = ChatMessageSQLiteHelper.COLUMN_ID + " = ?";
 
         ContentValues values = new ContentValues();
-        ChatMessageBody body = message.getBody();
+        ChatMessageBody body = message.getContent();
         if (body != null && isMediaMessage(message)) {
             ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)body;
             String localPath = mediaBody.getLocalPath();
@@ -363,7 +363,7 @@ public class ChatConversationDataSource {
                 videoBody.setDuration(cursor.getString(13));
                 mediaBody = videoBody;
             }
-            mediaBody.setLocalPath(cursor.getString(7));
+            mediaBody.setFilePath(cursor.getString(7));
             mediaBody.setDownloadUrl(cursor.getString(8));
             mediaBody.setSize(cursor.getString(9));
             mediaBody.setMimeType(cursor.getString(10));
@@ -381,7 +381,7 @@ public class ChatConversationDataSource {
                 LogUtil.error(TAG, e);
             }
         }
-        message.setBody(body);
+        message.setContent(body);
         message.setCreatedAt(cursor.getString(17));
 
         return message;
@@ -412,13 +412,13 @@ public class ChatConversationDataSource {
         values.put(ChatMessageSQLiteHelper.COLUMN_FROM, message.getFrom());
         values.put(ChatMessageSQLiteHelper.COLUMN_TO, message.getRecipient());
         values.put(ChatMessageSQLiteHelper.COLUMN_CHAT_TYPE, message.getChatType().getName());
-        values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getBody().getType().getName());
+        values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT_TYPE, message.getContent().getType().getName());
 
-        if (message.getBody().getType() == TYPE.TEXT) {
-            ChatTextMessageBody textMessageBody = (ChatTextMessageBody)message.getBody();
+        if (message.getContent().getType() == TYPE.TEXT) {
+            ChatTextMessageBody textMessageBody = (ChatTextMessageBody)message.getContent();
             values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, textMessageBody.getText());
         } else if (isMediaMessage(message)) {
-            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getBody();
+            ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getContent();
 
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_LOCAL_PATH, mediaBody.getLocalPath());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DOWNLOAD_URL, mediaBody.getDownloadUrl());
@@ -437,13 +437,13 @@ public class ChatConversationDataSource {
                 values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, videoBody.getDuration());
             }
 
-        } else if (message.getBody().getType() == TYPE.EVENT) {
-            ChatEventMessageBody eventBody = (ChatEventMessageBody)message.getBody();
+        } else if (message.getContent().getType() == TYPE.EVENT) {
+            ChatEventMessageBody eventBody = (ChatEventMessageBody)message.getContent();
             values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TYPE, eventBody.getEventType().getName());
             values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TARGET, eventBody.getEventTarget());
         }
 
-        JSONObject extra = message.getBody().getExtra();
+        JSONObject extra = message.getContent().getExtra();
         LogUtil.debug(TAG, extra + "");
         if (extra != null) {
             values.put(ChatMessageSQLiteHelper.COLUMN_EXTRA, extra.toString());
@@ -455,7 +455,7 @@ public class ChatConversationDataSource {
     }
 
     private boolean isMediaMessage(ChatMessage message) {
-        TYPE type = message.getBody().getType();
+        TYPE type = message.getContent().getType();
         return type  == TYPE.IMAGE || type == TYPE.VOICE || type == TYPE.VIDEO;
     }
 

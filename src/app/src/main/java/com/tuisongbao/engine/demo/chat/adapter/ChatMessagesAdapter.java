@@ -82,7 +82,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             TextView eventMessageTextView = (TextView)convertView.findViewById(R.id.list_item_chat_event_message);
 
             // Handle event message
-            if (message.getBody().getType() == TYPE.EVENT) {
+            if (message.getContent().getType() == TYPE.EVENT) {
                 layoutSend.setVisibility(View.GONE);
                 layoutReplay.setVisibility(View.GONE);
                 eventMessageTextView.setVisibility(View.VISIBLE);
@@ -138,7 +138,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             voiceButton = (Button) convertView.findViewById(R.id.list_item_chat_detail_reply_content_voice);
         }
 
-        ChatMessageBody messageBody = message.getBody();
+        ChatMessageBody messageBody = message.getContent();
         if (messageBody.getType() == TYPE.TEXT) {
             textView.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.GONE);
@@ -169,7 +169,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVoiceMessage(final ChatMessage message, View convertView, final Button voiceButton) {
-        ChatVoiceMessageBody body = (ChatVoiceMessageBody)message.getBody();
+        ChatVoiceMessageBody body = (ChatVoiceMessageBody)message.getContent();
         final String duration = body.getDuration();
         voiceButton.setText("voice: " + duration);
 
@@ -281,7 +281,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVideoWidget(final ChatMessage message, View convertView, final Button voiceButton) {
-        final ChatVideoMessageBody body = (ChatVideoMessageBody)message.getBody();
+        final ChatVideoMessageBody body = (ChatVideoMessageBody)message.getContent();
         final String duration = body.getDuration();
         voiceButton.setText("video: " + duration);
 

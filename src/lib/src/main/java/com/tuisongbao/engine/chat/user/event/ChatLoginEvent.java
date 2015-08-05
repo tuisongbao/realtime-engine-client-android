@@ -5,9 +5,7 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatLoginEvent extends BaseEvent<ChatLoginData> {
 
-    public static final String NAME = "engine_chat:user:login";
-
     public ChatLoginEvent() {
-        super(NAME);
+        super("engine_chat:user:login");
     }
 }

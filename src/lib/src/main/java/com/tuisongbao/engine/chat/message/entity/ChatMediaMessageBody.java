@@ -7,18 +7,12 @@ public abstract class ChatMediaMessageBody extends ChatMessageBody {
 
     public static final String KEY = "key";
     public static final String DOWNLOAD_URL = "downloadUrl";
-    public static final String LOCAL_PATH = "localPath";
     public static final String ETAG = "etag";
     public static final String NAME = "name";
     public static final String SIZE = "size";
     public static final String MIME_TYPE = "mimeType";
 
-    // According to the rule of Gson, this will be serialized to
-    // file:
-    //     width:
-    //     height:
-    //     ....
-    // this field is used to generate the `file` key
+    transient  public static final String FILE_PATH = "filePath";
     /**
      * According to the rule of Gson, this will be serialized to
      * file:
@@ -36,12 +30,12 @@ public abstract class ChatMediaMessageBody extends ChatMessageBody {
         file = new JsonObject();
     }
 
-    public void setLocalPath(String path) {
-        file.addProperty(LOCAL_PATH, path);
+    public void setFilePath(String path) {
+        file.addProperty(FILE_PATH, path);
     }
 
     public String getLocalPath() {
-        JsonElement localPathElement = file.get(LOCAL_PATH);
+        JsonElement localPathElement = file.get(FILE_PATH);
         if (localPathElement != null) {
             return localPathElement.getAsString();
         }

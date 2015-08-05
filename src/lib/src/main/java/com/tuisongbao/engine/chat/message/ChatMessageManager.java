@@ -49,7 +49,7 @@ public class ChatMessageManager extends BaseManager {
     public void sendMessage(final ChatMessage message,
                             final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         try {
-            ChatMessage.TYPE messageType = message.getBody().getType();
+            ChatMessage.TYPE messageType = message.getContent().getType();
             if (messageType == ChatMessage.TYPE.TEXT) {
                 sendMessageRequest(message, callback);
             } else {
@@ -82,7 +82,7 @@ public class ChatMessageManager extends BaseManager {
 
     private boolean uploadMessageResourceToQiniu(ChatMessage message, final TSBEngineCallback<JSONObject> responseHandler,
                                                  final ChatOptions options) {
-        ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getBody();
+        ChatMediaMessageBody mediaBody = (ChatMediaMessageBody)message.getContent();
         String filePath = mediaBody.getLocalPath();
         if (StrUtil.isEmpty(filePath)) {
             return false;
@@ -130,7 +130,7 @@ public class ChatMessageManager extends BaseManager {
             public void onSuccess(JSONObject responseObject) {
                 try {
                     LogUtil.info(TAG, "Get response from QINIU " + responseObject.toString(4));
-                    ChatMediaMessageBody body = (ChatMediaMessageBody) message.getBody();
+                    ChatMediaMessageBody body = (ChatMediaMessageBody) message.getContent();
 
                     JsonObject file = new JsonObject();
                     file.addProperty(ChatImageMessageBody.KEY, responseObject.getString("key"));
@@ -151,7 +151,7 @@ public class ChatMessageManager extends BaseManager {
                         body.setFile(file);
                     }
                     body.setFile(file);
-                    message.setBody(body);
+                    message.setContent(body);
                     sendMessageRequest(message, callback);
                 } catch (Exception e) {
                     LogUtil.error(TAG, e);

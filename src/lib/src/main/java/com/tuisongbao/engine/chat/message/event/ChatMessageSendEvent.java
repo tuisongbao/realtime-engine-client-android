@@ -10,20 +10,17 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatMessageSendEvent extends BaseEvent<ChatMessage> {
 
-    public static final String NAME = "engine_chat:message:send";
-
     public ChatMessageSendEvent() {
-        super(NAME);
+        super("engine_chat:message:send");
     }
 
     @Override
     protected Gson getSerializer() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = getSerializerWithExclusionStrategy();
         gsonBuilder.registerTypeAdapter(ChatType.class,
                 new ChatMessageChatTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessage.TYPE.class,
                 new ChatMessageTypeSerializer());
         return gsonBuilder.create();
     }
-
 }

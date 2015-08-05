@@ -9,17 +9,18 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatConversationGetEvent extends BaseEvent<ChatConversation> {
 
-    public static final String NAME = "engine_chat:conversation:get";
-
     public ChatConversationGetEvent() {
-        super(NAME);
+        super("engine_chat:conversation:get");
+
+        serializeFields.add("type");
+        serializeFields.add("target");
+        serializeFields.add("lastActiveAt");
     }
 
     @Override
     protected Gson getSerializer() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = getSerializerWithExclusionStrategy();
         gsonBuilder.registerTypeAdapter(ChatType.class, new ChatMessageChatTypeSerializer());
         return gsonBuilder.create();
     }
-
 }

@@ -22,13 +22,13 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         ChatMessage responseMessage = genCallbackData(request, response);
         ChatMessage sentMessage = ((ChatMessageSendEvent)request).getData();
 
-        if (responseMessage.getBody() != null) {
+        if (responseMessage.getContent() != null) {
             // Media message, get download url and update DB
-            ChatMediaMessageBody body = (ChatMediaMessageBody)sentMessage.getBody();
-            String downloadUrl = ((ChatMediaMessageBody)responseMessage.getBody()).getDownloadUrl();
+            ChatMediaMessageBody body = (ChatMediaMessageBody)sentMessage.getContent();
+            String downloadUrl = ((ChatMediaMessageBody)responseMessage.getContent()).getDownloadUrl();
             body.setDownloadUrl(downloadUrl);
 
-            sentMessage.setBody(body);
+            sentMessage.setContent(body);
         }
         sentMessage.setFrom(userId);
 

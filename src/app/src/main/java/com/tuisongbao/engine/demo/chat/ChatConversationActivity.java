@@ -380,12 +380,12 @@ public class ChatConversationActivity extends Activity implements
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
             String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
             ChatVideoMessageBody videoBody = new ChatVideoMessageBody();
-            videoBody.setLocalPath(videoPath);
+            videoBody.setFilePath(videoPath);
             mConversation.sendMessage(videoBody, sendMessageCallback);
         } else if (requestCode == REQUEST_CODE_PHOTO && resultCode == RESULT_OK) {
             String photoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_PHOTO);
             ChatImageMessageBody imageBody = new ChatImageMessageBody();
-            imageBody.setLocalPath(photoPath);
+            imageBody.setFilePath(photoPath);
             mConversation.sendMessage(imageBody, sendMessageCallback);
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -512,7 +512,7 @@ public class ChatConversationActivity extends Activity implements
 
     private void sendVoiceMessage(String filePath) {
         ChatVoiceMessageBody body = new ChatVoiceMessageBody();
-        body.setLocalPath(filePath);
+        body.setFilePath(filePath);
         mConversation.sendMessage(body, sendMessageCallback);
     }
 
@@ -568,7 +568,7 @@ public class ChatConversationActivity extends Activity implements
             return;
         }
         ChatImageMessageBody body = new ChatImageMessageBody();
-        body.setLocalPath(filePath);
+        body.setFilePath(filePath);
         mConversation.sendMessage(body, sendMessageCallback);
     }
 

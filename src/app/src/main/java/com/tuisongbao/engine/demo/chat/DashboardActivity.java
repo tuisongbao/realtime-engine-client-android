@@ -210,7 +210,6 @@ public class DashboardActivity extends FragmentActivity {
     }
 
     private void showFragment(int textViewId) {
-
         switch (textViewId) {
         case R.id.dashboard_textview_conversations:
             mViewPager.setCurrentItem(0);

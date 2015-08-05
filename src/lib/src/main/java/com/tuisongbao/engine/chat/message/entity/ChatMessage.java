@@ -33,8 +33,8 @@ public class ChatMessage implements Parcelable {
     private String to;
     private ChatMessageBody content;
     private String createdAt;
-    private boolean downloading = false;
 
+    transient private boolean downloading = false;
     transient private ChatManager mChatManager;
     transient private TSBEngine mEngine;
 
@@ -96,12 +96,12 @@ public class ChatMessage implements Parcelable {
         return this;
     }
 
-    public ChatMessageBody getBody() {
+    public ChatMessageBody getContent() {
         return content;
     }
 
-    public ChatMessage setBody(ChatMessageBody body) {
-        this.content = body;
+    public ChatMessage setContent(ChatMessageBody content) {
+        this.content = content;
         return this;
     }
 
@@ -120,7 +120,7 @@ public class ChatMessage implements Parcelable {
      */
     public String getResourcePath() {
         try {
-            ChatMessageBody body = getBody();
+            ChatMessageBody body = getContent();
             if (isMediaMessage()) {
                 return ((ChatMediaMessageBody)body).getLocalPath();
             }
@@ -132,7 +132,7 @@ public class ChatMessage implements Parcelable {
 
     public String getText() {
         try {
-            ChatMessageBody body = getBody();
+            ChatMessageBody body = getContent();
             if (body.getType() == TYPE.TEXT) {
                 return ((ChatTextMessageBody)body).getText();
             }
@@ -223,7 +223,7 @@ public class ChatMessage implements Parcelable {
         final ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
         final ChatMessage message = this;
 
-        if (getBody().getType() == TYPE.TEXT) {
+        if (getContent().getType() == TYPE.TEXT) {
             LogUtil.warn(TAG, "Message type is text!");
             return;
         }
@@ -233,7 +233,7 @@ public class ChatMessage implements Parcelable {
             return;
         }
 
-        final ChatMediaMessageBody body = (ChatMediaMessageBody)getBody();
+        final ChatMediaMessageBody body = (ChatMediaMessageBody) getContent();
         String localPath = body.getLocalPath();
         String downloadUrl = body.getDownloadUrl();
         try {
@@ -253,7 +253,7 @@ public class ChatMessage implements Parcelable {
                     @Override
                     public void onSuccess(String filePath) {
                         downloading = false;
-                        body.setLocalPath(filePath);
+                        body.setFilePath(filePath);
 
                         if (mChatManager.isCacheEnabled()) {
                             dataSource.open();
@@ -261,7 +261,7 @@ public class ChatMessage implements Parcelable {
                             LogUtil.verbose(TAG, "Update message local path " + message);
                             dataSource.close();
                         }
-                        message.setBody(body);
+                        message.setContent(body);
                         callback.onSuccess(message);
                     }
 
@@ -287,7 +287,7 @@ public class ChatMessage implements Parcelable {
     }
 
     private boolean isMediaMessage() {
-        TYPE bodyType = getBody().getType();
+        TYPE bodyType = getContent().getType();
         return bodyType == TYPE.IMAGE || bodyType == TYPE.VOICE || bodyType == TYPE.VIDEO;
     }
 }

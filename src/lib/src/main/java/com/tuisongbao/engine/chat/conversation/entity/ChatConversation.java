@@ -126,7 +126,7 @@ public class ChatConversation implements Parcelable {
 
     private void sendMessage(ChatMessageBody body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
         ChatMessage message = new ChatMessage(mEngine);
-        message.setBody(body).setChatType(type).setRecipient(target);
+        message.setContent(body).setChatType(type).setRecipient(target);
         mEngine.getChatManager().getMessageManager().sendMessage(message, callback, options);
     }
 

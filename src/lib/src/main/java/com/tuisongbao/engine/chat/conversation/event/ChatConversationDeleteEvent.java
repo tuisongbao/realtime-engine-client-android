@@ -9,15 +9,16 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class ChatConversationDeleteEvent extends BaseEvent<ChatConversation> {
 
-    public static final String NAME = "engine_chat:conversation:delete";
-
     public ChatConversationDeleteEvent() {
-        super(NAME);
+        super("engine_chat:conversation:delete");
+
+        serializeFields.add("type");
+        serializeFields.add("target");
     }
 
     @Override
     protected Gson getSerializer() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
+        GsonBuilder gsonBuilder = getSerializerWithExclusionStrategy();
         gsonBuilder.registerTypeAdapter(ChatType.class, new ChatMessageChatTypeSerializer());
         return gsonBuilder.create();
     }

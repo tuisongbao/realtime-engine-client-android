@@ -14,11 +14,11 @@ import com.tuisongbao.engine.util.StrUtil;
 
 public class ToolUtils {
     public static String getEventMessage(ChatMessage message) {
-        if (message.getBody().getType() != TYPE.EVENT) {
+        if (message.getContent().getType() != TYPE.EVENT) {
             return "";
         }
 
-        ChatEventMessageBody body = (ChatEventMessageBody)message.getBody();
+        ChatEventMessageBody body = (ChatEventMessageBody)message.getContent();
         ChatEvent event = body.getEventType();
         String maker = message.getFrom();
         String target = body.getEventTarget();
