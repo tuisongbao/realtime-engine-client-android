@@ -68,13 +68,13 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             errorListenerHashMap.put(message, errorListener);
         }
 
-        message.downloadVoice(new TSBEngineCallback<ChatMessage>() {
+        message.downloadVoice(new TSBEngineCallback<String>() {
 
             @Override
-            public void onSuccess(ChatMessage t) {
+            public void onSuccess(String filePath) {
                 try {
                     mMediaPlayer.reset();
-                    mMediaPlayer.setDataSource(t.getResourcePath());
+                    mMediaPlayer.setDataSource(filePath);
                     mMediaPlayer.setOnPreparedListener(mInstance);
                     mMediaPlayer.prepare();
                     mMediaPlayer.start();

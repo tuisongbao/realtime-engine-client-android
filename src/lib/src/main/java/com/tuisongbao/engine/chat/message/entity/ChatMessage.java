@@ -289,12 +289,16 @@ public class ChatMessage {
             return;
         }
 
-        final ChatMessage message = this;
-        DownloadUtils.downloadResourceIntoLocal(downloadUrl, content.getType(), new TSBEngineCallback<String>() {
+        TYPE type = content.getType();
+        // Download thumbnail of video
+        if (content.getType() == TYPE.VIDEO && !isOriginal) {
+            type = TYPE.IMAGE;
+        }
+        DownloadUtils.downloadResourceIntoLocal(downloadUrl, type, new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {
-                message.updateFilePath(isOriginal, filePath);
+                updateFilePath(isOriginal, filePath);
                 callback.onSuccess(filePath);
             }
 

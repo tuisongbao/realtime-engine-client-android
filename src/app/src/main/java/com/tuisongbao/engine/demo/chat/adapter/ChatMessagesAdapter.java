@@ -160,9 +160,9 @@ public class ChatMessagesAdapter extends BaseAdapter {
         } else if (content.getType() == TYPE.VIDEO) {
             textView.setVisibility(View.GONE);
             imageView.setVisibility(View.GONE);
-            voiceButton.setVisibility(View.VISIBLE);
+            voiceButton.setVisibility(View.GONE);
 
-            showVideoWidget(message, convertView, voiceButton);
+            showVideoWidget(message, convertView, imageView, textView);
         }
     }
 
@@ -287,47 +287,41 @@ public class ChatMessagesAdapter extends BaseAdapter {
         });
     }
 
-    private void showVideoWidget(final ChatMessage message, View convertView, final Button voiceButton) {
+    private void showVideoWidget(final ChatMessage message, View convertView, final ImageView imageView, final TextView textView) {
         final ChatMessageContent content = message.getContent();
         final double duration = content.getFile().getDuration();
-        voiceButton.setText("video: " + duration);
+        textView.setText("duration: " + duration);
+        textView.setTextColor(mContext.getResources().getColor(R.color.red));
+        textView.setVisibility(View.VISIBLE);
 
-        voiceButton.setTag("idle");
         OnClickListener listener = new OnClickListener() {
 
             @Override
             public void onClick(View arg0) {
-                message.downloadVideoThumb(new TSBEngineCallback<String>() {
+                Intent intent = new Intent(mContext.getApplicationContext(), ChatVideoPlayerActivity.class);
+                intent.putExtra("message", message.serialize());
+                mContext.startActivity(intent);
+            }
+        };
+        imageView.setOnClickListener(listener);
+        message.downloadVideoThumb(new TSBEngineCallback<String>() {
+            @Override
+            public void onSuccess(final String path) {
+                ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
 
                     @Override
-                    public void onSuccess(String filePath) {
-                        Intent intent = new Intent(mContext.getApplicationContext(), ChatVideoPlayerActivity.class);
-                        intent.putExtra(ChatVideoPlayerActivity.EXTRA_VIDEO_PATH, filePath);
-                        mContext.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onError(ResponseError error) {
-
-                    }
-                }, new TSBProgressCallback() {
-
-                    @Override
-                    public void progress(final int percent) {
-                        ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                voiceButton.setText(percent + "%");
-                                if (percent == 100) {
-                                    voiceButton.setText(String.valueOf(duration));
-                                }
-                            }
-                        });
+                    public void run() {
+                        Bitmap bmp = BitmapFactory.decodeFile(path);
+                        imageView.setImageBitmap(bmp);
+                        imageView.setVisibility(View.VISIBLE);
                     }
                 });
             }
-        };
-        voiceButton.setOnClickListener(listener);
+
+            @Override
+            public void onError(ResponseError error) {
+
+            }
+        }, null);
     }
 }
