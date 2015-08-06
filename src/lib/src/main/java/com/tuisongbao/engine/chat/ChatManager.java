@@ -20,8 +20,8 @@ import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.ExecutorUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.ExecutorUtils;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,7 @@ public class ChatManager extends BaseManager {
 
     public void login(final String userData) {
         try {
-            if (StrUtil.isEqual(userData, mUserData)) {
+            if (StrUtils.isEqual(userData, mUserData)) {
                 trigger(EVENT_LOGIN_SUCCEEDED, getChatUser());
                 LogUtil.warn(TAG, "Duplicate login");
                 return;
@@ -166,7 +166,7 @@ public class ChatManager extends BaseManager {
     }
 
     private void auth(final String userData, final TSBEngineCallback callback) {
-        ExecutorUtil.getThreadQueue().execute(new Runnable() {
+        ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
             public void run() {

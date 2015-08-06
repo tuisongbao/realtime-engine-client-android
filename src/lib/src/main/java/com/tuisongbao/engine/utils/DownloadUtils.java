@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.util;
+package com.tuisongbao.engine.utils;
 
 import android.os.Environment;
 
@@ -15,8 +15,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class DownloadUtil {
-    private static final String TAG = "TSB" + DownloadUtil.class.getSimpleName();
+public class DownloadUtils {
+    private static final String TAG = "TSB" + DownloadUtils.class.getSimpleName();
     /***
      * Download image and save to local, return path of the local image file.
      *
@@ -28,13 +28,13 @@ public class DownloadUtil {
             , final TSBProgressCallback progressCallback) {
         LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
         final String[] splits = urlString.split("/");
-        if (StrUtil.isEmpty(urlString) || splits.length < 1) {
+        if (StrUtils.isEmpty(urlString) || splits.length < 1) {
             ResponseError error = new ResponseError();
             error.setMessage("The resource url String is invalid");
             callback.onError(error);
             return;
         }
-        ExecutorUtil.getThreadQueue().execute(new Runnable() {
+        ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
             public void run() {

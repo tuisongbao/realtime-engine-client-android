@@ -14,8 +14,8 @@ import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.DownloadUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.DownloadUtils;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.io.File;
 
@@ -162,7 +162,7 @@ public class ChatMessage {
         }
 
         public static TYPE getType(String name) {
-            if (!StrUtil.isEmpty(name)) {
+            if (!StrUtils.isEmpty(name)) {
                 TYPE[] types = values();
                 for (TYPE type : types) {
                     if (type.getName().equals(name)) {
@@ -200,7 +200,7 @@ public class ChatMessage {
     }
 
     private boolean isFileExists(String filePath) {
-        if (StrUtil.isEmpty(filePath)) {
+        if (StrUtils.isEmpty(filePath)) {
             return false;
         }
         File fileTest = new File(filePath);
@@ -242,7 +242,7 @@ public class ChatMessage {
         }
 
         final ChatMessage message = this;
-        DownloadUtil.downloadResourceIntoLocal(downloadUrl, content.getType(), new TSBEngineCallback<String>() {
+        DownloadUtils.downloadResourceIntoLocal(downloadUrl, content.getType(), new TSBEngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {

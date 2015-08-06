@@ -29,7 +29,7 @@ import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer;
 import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer.OnErrorListener;
 import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer.OnStopListener;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.List;
 
@@ -92,7 +92,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             eventMessageTextView.setVisibility(View.GONE);
 
             // Handle chat message
-            boolean sentByLoginUser = StrUtil.strNotNull(message.getFrom()).equals(LoginCache.getUserId());
+            boolean sentByLoginUser = StrUtils.strNotNull(message.getFrom()).equals(LoginCache.getUserId());
             if (sentByLoginUser) {
 
                 layoutSend.setVisibility(View.VISIBLE);
@@ -305,7 +305,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
 
                     @Override
                     public void progress(final int percent) {
-                        ((ChatConversationActivity)mContext).runOnUiThread(new Runnable() {
+                        ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {

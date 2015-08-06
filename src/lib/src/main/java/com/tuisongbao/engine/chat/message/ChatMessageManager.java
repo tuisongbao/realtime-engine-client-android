@@ -18,7 +18,7 @@ import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONObject;
 
@@ -53,6 +53,10 @@ public class ChatMessageManager extends BaseManager {
             } else {
                 sendMediaMessage(message, callback, options);
             }
+
+            if (messageType == ChatMessage.TYPE.IMAGE) {
+
+            }
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
@@ -62,7 +66,7 @@ public class ChatMessageManager extends BaseManager {
 
     private void sendMessageRequest(ChatMessage message, TSBEngineCallback<ChatMessage> callback)  {
         ChatMessageSendEvent request = new ChatMessageSendEvent();
-        message.setCreatedAt(StrUtil.getTimeStringIOS8061(new Date()));
+        message.setCreatedAt(StrUtils.getTimeStringIOS8061(new Date()));
         request.setData(message);
         ChatMessageSendEventHandler handler = new ChatMessageSendEventHandler();
         handler.setCallback(callback);
@@ -83,7 +87,7 @@ public class ChatMessageManager extends BaseManager {
                                                  final ChatOptions options) {
         ChatMessageContent content = message.getContent();
         String filePath = content.getFile().getFilePath();
-        if (StrUtil.isEmpty(filePath)) {
+        if (StrUtils.isEmpty(filePath)) {
             return false;
         }
 

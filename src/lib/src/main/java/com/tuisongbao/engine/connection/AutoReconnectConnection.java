@@ -4,7 +4,7 @@ import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 /**
  * Created by root on 15-7-29.
@@ -46,7 +46,7 @@ public class AutoReconnectConnection extends Connection {
     @Override
     protected void handleConnectionEvent(String eventName, ConnectionEventData data) {
         super.handleConnectionEvent(eventName, data);
-        if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
+        if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             int code = lastConnectionError.getCode();
             // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
             if (code >= 4000 && code <= 4099) {
@@ -77,7 +77,7 @@ public class AutoReconnectConnection extends Connection {
 
     private void setReconnectionStrategy(ConnectionEventData data) {
         String reconnectStrategy = data.getReconnectStrategy();
-        if (!StrUtil.isEmpty(reconnectStrategy)) {
+        if (!StrUtils.isEmpty(reconnectStrategy)) {
             mReconnectStrategy = reconnectStrategy;
             int reconnectIn = data.getReconnectIn();
             if (reconnectIn >= 0) {

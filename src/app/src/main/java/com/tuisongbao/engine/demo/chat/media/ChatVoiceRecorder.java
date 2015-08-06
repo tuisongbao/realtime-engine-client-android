@@ -10,7 +10,7 @@ import android.media.MediaRecorder.OnInfoListener;
 import android.os.Environment;
 
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 public class ChatVoiceRecorder {
     public static final String INTENT_ACTION_TAKE_VIDEO = "com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO";
@@ -33,7 +33,7 @@ public class ChatVoiceRecorder {
     public void start() {
         try {
             mCurrentVoiceFileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/tuisongbao/voices/";
-            mCurrentVoiceFileName += StrUtil.getTimestampStringOnlyContainNumber(new Date()) + ".3gp";
+            mCurrentVoiceFileName += StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".3gp";
             File file = new File(mCurrentVoiceFileName);
             file.getParentFile().mkdirs();
 

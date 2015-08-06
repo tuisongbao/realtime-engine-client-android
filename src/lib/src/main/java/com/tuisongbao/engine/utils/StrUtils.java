@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.util;
+package com.tuisongbao.engine.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,8 +9,8 @@ import java.util.UUID;
 /**
  * General-purpose string utilities.
  */
-public class StrUtil {
-    private static final String TAG = "TSB" + StrUtil.class.getSimpleName();
+public class StrUtils {
+    private static final String TAG = "TSB" + StrUtils.class.getSimpleName();
 
     public static final String CODE_FORMAT1_CONNECTOR_1 = "&";
     public static final String CODE_FORMAT1_CONNECTOR_2 = "#";
@@ -64,14 +64,14 @@ public class StrUtil {
     }
 
     public static boolean isEqual(String strRight, String strLeft) {
-        if (StrUtil.isEmpty(strRight) && StrUtil.isEmpty(strLeft)) {
+        if (StrUtils.isEmpty(strRight) && StrUtils.isEmpty(strLeft)) {
             return true;
         }
         else {
-            if (StrUtil.isEmpty(strLeft)) {
+            if (StrUtils.isEmpty(strLeft)) {
                 return false;
             }
-            if (StrUtil.isEmpty(strRight)) {
+            if (StrUtils.isEmpty(strRight)) {
                 return false;
             }
 

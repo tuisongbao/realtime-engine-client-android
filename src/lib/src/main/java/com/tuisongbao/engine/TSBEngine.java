@@ -9,7 +9,7 @@ import com.tuisongbao.engine.connection.AutoReconnectConnection;
 import com.tuisongbao.engine.engineio.pipeline.TSBEnginePipeline;
 import com.tuisongbao.engine.engineio.sink.TSBEngineDataSink;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 public final class TSBEngine {
     private static final String TAG = "TSB" + TSBEngine.class.getSimpleName();
@@ -32,7 +32,7 @@ public final class TSBEngine {
         mApplicationContext = context.getApplicationContext();
         try {
             mEngineOptions = options;
-            if (options == null || StrUtil.isEmpty(mEngineOptions.getAppId())) {
+            if (options == null || StrUtils.isEmpty(mEngineOptions.getAppId())) {
                 LogUtil.warn(TAG
                         , "No AppId, you do not have permission to use cool engine!");
                 return;
@@ -43,7 +43,7 @@ public final class TSBEngine {
             pipeline.addSource(connection);
             pipeline.addSink(sink);
 
-            if (StrUtil.isEmpty(mEngineOptions.getAuthEndpoint())) {
+            if (StrUtils.isEmpty(mEngineOptions.getAuthEndpoint())) {
                 LogUtil.warn(TAG
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 channelManager = new ChannelManager(this);

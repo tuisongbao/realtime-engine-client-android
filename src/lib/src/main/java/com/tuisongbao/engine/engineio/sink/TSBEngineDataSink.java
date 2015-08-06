@@ -8,7 +8,7 @@ import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 /**
  * A data sink that sends new messages of specific types to listeners.
@@ -34,7 +34,7 @@ public class TSBEngineDataSink extends BaseEngineDataSink {
     protected void propagateEvent(String event) {
         RawEvent rawEvent = new Gson().fromJson(event, RawEvent.class);
         String eventName = rawEvent.getName();
-        if (!StrUtil.isEmpty(rawEvent.getChannel()) || Protocol.isChannelEvent(eventName)) {
+        if (!StrUtils.isEmpty(rawEvent.getChannel()) || Protocol.isChannelEvent(eventName)) {
             mEngine.getChannelManager().trigger(eventName, rawEvent);
         } else if (Protocol.isServerResponseEvent(eventName)) {
             ResponseEventData data = new Gson().fromJson(rawEvent.getData(), ResponseEventData.class);

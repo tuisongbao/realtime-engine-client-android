@@ -25,8 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.util.DownloadUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.DownloadUtils;
+import com.tuisongbao.engine.utils.StrUtils;
 
 @SuppressLint("NewApi")
 public class ChatCameraActivity extends Activity {
@@ -59,9 +59,9 @@ public class ChatCameraActivity extends Activity {
 
         actionButton = (Button) findViewById(R.id.button_camera);
         String action = getIntent().getAction();
-        if (StrUtil.isEqual(action, ACTION_PHOTO)) {
+        if (StrUtils.isEqual(action, ACTION_PHOTO)) {
             actionButton.setText("Click to take picture");
-        } else if (StrUtil.isEqual(action, ACTION_VIDEO)) {
+        } else if (StrUtils.isEqual(action, ACTION_VIDEO)) {
             actionButton.setText("Click to start");
         }
         actionButton.setOnClickListener(new OnClickListener() {
@@ -69,9 +69,9 @@ public class ChatCameraActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                 String action = getIntent().getAction();
-                if (StrUtil.isEqual(action, ACTION_PHOTO)) {
+                if (StrUtils.isEqual(action, ACTION_PHOTO)) {
                     takePhoto();
-                } else if (StrUtil.isEqual(action, ACTION_VIDEO)) {
+                } else if (StrUtils.isEqual(action, ACTION_VIDEO)) {
                     takeVideo();
                 }
             }
@@ -117,8 +117,8 @@ public class ChatCameraActivity extends Activity {
         protected Void doInBackground(byte[]... data) {
             FileOutputStream outStream = null;
             try {
-                mResourcePath = StrUtil.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
-                final File outFile = DownloadUtil.getOutputFile(mResourcePath, "images");
+                mResourcePath = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
+                final File outFile = DownloadUtils.getOutputFile(mResourcePath, "images");
 
                 outStream = new FileOutputStream(outFile);
                 outStream.write(data[0]);
@@ -187,7 +187,7 @@ public class ChatCameraActivity extends Activity {
             mRecorder.setProfile(CamcorderProfile
                     .get(CamcorderProfile.QUALITY_CIF));
 
-            mResourcePath = DownloadUtil.getOutputFile(StrUtil.getTimestampStringOnlyContainNumber(new Date()) + ".mp4", "videos").getAbsolutePath();
+            mResourcePath = DownloadUtils.getOutputFile(StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".mp4", "videos").getAbsolutePath();
             mRecorder.setOutputFile(mResourcePath);
 
             mRecorder.setPreviewDisplay(mPreview.getSurface());

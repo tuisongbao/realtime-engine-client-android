@@ -10,7 +10,7 @@ import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -239,7 +239,7 @@ public class ChatGroupDataSource {
         int rowsAffected = groupDB.delete(ChatGroupSQLiteHelper.TABLE_CHAT_GROUP, whereClause, new String[]{ groupId });
         LogUtil.info(TAG, "Remove group " + groupId + " and " + rowsAffected + " rows affected");
 
-        if (!StrUtil.isEmpty(userId)) {
+        if (!StrUtils.isEmpty(userId)) {
             removeUser(groupId, userId);
         }
     }

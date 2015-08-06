@@ -34,7 +34,7 @@ import com.tuisongbao.engine.demo.chat.fragment.ChatContactsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatConversationsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatSettingsFragment;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -290,7 +290,7 @@ public class DashboardActivity extends FragmentActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String userId = ((EditText)textEntryView.findViewById(R.id.dialog_input_edittext)).getText().toString();
-                        if (!StrUtil.isEmpty(userId)) {
+                        if (!StrUtils.isEmpty(userId)) {
                             ChatUser user = new ChatUser();
                             user.setUserId(userId);
                             LoginCache.addUser(user);

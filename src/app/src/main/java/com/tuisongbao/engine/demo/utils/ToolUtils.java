@@ -4,7 +4,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -80,14 +80,14 @@ public class ToolUtils {
     }
 
     public static boolean isEqual(String strRight, String strLeft) {
-        if (StrUtil.isEmpty(strRight) && StrUtil.isEmpty(strLeft)) {
+        if (StrUtils.isEmpty(strRight) && StrUtils.isEmpty(strLeft)) {
             return true;
         }
         else {
-            if (StrUtil.isEmpty(strLeft)) {
+            if (StrUtils.isEmpty(strLeft)) {
                 return false;
             }
-            if (StrUtil.isEmpty(strRight)) {
+            if (StrUtils.isEmpty(strRight)) {
                 return false;
             }
 

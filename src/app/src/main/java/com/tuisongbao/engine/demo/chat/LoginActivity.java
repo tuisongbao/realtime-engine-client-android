@@ -16,7 +16,7 @@ import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.pubsub.PubSubActivity;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 public class LoginActivity extends Activity {
     private static String TAG = "TSB" + LoginActivity.class.getSimpleName();
@@ -86,7 +86,7 @@ public class LoginActivity extends Activity {
     }
 
     private boolean validate() {
-        if (StrUtil.isEmpty(mEditTextAccount.getText().toString())) {
+        if (StrUtils.isEmpty(mEditTextAccount.getText().toString())) {
             Toast.makeText(this, "用户名不能为空", Toast.LENGTH_LONG).show();
             return false;
         }

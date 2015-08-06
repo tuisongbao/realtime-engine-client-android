@@ -1,16 +1,16 @@
-package com.tuisongbao.engine.util;
+package com.tuisongbao.engine.utils;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 
-public class ExecutorUtil {
-    private static final String TAG = "TSB" + ExecutorUtil.class.getSimpleName();
+public class ExecutorUtils {
+    private static final String TAG = "TSB" + ExecutorUtils.class.getSimpleName();
     private static ExecutorService mQueue;
     private static ScheduledExecutorService mTimers;
 
-    private ExecutorUtil () {
+    private ExecutorUtils() {
         // empty
     }
 

@@ -2,16 +2,14 @@ package com.tuisongbao.engine.channel.entity;
 
 import com.tuisongbao.engine.TSBEngine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
-import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.common.entity.ResponseEvent;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.ExecutorUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.ExecutorUtils;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +47,7 @@ public class PrivateChannel extends Channel {
 
     protected boolean validateResponseDataOfAuth(JSONObject data, TSBEngineCallback<String> callback) {
         signature = data.optString("signature");
-        if (StrUtil.isEmpty(signature)) {
+        if (StrUtils.isEmpty(signature)) {
             ResponseError error = new ResponseError();
             error.setMessage("Auth failed");
             callback.onError(error);
@@ -60,7 +58,7 @@ public class PrivateChannel extends Channel {
 
     @Override
     protected void validate(final TSBEngineCallback<String> callback) {
-        ExecutorUtil.getThreadQueue().execute(new Runnable() {
+        ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
             public void run() {

@@ -6,7 +6,7 @@ import com.tuisongbao.engine.channel.entity.PresenceChannel;
 import com.tuisongbao.engine.channel.entity.PrivateChannel;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +35,7 @@ public class ChannelManager extends BaseManager {
             if (channel != null) {
                 return channel;
             }
-            if (StrUtil.isEmpty(channelName)) {
+            if (StrUtils.isEmpty(channelName)) {
                 return null;
             }
 
@@ -62,7 +62,7 @@ public class ChannelManager extends BaseManager {
 
     public void unsubscribe(String channelName) {
         try {
-            if (StrUtil.isEmpty(channelName)) {
+            if (StrUtils.isEmpty(channelName)) {
                 return;
             }
             Channel channel = mChannelMap.get(channelName);

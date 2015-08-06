@@ -16,7 +16,7 @@ import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -161,7 +161,7 @@ public class Connection extends BaseEngineIODataSource {
                     LogUtil.error(TAG, "Engine server request url getCallbackData exception", e);
                 }
                 String webSocketUrl = getWebSocketURL(socketAddr);
-                if (!StrUtil.isEmpty(webSocketUrl)) {
+                if (!StrUtils.isEmpty(webSocketUrl)) {
                     openSocket(webSocketUrl);
                     return;
                 }
@@ -200,7 +200,7 @@ public class Connection extends BaseEngineIODataSource {
     }
 
     private String getWebSocketURL(String socketAddr) {
-        if (StrUtil.isEmpty(socketAddr)) {
+        if (StrUtils.isEmpty(socketAddr)) {
             return "";
         }
         String webSocketUrl = socketAddr
@@ -299,12 +299,12 @@ public class Connection extends BaseEngineIODataSource {
     }
 
     protected void handleConnectionEvent(String eventName, ConnectionEventData data) {
-        if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
+        if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
             trigger(EVENT_ERROR);
             disconnect();
-        } else if (StrUtil.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
+        } else if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
             LogUtil.info(TAG, "Connected");
             updateState(State.Connected);
         } else {

@@ -17,7 +17,7 @@ import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,10 +94,10 @@ public class ChatConversationDataSource {
         Cursor cursor;
         List<ChatConversation> conversations = new ArrayList<ChatConversation>();
 
-        if(!StrUtil.isEmpty(target)) {
+        if(!StrUtils.isEmpty(target)) {
             queryString = queryString
                     + " AND " + ChatConversationSQLiteHelper.COLUMN_TARGET + " = '" + target + "'";
-        } else if (StrUtil.isEmpty(target) && type != null) {
+        } else if (StrUtils.isEmpty(target) && type != null) {
             queryString = queryString
                     + " AND " + ChatConversationSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'";
         }
@@ -134,7 +134,7 @@ public class ChatConversationDataSource {
         // Create conversation if no such conversation between from and to
         String target = message.getRecipient();
         if (message.getChatType() == ChatType.SingleChat) {
-            if (StrUtil.isEqual(target, userId)) {
+            if (StrUtils.isEqual(target, userId)) {
                 target = message.getFrom();
             }
         }
@@ -327,9 +327,9 @@ public class ChatConversationDataSource {
         String contentType = cursor.getString(6);
         ChatMessageContent content = new ChatMessageContent();
         content.setType(TYPE.getType(contentType));
-        if (StrUtil.isEqual(TYPE.TEXT.getName(), contentType)) {
+        if (StrUtils.isEqual(TYPE.TEXT.getName(), contentType)) {
             content.setText(cursor.getString(5));
-        } else if (StrUtil.isEqual(TYPE.EVENT.getName(), contentType)) {
+        } else if (StrUtils.isEqual(TYPE.EVENT.getName(), contentType)) {
             ChatMessageEventContent event = new ChatMessageEventContent();
             event.setType(event.getType(cursor.getString(16)));
             event.setTarget(cursor.getString(17));
@@ -365,7 +365,7 @@ public class ChatConversationDataSource {
     }
 
     private boolean isConversationExist(String userId, String target) {
-        if (StrUtil.isEqual(userId,  target)) {
+        if (StrUtils.isEqual(userId, target)) {
             return true;
         }
 

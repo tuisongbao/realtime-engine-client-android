@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.chat.user;
 
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 public enum ChatType {
     GroupChat("groupChat", 1), SingleChat("singleChat", 2);
@@ -21,7 +21,7 @@ public enum ChatType {
     }
 
     public static ChatType getType(String name) {
-        if (!StrUtil.isEmpty(name)) {
+        if (!StrUtils.isEmpty(name)) {
             ChatType[] types = values();
             for (ChatType type : types) {
                 if (type.getName().equals(name)) {

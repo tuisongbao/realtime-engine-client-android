@@ -12,7 +12,7 @@ import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ChatGroupMemberAddActivity extends Activity {
 
     private void inviteMembers() {
         String str = mEditText.getText().toString();
-        if (StrUtil.isEmpty(str)) {
+        if (StrUtils.isEmpty(str)) {
             Toast.makeText(this, "请输入用户id", Toast.LENGTH_LONG).show();
         } else {
             List<String> list = new ArrayList<String>();

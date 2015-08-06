@@ -1,7 +1,7 @@
 package com.tuisongbao.engine.demo.chat.cache;
 
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class LoginCache {
     }
 
     public static boolean isLogin() {
-        return !StrUtil.isEmpty(userId);
+        return !StrUtils.isEmpty(userId);
     }
 
     public static void clear() {

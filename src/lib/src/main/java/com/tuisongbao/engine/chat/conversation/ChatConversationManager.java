@@ -20,7 +20,7 @@ import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
 
@@ -79,7 +79,7 @@ public class ChatConversationManager extends BaseManager {
             if (!mChatManager.hasLogin()) {
                 return;
             }
-            if (chatType == null || StrUtil.isEmpty(target)) {
+            if (chatType == null || StrUtils.isEmpty(target)) {
                 return;
             }
 

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
 
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -101,7 +101,7 @@ public class LogUtil {
                 String stackTrace = "";
                 String error = "";
 
-                if (!StrUtil.isEmpty(msg)) {
+                if (!StrUtils.isEmpty(msg)) {
                     error = msg;
                 }
 

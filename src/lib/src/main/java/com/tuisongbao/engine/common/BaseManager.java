@@ -5,7 +5,7 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.util.StrUtil;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,9 +39,9 @@ public class BaseManager extends EventEmitter {
             @Override
             public void call(Object... args) {
                 String toState = args[1].toString();
-                if (StrUtil.isEqual(toState, Connection.State.Connected.getName())) {
+                if (StrUtils.isEqual(toState, Connection.State.Connected.getName())) {
                     connected();
-                } else if (StrUtil.isEqual(toState, Connection.State.Disconnected.getName())) {
+                } else if (StrUtils.isEqual(toState, Connection.State.Disconnected.getName())) {
                     disconnected();
                 }
             }
