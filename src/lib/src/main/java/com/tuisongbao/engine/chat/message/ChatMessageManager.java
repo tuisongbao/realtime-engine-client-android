@@ -49,13 +49,9 @@ public class ChatMessageManager extends BaseManager {
             message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
             if (messageType == ChatMessage.TYPE.TEXT) {
-                sendMessageRequest(message, callback);
+                sendMessageEvent(message, callback);
             } else {
                 sendMediaMessage(message, callback, options);
-            }
-
-            if (messageType == ChatMessage.TYPE.IMAGE) {
-
             }
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
@@ -64,14 +60,14 @@ public class ChatMessageManager extends BaseManager {
         return message;
     }
 
-    private void sendMessageRequest(ChatMessage message, TSBEngineCallback<ChatMessage> callback)  {
-        ChatMessageSendEvent request = new ChatMessageSendEvent();
+    private void sendMessageEvent(ChatMessage message, TSBEngineCallback<ChatMessage> callback)  {
+        ChatMessageSendEvent event = new ChatMessageSendEvent();
         message.setCreatedAt(StrUtils.getTimeStringIOS8061(new Date()));
-        request.setData(message);
+        event.setData(message);
         ChatMessageSendEventHandler handler = new ChatMessageSendEventHandler();
         handler.setCallback(callback);
 
-        send(request, handler);
+        send(event, handler);
     }
 
     private void sendMediaMessage(final ChatMessage message, final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
@@ -161,7 +157,7 @@ public class ChatMessageManager extends BaseManager {
                     // If some exception occurs when parsing the other properties, do not block sending message.
                     content.setFile(file);
                     message.setContent(content);
-                    sendMessageRequest(message, callback);
+                    sendMessageEvent(message, callback);
                 }
             }
 

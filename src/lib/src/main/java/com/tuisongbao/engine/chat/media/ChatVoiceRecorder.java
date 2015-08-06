@@ -1,9 +1,4 @@
-package com.tuisongbao.engine.demo.chat.media;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
+package com.tuisongbao.engine.chat.media;
 
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnInfoListener;
@@ -11,6 +6,11 @@ import android.os.Environment;
 
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 
 public class ChatVoiceRecorder {
     public static final String INTENT_ACTION_TAKE_VIDEO = "com.tuisongbao.android.engine.media.TSBMediaRecorder.INTENT_ACTION_TAKE_VIDEO";

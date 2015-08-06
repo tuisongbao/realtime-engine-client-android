@@ -126,7 +126,6 @@ public class ChatConversationDataSource {
      * @param message
      */
     public void upsertMessage(String userId, final ChatMessage message) {
-        // TODO: transaction
         if (updateMessage(message) > 0) {
             return;
         }
@@ -146,7 +145,7 @@ public class ChatConversationDataSource {
             conversation.setUnreadMessageCount(1);
             insert(conversation, userId);
         }
-        if (insertMessage(message) > 0) {
+        if (upsertMessage(message) > 0) {
             LogUtil.verbose(TAG, "insert " + message);
         }
     }
@@ -243,8 +242,15 @@ public class ChatConversationDataSource {
         ContentValues values = new ContentValues();
         ChatMessageContent content = message.getContent();
         if (content != null && isMediaMessage(message)) {
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGIN_PATH, content.getFile().getFilePath());
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, content.getFile().getThumbnailPath());
+            ChatMessageFileContent file = content.getFile();
+            String originalPath = file.getFilePath();
+            String thumbnailPath = file.getThumbnailPath();
+            if (!StrUtils.isEmpty(originalPath)) {
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH, originalPath);
+            }
+            if (!StrUtils.isEmpty(thumbnailPath)) {
+                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, thumbnailPath);
+            }
         }
         values.put(ChatMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
 
@@ -319,6 +325,8 @@ public class ChatConversationDataSource {
 
     private ChatMessage createMessage(Cursor cursor) {
         ChatMessage message = new ChatMessage();
+        message.setEngine(mEngine);
+
         message.setMessageId(cursor.getLong(1));
         message.setFrom(cursor.getString(2));
         message.setRecipient(cursor.getString(3));
@@ -377,7 +385,7 @@ public class ChatConversationDataSource {
         return cursor.getCount() > 0;
     }
 
-    private long insertMessage(ChatMessage message) {
+    private long upsertMessage(ChatMessage message) {
         ContentValues values =  new ContentValues();
         values.put(ChatMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
         values.put(ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
@@ -391,7 +399,7 @@ public class ChatConversationDataSource {
             values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, content.getText());
         } else if (isMediaMessage(message)) {
             ChatMessageFileContent file = content.getFile();
-            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGIN_PATH, file.getFilePath());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH, file.getFilePath());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_URL, file.getUrl());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMB_URL, file.getThumbUrl());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_SIZE, file.getSize());

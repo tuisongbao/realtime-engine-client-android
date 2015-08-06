@@ -1,5 +1,8 @@
 package com.tuisongbao.engine.chat.message.entity;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.TSBEngine;
@@ -18,6 +21,9 @@ import com.tuisongbao.engine.utils.DownloadUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 public class ChatMessage {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
@@ -190,6 +196,48 @@ public class ChatMessage {
         downloadResource(true, callback, progressCallback);
     }
 
+    public void generateThumbnail(int maxWidth) {
+        if (getContent().getType() != TYPE.IMAGE) {
+            return;
+        }
+
+        String thumbnailPath = getContent().getFile().getThumbnailPath();
+        if (isFileExists(thumbnailPath)) {
+            return;
+        }
+
+        // Create thumbnail bitmap
+        String filePath = getContent().getFile().getFilePath();
+        Bitmap image = BitmapFactory.decodeFile(filePath);
+        int width = Math.min(image.getWidth(), maxWidth);
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        height = (int) (width / bitmapRatio);
+        Bitmap thumbnail = Bitmap.createScaledBitmap(image, width, height, true);
+
+        // Save thumbnail
+        String fileName = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(fileName);
+            thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
+
+            // Update thumbnail path in message
+            getContent().getFile().setThumbnailPath(fileName);
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                LogUtil.error(TAG, e);
+            }
+        }
+    }
+
     private ResponseError permissionCheck() {
         if (!isMediaMessage()) {
             ResponseError error = new ResponseError();
@@ -246,21 +294,7 @@ public class ChatMessage {
 
             @Override
             public void onSuccess(String filePath) {
-                content.getFile().setFilePath(filePath);
-
-                if (mChatManager.isCacheEnabled()) {
-                    ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
-                    dataSource.open();
-                    dataSource.upsertMessage(mChatManager.getChatUser().getUserId(), message);
-                    LogUtil.verbose(TAG, "Update message local path " + message);
-                    dataSource.close();
-                }
-
-                if (isOriginal) {
-                    downloadingOriginal = false;
-                } else {
-                    downloadingThumbnail = false;
-                }
+                message.updateFilePath(isOriginal, filePath);
                 callback.onSuccess(filePath);
             }
 
@@ -275,6 +309,22 @@ public class ChatMessage {
     public String toString() {
         return String.format("ChatMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
                 , messageId, from, to, type.getName(), content.toString(), createdAt);
+    }
+
+    private void updateFilePath(boolean isOriginal, String filePath) {
+        if (isOriginal) {
+            downloadingOriginal = false;
+            content.getFile().setFilePath(filePath);
+        } else {
+            downloadingThumbnail = false;
+            content.getFile().setThumbnailPath(filePath);
+        }
+        if (mChatManager.isCacheEnabled()) {
+            ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+            dataSource.open();
+            dataSource.updateMessage(this);
+            dataSource.close();
+        }
     }
 
     private boolean isMediaMessage() {

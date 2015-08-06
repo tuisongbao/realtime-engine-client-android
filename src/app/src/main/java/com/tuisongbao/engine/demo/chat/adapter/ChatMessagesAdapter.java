@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
@@ -23,11 +24,9 @@ import com.tuisongbao.engine.common.callback.TSBProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
+import com.tuisongbao.engine.demo.chat.activity.ImageViewActivity;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatVideoPlayerActivity;
-import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer;
-import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer.OnErrorListener;
-import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer.OnStopListener;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -146,7 +145,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
             textView.setTextSize(17);
 
         } else if (content.getType() == TYPE.IMAGE) {
-            imageView.setVisibility(View.VISIBLE);
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
             showImageMessage(message, convertView, imageView, textView);
@@ -188,7 +188,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                 voiceButton.setTag("playing");
 
                 ChatVoicePlayer player = ChatVoicePlayer.getInstance();
-                player.start(message, new OnStopListener() {
+                player.start(message, new ChatVoicePlayer.OnStopListener() {
 
                     @Override
                     public void onStop() {
@@ -202,7 +202,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             }
                         });
                     }
-                }, new OnErrorListener() {
+                }, new ChatVoicePlayer.OnErrorListener() {
 
                     @Override
                     public void onError(String error) {
@@ -274,6 +274,15 @@ public class ChatMessagesAdapter extends BaseAdapter {
                         textView.setText(percent + "%");
                     }
                 });
+            }
+        });
+
+        imageView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext.getApplicationContext(), ImageViewActivity.class);
+                intent.putExtra("message", message.serialize());
+                mContext.startActivity(intent);
             }
         });
     }

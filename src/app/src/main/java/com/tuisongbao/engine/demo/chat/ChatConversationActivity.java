@@ -34,11 +34,13 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
+import com.tuisongbao.engine.chat.media.ChatVoiceRecorder;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
 import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.TSBEngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -47,9 +49,6 @@ import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatCameraActivity;
-import com.tuisongbao.engine.demo.chat.media.ChatVoicePlayer;
-import com.tuisongbao.engine.demo.chat.media.ChatVoiceRecorder;
-import com.tuisongbao.engine.demo.chat.media.ChatVoiceRecorder.ChatVoiceEventCallback;
 import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -354,7 +353,7 @@ public class ChatConversationActivity extends Activity implements
         request();
 
         mRecorder = new ChatVoiceRecorder();
-        mRecorder.setMaxDuration(60 * 1000, new ChatVoiceEventCallback() {
+        mRecorder.setMaxDuration(60 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
 
             @Override
             public void onEvent() {
@@ -522,8 +521,7 @@ public class ChatConversationActivity extends Activity implements
                         }
                         final int selectionPosition = t.size();
                         mStartMessageId = t.get(0).getMessageId();
-                        mStartMessageId = mStartMessageId
-                                - Long.valueOf(t.size());
+                        mStartMessageId = mStartMessageId - Long.valueOf(t.size());
                         Collections.reverse(t);
                         t.addAll(mMessageList);
                         mMessageList = t;
@@ -564,7 +562,7 @@ public class ChatConversationActivity extends Activity implements
 
         ChatMessageImageContent content = new ChatMessageImageContent();
         content.setFilePath(filePath);
-        mConversation.sendMessage(content, sendMessageCallback);
+        ChatMessage message = mConversation.sendMessage(content, sendMessageCallback);
     }
 
     private void registerBroadcast() {

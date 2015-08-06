@@ -23,8 +23,8 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     /**
      * file properties
      */
-    public static final String COLUMN_FILE_ORIGIN_PATH = "originPath";
-    public static final String COLUMN_FILE_URL = "Url";
+    public static final String COLUMN_FILE_ORIGINAL_PATH = "originalPath";
+    public static final String COLUMN_FILE_URL = "url";
     public static final String COLUMN_FILE_THUMBNAIL_PATH = "thumbnailPath";
     public static final String COLUMN_FILE_THUMB_URL = "thumbUrl";
     public static final String COLUMN_FILE_SIZE = "size";
@@ -65,7 +65,7 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
             + COLUMN_CONTENT + " text, "
             + COLUMN_CONTENT_TYPE + " text not null, "
 
-            + COLUMN_FILE_ORIGIN_PATH + " text, "
+            + COLUMN_FILE_ORIGINAL_PATH + " text, "
             + COLUMN_FILE_URL + " text, "
             + COLUMN_FILE_THUMBNAIL_PATH + " text, "
             + COLUMN_FILE_THUMB_URL + " text, "

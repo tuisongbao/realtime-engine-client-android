@@ -34,6 +34,9 @@ public class ChatMessageContent {
     }
 
     public ChatMessageFileContent getFile() {
+        if (file == null) {
+            file = new ChatMessageFileContent();
+        }
         return file;
     }
 
@@ -70,5 +73,11 @@ public class ChatMessageContent {
             file = new ChatMessageFileContent();
         }
         file.setFilePath(path);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ChatMessageContent[url:%s, thumbUrl: %s, path:%s, thumbPath: %s]"
+                , getFile().getUrl(), getFile().getThumbUrl(), getFile().getFilePath(), getFile().getThumbnailPath());
     }
 }

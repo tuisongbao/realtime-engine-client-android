@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.demo.chat.media;
+package com.tuisongbao.engine.chat.media;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;

@@ -8,11 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQuery;
-import android.os.Environment;
 
 import com.tuisongbao.engine.log.LogUtil;
-
-import java.io.File;
 
 public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
     private static final String TAG = "TSB" + ChatBaseSQLiteHelper.class.getSimpleName();
@@ -21,12 +18,12 @@ public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
                                 CursorFactory factory, int version) {
 // TODO: In order to see content of DB, put db into external storage. the internal storage can not be seen if the device has not been rooted.
 // Find a way to make this better.
-        super(context, Environment
-                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                                + File.separator + "/tuisongbao/" + File.separator
-                                + name, new CursorFactory() {
+//        super(context, Environment
+//                                .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+//                                + File.separator + "/tuisongbao/" + File.separator
+//                                + name, new CursorFactory() {
 
-//        super(context, name, new CursorFactory() {
+        super(context, name, new CursorFactory() {
 
                     @Override
                     public Cursor newCursor(SQLiteDatabase arg0, SQLiteCursorDriver arg1,

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Date;
 
 public class DownloadUtils {
     private static final String TAG = "TSB" + DownloadUtils.class.getSimpleName();
@@ -27,21 +28,13 @@ public class DownloadUtils {
     public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final TSBEngineCallback<String> callback
             , final TSBProgressCallback progressCallback) {
         LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
-        final String[] splits = urlString.split("/");
-        if (StrUtils.isEmpty(urlString) || splits.length < 1) {
-            ResponseError error = new ResponseError();
-            error.setMessage("The resource url String is invalid");
-            callback.onError(error);
-            return;
-        }
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
             public void run() {
                 try {
                     // The last string is timestamp, use it to be the file name
-                    String outputFileName = splits[splits.length - 1];
-                    outputFileName = outputFileName.substring(0, 14);
+                    String outputFileName = StrUtils.getTimestampStringOnlyContainNumber(new Date());
                     String folder = "";
                     // TODO: the suffix seems not work, no matter what the real format is, the image or voice can show and play respectively. Check why.
                     if (type == TYPE.IMAGE) {
