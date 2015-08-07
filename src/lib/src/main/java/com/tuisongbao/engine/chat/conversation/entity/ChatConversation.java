@@ -71,6 +71,10 @@ public class ChatConversation {
         this.unreadMessageCount = unreadMessageCount;
     }
 
+    public void incUnreadMessageCount() {
+        unreadMessageCount++;
+    }
+
     public String getLastActiveAt() {
         return lastActiveAt;
     }

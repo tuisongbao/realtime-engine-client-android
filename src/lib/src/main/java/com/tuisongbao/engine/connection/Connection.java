@@ -16,6 +16,7 @@ import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.PushUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
@@ -194,7 +195,7 @@ public class Connection extends BaseEngineIODataSource {
     public BaseEvent send(BaseEvent event) {
         event.setId(getRequestId());
         String eventString = event.serialize();
-        LogUtil.verbose(TAG, "Send rawEvent:" + eventString);
+        LogUtil.verbose(TAG, "Send event:" + eventString);
         mSocket.send(eventString);
         return event;
     }
@@ -238,7 +239,7 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.verbose(TAG, "Socket Message receive " + args[0].toString());
+                    LogUtil.verbose(TAG, "Socket receive " + args[0].toString());
                     if (args != null && args.length > 0) {
                         try {
                             onEvent(args[0].toString());
@@ -307,6 +308,8 @@ public class Connection extends BaseEngineIODataSource {
         } else if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
             LogUtil.info(TAG, "Connected");
             updateState(State.Connected);
+
+            PushUtils.bindPush(mEngine);
         } else {
             LogUtil.info(TAG, "Unknown event " + eventName + " with message " + data.getMessage());
         }

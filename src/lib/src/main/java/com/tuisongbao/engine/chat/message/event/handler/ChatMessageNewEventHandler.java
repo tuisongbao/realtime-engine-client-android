@@ -20,6 +20,10 @@ import com.tuisongbao.engine.chat.ChatIntentService;
 public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     private final String TAG = "TSB" + ChatMessageNewEventHandler.class.getSimpleName();
 
+    public ChatMessageNewEventHandler(Engine engine) {
+        setEngine(engine);
+    }
+
     @Override
     public ChatMessage genCallbackData(BaseEvent request, RawEvent response) {
         ChatMessage message = ChatMessage.getSerializer().fromJson(response.getData(), ChatMessage.class);

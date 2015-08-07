@@ -8,8 +8,8 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatIntentService extends IntentService {
-    public final static String INTENT_ACTION_RECEIVED_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE";
-    public final static String INTENT_EXTRA_KEY_MESSAGE = "com.tuisongbao.android.engine.service.ChatIntentService.INTENT_EXTRA_KEY_MESSAGE";
+    public final static String INTENT_ACTION_RECEIVED_MESSAGE = "com.tuisongbao.engine.ChatIntentService.ACTION_RECEIVED_MESSAGE";
+    public final static String INTENT_EXTRA_KEY_MESSAGE = "com.tuisongbao.engine.ChatIntentService.EXTRA_KEY_MESSAGE";
 
     private static final String TAG = "TSB" + ChatIntentService.class.getSimpleName();
 
@@ -32,10 +32,10 @@ public class ChatIntentService extends IntentService {
 
     private void handleMessages(Intent intent) {
         if (INTENT_ACTION_RECEIVED_MESSAGE.equals(intent.getAction())) {
-            String msg = intent.getParcelableExtra(INTENT_EXTRA_KEY_MESSAGE);
+            // TODO: 15-8-7 It will lost engine reference, try to solve it.
+            String msg = intent.getStringExtra(INTENT_EXTRA_KEY_MESSAGE);
             ChatMessage message = ChatMessage.getSerializer().fromJson(msg, ChatMessage.class);
             onMessage(this, message);
         }
     }
-
 }

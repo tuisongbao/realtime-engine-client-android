@@ -49,7 +49,7 @@ import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatCameraActivity;
-import com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService;
+import com.tuisongbao.engine.demo.chat.service.ChatMessageRevieveService;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.ArrayList;
@@ -567,7 +567,7 @@ public class ChatConversationActivity extends Activity implements
 
     private void registerBroadcast() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
+        filter.addAction(ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
         filter.addAction(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS);
         registerReceiver(mBroadcastReceiver, filter);
     }
@@ -581,12 +581,12 @@ public class ChatConversationActivity extends Activity implements
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (TSBMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
+            if (ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
                     .equals(action)) {
                 String target = mConversation.getTarget();
                 String messageString = intent
-                        .getParcelableExtra(TSBMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                ChatMessage message = ChatMessage.getSerializer().fromJson(messageString, ChatMessage.class);
+                        .getStringExtra(ChatMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
+                ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
                 Log.i(TAG,
                         "App get " + message.toString() + " to "
                                 + message.getRecipient()

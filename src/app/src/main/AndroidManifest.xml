@@ -43,10 +43,10 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <permission
-        android:name="com.tuisongbao.android.engine.demo.permission.PUSH"
+        android:name="com.tuisongbao.engine.demo.permission.PUSH"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.tuisongbao.android.engine.demo.permission.PUSH" />
+    <uses-permission android:name="com.tuisongbao.engine.demo.permission.PUSH" />
 
     <application
         android:name="com.tuisongbao.engine.demo.DemoApplication"
@@ -108,8 +108,58 @@
         </activity>
 
         <service
-            android:name="com.tuisongbao.engine.demo.chat.service.TSBMessageRevieveService" >
+            android:name=".chat.service.ChatMessageRevieveService" >
         </service>
+
+        <!-- push configs start -->
+        <service android:name="com.tuisongbao.android.service.NotificationIntentService" >
+        </service>
+
+        <service
+            android:name="com.tuisongbao.android.service.PushService"
+            android:exported="true"
+            android:process=":tps_v2" >
+            <intent-filter>
+                <action android:name="com.tuisongbao.chat.PushService" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name="com.tuisongbao.android.richmedia.RichMediaActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+
+        <service
+            android:name="com.tuisongbao.android.location.service.PushLocationService"
+            android:exported="true"
+            android:process=":tlocation_v2" >
+        </service>
+
+        <receiver
+            android:name="com.tuisongbao.android.broadcast.PushBroadcastReceiver"
+            android:exported="true" >
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+
+                <category android:name="com.tuisongbao.engine.demo" />
+            </intent-filter>
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+            <intent-filter android:priority="0x7fffffff" >
+                <action android:name="com.tuisongbao.push.android.intent.RECEIVE" />
+                <action android:name="com.tuisongbao.push.android.intent.GEOFENCE" />
+                <action android:name="com.tuisongbao.push.android.intent.DEBUG_MESSAGE" />
+            </intent-filter>
+        </receiver>
+        <!-- push configs end -->
+
     </application>
 
 </manifest>

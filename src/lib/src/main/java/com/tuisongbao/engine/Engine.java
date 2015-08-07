@@ -22,9 +22,6 @@ public final class Engine {
 
     private static Context mApplicationContext = null;
     private EngineOptions mEngineOptions;
-    private String mPushAppId;
-    private String mPushToken;
-    private String mPushService;
 
     public Engine(Context context, EngineOptions options) {
 
@@ -52,15 +49,13 @@ public final class Engine {
                 LogUtil.warn(TAG
                         , "No Intent service specified for receiving chat messages, " +
                             "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
-                // TODO: Init ChannelManager
                 channelManager = new ChannelManager(this);
             } else {
                 LogUtil.info(TAG,
                         "Successfully load configurations for engine.");
-                // TODO: Init ChatManager and ChannelManager
                 chatManager = new ChatManager(this);
+                channelManager = new ChannelManager(this);
             }
-            // TODO: When success connected, bind push if chat is enabled
 
         } catch (Exception e) {
             LogUtil.error(TAG, e);
@@ -94,7 +89,6 @@ public final class Engine {
     public EnginePipeline getPipeline() {
         return pipeline;
     }
-
 
     public ResponseError getUnhandledResponseError() {
         ResponseError error = new ResponseError();

@@ -76,7 +76,7 @@ public class ChatManager extends BaseManager {
 
                 @Override
                 public void onError(ResponseError error) {
-                    LogUtil.verbose(TAG, "Auth failed");
+                    LogUtil.verbose(TAG, "Auth failed, " + error.getMessage());
                     onLogout();
                 }
             };
@@ -201,8 +201,8 @@ public class ChatManager extends BaseManager {
         conversationManager = new ChatConversationManager(engine);
         messageManager = new ChatMessageManager(engine);
 
-        bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler());
-        bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler());
+        bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler(engine));
+        bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler(engine));
 
         trigger(EVENT_LOGIN_SUCCEEDED, mChatUser);
     }

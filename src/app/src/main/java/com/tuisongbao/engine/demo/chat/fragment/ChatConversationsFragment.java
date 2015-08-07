@@ -123,6 +123,13 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     public void onMessageReceived(ChatMessage message) {
+        for (ChatConversation conversation : mConversationList) {
+            if (conversation.getTarget().equals(message.getFrom())) {
+                conversation.setLastMessage(message);
+                conversation.incUnreadMessageCount();
+                break;
+            }
+        }
         mConversationsAdapter.refresh(mConversationList);
     }
 
