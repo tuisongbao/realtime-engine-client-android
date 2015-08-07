@@ -8,9 +8,11 @@ import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
+import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
@@ -54,6 +56,7 @@ public class ChatMessage {
                 new ChatMessageTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessageContentSerializer.class,
                 new ChatMessageContentSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageEventContent.TYPE.class, new ChatMessageEventTypeSerializer());
 
         return gsonBuilder.create();
     }
@@ -196,35 +199,36 @@ public class ChatMessage {
         downloadResource(true, callback, progressCallback);
     }
 
-    public void generateThumbnail(int maxWidth) {
+    public boolean generateThumbnail(int maxWidth) {
         if (getContent().getType() != TYPE.IMAGE) {
-            return;
+            return false;
         }
 
         String thumbnailPath = getContent().getFile().getThumbnailPath();
         if (isFileExists(thumbnailPath)) {
-            return;
+            return false;
         }
 
         // Create thumbnail bitmap
         String filePath = getContent().getFile().getFilePath();
         Bitmap image = BitmapFactory.decodeFile(filePath);
-        int width = Math.min(image.getWidth(), maxWidth);
-        int height = image.getHeight();
+        float bitmapRatio = (float)image.getWidth() / (float) image.getHeight();
 
-        float bitmapRatio = (float)width / (float) height;
-        height = (int) (width / bitmapRatio);
+        int width = Math.min(image.getWidth(), maxWidth);
+        int height = (int) (width / bitmapRatio);
         Bitmap thumbnail = Bitmap.createScaledBitmap(image, width, height, true);
 
         // Save thumbnail
         String fileName = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(fileName);
+            File file = DownloadUtils.getOutputFile(fileName, getContent().getType().getName());
+            out = new FileOutputStream(file.getAbsolutePath());
             thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
 
             // Update thumbnail path in message
-            getContent().getFile().setThumbnailPath(fileName);
+            getContent().getFile().setThumbnailPath(file.getAbsolutePath());
+            return true;
         } catch (Exception e) {
             LogUtil.error(TAG, e);
         } finally {
@@ -236,6 +240,7 @@ public class ChatMessage {
                 LogUtil.error(TAG, e);
             }
         }
+        return false;
     }
 
     private ResponseError permissionCheck() {

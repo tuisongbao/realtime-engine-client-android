@@ -8,7 +8,6 @@ import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
@@ -16,6 +15,7 @@ import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageSendEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -44,14 +44,14 @@ public class ChatMessageManager extends BaseManager {
      * @param callback
      */
     public ChatMessage sendMessage(final ChatMessage message,
-                            final EngineCallback<ChatMessage> callback, ChatOptions options) {
+                            final EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         try {
             message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
             if (messageType == ChatMessage.TYPE.TEXT) {
                 sendMessageEvent(message, callback);
             } else {
-                sendMediaMessage(message, callback, options);
+                sendMediaMessage(message, callback, progressCallback);
             }
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
@@ -70,9 +70,10 @@ public class ChatMessageManager extends BaseManager {
         send(event, handler);
     }
 
-    private void sendMediaMessage(final ChatMessage message, final EngineCallback<ChatMessage> callback, ChatOptions options) {
+    private void sendMediaMessage(final ChatMessage message, final EngineCallback<ChatMessage> callback,
+                                  ProgressCallback progressCallback) {
         EngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
-        if (!uploadMessageResourceToQiniu(message, handlerCallback, options)) {
+        if (!uploadMessageResourceToQiniu(message, handlerCallback, progressCallback)) {
             ResponseError error = new ResponseError();
             error.setMessage("Can not find the source you specified.");
             callback.onError(error);
@@ -80,7 +81,7 @@ public class ChatMessageManager extends BaseManager {
     }
 
     private boolean uploadMessageResourceToQiniu(ChatMessage message, final EngineCallback<JSONObject> responseHandler,
-                                                 final ChatOptions options) {
+                                                 final ProgressCallback progressCallback) {
         ChatMessageContent content = message.getContent();
         String filePath = content.getFile().getFilePath();
         if (StrUtils.isEmpty(filePath)) {
@@ -91,12 +92,12 @@ public class ChatMessageManager extends BaseManager {
         String token = engine.getChatManager().getChatUser().getUploadToken();
         Log.d(TAG, token);
         UpProgressHandler progressHandler = null;
-        if (options != null) {
+        if (progressCallback != null) {
             progressHandler = new UpProgressHandler() {
 
                 @Override
                 public void progress(String arg0, double percent) {
-                    options.callbackProgress((int)(percent * 100));
+                    progressCallback.progress((int)(percent * 100));
                 }
             };
         }
@@ -128,7 +129,7 @@ public class ChatMessageManager extends BaseManager {
             @Override
             public void onSuccess(JSONObject responseObject) {
                 ChatMessageContent content = message.getContent();
-                ChatMessageFileContent file = new ChatMessageFileContent();
+                ChatMessageFileContent file = message.getContent().getFile();
                 try {
                     file.setKey(responseObject.getString("key"));
                 } catch (Exception e) {

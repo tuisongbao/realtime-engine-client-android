@@ -2,7 +2,6 @@ package com.tuisongbao.engine.chat.conversation;
 
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationDeleteEvent;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
@@ -170,10 +169,6 @@ public class ChatConversationManager extends BaseManager {
             callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);
         }
-    }
-
-    public void sendMessage(final ChatMessage message, final EngineCallback<ChatMessage> callback, ChatOptions options) {
-        mChatManager.getMessageManager().sendMessage(message, callback, options);
     }
 
     /***

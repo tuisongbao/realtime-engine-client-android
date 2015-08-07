@@ -37,15 +37,13 @@ public class DownloadUtils {
                     String outputFileName = StrUtils.getTimestampStringOnlyContainNumber(new Date());
                     String folder = "";
                     // TODO: the suffix seems not work, no matter what the real format is, the image or voice can show and play respectively. Check why.
+                    folder = type.getName();
                     if (type == TYPE.IMAGE) {
                         outputFileName += ".png";
-                        folder = "images";
                     } else if (type == TYPE.VOICE) {
                         outputFileName += ".wav";
-                        folder = "voices";
                     } else if (type == TYPE.VIDEO) {
                         outputFileName += ".mp4";
-                        folder = "videos";
                     }
                     downloadFileWithProgress(urlString, outputFileName, folder, callback, progressCallback);
                 } catch (Exception e) {

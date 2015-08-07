@@ -61,6 +61,9 @@ public class ChatMessageContent {
     }
 
     public ChatMessageEventContent getEvent() {
+        if (event == null) {
+            event = new ChatMessageEventContent();
+        }
         return event;
     }
 

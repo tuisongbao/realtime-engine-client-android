@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
+import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
@@ -123,11 +124,18 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     public void onMessageReceived(ChatMessage message) {
+        ChatType chatType = message.getChatType();
+        String target = null;
+        if (chatType.equals(ChatType.SingleChat)) {
+            target = message.getFrom();
+        } else if (chatType.equals(ChatType.GroupChat)) {
+            target = message.getRecipient();
+        }
+
         for (ChatConversation conversation : mConversationList) {
-            if (conversation.getTarget().equals(message.getFrom())) {
+            if (conversation.getTarget().equals(target)) {
                 conversation.setLastMessage(message);
                 conversation.incUnreadMessageCount();
-                break;
             }
         }
         mConversationsAdapter.refresh(mConversationList);

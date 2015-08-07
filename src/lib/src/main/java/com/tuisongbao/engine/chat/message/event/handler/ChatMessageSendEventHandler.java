@@ -30,6 +30,7 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
             content.getFile().setThumbUrl(responseMessageContent.getFile().getThumbUrl());
         }
         sentMessage.setFrom(userId);
+        sentMessage.setMessageId(responseMessage.getMessageId());
 
         if (sentMessage != null && engine.getChatManager().isCacheEnabled()) {
             ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), engine);

@@ -120,7 +120,7 @@ public class ChatConversationActivity extends Activity implements
                     mMessagesAdapter.refresh(mMessageList);
                     mMessagesListView.setSelection(mMessageList.size() - 1);
                     Toast.makeText(ChatConversationActivity.this,
-                            "Send failed", Toast.LENGTH_LONG).show();
+                            "Send failed, " + error.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -562,7 +562,28 @@ public class ChatConversationActivity extends Activity implements
 
         ChatMessageImageContent content = new ChatMessageImageContent();
         content.setFilePath(filePath);
-        ChatMessage message = mConversation.sendMessage(content, sendMessageCallback);
+        ChatMessage message = mConversation.sendMessage(content, new EngineCallback<ChatMessage>() {
+            @Override
+            public void onSuccess(ChatMessage message) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Send success", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(ResponseError error) {
+
+            }
+        });
+        // TODO: 15-8-7 Progress bar
+
+        message.setFrom(LoginCache.getUserId());
+        mMessageList.add(message);
+        mMessagesAdapter.refresh(mMessageList);
+        mMessagesListView.setSelection(mMessageList.size() - 1);
     }
 
     private void registerBroadcast() {

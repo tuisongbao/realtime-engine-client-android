@@ -14,10 +14,6 @@ import java.util.TimeZone;
 
 public class ToolUtils {
     public static String getEventMessage(ChatMessage message) {
-        if (true) {
-            // TODO: 15-8-5 Generate event message
-            return "Event received";
-        }
         if (message.getContent().getType() != TYPE.EVENT) {
             return "";
         }

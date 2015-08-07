@@ -9,6 +9,7 @@ import com.google.gson.JsonParseException;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -35,6 +36,12 @@ public class ChatMessageContentSerializer implements JsonDeserializer<ChatMessag
             if (fileElement != null) {
                 ChatMessageFileContent file = gson.fromJson(fileElement, ChatMessageFileContent.class);
                 content.setFile(file);
+            }
+
+            JsonElement eventElement = bodyJson.get("event");
+            if (eventElement != null) {
+                ChatMessageEventContent event = gson.fromJson(eventElement, ChatMessageEventContent.class);
+                content.setEvent(event);
             }
 
             JsonElement extraElement = bodyJson.get("extra");

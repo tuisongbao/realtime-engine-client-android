@@ -127,10 +127,16 @@ public class ChatConversationDataSource {
      */
     public void upsertMessage(String userId, final ChatMessage message) {
         if (updateMessage(message) > 0) {
+            // This message exists, there must be have a conversation related with this message. so return.
             return;
         }
 
-        // Create conversation if no such conversation between from and to
+        // This message exists, but the new message has not something new to update.
+        if (isMessageExist(message)) {
+            return;
+        }
+
+        // This message not exists, check if it is need to create conversation.
         String target = message.getRecipient();
         if (message.getChatType() == ChatType.SingleChat) {
             if (StrUtils.isEqual(target, userId)) {
@@ -145,7 +151,7 @@ public class ChatConversationDataSource {
             conversation.setUnreadMessageCount(1);
             insert(conversation, userId);
         }
-        if (upsertMessage(message) > 0) {
+        if (insertMessage(message) > 0) {
             LogUtil.verbose(TAG, "insert " + message);
         }
     }
@@ -339,7 +345,7 @@ public class ChatConversationDataSource {
             content.setText(cursor.getString(5));
         } else if (StrUtils.isEqual(TYPE.EVENT.getName(), contentType)) {
             ChatMessageEventContent event = new ChatMessageEventContent();
-            event.setType(event.getType(cursor.getString(16)));
+            event.setType(ChatMessageEventContent.TYPE.getType(cursor.getString(16)));
             event.setTarget(cursor.getString(17));
 
             content.setEvent(event);
@@ -385,7 +391,16 @@ public class ChatConversationDataSource {
         return cursor.getCount() > 0;
     }
 
-    private long upsertMessage(ChatMessage message) {
+    private boolean isMessageExist(ChatMessage message) {
+        String uniqueMessageId = generateUniqueMessageId(message);
+        String queryString = "SELECT * FROM " + ChatMessageSQLiteHelper.TABLE_CHAT_MESSAGE
+                + " WHERE " + ChatMessageSQLiteHelper.COLUMN_ID + " = '" + uniqueMessageId + "'"
+                + ";";
+        Cursor cursor = messageDB.rawQuery(queryString, null);
+        return cursor.getCount() > 0;
+    }
+
+    private long insertMessage(ChatMessage message) {
         ContentValues values =  new ContentValues();
         values.put(ChatMessageSQLiteHelper.COLUMN_ID, generateUniqueMessageId(message));
         values.put(ChatMessageSQLiteHelper.COLUMN_MESSAGE_ID, message.getMessageId());
@@ -400,6 +415,7 @@ public class ChatConversationDataSource {
         } else if (isMediaMessage(message)) {
             ChatMessageFileContent file = content.getFile();
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH, file.getFilePath());
+            values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, file.getThumbnailPath());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_URL, file.getUrl());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMB_URL, file.getThumbUrl());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_SIZE, file.getSize());

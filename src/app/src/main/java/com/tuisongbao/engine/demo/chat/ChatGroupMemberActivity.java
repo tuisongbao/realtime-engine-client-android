@@ -43,7 +43,7 @@ public class ChatGroupMemberActivity extends Activity {
         mListViewGroupUser = (ListView) findViewById(R.id.group_member_list_view);
         mListGroupUser = new ArrayList<ChatUser>();
         mButtonQuit = (Button) findViewById(R.id.group_member_quit);
-        String groupString = getIntent().getParcelableExtra(EXTRA_KEY_GROUP);
+        String groupString = getIntent().getStringExtra(EXTRA_KEY_GROUP);
         mGroup = ChatGroup.deserialize(DemoApplication.engine, groupString);
 
         mAdapter = new ChatGroupUserAdapter(mListGroupUser, this);

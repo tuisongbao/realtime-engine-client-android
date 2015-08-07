@@ -1,5 +1,7 @@
 package com.tuisongbao.engine.chat.message.entity.content;
 
+import com.tuisongbao.engine.utils.StrUtils;
+
 public class ChatMessageEventContent {
     public enum TYPE {
         FriendAdded("friend:added"),
@@ -17,6 +19,18 @@ public class ChatMessageEventContent {
         public String getName() {
             return name;
         }
+
+        public static TYPE getType(String name) {
+            if (!StrUtils.isEmpty(name)) {
+                TYPE[] types = values();
+                for (TYPE type : types) {
+                    if (type.getName().equals(name)) {
+                        return type;
+                    }
+                }
+            }
+            return null;
+        }
     }
 
     private TYPE type;
@@ -28,10 +42,6 @@ public class ChatMessageEventContent {
 
     public TYPE getType() {
         return type;
-    }
-
-    public TYPE getType(String name) {
-        return TYPE.valueOf(name);
     }
 
     public void setTarget(String target) {

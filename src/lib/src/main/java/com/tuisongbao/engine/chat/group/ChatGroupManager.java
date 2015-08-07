@@ -74,7 +74,6 @@ public class ChatGroupManager extends BaseManager {
             ChatGroupCreateEventHandler response = new ChatGroupCreateEventHandler();
             response.setCallback(callback);
             send(event, response);
-
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
             LogUtil.error(TAG, e);

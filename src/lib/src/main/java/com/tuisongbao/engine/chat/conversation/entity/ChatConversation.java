@@ -2,12 +2,12 @@ package com.tuisongbao.engine.chat.conversation.entity;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.List;
@@ -137,10 +137,11 @@ public class ChatConversation {
         return sendMessage(body, callback, null);
     }
 
-    private ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ChatOptions options) {
+    public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         ChatMessage message = new ChatMessage();
         message.setContent(body).setChatType(type).setRecipient(target);
-        return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, options);
+        message.generateThumbnail(200);
+        return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
     }
 
     private static Gson getSerializer() {
