@@ -3,8 +3,8 @@ package com.tuisongbao.engine.demo;
 import android.app.ActivityManager;
 import android.app.Application;
 
-import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.TSBEngineOptions;
+import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.EngineOptions;
 import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class DemoApplication extends Application {
-    public static TSBEngine engine;
+    public static Engine engine;
 
     @Override
     public void onCreate() {
@@ -30,9 +30,9 @@ public class DemoApplication extends Application {
         }
 
         // appId是在推送宝官网注册应用时分配的ID
-        TSBEngineOptions options = new TSBEngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser");
+        EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser");
         options.setChatIntentService(TSBMessageRevieveService.class);
-        engine = new TSBEngine(this, options);
+        engine = new Engine(this, options);
         ChatManager chatManager = engine.getChatManager();
         chatManager.enableCache();
     }

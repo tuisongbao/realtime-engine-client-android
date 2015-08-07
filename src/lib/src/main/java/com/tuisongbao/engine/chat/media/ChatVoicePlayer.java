@@ -6,8 +6,8 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -44,7 +44,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
     }
 
     public void start(final ChatMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
-            , final TSBProgressCallback progressCallback) {
+            , final ProgressCallback progressCallback) {
         try {
             stopLastMedia();
             startPlay(message, stopListener, errorListener, progressCallback);
@@ -61,14 +61,14 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
     }
 
     private void startPlay(final ChatMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
-            , final TSBProgressCallback progressCallback) {
+            , final ProgressCallback progressCallback) {
         currentPlayingMessage = message;
 
         if (errorListener != null) {
             errorListenerHashMap.put(message, errorListener);
         }
 
-        message.downloadVoice(new TSBEngineCallback<String>() {
+        message.downloadVoice(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {

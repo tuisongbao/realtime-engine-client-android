@@ -1,15 +1,15 @@
 package com.tuisongbao.engine.chat;
 
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 public class ChatOptions {
     private static final String TAG = "TSB" + ChatOptions.class.getSimpleName();
 
-    private TSBProgressCallback mProgressCallback;
+    private ProgressCallback mProgressCallback;
     private int mLastPercent = 0;
 
-    public ChatOptions(TSBProgressCallback callback) {
+    public ChatOptions(ProgressCallback callback) {
         mProgressCallback = callback;
     }
 

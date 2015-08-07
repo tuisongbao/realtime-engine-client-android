@@ -2,7 +2,7 @@ package com.tuisongbao.engine.engineio.sink;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -14,10 +14,10 @@ import com.tuisongbao.engine.utils.StrUtils;
  * A data sink that sends new messages of specific types to listeners.
  *
  */
-public class TSBEngineDataSink extends BaseEngineDataSink {
-    private TSBEngine mEngine;
+public class EngineDataSink extends BaseEngineDataSink {
+    private Engine mEngine;
 
-    public TSBEngineDataSink(TSBEngine engine) {
+    public EngineDataSink(Engine engine) {
         mEngine = engine;
     }
 

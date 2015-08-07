@@ -3,8 +3,8 @@ package com.tuisongbao.engine.utils;
 import android.os.Environment;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -25,8 +25,8 @@ public class DownloadUtils {
      * @param type according to different type, save file into different folder
      * @param callback
      */
-    public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final TSBEngineCallback<String> callback
-            , final TSBProgressCallback progressCallback) {
+    public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final EngineCallback<String> callback
+            , final ProgressCallback progressCallback) {
         LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
@@ -58,8 +58,8 @@ public class DownloadUtils {
         });
     }
 
-    private static void downloadFileWithProgress(final String urlString, final String outputFileName, final String folder, final TSBEngineCallback<String> callback
-            , final TSBProgressCallback progressCallback) {
+    private static void downloadFileWithProgress(final String urlString, final String outputFileName, final String folder, final EngineCallback<String> callback
+            , final ProgressCallback progressCallback) {
         try {
             URL url = new URL(urlString);
             URLConnection conexion = url.openConnection();

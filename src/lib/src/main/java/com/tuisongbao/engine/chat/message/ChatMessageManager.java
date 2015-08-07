@@ -7,7 +7,7 @@ import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
@@ -15,7 +15,7 @@ import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageSendEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -32,7 +32,7 @@ import java.util.Map;
 public class ChatMessageManager extends BaseManager {
     private static final String TAG = "TSB" + ChatMessageManager.class.getSimpleName();
 
-    public ChatMessageManager(TSBEngine engine) {
+    public ChatMessageManager(Engine engine) {
         super(engine);
     }
 
@@ -44,7 +44,7 @@ public class ChatMessageManager extends BaseManager {
      * @param callback
      */
     public ChatMessage sendMessage(final ChatMessage message,
-                            final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
+                            final EngineCallback<ChatMessage> callback, ChatOptions options) {
         try {
             message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
@@ -60,7 +60,7 @@ public class ChatMessageManager extends BaseManager {
         return message;
     }
 
-    private void sendMessageEvent(ChatMessage message, TSBEngineCallback<ChatMessage> callback)  {
+    private void sendMessageEvent(ChatMessage message, EngineCallback<ChatMessage> callback)  {
         ChatMessageSendEvent event = new ChatMessageSendEvent();
         message.setCreatedAt(StrUtils.getTimeStringIOS8061(new Date()));
         event.setData(message);
@@ -70,8 +70,8 @@ public class ChatMessageManager extends BaseManager {
         send(event, handler);
     }
 
-    private void sendMediaMessage(final ChatMessage message, final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
-        TSBEngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
+    private void sendMediaMessage(final ChatMessage message, final EngineCallback<ChatMessage> callback, ChatOptions options) {
+        EngineCallback<JSONObject> handlerCallback = getUploaderHandlerOfMediaMessage(message, callback);
         if (!uploadMessageResourceToQiniu(message, handlerCallback, options)) {
             ResponseError error = new ResponseError();
             error.setMessage("Can not find the source you specified.");
@@ -79,7 +79,7 @@ public class ChatMessageManager extends BaseManager {
         }
     }
 
-    private boolean uploadMessageResourceToQiniu(ChatMessage message, final TSBEngineCallback<JSONObject> responseHandler,
+    private boolean uploadMessageResourceToQiniu(ChatMessage message, final EngineCallback<JSONObject> responseHandler,
                                                  final ChatOptions options) {
         ChatMessageContent content = message.getContent();
         String filePath = content.getFile().getFilePath();
@@ -121,9 +121,9 @@ public class ChatMessageManager extends BaseManager {
         return true;
     }
 
-    private TSBEngineCallback<JSONObject> getUploaderHandlerOfMediaMessage(final ChatMessage message,
-                                                                           final TSBEngineCallback<ChatMessage> callback) {
-        TSBEngineCallback<JSONObject> responseHandler = new TSBEngineCallback<JSONObject>() {
+    private EngineCallback<JSONObject> getUploaderHandlerOfMediaMessage(final ChatMessage message,
+                                                                           final EngineCallback<ChatMessage> callback) {
+        EngineCallback<JSONObject> responseHandler = new EngineCallback<JSONObject>() {
 
             @Override
             public void onSuccess(JSONObject responseObject) {

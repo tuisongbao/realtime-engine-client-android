@@ -19,8 +19,8 @@ import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
@@ -215,7 +215,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                             }
                         });
                     }
-                }, new TSBProgressCallback() {
+                }, new ProgressCallback() {
 
                     @Override
                     public void progress(final int percent) {
@@ -237,7 +237,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final ChatMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        message.downloadImage(false, new TSBEngineCallback<String>() {
+        message.downloadImage(false, new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {
@@ -263,7 +263,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
                     }
                 });
             }
-        }, new TSBProgressCallback() {
+        }, new ProgressCallback() {
 
             @Override
             public void progress(final int percent) {
@@ -304,7 +304,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
         };
         imageView.setOnClickListener(listener);
-        message.downloadVideoThumb(new TSBEngineCallback<String>() {
+        message.downloadVideoThumb(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {

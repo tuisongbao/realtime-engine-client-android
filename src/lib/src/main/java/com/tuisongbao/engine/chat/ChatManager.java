@@ -1,7 +1,7 @@
 package com.tuisongbao.engine.chat;
 
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.message.ChatMessageManager;
@@ -14,7 +14,7 @@ import com.tuisongbao.engine.chat.user.event.handler.ChatLoginEventHandler;
 import com.tuisongbao.engine.chat.user.event.handler.ChatUserPresenceChangedEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
@@ -41,9 +41,9 @@ public class ChatManager extends BaseManager {
     private ChatUser mChatUser;
     private boolean mIsCacheEnabled = false;
     private String mUserData;
-    private TSBEngineCallback mAuthCallback;
+    private EngineCallback mAuthCallback;
 
-    public ChatManager(TSBEngine engine) {
+    public ChatManager(Engine engine) {
         super(engine);
     }
 
@@ -61,7 +61,7 @@ public class ChatManager extends BaseManager {
                 failedAllPendingEvents();
             }
 
-            mAuthCallback = new TSBEngineCallback<ChatLoginData>() {
+            mAuthCallback = new EngineCallback<ChatLoginData>() {
 
                 @Override
                 public void onSuccess(ChatLoginData data) {
@@ -165,7 +165,7 @@ public class ChatManager extends BaseManager {
         return requestData;
     }
 
-    private void auth(final String userData, final TSBEngineCallback callback) {
+    private void auth(final String userData, final EngineCallback callback) {
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override

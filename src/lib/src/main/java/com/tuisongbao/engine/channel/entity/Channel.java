@@ -1,11 +1,11 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -14,14 +14,14 @@ import org.json.JSONException;
 public class Channel extends EventEmitter {
     private static final String TAG = "TSB" + Channel.class.getSimpleName();
 
-    protected TSBEngine engine;
+    protected Engine engine;
 
     /**
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
      */
     protected String channel;
 
-    public Channel(String name, TSBEngine engine) {
+    public Channel(String name, Engine engine) {
         this.engine = engine;
         this.channel = name;
     }
@@ -36,7 +36,7 @@ public class Channel extends EventEmitter {
 
     public void subscribe() {
         LogUtil.debug(TAG, "Begin auth channel: " + channel);
-        validate(new TSBEngineCallback<String>() {
+        validate(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -78,7 +78,7 @@ public class Channel extends EventEmitter {
         engine.getChannelManager().send(message, null);
     }
 
-    protected void validate(TSBEngineCallback<String> callback) {
+    protected void validate(EngineCallback<String> callback) {
         callback.onSuccess(channel);
     }
 

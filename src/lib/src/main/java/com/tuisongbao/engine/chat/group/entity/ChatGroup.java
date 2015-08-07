@@ -1,10 +1,10 @@
 package com.tuisongbao.engine.chat.group.entity;
 
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 
 import java.util.List;
 
@@ -18,19 +18,19 @@ public class ChatGroup {
     private boolean isRemoved;
     private String lastActiveAt;
 
-    transient private TSBEngine mEngine;
+    transient private Engine mEngine;
     transient private ChatGroupManager mGroupManager;
 
     public ChatGroup() {
 
     }
 
-    public ChatGroup(TSBEngine engine) {
+    public ChatGroup(Engine engine) {
         mEngine = engine;
         mGroupManager = mEngine.getChatManager().getGroupManager();
     }
 
-    public static ChatGroup deserialize(TSBEngine engine, String jsonString) {
+    public static ChatGroup deserialize(Engine engine, String jsonString) {
         ChatGroup group = getSerializer().fromJson(jsonString, ChatGroup.class);
         group.mEngine = engine;
         group.mGroupManager = engine.getChatManager().getGroupManager();
@@ -111,7 +111,7 @@ public class ChatGroup {
      *
      * @param callback 可选
      */
-    public void getUsers(TSBEngineCallback<List<ChatUser>> callback) {
+    public void getUsers(EngineCallback<List<ChatUser>> callback) {
         mGroupManager.getUsers(groupId, callback);
     }
 
@@ -122,7 +122,7 @@ public class ChatGroup {
      *            邀请加入的用户id
      * @param callback 可选
      */
-    public void joinInvitation(List<String> userIds, TSBEngineCallback<String> callback) {
+    public void joinInvitation(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.joinInvitation(groupId, userIds, callback);
     }
 
@@ -133,7 +133,7 @@ public class ChatGroup {
      *            删除的用户id
      * @param callback 可选
      */
-    public void removeUsers(List<String> userIds, TSBEngineCallback<String> callback) {
+    public void removeUsers(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.removeUsers(groupId, userIds, callback);
     }
 
@@ -142,7 +142,7 @@ public class ChatGroup {
      *
      * @param callback 可选
      */
-    public void leave(TSBEngineCallback<String> callback) {
+    public void leave(EngineCallback<String> callback) {
         mGroupManager.leave(groupId, callback);
     }
 

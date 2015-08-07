@@ -8,8 +8,8 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -30,7 +30,7 @@ public class ChatVideoPlayerActivity extends Activity {
         final TextView textView = (TextView)findViewById(R.id.video_progress);
 
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, getIntent().getStringExtra("message"));
-        message.downloadVideo(new TSBEngineCallback<String>() {
+        message.downloadVideo(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {
@@ -52,7 +52,7 @@ public class ChatVideoPlayerActivity extends Activity {
             public void onError(ResponseError error) {
 
             }
-        }, new TSBProgressCallback() {
+        }, new ProgressCallback() {
 
             @Override
             public void progress(final int percent) {

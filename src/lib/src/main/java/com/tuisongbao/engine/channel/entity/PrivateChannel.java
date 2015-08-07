@@ -1,8 +1,8 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
@@ -19,7 +19,7 @@ public class PrivateChannel extends Channel {
 
     protected String signature;
 
-    public PrivateChannel(String name, TSBEngine engine) {
+    public PrivateChannel(String name, Engine engine) {
         super(name, engine);
     }
 
@@ -45,7 +45,7 @@ public class PrivateChannel extends Channel {
         return message;
     }
 
-    protected boolean validateResponseDataOfAuth(JSONObject data, TSBEngineCallback<String> callback) {
+    protected boolean validateResponseDataOfAuth(JSONObject data, EngineCallback<String> callback) {
         signature = data.optString("signature");
         if (StrUtils.isEmpty(signature)) {
             ResponseError error = new ResponseError();
@@ -57,7 +57,7 @@ public class PrivateChannel extends Channel {
     }
 
     @Override
-    protected void validate(final TSBEngineCallback<String> callback) {
+    protected void validate(final EngineCallback<String> callback) {
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override

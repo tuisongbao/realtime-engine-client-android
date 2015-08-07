@@ -1,7 +1,7 @@
 package com.tuisongbao.engine.chat.group.event.handler;
 
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
@@ -31,7 +31,7 @@ public class ChatGroupCreateEventHandler extends BaseEventHandler<ChatGroup> {
         group.setUserCount(userCount);
         group.setIsPublic(requestData.isPublic());
 
-        ChatGroupDataSource dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
+        ChatGroupDataSource dataSource = new ChatGroupDataSource(Engine.getContext(), engine);
         dataSource.open();
         dataSource.insert(group, currentUser);
         dataSource.close();

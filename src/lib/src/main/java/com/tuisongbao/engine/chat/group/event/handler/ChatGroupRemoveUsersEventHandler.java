@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.chat.group.event.handler;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
 import com.tuisongbao.engine.chat.group.event.ChatGroupRemoveUsersEvent;
@@ -14,7 +14,7 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 public class ChatGroupRemoveUsersEventHandler extends BaseEventHandler<String> {
     @Override
     protected String genCallbackDataWithCache(BaseEvent request, RawEvent response) {
-        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
+        ChatGroupDataSource groupDataSource = new ChatGroupDataSource(Engine.getContext(), engine);
         ChatGroupEventData removeUserData = ((ChatGroupRemoveUsersEvent)request).getData();
 
         groupDataSource.open();

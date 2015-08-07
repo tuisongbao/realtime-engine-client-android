@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.conversation.event.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationGetEvent;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
@@ -20,7 +20,7 @@ public class ChatConversationGetEventHandler extends BaseEventHandler<List<ChatC
     protected List<ChatConversation> genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         List<ChatConversation> changedConversations = genCallbackData(request, response);
 
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         String userId = engine.getChatManager().getChatUser().getUserId();
         dataSource.open();
         dataSource.upsert(changedConversations, userId);

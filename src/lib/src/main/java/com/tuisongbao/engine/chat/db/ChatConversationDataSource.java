@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
@@ -31,9 +31,9 @@ public class ChatConversationDataSource {
     private SQLiteDatabase messageDB;
     private ChatConversationSQLiteHelper conversationSQLiteHelper;
     private ChatMessageSQLiteHelper messageSQLiteHelper;
-    private TSBEngine mEngine;
+    private Engine mEngine;
 
-    public ChatConversationDataSource(Context context, TSBEngine engine) {
+    public ChatConversationDataSource(Context context, Engine engine) {
         mEngine = engine;
         conversationSQLiteHelper = new ChatConversationSQLiteHelper(context);
         messageSQLiteHelper = new ChatMessageSQLiteHelper(context);

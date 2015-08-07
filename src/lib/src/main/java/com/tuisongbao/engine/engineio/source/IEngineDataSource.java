@@ -4,5 +4,6 @@ import com.tuisongbao.engine.engineio.pipeline.IEnginePipeline;
 
 public interface IEngineDataSource {
     void setCallback(IEnginePipeline callback);
+    void start();
     void stop();
 }

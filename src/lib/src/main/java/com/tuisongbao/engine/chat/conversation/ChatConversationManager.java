@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.chat.conversation;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
@@ -18,7 +18,7 @@ import com.tuisongbao.engine.chat.message.event.handler.ChatMessageGetEventHandl
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageMultiGetEventHandler;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -33,10 +33,10 @@ public class ChatConversationManager extends BaseManager {
     private ChatManager mChatManager;
     private ChatConversationDataSource dataSource;
 
-    public ChatConversationManager(TSBEngine engine) {
+    public ChatConversationManager(Engine engine) {
         mChatManager = engine.getChatManager();
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
+            dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         }
     }
 
@@ -50,7 +50,7 @@ public class ChatConversationManager extends BaseManager {
      * @param callback
      */
     public void getList(ChatType chatType, String target,
-            TSBEngineCallback<List<ChatConversation>> callback) {
+            EngineCallback<List<ChatConversation>> callback) {
         try {
             String lastActiveAt = null;
             if (dataSource != null) {
@@ -74,7 +74,7 @@ public class ChatConversationManager extends BaseManager {
      * @param target
      *            跟谁， userId 或 groupId
      */
-    public void resetUnread(ChatType chatType, String target, TSBEngineCallback<String> callback) {
+    public void resetUnread(ChatType chatType, String target, EngineCallback<String> callback) {
         try {
             if (!mChatManager.hasLogin()) {
                 return;
@@ -116,7 +116,7 @@ public class ChatConversationManager extends BaseManager {
      * @param callback
      */
     public void delete(ChatType chatType, String target,
-            TSBEngineCallback<String> callback) {
+            EngineCallback<String> callback) {
         try {
             ChatConversationDeleteEvent event = new ChatConversationDeleteEvent();
             ChatConversation data = new ChatConversation(engine);
@@ -149,7 +149,7 @@ public class ChatConversationManager extends BaseManager {
      */
     public void getMessages(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit,
-            TSBEngineCallback<List<ChatMessage>> callback) {
+            EngineCallback<List<ChatMessage>> callback) {
         try {
             // No need to query if startMessageId is less or equal to 0
             if (startMessageId != null && startMessageId <= 0) {
@@ -172,7 +172,7 @@ public class ChatConversationManager extends BaseManager {
         }
     }
 
-    public void sendMessage(final ChatMessage message, final TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
+    public void sendMessage(final ChatMessage message, final EngineCallback<ChatMessage> callback, ChatOptions options) {
         mChatManager.getMessageManager().sendMessage(message, callback, options);
     }
 
@@ -190,7 +190,7 @@ public class ChatConversationManager extends BaseManager {
     }
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
-            Long endMessageId, int limit, TSBEngineCallback<List<ChatMessage>> callback) throws JSONException {
+            Long endMessageId, int limit, EngineCallback<List<ChatMessage>> callback) throws JSONException {
         ChatMessageMultiGetEventHandler response = new ChatMessageMultiGetEventHandler();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
@@ -257,7 +257,7 @@ public class ChatConversationManager extends BaseManager {
     }
 
     private void sendRequestOfGetConversations(ChatType chatType, String target, String lastActiveAt,
-            TSBEngineCallback<List<ChatConversation>> callback) throws JSONException {
+            EngineCallback<List<ChatConversation>> callback) throws JSONException {
         ChatConversationGetEvent event = new ChatConversationGetEvent();
         ChatConversation data = new ChatConversation(engine);
         data.setType(chatType);

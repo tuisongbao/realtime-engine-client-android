@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.chat.group;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
@@ -19,7 +19,7 @@ import com.tuisongbao.engine.chat.group.event.handler.ChatGroupLeaveEventHandler
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupRemoveUsersEventHandler;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.BaseManager;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -31,10 +31,10 @@ public class ChatGroupManager extends BaseManager {
     private ChatGroupDataSource dataSource;
     private ChatManager mChatManager;
 
-    public ChatGroupManager(TSBEngine engine) {
+    public ChatGroupManager(Engine engine) {
         mChatManager = engine.getChatManager();
         if (mChatManager.isCacheEnabled()) {
-            dataSource = new ChatGroupDataSource(TSBEngine.getContext(), engine);
+            dataSource = new ChatGroupDataSource(Engine.getContext(), engine);
         }
     }
 
@@ -46,7 +46,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void create(List<String> members,
-            TSBEngineCallback<ChatGroup> callback) {
+            EngineCallback<ChatGroup> callback) {
         create(members, false, false, callback);
     }
 
@@ -63,7 +63,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void create(List<String> members, boolean isPublic, boolean userCanInvite,
-            TSBEngineCallback<ChatGroup> callback) {
+            EngineCallback<ChatGroup> callback) {
         try {
             ChatGroupCreateEvent event = new ChatGroupCreateEvent();
             ChatGroupEventData data = new ChatGroupEventData();
@@ -81,7 +81,7 @@ public class ChatGroupManager extends BaseManager {
         }
     }
 
-    public void getList(String groupId, TSBEngineCallback<List<ChatGroup>> callback) {
+    public void getList(String groupId, EngineCallback<List<ChatGroup>> callback) {
         try {
             if (!mChatManager.hasLogin()) {
                 ResponseError error = new ResponseError();
@@ -122,7 +122,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void getUsers(String groupId,
-            TSBEngineCallback<List<ChatUser>> callback) {
+            EngineCallback<List<ChatUser>> callback) {
         try {
             ChatGroupGetUsersEvent event = new ChatGroupGetUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();
@@ -148,7 +148,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void joinInvitation(String groupId, List<String> userIds,
-            TSBEngineCallback<String> callback) {
+            EngineCallback<String> callback) {
         try {
             ChatGroupJoinInvitationEvent event = new ChatGroupJoinInvitationEvent();
             ChatGroupEventData data = new ChatGroupEventData();
@@ -175,7 +175,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void removeUsers(String groupId, List<String> userIds,
-            TSBEngineCallback<String> callback) {
+            EngineCallback<String> callback) {
         try {
             ChatGroupRemoveUsersEvent event = new ChatGroupRemoveUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();
@@ -199,7 +199,7 @@ public class ChatGroupManager extends BaseManager {
      *            群的id
      * @param callback
      */
-    public void leave(String groupId, TSBEngineCallback<String> callback) {
+    public void leave(String groupId, EngineCallback<String> callback) {
         try {
             ChatGroupLeaveEvent event = new ChatGroupLeaveEvent();
             ChatGroupEventData data = new ChatGroupEventData();

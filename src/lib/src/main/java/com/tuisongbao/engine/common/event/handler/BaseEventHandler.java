@@ -1,8 +1,8 @@
 package com.tuisongbao.engine.common.event.handler;
 
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
@@ -10,19 +10,19 @@ import com.tuisongbao.engine.common.event.BaseEvent;
 
 
 public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
-    protected TSBEngine engine;
-    private TSBEngineCallback mCallback;
+    protected Engine engine;
+    private EngineCallback mCallback;
 
     @Override
-    public void setEngine(TSBEngine engine) {
+    public void setEngine(Engine engine) {
         this.engine = engine;
     }
 
-    public void setCallback(TSBEngineCallback callback) {
+    public void setCallback(EngineCallback callback) {
         mCallback = callback;
     }
 
-    public TSBEngineCallback getCallback() {
+    public EngineCallback getCallback() {
         return mCallback;
     }
 
@@ -36,7 +36,7 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
 
     @Override
     public void onResponse(BaseEvent request, RawEvent response) {
-        TSBEngineCallback callback = getCallback();
+        EngineCallback callback = getCallback();
         if (callback == null) {
             return;
         }
@@ -48,10 +48,10 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
             } else {
                 data = genCallbackData(request, response);
             }
-            ((TSBEngineCallback)callback).onSuccess(data);
+            ((EngineCallback)callback).onSuccess(data);
         } else {
             ResponseError error = new Gson().fromJson(responseData.getError(), ResponseError.class);
-            ((TSBEngineCallback) callback).onError(error);
+            ((EngineCallback) callback).onError(error);
         }
     }
 }

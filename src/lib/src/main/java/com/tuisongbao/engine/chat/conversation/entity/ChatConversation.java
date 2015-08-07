@@ -1,13 +1,13 @@
 package com.tuisongbao.engine.chat.conversation.entity;
 
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatOptions;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.List;
@@ -21,15 +21,15 @@ public class ChatConversation {
     private String lastActiveAt;
     private ChatMessage lastMessage;
 
-    transient private TSBEngine mEngine;
+    transient private Engine mEngine;
     transient private ChatConversationManager mConversationManager;
 
-    public ChatConversation(TSBEngine engine) {
+    public ChatConversation(Engine engine) {
         mEngine = engine;
         mConversationManager = engine.getChatManager().getConversationManager();
     }
 
-    public static ChatConversation deserialize(TSBEngine engine, String jsonString) {
+    public static ChatConversation deserialize(Engine engine, String jsonString) {
         try {
             ChatConversation conversation = getSerializer().fromJson(jsonString, ChatConversation.class);
             conversation.mEngine = engine;
@@ -92,7 +92,7 @@ public class ChatConversation {
      *
      * @param callback 可选
      */
-    public void resetUnread(TSBEngineCallback<String> callback) {
+    public void resetUnread(EngineCallback<String> callback) {
         mConversationManager.resetUnread(type, target, callback);
     }
 
@@ -101,7 +101,7 @@ public class ChatConversation {
      *
      * @param callback 可选
      */
-    public void delete(TSBEngineCallback<String> callback) {
+    public void delete(EngineCallback<String> callback) {
         mConversationManager.delete(type, target, callback);
     }
 
@@ -117,7 +117,7 @@ public class ChatConversation {
      * @param callback 可选
      */
     public void getMessages(Long startMessageId,Long endMessageId, int limit,
-            TSBEngineCallback<List<ChatMessage>> callback) {
+            EngineCallback<List<ChatMessage>> callback) {
         mConversationManager.getMessages(type, target, startMessageId, endMessageId, limit, callback);
     }
 
@@ -129,11 +129,11 @@ public class ChatConversation {
      * @param callback
      *          可选
      */
-    public ChatMessage sendMessage(ChatMessageContent body, TSBEngineCallback<ChatMessage> callback) {
+    public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback) {
         return sendMessage(body, callback, null);
     }
 
-    private ChatMessage sendMessage(ChatMessageContent body, TSBEngineCallback<ChatMessage> callback, ChatOptions options) {
+    private ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ChatOptions options) {
         ChatMessage message = new ChatMessage();
         message.setContent(body).setChatType(type).setRecipient(target);
         return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, options);

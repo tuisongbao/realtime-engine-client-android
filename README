@@ -1,0 +1,13 @@
+# Install Android Studio
+
+- Download and install [Android Studio IDE](https://developer.android.com/sdk/index.html).
+- Download [Android SDK](https://developer.android.com/sdk/index.html).
+- Download and insatll [JDK](http://docs.oracle.com/javase/7/docs/webnotes/install/linux/linux-jdk.html).
+- Config Java Path in `~/.bashrc`, for example:
+
+    ```bash
+    export JAVA_HOME=/root/java/jdk1.8.0_05/
+    export JRE_HOME=${JAVA_HOME}/jre
+    ```
+
+- Read `Install-Linux-tar.txt` under `android-studio` path and start `Android Studio`

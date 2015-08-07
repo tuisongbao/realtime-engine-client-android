@@ -1,10 +1,10 @@
 package com.tuisongbao.engine.common.event.handler;
 
-import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.common.callback.ITSBEngineCallback;
+import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.common.callback.IEngineCallback;
 import com.tuisongbao.engine.common.entity.RawEvent;
 
-public interface IEventHandler<T> extends ITSBEngineCallback {
-    void setEngine(TSBEngine engine);
+public interface IEventHandler<T> extends IEngineCallback {
+    void setEngine(Engine engine);
     void onResponse(T requestEvent, RawEvent responseEvent);
 }

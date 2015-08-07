@@ -1,21 +1,18 @@
 package com.tuisongbao.engine.http.request;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import com.tuisongbao.engine.http.HttpsClient;
+import com.tuisongbao.engine.http.response.BaseResponse;
+import com.tuisongbao.engine.log.LogUtil;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 
-import com.tuisongbao.engine.TSBEngine;
-import com.tuisongbao.engine.http.HttpsClient;
-import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.log.LogUtil;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 
 public class BaseRequest extends HttpEntityEnclosingRequestBase
 {

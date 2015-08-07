@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.chat.conversation.event.handler;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.event.ChatConversationDeleteEvent;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
@@ -16,7 +16,7 @@ public class ChatConversationResetUnreadEventHandler extends BaseEventHandler<St
     @Override
     protected String genCallbackDataWithCache(BaseEvent request, RawEvent response) {
         ChatUser chatUser = engine.getChatManager().getChatUser();
-        ChatConversationDataSource conversationDataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
+        ChatConversationDataSource conversationDataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         ChatConversation conversation = ((ChatConversationDeleteEvent)request).getData();
 
         conversationDataSource.open();

@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.common;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.connection.Connection;
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class BaseManager extends EventEmitter {
-    public static TSBEngine engine;
+    public static Engine engine;
 
     protected ConcurrentMap<BaseEvent, BaseEventHandler> pendingEvents = new ConcurrentHashMap<>();
     protected Thread retryEventsThread = new Thread(new Runnable() {
@@ -33,7 +33,7 @@ public class BaseManager extends EventEmitter {
 
     public BaseManager() {}
 
-    public BaseManager(TSBEngine engine) {
+    public BaseManager(Engine engine) {
         this.engine = engine;
         engine.getConnection().bind(Connection.EVENT_STATE_CHANGED, new Listener() {
             @Override

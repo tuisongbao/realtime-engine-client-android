@@ -1,8 +1,8 @@
 package com.tuisongbao.engine.channel.entity;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -13,7 +13,7 @@ public class PresenceChannel extends PrivateChannel {
     private String channelData;
     private String authData;
 
-    public PresenceChannel(String name, TSBEngine engine) {
+    public PresenceChannel(String name, Engine engine) {
         super(name, engine);
     }
 
@@ -54,7 +54,7 @@ public class PresenceChannel extends PrivateChannel {
     }
 
     @Override
-    protected void validate(TSBEngineCallback<String> callback) {
+    protected void validate(EngineCallback<String> callback) {
         if (StrUtils.isEmpty(authData)) {
             ResponseError error = new ResponseError();
             error.setMessage("AuthData is required when subscribe a presence channel");
@@ -66,7 +66,7 @@ public class PresenceChannel extends PrivateChannel {
 
     @Override
     protected boolean validateResponseDataOfAuth(JSONObject data,
-            TSBEngineCallback<String> callback) {
+            EngineCallback<String> callback) {
         boolean pass = super.validateResponseDataOfAuth(data, callback);
         if (!pass) {
             // If private validate failed, no need to validate presence data.

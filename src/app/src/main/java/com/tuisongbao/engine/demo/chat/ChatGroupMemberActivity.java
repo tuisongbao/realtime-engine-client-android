@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -112,7 +112,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void deleteUser(List<String> list) {
-        mGroup.removeUsers(list, new TSBEngineCallback<String>() {
+        mGroup.removeUsers(list, new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -140,7 +140,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void quit() {
-        mGroup.leave(new TSBEngineCallback<String>() {
+        mGroup.leave(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -168,7 +168,7 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void request() {
-        mGroup.getUsers(new TSBEngineCallback<List<ChatUser>>() {
+        mGroup.getUsers(new EngineCallback<List<ChatUser>>() {
 
             @Override
             public void onSuccess(List<ChatUser> t) {

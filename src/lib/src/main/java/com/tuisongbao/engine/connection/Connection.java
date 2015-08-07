@@ -6,7 +6,7 @@ import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.engineio.client.transports.Polling;
 import com.github.nkzawa.engineio.client.transports.WebSocket;
 import com.google.gson.Gson;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
@@ -116,13 +116,13 @@ public class Connection extends BaseEngineIODataSource {
      */
     protected ConnectionEventData lastConnectionError;
     protected Socket mSocket;
-    protected TSBEngine mEngine;
+    protected Engine mEngine;
     protected State mLastState;
 
     private Long mRequestId = 1L;
     private Options mOptions = new Options();
 
-    public Connection(TSBEngine engine) {
+    public Connection(Engine engine) {
         mEngine = engine;
         mOptions.setAppId(mEngine.getEngineOptions().getAppId());
         mLastState = State.Initialized;

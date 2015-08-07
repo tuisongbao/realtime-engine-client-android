@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -59,7 +59,7 @@ public class ChatGroupMemberAddActivity extends Activity {
             for (String split : splits) {
                 list.add(split);
             }
-            mGroup.joinInvitation(list, new TSBEngineCallback<String>() {
+            mGroup.joinInvitation(list, new EngineCallback<String>() {
 
                 @Override
                 public void onSuccess(String t) {

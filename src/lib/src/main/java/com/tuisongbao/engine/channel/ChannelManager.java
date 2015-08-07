@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.entity.Channel;
 import com.tuisongbao.engine.channel.entity.PresenceChannel;
 import com.tuisongbao.engine.channel.entity.PrivateChannel;
@@ -17,7 +17,7 @@ public class ChannelManager extends BaseManager {
 
     private Map<String, Channel> mChannelMap = new HashMap<>();
 
-    public ChannelManager(TSBEngine engine) {
+    public ChannelManager(Engine engine) {
         super(engine);
         bind("engine:subscription_error", new Listener() {
             @Override

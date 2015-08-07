@@ -2,7 +2,7 @@ package com.tuisongbao.engine;
 
 import com.tuisongbao.engine.chat.ChatIntentService;
 
-public class TSBEngineOptions {
+public class EngineOptions {
 
     // For engin config
     private String mEngineAppId;
@@ -12,7 +12,7 @@ public class TSBEngineOptions {
     // chat intent service
     private Class<? extends ChatIntentService> mChatIntentService = ChatIntentService.class;
 
-    public TSBEngineOptions(String appId, String endpoint) {
+    public EngineOptions(String appId, String endpoint) {
         mEngineAppId = appId;
         mAuthEndPoint = endpoint;
     }

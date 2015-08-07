@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -142,7 +142,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void request() {
-        DemoApplication.getConversationManager().getList(null, null, new TSBEngineCallback<List<ChatConversation>>() {
+        DemoApplication.getConversationManager().getList(null, null, new EngineCallback<List<ChatConversation>>() {
 
             @Override
             public void onSuccess(final List<ChatConversation> t) {
@@ -180,7 +180,7 @@ public class ChatConversationsFragment extends Fragment {
     }
 
     private void deleteConversation(ChatConversation conversation) {
-        conversation.delete(new TSBEngineCallback<String>() {
+        conversation.delete(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
@@ -217,7 +217,7 @@ public class ChatConversationsFragment extends Fragment {
 
     private void resetUnread(ChatConversation conversation) {
         conversation.setUnreadMessageCount(0);
-        conversation.resetUnread(new TSBEngineCallback<String>() {
+        conversation.resetUnread(new EngineCallback<String>() {
             @Override
             public void onSuccess(String t) {
                 Toast.makeText(getActivity(), "重置未读消息成功", Toast.LENGTH_LONG).show();

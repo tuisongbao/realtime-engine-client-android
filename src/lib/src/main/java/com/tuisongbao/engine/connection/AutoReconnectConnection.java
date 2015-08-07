@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.connection;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.log.LogUtil;
@@ -33,7 +33,7 @@ public class AutoReconnectConnection extends Connection {
     private int mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
     private int mConnectionType = Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
 
-    public AutoReconnectConnection(TSBEngine engine) {
+    public AutoReconnectConnection(Engine engine) {
         super(engine);
     }
 

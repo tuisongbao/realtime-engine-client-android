@@ -5,7 +5,7 @@ import android.graphics.BitmapFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
@@ -13,8 +13,8 @@ import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.DownloadUtils;
@@ -39,7 +39,7 @@ public class ChatMessage {
     private String createdAt;
 
     transient private ChatManager mChatManager;
-    transient private TSBEngine mEngine;
+    transient private Engine mEngine;
     transient private boolean downloadingThumbnail = false;
     transient private boolean downloadingOriginal = false;
 
@@ -58,7 +58,7 @@ public class ChatMessage {
         return gsonBuilder.create();
     }
 
-    public static ChatMessage deserialize(TSBEngine engine, String jsonString) {
+    public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
         message.mEngine = engine;
         message.mChatManager = engine.getChatManager();
@@ -70,7 +70,7 @@ public class ChatMessage {
         return getSerializer().toJson(this);
     }
 
-    public void setEngine(TSBEngine engine) {
+    public void setEngine(Engine engine) {
         this.mEngine = engine;
         mChatManager = engine.getChatManager();
     }
@@ -180,19 +180,19 @@ public class ChatMessage {
         }
     }
 
-    public void downloadImage(boolean isOriginal, final TSBEngineCallback<String> callback, final TSBProgressCallback progressCallback) {
+    public void downloadImage(boolean isOriginal, final EngineCallback<String> callback, final ProgressCallback progressCallback) {
         downloadResource(isOriginal, callback, progressCallback);
     }
 
-    public void downloadVoice(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+    public void downloadVoice(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(true, callback, progressCallback);
     }
 
-    public void downloadVideoThumb(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+    public void downloadVideoThumb(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(false, callback, progressCallback);
     }
 
-    public void downloadVideo(final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+    public void downloadVideo(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(true, callback, progressCallback);
     }
 
@@ -259,7 +259,7 @@ public class ChatMessage {
         return true;
     }
 
-    private void downloadResource(final boolean isOriginal, final TSBEngineCallback callback, final TSBProgressCallback progressCallback) {
+    private void downloadResource(final boolean isOriginal, final EngineCallback callback, final ProgressCallback progressCallback) {
         ResponseError error = permissionCheck();
         if (error != null) {
             callback.onError(error);
@@ -294,7 +294,7 @@ public class ChatMessage {
         if (content.getType() == TYPE.VIDEO && !isOriginal) {
             type = TYPE.IMAGE;
         }
-        DownloadUtils.downloadResourceIntoLocal(downloadUrl, type, new TSBEngineCallback<String>() {
+        DownloadUtils.downloadResourceIntoLocal(downloadUrl, type, new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {
@@ -324,7 +324,7 @@ public class ChatMessage {
             content.getFile().setThumbnailPath(filePath);
         }
         if (mChatManager.isCacheEnabled()) {
-            ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+            ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), mEngine);
             dataSource.open();
             dataSource.updateMessage(this);
             dataSource.close();

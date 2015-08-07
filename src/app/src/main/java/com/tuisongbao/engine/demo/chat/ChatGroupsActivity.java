@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -79,7 +79,7 @@ public class ChatGroupsActivity extends Activity {
     }
 
     private void request() {
-        DemoApplication.getGroupManager().getList(null, new TSBEngineCallback<List<ChatGroup>>() {
+        DemoApplication.getGroupManager().getList(null, new EngineCallback<List<ChatGroup>>() {
 
             @Override
             public void onSuccess(List<ChatGroup> t) {

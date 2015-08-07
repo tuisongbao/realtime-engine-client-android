@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
-import com.tuisongbao.engine.common.callback.TSBProgressCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -27,7 +27,7 @@ public class ImageViewActivity extends Activity {
 
         String messageString = getIntent().getStringExtra("message");
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
-        message.downloadImage(true, new TSBEngineCallback<String>() {
+        message.downloadImage(true, new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 runOnUiThread(new Runnable() {
@@ -43,7 +43,7 @@ public class ImageViewActivity extends Activity {
             public void onError(ResponseError error) {
 
             }
-        }, new TSBProgressCallback() {
+        }, new ProgressCallback() {
             @Override
             public void progress(final int percent) {
                 runOnUiThread(new Runnable() {

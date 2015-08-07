@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.message.event.handler;
 
 import android.content.Intent;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
@@ -31,7 +31,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
         ChatMessage message = genCallbackData(request, response);
         ChatUser user = engine.getChatManager().getChatUser();
 
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), engine);
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         dataSource.open();
         dataSource.upsertMessage(user.getUserId(), message);
         dataSource.close();
@@ -64,10 +64,10 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     }
 
     private void receivedMessage(final ChatMessage message) {
-        Intent intent = new Intent(TSBEngine.getContext(), getChatIntentService());
+        Intent intent = new Intent(Engine.getContext(), getChatIntentService());
         intent.setAction(ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE);
         intent.putExtra(ChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message.serialize());
-        TSBEngine.getContext().startService(intent);
+        Engine.getContext().startService(intent);
     }
 
     private final Class<? extends ChatIntentService> getChatIntentService() {

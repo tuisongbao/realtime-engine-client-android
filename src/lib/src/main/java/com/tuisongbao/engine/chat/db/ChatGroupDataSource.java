@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.tuisongbao.engine.TSBEngine;
+import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
@@ -22,9 +22,9 @@ public class ChatGroupDataSource {
     private SQLiteDatabase groupMemberDB;
     private ChatGroupSQLiteHelper groupSQLiteHelper;
     private ChatGroupUserSQLiteHelper groupMemberSQLiteHelper;
-    private TSBEngine mEngine;
+    private Engine mEngine;
 
-    public ChatGroupDataSource(Context context, TSBEngine engine) {
+    public ChatGroupDataSource(Context context, Engine engine) {
         mEngine = engine;
         groupSQLiteHelper = new ChatGroupSQLiteHelper(context);
         groupMemberSQLiteHelper = new ChatGroupUserSQLiteHelper(context);
@@ -218,7 +218,7 @@ public class ChatGroupDataSource {
         LogUtil.info(TAG, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
 
         // Remove conversation
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(TSBEngine.getContext(), mEngine);
+        ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), mEngine);
         dataSource.open();
         dataSource.remove(userId, ChatType.GroupChat, groupId);
         dataSource.close();

@@ -42,7 +42,7 @@ import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -91,7 +91,7 @@ public class ChatConversationActivity extends Activity implements
     private Long mStartMessageId = null;
     private ChatVoiceRecorder mRecorder;
     private long mRecordStartTime;
-    private TSBEngineCallback<ChatMessage> sendMessageCallback = new TSBEngineCallback<ChatMessage>() {
+    private EngineCallback<ChatMessage> sendMessageCallback = new EngineCallback<ChatMessage>() {
 
         @Override
         public void onSuccess(final ChatMessage t) {
@@ -511,7 +511,7 @@ public class ChatConversationActivity extends Activity implements
 
     private void request() {
         mConversation.getMessages(mStartMessageId, null, 20,
-                new TSBEngineCallback<List<ChatMessage>>() {
+                new EngineCallback<List<ChatMessage>>() {
 
                     @Override
                     public void onSuccess(final List<ChatMessage> t) {

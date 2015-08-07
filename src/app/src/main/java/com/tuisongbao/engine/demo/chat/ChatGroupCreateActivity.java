@@ -9,7 +9,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.common.callback.TSBEngineCallback;
+import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
@@ -55,7 +55,7 @@ public class ChatGroupCreateActivity extends Activity {
         DemoApplication.getGroupManager().create(members,
                 !mGroupIsPrivateToggleButton.isChecked(),
                 !mGroupInvitedPermissionToggleButton.isChecked(),
-                new TSBEngineCallback<ChatGroup>() {
+                new EngineCallback<ChatGroup>() {
 
                     @Override
                     public void onSuccess(ChatGroup t) {

@@ -6,27 +6,27 @@ import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
-import com.tuisongbao.engine.engineio.pipeline.TSBEnginePipeline;
-import com.tuisongbao.engine.engineio.sink.TSBEngineDataSink;
+import com.tuisongbao.engine.engineio.pipeline.EnginePipeline;
+import com.tuisongbao.engine.engineio.sink.EngineDataSink;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
-public final class TSBEngine {
-    private static final String TAG = "TSB" + TSBEngine.class.getSimpleName();
+public final class Engine {
+    private static final String TAG = "TSB" + Engine.class.getSimpleName();
 
     private AutoReconnectConnection connection;
     private ChatManager chatManager;
     private ChannelManager channelManager;
-    private TSBEngineDataSink sink;
-    private TSBEnginePipeline pipeline = new TSBEnginePipeline();
+    private EngineDataSink sink;
+    private EnginePipeline pipeline = new EnginePipeline();
 
     private static Context mApplicationContext = null;
-    private TSBEngineOptions mEngineOptions;
+    private EngineOptions mEngineOptions;
     private String mPushAppId;
     private String mPushToken;
     private String mPushService;
 
-    public TSBEngine(Context context, TSBEngineOptions options) {
+    public Engine(Context context, EngineOptions options) {
 
         // save the application context
         mApplicationContext = context.getApplicationContext();
@@ -39,7 +39,7 @@ public final class TSBEngine {
             }
 
             connection = new AutoReconnectConnection(this);
-            sink = new TSBEngineDataSink(this);
+            sink = new EngineDataSink(this);
             pipeline.addSource(connection);
             pipeline.addSink(sink);
 
@@ -71,7 +71,7 @@ public final class TSBEngine {
         return mApplicationContext;
     }
 
-    public TSBEngineOptions getEngineOptions() {
+    public EngineOptions getEngineOptions() {
         return mEngineOptions;
     }
 
@@ -87,11 +87,11 @@ public final class TSBEngine {
         return connection;
     }
 
-    public TSBEngineDataSink getSink() {
+    public EngineDataSink getSink() {
         return sink;
     }
 
-    public TSBEnginePipeline getPipeline() {
+    public EnginePipeline getPipeline() {
         return pipeline;
     }
 
