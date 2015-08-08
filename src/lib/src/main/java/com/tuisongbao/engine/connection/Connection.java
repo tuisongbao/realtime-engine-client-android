@@ -36,6 +36,7 @@ public class Connection extends BaseEngineIODataSource {
         Initialized("initialized"),
         Connecting("connecting"),
         Connected("connected"),
+        Failed("failed"),
         Disconnected("disconnected");
 
         private String name;
@@ -178,8 +179,18 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
+    public void bind(State state, Listener listener) {
+        bind(state.getName(), listener);
+    }
+
+    public void unbind(State state, Listener listener) {
+        unbind(state.getName(), listener);
+    }
+
     protected void updateState(State state) {
         if (state == mLastState) return;
+
+        trigger(state.getName());
 
         LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
         trigger(EVENT_STATE_CHANGED, mLastState, state);
@@ -246,7 +257,6 @@ public class Connection extends BaseEngineIODataSource {
                         } catch (Exception e) {
                             LogUtil.info(TAG, "Handle Message Exception [msg="
                                     + e.getLocalizedMessage() + "]");
-                            trigger(EVENT_ERROR);
                         }
                     }
                 }
@@ -254,8 +264,9 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.error(TAG, "Socket Error [msg="
-                            + ((Exception) args[0]).getLocalizedMessage());
+                    String errorMessage = ((Exception) args[0]).getLocalizedMessage();
+                    LogUtil.error(TAG, "Socket Error [msg=" + errorMessage);
+                    trigger(EVENT_ERROR, errorMessage);
                 }
             }).on(Socket.EVENT_CLOSE, new Emitter.Listener() {
 
@@ -303,7 +314,8 @@ public class Connection extends BaseEngineIODataSource {
         if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
-            trigger(EVENT_ERROR);
+            updateState(State.Failed);
+            trigger(EVENT_ERROR, data.getMessage());
             disconnect();
         } else if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
             LogUtil.info(TAG, "Connected");

@@ -28,6 +28,13 @@ public class ChannelManager extends BaseManager {
         });
     }
 
+    /***
+     *
+     *
+     * @param channelName
+     * @param authData
+     * @return
+     */
     public Channel subscribe(String channelName, String authData) {
         try {
             // unique instance return if the channel's name is same.
