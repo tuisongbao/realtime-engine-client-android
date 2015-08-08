@@ -50,11 +50,11 @@ import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatCameraActivity;
 import com.tuisongbao.engine.demo.chat.service.ChatMessageRevieveService;
+import com.tuisongbao.engine.demo.utils.ToolUtils;
 import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @SuppressLint("NewApi")
@@ -90,7 +90,6 @@ public class ChatConversationActivity extends Activity implements
     private Uri mImageUri = null;
     private Long mStartMessageId = null;
     private ChatVoiceRecorder mRecorder;
-    private long mRecordStartTime;
     private EngineCallback<ChatMessage> sendMessageCallback = new EngineCallback<ChatMessage>() {
 
         @Override
@@ -285,30 +284,19 @@ public class ChatConversationActivity extends Activity implements
             public boolean onTouch(View arg0, MotionEvent event) {
                 int actionCode = event.getActionMasked();
                 if (actionCode == MotionEvent.ACTION_DOWN) {
-                    // Press record button
-                    mRecordStartTime = new Date().getTime();
                     onRecordStart();
                     mVoiceRecorderButton.setText("松开 发送");
                     return true;
 
                 } else if (actionCode == MotionEvent.ACTION_UP) {
-                    // Release record button
-                    long recordEndTime = new Date().getTime();
-                    if (recordEndTime - mRecordStartTime > 2000) {
-
-                        Object tag = mVoiceRecorderButton.getTag();
-                        // User has cancel this operation
-                        if (tag != null && tag.equals("cancel")) {
-                            LogUtil.info(TAG,
-                                    "Voice operation has been canceled");
-                            mRecorder.cancel();
-                        } else {
-                            onRecordFinished();
-                        }
-                    } else {
-                        // if the duration is shorter than 2 seconds, ignore
-                        // this operation.
+                    Object tag = mVoiceRecorderButton.getTag();
+                    // User has cancel this operation
+                    if (tag != null && tag.equals("cancel")) {
+                        LogUtil.info(TAG,
+                                "Voice operation has been canceled");
                         mRecorder.cancel();
+                    } else {
+                        onRecordFinished();
                     }
                     mVoiceRecorderButton.setTag("normal");
                     mVoiceRecorderButton.setText("按住 说话");
@@ -353,12 +341,23 @@ public class ChatConversationActivity extends Activity implements
         request();
 
         mRecorder = new ChatVoiceRecorder();
-        mRecorder.setMaxDuration(60 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
+        mRecorder.setMaxDuration(10 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
 
             @Override
             public void onEvent() {
                 onRecordFinished();
                 onRecordStart();
+            }
+        });
+        mRecorder.setMinDuration(2 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
+            @Override
+            public void onEvent() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Recording time is so short!", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
@@ -499,8 +498,9 @@ public class ChatConversationActivity extends Activity implements
     private void onRecordFinished() {
         LogUtil.info(TAG, "Record finished");
         String filePath = mRecorder.stop();
-
-        sendVoiceMessage(filePath);
+        if (!ToolUtils.isEmptyString(filePath)) {
+            sendVoiceMessage(filePath);
+        }
     }
 
     private void sendVoiceMessage(String filePath) {

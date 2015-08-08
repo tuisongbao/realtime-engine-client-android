@@ -13,6 +13,10 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class ToolUtils {
+    public static boolean isEmptyString(String string) {
+        return string == null || string.length() < 1;
+    }
+
     public static String getEventMessage(ChatMessage message) {
         if (message.getContent().getType() != TYPE.EVENT) {
             return "";
