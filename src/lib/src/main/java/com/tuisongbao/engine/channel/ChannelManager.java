@@ -1,10 +1,11 @@
 package com.tuisongbao.engine.channel;
 
+import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.channel.entity.Channel;
-import com.tuisongbao.engine.channel.entity.PresenceChannel;
-import com.tuisongbao.engine.channel.entity.PrivateChannel;
+import com.tuisongbao.engine.channel.entity.User;
 import com.tuisongbao.engine.common.BaseManager;
+import com.tuisongbao.engine.common.Protocol;
+import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -19,21 +20,60 @@ public class ChannelManager extends BaseManager {
 
     public ChannelManager(Engine engine) {
         super(engine);
-        bind("engine:subscription_error", new Listener() {
+        bind(Protocol.CHANNEL_EVENT_SUBSCRIPTION_ERROR, new Listener() {
             @Override
             public void call(Object... args) {
-                String channelName = args[0].toString();
-                mChannelMap.remove(channelName);
+                RawEvent event = (RawEvent)args[0];
+                String channelName = event.getChannel();
+                Channel channel = mChannelMap.get(channelName);
+
+                if (channel != null) {
+                    String message = event.getData().getAsJsonObject().get("message").getAsString();
+                    channel.trigger(trimInternalSign(Protocol.CHANNEL_EVENT_SUBSCRIPTION_ERROR), message);
+
+                    mChannelMap.remove(channelName);
+                }
             }
         });
+
+        bind(Protocol.CHANNEL_EVENT_SUBSCRIPTION_SUCCESS, new Listener() {
+            @Override
+            public void call(Object... args) {
+                RawEvent event = (RawEvent)args[0];
+                String channelName = event.getChannel();
+                Channel channel = mChannelMap.get(channelName);
+
+                if (channel != null) {
+                    channel.trigger(trimInternalSign(Protocol.CHANNEL_EVENT_SUBSCRIPTION_SUCCESS), event.getData());
+                }
+            }
+        });
+
+        Listener presenceUserStatusListener = new Listener() {
+            @Override
+            public void call(Object... args) {
+                RawEvent event = (RawEvent)args[0];
+                User user = new Gson().fromJson(event.getData(), User.class);
+                String channelName = event.getChannel();
+                Channel channel = mChannelMap.get(channelName);
+
+                if (channel != null) {
+                    channel.trigger(trimInternalSign(event.getName()), user);
+                }
+            }
+        };
+
+        bind(Protocol.CHANNEL_EVENT_USER_ADDED, presenceUserStatusListener);
+        bind(Protocol.CHANNEL_EVENT_USER_REMOVED, presenceUserStatusListener);
     }
 
     /***
-     *
+     *  订阅 channel 并返回 channel 实例。通过给 channelName 添加不同的前缀来区分不同类型的 channel.
+     *  public channel 不需要前缀； private channel 以 `private-` 为前缀； presence channel 以 `presence-` 为前缀
      *
      * @param channelName
      * @param authData
-     * @return
+     * @return　Channel
      */
     public Channel subscribe(String channelName, String authData) {
         try {
@@ -67,6 +107,10 @@ public class ChannelManager extends BaseManager {
         }
     }
 
+    /***
+     *
+     * @param channelName
+     */
     public void unsubscribe(String channelName) {
         try {
             if (StrUtils.isEmpty(channelName)) {
@@ -85,9 +129,18 @@ public class ChannelManager extends BaseManager {
     @Override
     protected void connected() {
         LogUtil.info(TAG, "Resend all subscribe channel request");
-        HashSet<Channel> values = new HashSet<Channel>(mChannelMap.values());
+        HashSet<Channel> values = new HashSet<>(mChannelMap.values());
         for (Channel channel : values) {
             channel.subscribe();
+        }
+    }
+
+    @Override
+    protected void disconnected() {
+        // Unbind all listeners of channel, because when connected, it will subscribe again. In case multiple trigger.
+        HashSet<Channel> values = new HashSet<>(mChannelMap.values());
+        for (Channel channel : values) {
+            unbind(channel.getName());
         }
     }
 
@@ -97,5 +150,9 @@ public class ChannelManager extends BaseManager {
 
     private boolean isPresenceChannel(String channel) {
         return channel.startsWith("presence-");
+    }
+
+    private String trimInternalSign(String eventName) {
+        return StrUtils.invokeRegxReplace(eventName, "engine_channel", "engine");
     }
 }

@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.channel.entity;
+package com.tuisongbao.engine.channel;
 
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;

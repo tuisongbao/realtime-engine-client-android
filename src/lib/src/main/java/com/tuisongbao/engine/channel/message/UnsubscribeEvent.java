@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel.message;
 
-import com.tuisongbao.engine.channel.entity.Channel;
+import com.tuisongbao.engine.channel.Channel;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class UnsubscribeEvent extends

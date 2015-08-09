@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.channel.message;
 
-import com.tuisongbao.engine.channel.entity.PresenceChannel;
+import com.tuisongbao.engine.channel.PresenceChannel;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
 public class SubscribeEvent extends

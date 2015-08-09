@@ -61,7 +61,10 @@ public class Protocol {
      */
     public static final int CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_IMMEDIATELY = 3;
 
-    public static final String CHANNEL_NAME_SUBSCRIPTION_ERROR = "engine_channel:subscription_error";
+    public static final String CHANNEL_EVENT_SUBSCRIPTION_ERROR = "engine_channel:subscription_error";
+    public static final String CHANNEL_EVENT_SUBSCRIPTION_SUCCESS = "engine_channel:subscription_succeeded";
+    public static final String CHANNEL_EVENT_USER_ADDED = "engine_channel:user_added";
+    public static final String CHANNEL_EVENT_USER_REMOVED = "engine_channel:user_removed";
 
     public static boolean isValidEvent(String eventName) {
         Pattern pat = Pattern.compile(EVENT_NAME_PATTERN_VALID, Pattern.CASE_INSENSITIVE);
