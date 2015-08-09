@@ -3,11 +3,9 @@ package com.tuisongbao.engine.demo.chat;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -32,6 +30,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
@@ -49,7 +49,6 @@ import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatCameraActivity;
-import com.tuisongbao.engine.demo.chat.service.ChatMessageRevieveService;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 import com.tuisongbao.engine.log.LogUtil;
 
@@ -335,8 +334,6 @@ public class ChatConversationActivity extends Activity implements
             }
         });
 
-        registerBroadcast();
-
         // Request the latest messages.
         request();
 
@@ -360,6 +357,8 @@ public class ChatConversationActivity extends Activity implements
                 });
             }
         });
+
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mMessageNewListener);
     }
 
     @Override
@@ -486,7 +485,7 @@ public class ChatConversationActivity extends Activity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterBroadcast();
+        DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mMessageNewListener);
         mRecorder.release();
     }
 
@@ -586,48 +585,27 @@ public class ChatConversationActivity extends Activity implements
         mMessagesListView.setSelection(mMessageList.size() - 1);
     }
 
-    private void registerBroadcast() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
-        filter.addAction(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS);
-        registerReceiver(mBroadcastReceiver, filter);
-    }
-
-    private void unregisterBroadcast() {
-        unregisterReceiver(mBroadcastReceiver);
-    }
-
-    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
-
+    private Emitter.Listener mMessageNewListener = new Emitter.Listener() {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE
-                    .equals(action)) {
-                String target = mConversation.getTarget();
-                String messageString = intent
-                        .getStringExtra(ChatMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
-                Log.i(TAG,
-                        "App get " + message.toString() + " to "
-                                + message.getRecipient()
-                                + " and corrent target is " + target);
+        public void call(Object... args) {
+            ChatMessage message = (ChatMessage)args[0];
+            String target = mConversation.getTarget();
 
-                // Only receive message sent to current conversation
-                boolean showMessage = false;
-                if (message.getChatType() == ChatType.SingleChat) {
-                    showMessage = message.getFrom().equals(target);
-                } else if (message.getChatType() == ChatType.GroupChat) {
-                    showMessage = message.getRecipient().equals(target);
-                }
-                if (message != null && showMessage) {
-                    mMessageList.add(message);
-                    mMessagesAdapter.refresh(mMessageList);
-                    mMessagesListView.setSelection(mMessageList.size() - 1);
-                }
-            } else if (action.equals(BROADCAST_ACTION_MESSAGE_SENT_PROGRESS)) {
-                int progress = intent.getIntExtra("percent", 0);
-                // TODO: refresh UI
+            Log.i(TAG, "App get " + message.toString() + " to "
+                            + message.getRecipient()
+                            + " and corrent target is " + target);
+
+            // Only receive message sent to current conversation
+            boolean showMessage = false;
+            if (message.getChatType() == ChatType.SingleChat) {
+                showMessage = message.getFrom().equals(target);
+            } else if (message.getChatType() == ChatType.GroupChat) {
+                showMessage = message.getRecipient().equals(target);
+            }
+            if (message != null && showMessage) {
+                mMessageList.add(message);
+                mMessagesAdapter.refresh(mMessageList);
+                mMessagesListView.setSelection(mMessageList.size() - 1);
             }
         }
     };

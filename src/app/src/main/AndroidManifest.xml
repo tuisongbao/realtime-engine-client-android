@@ -107,10 +107,6 @@
             android:label="@string/app_name" >
         </activity>
 
-        <service
-            android:name=".chat.service.ChatMessageRevieveService" >
-        </service>
-
         <!-- push configs start -->
         <service android:name="com.tuisongbao.android.service.NotificationIntentService" >
         </service>

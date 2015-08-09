@@ -17,7 +17,7 @@ import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetUsersEventHand
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupJoinInvitationEventHandler;
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupLeaveEventHandler;
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupRemoveUsersEventHandler;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -121,7 +121,7 @@ public class ChatGroupManager extends BaseManager {
      * @param callback
      */
     public void getUsers(String groupId,
-            EngineCallback<List<ChatUser>> callback) {
+            EngineCallback<List<ChatUserPresenceData>> callback) {
         try {
             ChatGroupGetUsersEvent event = new ChatGroupGetUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();

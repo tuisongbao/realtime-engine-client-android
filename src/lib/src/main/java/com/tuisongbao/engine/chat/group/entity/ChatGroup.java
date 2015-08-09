@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 
 import java.util.List;
@@ -111,7 +112,7 @@ public class ChatGroup {
      *
      * @param callback 可选
      */
-    public void getUsers(EngineCallback<List<ChatUser>> callback) {
+    public void getUsers(EngineCallback<List<ChatUserPresenceData>> callback) {
         mGroupManager.getUsers(groupId, callback);
     }
 

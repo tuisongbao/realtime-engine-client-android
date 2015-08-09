@@ -51,7 +51,7 @@ public class AutoReconnectConnection extends Connection {
             // 4000 ~ 4099: 连接将被服务端关闭, 客户端 不 应该进行重连。
             if (code >= 4000 && code <= 4099) {
                 mConnectionType = Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_FORBIDDEN_CONNECTION;
-                updateState(State.Failed, lastConnectionError);
+                updateState(State.Failed);
                 trigger(Connection.EVENT_ERROR, lastConnectionError.getMessage());
                 stop();
             }

@@ -139,7 +139,10 @@ public class ChatConversation {
 
     public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         ChatMessage message = new ChatMessage();
-        message.setContent(body).setChatType(type).setRecipient(target);
+        message.setContent(body)
+                .setChatType(type)
+                .setRecipient(target)
+                .setFrom(mEngine.getChatManager().getChatUser().getUserId());
         message.generateThumbnail(200);
         return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
     }

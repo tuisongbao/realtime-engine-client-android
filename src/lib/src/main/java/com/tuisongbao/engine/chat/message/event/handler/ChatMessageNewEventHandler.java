@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.chat.message.event.handler;
 
-import android.content.Intent;
-
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
@@ -12,7 +10,6 @@ import com.tuisongbao.engine.common.entity.ResponseEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
-import com.tuisongbao.engine.chat.ChatIntentService;
 
 /**
  * Created by root on 15-8-2.
@@ -53,7 +50,6 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
         } else {
             message = genCallbackData(request, response);
         }
-        receivedMessage(message);
         engine.getChatManager().trigger(ChatManager.EVENT_MESSAGE_NEW, message);
     }
 
@@ -65,20 +61,5 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
         event.setData(data);
 
         engine.getConnection().send(event);
-    }
-
-    private void receivedMessage(final ChatMessage message) {
-        Intent intent = new Intent(Engine.getContext(), getChatIntentService());
-        intent.setAction(ChatIntentService.INTENT_ACTION_RECEIVED_MESSAGE);
-        intent.putExtra(ChatIntentService.INTENT_EXTRA_KEY_MESSAGE, message.serialize());
-        Engine.getContext().startService(intent);
-    }
-
-    private final Class<? extends ChatIntentService> getChatIntentService() {
-        Class<? extends ChatIntentService> chatIntentService = engine.getEngineOptions().getChatIntentService();
-        if (chatIntentService == null) {
-            chatIntentService = ChatIntentService.class;
-        }
-        return chatIntentService;
     }
 }

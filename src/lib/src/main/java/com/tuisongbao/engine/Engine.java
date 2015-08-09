@@ -45,11 +45,6 @@ public final class Engine {
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 channelManager = new ChannelManager(this);
                 return;
-            } else if (mEngineOptions.getChatIntentService() == null) {
-                LogUtil.warn(TAG
-                        , "No Intent service specified for receiving chat messages, " +
-                            "you only can use Pub/Sub feature, if this is what you want, ignore this warning!");
-                channelManager = new ChannelManager(this);
             } else {
                 LogUtil.info(TAG,
                         "Successfully load configurations for engine.");

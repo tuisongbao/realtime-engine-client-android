@@ -19,6 +19,7 @@ public class ChatMessageContent {
     private JsonObject extra;
 
     public ChatMessageContent() {
+        type = ChatMessage.TYPE.TEXT;
     }
 
     public ChatMessage.TYPE getType() {

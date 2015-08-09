@@ -13,7 +13,6 @@ import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.connection.Connection;
-import com.tuisongbao.engine.demo.chat.service.ChatMessageRevieveService;
 
 import java.util.Iterator;
 import java.util.List;
@@ -40,9 +39,6 @@ public class DemoApplication extends Application {
         // appId 是在推送宝官网注册应用时分配的 ID；authUrl 用于鉴权, 推荐用 https, 参见 登录 一节
         EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser"
         );
-
-        // 设置接收消息的 Intent Service，请确保与`AndroidManifest.xml`中声明的一致
-        options.setChatIntentService(ChatMessageRevieveService.class);
         engine = new Engine(this, options);
 
         bindConnectionEvent();

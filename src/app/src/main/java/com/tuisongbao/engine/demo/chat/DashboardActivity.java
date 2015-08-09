@@ -32,7 +32,6 @@ import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.fragment.ChatContactsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatConversationsFragment;
 import com.tuisongbao.engine.demo.chat.fragment.ChatSettingsFragment;
-import com.tuisongbao.engine.demo.chat.service.ChatMessageRevieveService;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.HashMap;
@@ -154,6 +153,15 @@ public class DashboardActivity extends FragmentActivity {
                 showToaster(data.getUserId() + " changed to " + data.getChangedTo());
             }
         });
+        mListenersMap.put(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                if (mCurrentPage != 0) {
+                    mConversationTextView.setTextColor(getResources().getColor(R.color.red));
+                    ChatConversationsFragment.getInstance().onMessageReceived((ChatMessage)args[0]);
+                }
+            }
+        });
     }
 
     private void manageListeners(boolean isBind) {
@@ -226,12 +234,6 @@ public class DashboardActivity extends FragmentActivity {
         }
     }
 
-    private void markNewMessage() {
-        if (mCurrentPage != 0) {
-            mConversationTextView.setTextColor(getResources().getColor(R.color.red));
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.group_list, menu);
@@ -284,7 +286,6 @@ public class DashboardActivity extends FragmentActivity {
 
     private void registerBroadcast() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE);
         filter.addAction(ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT);
         registerReceiver(mBroadcastReceiver, filter);
     }
@@ -301,11 +302,7 @@ public class DashboardActivity extends FragmentActivity {
                 return;
             }
             String action = intent.getAction();
-            if (ChatMessageRevieveService.BROADCAST_ACTION_RECEIVED_MESSAGE.equals(action)) {
-                markNewMessage();
-                String message = intent.getStringExtra(ChatMessageRevieveService.BROADCAST_EXTRA_KEY_MESSAGE);
-                mConversationsFragment.onMessageReceived(ChatMessage.deserialize(DemoApplication.engine, message));
-            } else if (ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT.equals(action)) {
+            if (ChatConversationActivity.BROADCAST_ACTION_MESSAGE_SENT.equals(action)) {
                 ChatMessage message = intent.getParcelableExtra(ChatConversationActivity.BROADCAST_EXTRA_KEY_MESSAGE);
                 mConversationsFragment.onMessageSent(message);
             }

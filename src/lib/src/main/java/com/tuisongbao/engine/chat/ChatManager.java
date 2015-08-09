@@ -39,7 +39,7 @@ public class ChatManager extends BaseManager {
     private ChatMessageManager messageManager;
 
     private ChatUser mChatUser;
-    private boolean mIsCacheEnabled = false;
+    private boolean mIsCacheEnabled = true;
     private String mUserData;
     private EngineCallback mAuthCallback;
 
