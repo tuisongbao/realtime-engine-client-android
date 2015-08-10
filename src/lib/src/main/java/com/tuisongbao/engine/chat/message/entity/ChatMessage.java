@@ -61,6 +61,13 @@ public class ChatMessage {
         return gsonBuilder.create();
     }
 
+    /**
+     * 将实例反序列化为 ChatMessage
+     *
+     * @return  ChatGroup
+     *
+     * @see {@link ChatMessage#serialize()}
+     */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
         message.mEngine = engine;
@@ -69,6 +76,13 @@ public class ChatMessage {
         return message;
     }
 
+    /**
+     * 将实例序列化为{@code String}，可用于在{@code Intent}之间直接传递该实例
+     *
+     * @return  json格式的{@code String}
+     *
+     * @see {@link ChatMessage#deserialize(Engine, String)}
+     */
     public String serialize() {
         return getSerializer().toJson(this);
     }
@@ -132,22 +146,6 @@ public class ChatMessage {
         return this;
     }
 
-    /***
-     *
-     * @return local path of the resource, like image, video...
-     */
-    public String getResourcePath() {
-        try {
-            if (isMediaMessage()) {
-                ChatMessageContent content = getContent();
-                return content.getFile().getFilePath();
-            }
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-        }
-        return "";
-    }
-
     public enum TYPE {
         TEXT("text", 1),
         IMAGE("image", 2),
@@ -183,18 +181,43 @@ public class ChatMessage {
         }
     }
 
+    /**
+     * 下载图片
+     *
+     * @param isOriginal {@code true}表示下载原图; {@code false}表示下载缩略图
+     * @param callback 结果通知函数
+     * @param progressCallback 进度通知函数
+     */
     public void downloadImage(boolean isOriginal, final EngineCallback<String> callback, final ProgressCallback progressCallback) {
         downloadResource(isOriginal, callback, progressCallback);
     }
 
+    /**
+     * 下载语音
+     *
+     * @param callback 结果通知函数
+     * @param progressCallback 进度通知函数
+     */
     public void downloadVoice(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(true, callback, progressCallback);
     }
 
+    /**
+     * 下载视频首帧缩略图
+     *
+     * @param callback 结果通知函数
+     * @param progressCallback 进度通知函数
+     */
     public void downloadVideoThumb(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(false, callback, progressCallback);
     }
 
+    /**
+     * 下载视频
+     *
+     * @param callback 结果通知函数
+     * @param progressCallback 进度通知函数
+     */
     public void downloadVideo(final EngineCallback callback, final ProgressCallback progressCallback) {
         downloadResource(true, callback, progressCallback);
     }

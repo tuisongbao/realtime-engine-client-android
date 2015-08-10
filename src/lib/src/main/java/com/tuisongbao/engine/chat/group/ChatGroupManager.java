@@ -25,6 +25,12 @@ import com.tuisongbao.engine.log.LogUtil;
 
 import java.util.List;
 
+/**
+ * {@link ChatGroup} 的管理类，每个 {@link Engine} 只有一个该实例。开启缓存时，
+ * 所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ *
+ * @see {@link ChatManager#enableCache()}
+ */
 public class ChatGroupManager extends BaseManager {
     private static final String TAG = "TSB" + ChatGroupManager.class.getSimpleName();
 
@@ -38,29 +44,18 @@ public class ChatGroupManager extends BaseManager {
         }
     }
 
-    /**
-     * 创建群组
-     *
-     * @param members
-     *            群聊成员，可以为空，此时成员只有自己
-     * @param callback
-     */
     public void create(List<String> members,
             EngineCallback<ChatGroup> callback) {
         create(members, false, false, callback);
     }
 
-
     /**
      * 创建群组
      *
-     * @param members
-     *            群聊成员，可以为空，此时成员只有自己
-     * @param isPublic
-     *            默认值 true ，任何用户的加群请求都会直接通过，无需审核
-     * @param userCanInvite
-     *            默认值 true ，除创建者（owner）外，其他群用户也可以发送加群邀请
-     * @param callback
+     * @param members 成员列表，由 UserId 作为每个成员的标识
+     * @param isPublic {@code true}
+     * @param userCanInvite {@code true} 表示成员可以邀请新成员加入，否则只有创建者可以
+     * @param callback 结果通知函数
      */
     public void create(List<String> members, boolean isPublic, boolean userCanInvite,
             EngineCallback<ChatGroup> callback) {
@@ -80,6 +75,12 @@ public class ChatGroupManager extends BaseManager {
         }
     }
 
+    /**
+     * 获取当前用户的群组列表。
+     *
+     * @param groupId 必填
+     * @param callback 结果通知函数
+     */
     public void getList(String groupId, EngineCallback<List<ChatGroup>> callback) {
         try {
             if (!mChatManager.hasLogin()) {
@@ -115,10 +116,10 @@ public class ChatGroupManager extends BaseManager {
 
 
     /**
-     * 获取群组下用户列表，会从服务器同步最新的数据
+     * 获取群组下用户列表
      *
-     * @param groupId
-     * @param callback
+     * @param groupId 必填
+     * @param callback 结果通知函数
      */
     public void getUsers(String groupId,
             EngineCallback<List<ChatUserPresenceData>> callback) {
@@ -138,13 +139,11 @@ public class ChatGroupManager extends BaseManager {
     }
 
     /**
-     * 邀请加入群组
+     * 邀请用户加入群组
      *
-     * @param groupId
-     *            群的id
-     * @param userIds
-     *            邀请加入的用户id
-     * @param callback
+     * @param groupId 必填
+     * @param userIds 邀请加入的用户id列表
+     * @param callback 结果通知函数
      */
     public void joinInvitation(String groupId, List<String> userIds,
             EngineCallback<String> callback) {
@@ -165,13 +164,11 @@ public class ChatGroupManager extends BaseManager {
     }
 
     /**
-     * 删除群组中的用户
+     * 移除群组中的用户
      *
-     * @param groupId
-     *            群的id
-     * @param userIds
-     *            删除的用户id
-     * @param callback
+     * @param groupId 必填
+     * @param userIds 被移除的用户的id列表
+     * @param callback 结果通知函数
      */
     public void removeUsers(String groupId, List<String> userIds,
             EngineCallback<String> callback) {
@@ -192,11 +189,10 @@ public class ChatGroupManager extends BaseManager {
     }
 
     /**
-     * 离开群组
+     * 当前用户离开群组
      *
-     * @param groupId
-     *            群的id
-     * @param callback
+     * @param groupId 必填
+     * @param callback 结果通知函数
      */
     public void leave(String groupId, EngineCallback<String> callback) {
         try {
@@ -213,9 +209,6 @@ public class ChatGroupManager extends BaseManager {
         }
     }
 
-    /***
-     * Remove all Groups and related users from local database.
-     */
     public void clearCache() {
         dataSource.deleteAllData();
     }

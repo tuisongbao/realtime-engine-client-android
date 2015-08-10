@@ -1,8 +1,13 @@
 package com.tuisongbao.engine;
 
+/**
+ * {@link Engine} 的配置选项，主要是 AppId 和 AuthEndPoint 的设置，在 Engine 初始化时会使用,
+ *
+ * {@code new Engine(Context, EngineOptions)}
+ */
 public class EngineOptions {
 
-    // For engin config
+    // For engine config
     private String mEngineAppId;
 
     // Auth endpoint
@@ -13,25 +18,13 @@ public class EngineOptions {
         mAuthEndPoint = endpoint;
     }
 
-    public void setAuthEndpoint(String authEndpoint) {
-        mAuthEndPoint = authEndpoint;
-    }
-
     public String getAuthEndpoint()
     {
         return mAuthEndPoint;
     }
 
-    public void setAppId(String appId) {
-        mEngineAppId = appId;
-    }
-
     public String getAppId()
     {
         return mEngineAppId;
-    }
-
-    public void setAppKey(String appKey) {
-        mEngineAppId = appKey;
     }
 }

@@ -2,13 +2,19 @@ package com.tuisongbao.engine.chat.group.entity;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 
 import java.util.List;
 
+/**
+ * 群组类
+ * 开启缓存时，所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ *
+ * @see {@link ChatManager#enableCache()}
+ */
 public class ChatGroup {
     private String groupId;
     private String owner;
@@ -31,6 +37,13 @@ public class ChatGroup {
         mGroupManager = mEngine.getChatManager().getGroupManager();
     }
 
+    /**
+     * 将实例反序列化为 ChatGroup
+     *
+     * @return  ChatGroup
+     *
+     * @see {@link ChatGroup#serialize()}
+     */
     public static ChatGroup deserialize(Engine engine, String jsonString) {
         ChatGroup group = getSerializer().fromJson(jsonString, ChatGroup.class);
         group.mEngine = engine;
@@ -39,6 +52,13 @@ public class ChatGroup {
         return group;
     }
 
+    /**
+     * 将实例序列化为{@code String}，可用于在{@code Intent}之间直接传递该实例
+     *
+     * @return  json格式的{@code String}
+     *
+     * @see {@link ChatGroup#deserialize(Engine, String)}
+     */
     public String serialize() {
         return getSerializer().toJson(this);
     }
@@ -108,9 +128,9 @@ public class ChatGroup {
     }
 
     /**
-     * 获取群组下用户列表，会从服务器同步最新的数据
+     * 获取群组下用户列表
      *
-     * @param callback 可选
+     * @param callback 结果通知函数
      */
     public void getUsers(EngineCallback<List<ChatUserPresenceData>> callback) {
         mGroupManager.getUsers(groupId, callback);
@@ -119,29 +139,27 @@ public class ChatGroup {
     /**
      * 邀请加入群组
      *
-     * @param userIds
-     *            邀请加入的用户id
-     * @param callback 可选
+     * @param userIds 邀请加入的用户id列表
+     * @param callback 结果通知函数
      */
     public void joinInvitation(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.joinInvitation(groupId, userIds, callback);
     }
 
     /**
-     * 删除群组中的用户
+     * 移除群组中的用户
      *
-     * @param userIds
-     *            删除的用户id
-     * @param callback 可选
+     * @param userIds 被移除的用户的id列表
+     * @param callback 结果通知函数
      */
     public void removeUsers(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.removeUsers(groupId, userIds, callback);
     }
 
     /**
-     * 离开群组
+     * 当前用户离开群组
      *
-     * @param callback 可选
+     * @param callback 结果通知函数
      */
     public void leave(EngineCallback<String> callback) {
         mGroupManager.leave(groupId, callback);

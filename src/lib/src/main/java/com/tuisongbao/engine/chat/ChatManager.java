@@ -26,6 +26,9 @@ import com.tuisongbao.engine.utils.StrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * 推送宝 {@link Engine} 中，Chat 模块的管理类
+ */
 public class ChatManager extends BaseManager {
     public static final String EVENT_MESSAGE_NEW = "message:new";
     public static final String EVENT_PRESENCE_CHANGED = "user:presenceChanged";
@@ -51,6 +54,12 @@ public class ChatManager extends BaseManager {
         return mChatUser;
     }
 
+    /**
+     *  登录聊天系统，在登录过程中，会根据{@link com.tuisongbao.engine.EngineOptions}中提供的 AuthEndPoint 进行鉴权。
+     *  通过绑定{@link ChatManager#EVENT_LOGIN_SUCCEEDED}, {@link ChatManager#EVENT_LOGIN_FAILED}事件获取登录结果
+     *
+     * @param userData 用户的唯一标识
+     */
     public void login(final String userData) {
         try {
             if (StrUtils.isEqual(userData, mUserData)) {
@@ -91,6 +100,9 @@ public class ChatManager extends BaseManager {
         trigger(EVENT_LOGIN_FAILED);
     }
 
+    /**
+     * 退出登录，并解绑所有挂载在 ChatManager 上的 Event 的回调函数
+     */
     public void logout() {
         try {
             if (!hasLogin()) {
@@ -104,10 +116,16 @@ public class ChatManager extends BaseManager {
         }
     }
 
+    /**
+     * 开启缓存，默认是开启状态
+     */
     public void enableCache() {
         mIsCacheEnabled = true;
     }
 
+    /**
+     * 关闭缓存，默认是开启状态
+     */
     public void disableCache() {
         mIsCacheEnabled = false;
     }
@@ -116,6 +134,9 @@ public class ChatManager extends BaseManager {
         return mIsCacheEnabled;
     }
 
+    /**
+     * 清除所有缓存数据
+     */
     public void clearCache() {
         try {
             groupManager.clearCache();
@@ -129,10 +150,20 @@ public class ChatManager extends BaseManager {
         return mChatUser != null;
     }
 
+    /**
+     * 获取 {@link com.tuisongbao.engine.chat.conversation.entity.ChatConversation} 的管理类，同一个 ChatManager 上返回的是同一个引用
+     *
+     * @return {@link ChatConversationManager}
+     */
     public ChatConversationManager getConversationManager() {
         return conversationManager;
     }
 
+    /**
+     * 获取 {@link com.tuisongbao.engine.chat.group.entity.ChatGroup} 的管理类，同一个 ChatManager 上返回的是同一个引用
+     *
+     * @return {@link ChatGroupManager}
+     */
     public ChatGroupManager getGroupManager() {
         return groupManager;
     }

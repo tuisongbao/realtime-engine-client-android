@@ -26,6 +26,12 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link ChatConversation} 的管理类，每个 {@link Engine} 只有一个该实例。开启缓存时，
+ * 所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ *
+ * @see {@link ChatManager#enableCache()}
+ */
 public class ChatConversationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
 
@@ -40,13 +46,11 @@ public class ChatConversationManager extends BaseManager {
     }
 
     /**
-     * 获取会话
+     * 获取会话列表
      *
-     * @param chatType
-     *            可选， singleChat（单聊） 或 groupChat （群聊）
-     * @param target
-     *            可选，跟谁， userId 或 groupId
-     * @param callback
+     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target 可选，userId 或 groupId;表示与谁的会话，为 {@code null} 时表示获取该用户的所有会话
+     * @param callback 结果通知函数
      */
     public void getList(ChatType chatType, String target,
             EngineCallback<List<ChatConversation>> callback) {
@@ -66,12 +70,10 @@ public class ChatConversationManager extends BaseManager {
     }
 
     /**
-     * 重置未读消息
+     * 重置未读消息数
      *
-     * @param chatType
-     *            singleChat（单聊） 或 groupChat （群聊）
-     * @param target
-     *            跟谁， userId 或 groupId
+     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target 必填，userId 或 groupId
      */
     public void resetUnread(ChatType chatType, String target, EngineCallback<String> callback) {
         try {
@@ -108,11 +110,9 @@ public class ChatConversationManager extends BaseManager {
     /**
      * 删除会话
      *
-     * @param chatType
-     *            singleChat（单聊） 或 groupChat （群聊）
-     * @param target
-     *            跟谁， userId 或 groupId
-     * @param callback
+     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target 必填，userId 或 groupId
+     * @param callback 结果通知函数
      */
     public void delete(ChatType chatType, String target,
             EngineCallback<String> callback) {
@@ -133,18 +133,14 @@ public class ChatConversationManager extends BaseManager {
     }
 
     /**
-     * 获取消息
+     * 获取某个会话的历史消息。startMessageId 和 endMessageId 都可选，都为{@code null}时表示获取最新的{@code limit}条消息
      *
-     * @param chatType
-     *            singleChat（单聊） 或 groupChat （群聊）
-     * @param target
-     *            跟谁， userId 或 groupId
-     * @param startMessageId
-     *            可选
-     * @param endMessageId
-     *            可选
-     * @param limit
-     *            可选，默认 20，最大 100
+     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target 必填，userId 或 groupId
+     * @param startMessageId 起始 messageId
+     * @param endMessageId 结束的 messageId
+     * @param limit 消息条数限制
+     * @param callback 结果通知函数
      */
     public void getMessages(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit,
@@ -171,9 +167,6 @@ public class ChatConversationManager extends BaseManager {
         }
     }
 
-    /***
-     * Remove all conversations and related messages from local database.
-     */
     public void clearCache() {
         try {
             dataSource.open();
