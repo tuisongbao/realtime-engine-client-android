@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
@@ -33,7 +33,7 @@ public class ChatGroupMemberActivity extends Activity {
     private ChatGroup mGroup;
     private ListView mListViewGroupUser;
     private ChatGroupUserAdapter mAdapter;
-    private List<ChatUserPresenceData> mListGroupUser;
+    private List<ChatUserPresence> mListGroupUser;
     private Button mButtonQuit;
 
     @Override
@@ -168,10 +168,10 @@ public class ChatGroupMemberActivity extends Activity {
     }
 
     private void request() {
-        mGroup.getUsers(new EngineCallback<List<ChatUserPresenceData>>() {
+        mGroup.getUsers(new EngineCallback<List<ChatUserPresence>>() {
 
             @Override
-            public void onSuccess(List<ChatUserPresenceData> t) {
+            public void onSuccess(List<ChatUserPresence> t) {
                 mListGroupUser = t;
                 runOnUiThread(new Runnable() {
 

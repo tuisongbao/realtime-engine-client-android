@@ -3,7 +3,7 @@ package com.tuisongbao.engine.chat.user.event.handler;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
@@ -11,15 +11,15 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 /**
  * Created by root on 15-8-3.
  */
-public class ChatUserPresenceChangedEventHandler extends BaseEventHandler<ChatUserPresenceData> {
+public class ChatUserPresenceChangedEventHandler extends BaseEventHandler<ChatUserPresence> {
 
     public ChatUserPresenceChangedEventHandler(Engine engine) {
         setEngine(engine);
     }
 
     @Override
-    protected ChatUserPresenceData genCallbackData(BaseEvent request, RawEvent response) {
-        return new Gson().fromJson(response.getData(), ChatUserPresenceData.class);
+    protected ChatUserPresence genCallbackData(BaseEvent request, RawEvent response) {
+        return new Gson().fromJson(response.getData(), ChatUserPresence.class);
     }
 
     @Override

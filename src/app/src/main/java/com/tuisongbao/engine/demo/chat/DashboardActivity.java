@@ -25,7 +25,7 @@ import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -149,7 +149,7 @@ public class DashboardActivity extends FragmentActivity {
         mListenersMap.put(ChatManager.EVENT_PRESENCE_CHANGED, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                ChatUserPresenceData data = (ChatUserPresenceData) args[0];
+                ChatUserPresence data = (ChatUserPresence) args[0];
                 showToaster(data.getUserId() + " changed to " + data.getChangedTo());
             }
         });

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresenceData;
+import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.demo.R;
 
 import java.util.List;
@@ -15,15 +15,15 @@ import java.util.List;
 public class ChatGroupUserAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<ChatUserPresenceData> mListGroupUser;
+    private List<ChatUserPresence> mListGroupUser;
 
-    public ChatGroupUserAdapter(List<ChatUserPresenceData> listGroupUser,
+    public ChatGroupUserAdapter(List<ChatUserPresence> listGroupUser,
             Context context) {
         mListGroupUser = listGroupUser;
         mContext = context;
     }
 
-    public void refresh(List<ChatUserPresenceData> listGroupUser) {
+    public void refresh(List<ChatUserPresence> listGroupUser) {
         mListGroupUser = listGroupUser;
         notifyDataSetChanged();
     }
