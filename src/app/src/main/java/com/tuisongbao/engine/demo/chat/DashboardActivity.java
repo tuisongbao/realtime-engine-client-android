@@ -155,10 +155,14 @@ public class DashboardActivity extends FragmentActivity {
         });
         mListenersMap.put(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
             @Override
-            public void call(Object... args) {
+            public void call(final Object... args) {
                 if (mCurrentPage != 0) {
-                    mConversationTextView.setTextColor(getResources().getColor(R.color.red));
-                    ChatConversationsFragment.getInstance().onMessageReceived((ChatMessage)args[0]);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mConversationTextView.setTextColor(getResources().getColor(R.color.red));
+                        }
+                    });
                 }
             }
         });

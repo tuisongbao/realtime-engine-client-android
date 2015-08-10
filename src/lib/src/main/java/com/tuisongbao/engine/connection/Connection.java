@@ -60,7 +60,7 @@ public class Connection extends BaseEngineIODataSource {
         private String platform = "Android";
         private String protocol = "v1";
         // TODO: Replace sdkVersion automatically by gradle task.
-        private String sdkVersion = "v1.0.0";
+        private String sdkVersion = "v2.0.0";
         private String transport = "websocket";
 
         public Options() {
@@ -127,7 +127,7 @@ public class Connection extends BaseEngineIODataSource {
     public Connection(Engine engine) {
         mEngine = engine;
         mOptions.setAppId(mEngine.getEngineOptions().getAppId());
-        mLastState = State.Initialized;
+        updateState(State.Initialized);
 
         start();
     }
@@ -145,8 +145,7 @@ public class Connection extends BaseEngineIODataSource {
         LogUtil.info(TAG, "Connecting...");
 
         if (mLastState != State.Connecting) {
-            trigger(EVENT_CONNECTING);
-            mLastState = State.Connecting;
+            updateState(State.Connecting);
         }
 
         String appId = mEngine.getEngineOptions().getAppId();
@@ -190,7 +189,7 @@ public class Connection extends BaseEngineIODataSource {
     protected void updateState(State state) {
         if (state == mLastState) return;
 
-        trigger(state.getName());
+        trigger(state.getName(), state);
 
         LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
         trigger(EVENT_STATE_CHANGED, mLastState, state);

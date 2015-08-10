@@ -604,8 +604,13 @@ public class ChatConversationActivity extends Activity implements
             }
             if (message != null && showMessage) {
                 mMessageList.add(message);
-                mMessagesAdapter.refresh(mMessageList);
-                mMessagesListView.setSelection(mMessageList.size() - 1);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMessagesAdapter.refresh(mMessageList);
+                        mMessagesListView.setSelection(mMessageList.size() - 1);
+                    }
+                });
             }
         }
     };

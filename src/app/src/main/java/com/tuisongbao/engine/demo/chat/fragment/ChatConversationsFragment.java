@@ -17,6 +17,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.user.ChatType;
@@ -49,6 +51,8 @@ public class ChatConversationsFragment extends Fragment {
         }
         return mConversationsFragment;
     }
+
+    private Emitter.Listener mListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,6 +113,20 @@ public class ChatConversationsFragment extends Fragment {
         });
         request();
 
+        mListener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ChatMessage message = (ChatMessage)args[0];
+                        onMessageReceived(message);
+                    }
+                });
+            }
+        };
+
+        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mListener);
         return mRootView;
     }
 
@@ -118,12 +136,23 @@ public class ChatConversationsFragment extends Fragment {
         mClickedChatConversation = null;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     public void onMessageSent(ChatMessage message) {
         updateLatestMessageOfConversation(message, message.getRecipient());
         mConversationsAdapter.refresh(mConversationList);
     }
 
-    public void onMessageReceived(ChatMessage message) {
+    private void onMessageReceived(ChatMessage message) {
         ChatType chatType = message.getChatType();
         String target = null;
         if (chatType.equals(ChatType.SingleChat)) {

@@ -1,8 +1,10 @@
 package com.tuisongbao.engine.demo.chat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -12,6 +14,7 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
@@ -24,6 +27,7 @@ public class LoginActivity extends Activity {
     private EditText mEditTextAccount;
     private Button mButtonLogin;
     private Button mPubSubButton;
+    private Context context;
 
     private Emitter.Listener mLoginSuccessListener = new Emitter.Listener() {
         @Override
@@ -54,6 +58,8 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        context = this;
+
         mEditTextAccount = (EditText) findViewById(R.id.login_edittext_account);
         mButtonLogin = (Button) findViewById(R.id.login_button_login);
         mButtonLogin.setOnClickListener(new OnClickListener() {
@@ -83,6 +89,8 @@ public class LoginActivity extends Activity {
                 finish();
             }
         });
+
+        bindConnectionEvent();
     }
 
     private boolean validate() {
@@ -107,5 +115,78 @@ public class LoginActivity extends Activity {
 
         DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
         DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_LOGIN_FAILED, mLoginFailedListener);
+    }
+
+    private void bindConnectionEvent() {
+        Connection connection = DemoApplication.engine.getConnection();
+
+        Emitter.Listener stateListener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Connection.State state = (Connection.State)args[0];
+                        Log.i(TAG, "Connecting state: " + state.toString());
+                        Toast.makeText(context, "Connecting state: " + state.toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        };
+
+        connection.bind(Connection.State.Initialized.getName(), stateListener);
+        connection.bind(Connection.State.Connecting.getName(), stateListener);
+        connection.bind(Connection.State.Connected.getName(), stateListener);
+        connection.bind(Connection.State.Disconnected.getName(), stateListener);
+        connection.bind(Connection.State.Failed.getName(), stateListener);
+
+        connection.bind(Connection.EVENT_CONNECT_IN, new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                Log.i(TAG, "Connecting in " + args[0] + " seconds");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Connecting in " + args[0] + " seconds", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        connection.bind(Connection.EVENT_CONNECTING, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.i(TAG, "Connecting...");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Connecting...", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                Log.i(TAG, "Connection state changed from " + args[0] + " to " + args[1]);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Connection state changed from " + args[0] + " to " + args[1], Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        connection.bind(Connection.EVENT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                Log.i(TAG, "Connection error," + args[0]);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "Connection error," + args[0], Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 }

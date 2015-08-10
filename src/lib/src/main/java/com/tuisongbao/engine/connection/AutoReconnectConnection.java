@@ -140,6 +140,7 @@ public class AutoReconnectConnection extends Connection {
         }
         try {
             LogUtil.verbose(TAG, "Start to sleep： " + mReconnectGap);
+            trigger(EVENT_CONNECT_IN, mReconnectGap);
             if (mReconnectGap > 0) {
                 Thread.sleep(mReconnectGap);
             }
