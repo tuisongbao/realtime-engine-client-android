@@ -69,14 +69,9 @@ public class ChannelManager extends BaseManager {
 
     /***
      * 订阅 channel 并返回 channel 实例。通过给 channelName 添加不同的前缀来区分不同类型的 channel.
-     * public channel 不需要前缀； private channel 以 `private-` 为前缀； presence channel 以 `presence-` 为前缀
+     * public channel 不需要前缀； private channel 以 `private-` 为前缀； presence channel 以 `presence-` 为前缀, 针对不同的 Channel 会进行相应的鉴权
      *
-     *<ul>
-     *<li><p>针对不同的 Channel 会进行相应的鉴权</>
-     *</>
-     *<li><p>该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果</>
-     *</>
-     *</ul>
+     * 该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果
      *
      * @param channelName 必填
      * @param authData 在创建 {@link PresenceChannel} 时必须指定该值，其它的可设置为 null

@@ -30,7 +30,7 @@ import java.util.List;
  * {@link ChatConversation} 的管理类，每个 {@link Engine} 只有一个该实例。开启缓存时，
  * 所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
  *
- * @see {@link ChatManager#enableCache()}
+ * @see ChatManager#enableCache()
  */
 public class ChatConversationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();

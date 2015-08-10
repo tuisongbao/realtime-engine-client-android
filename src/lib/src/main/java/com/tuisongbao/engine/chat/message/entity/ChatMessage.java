@@ -66,7 +66,7 @@ public class ChatMessage {
      *
      * @return  ChatGroup
      *
-     * @see {@link ChatMessage#serialize()}
+     * @see #serialize()
      */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
@@ -81,7 +81,7 @@ public class ChatMessage {
      *
      * @return  json格式的{@code String}
      *
-     * @see {@link ChatMessage#deserialize(Engine, String)}
+     * @see #deserialize(Engine, String)
      */
     public String serialize() {
         return getSerializer().toJson(this);

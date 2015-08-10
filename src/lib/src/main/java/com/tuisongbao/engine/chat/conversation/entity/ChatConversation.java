@@ -20,7 +20,7 @@ import java.util.List;
  * 会话类
  * 开启缓存时，所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
  *
- * @see {@link ChatManager#enableCache()}
+ * @see ChatManager#enableCache()
  */
 public class ChatConversation {
     transient private static final String TAG = ChatConversation.class.getSimpleName();
@@ -44,7 +44,7 @@ public class ChatConversation {
      *
      * @return  ChatConversation
      *
-     * @see {@link ChatConversation#serialize()}
+     * @see #serialize()
      */
     public static ChatConversation deserialize(Engine engine, String jsonString) {
         try {
@@ -64,7 +64,7 @@ public class ChatConversation {
      *
      * @return  json格式的{@code String}
      *
-     * @see {@link ChatConversation#deserialize(Engine, String)}
+     * @see #deserialize(Engine, String)
      */
     public String serialize() {
         String stream = getSerializer().toJson(this);
@@ -156,10 +156,10 @@ public class ChatConversation {
      * @param body 消息实体
      * @param callback 结果通知函数
      *
-     * @see {@link ChatMessageContent}
-     * @see {@link ChatMessageVoiceContent}
-     * @see {@link ChatMessageImageContent}
-     * @see {@link ChatMessageVideoContent}
+     * @see ChatMessageContent
+     * @see ChatMessageVoiceContent
+     * @see ChatMessageImageContent
+     * @see ChatMessageVideoContent
      */
     public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback) {
         return sendMessage(body, callback, null);

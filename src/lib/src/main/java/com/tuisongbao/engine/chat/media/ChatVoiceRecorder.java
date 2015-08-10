@@ -25,7 +25,7 @@ public class ChatVoiceRecorder extends EventEmitter {
 
     private long mStartTime;
 
-    HashMap<String, ChatVoiceEventCallback> mEventCallbackHashMap = new HashMap<String, ChatVoiceRecorder.ChatVoiceEventCallback>();
+    HashMap<String, ChatVoiceEventCallback> mEventCallbackHashMap = new HashMap<>();
 
     public ChatVoiceRecorder() {
         mRecorder = new MediaRecorder();

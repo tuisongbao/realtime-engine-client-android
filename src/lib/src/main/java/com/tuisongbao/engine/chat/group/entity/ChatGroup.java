@@ -13,7 +13,7 @@ import java.util.List;
  * 群组类
  * 开启缓存时，所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
  *
- * @see {@link ChatManager#enableCache()}
+ * @see ChatManager#enableCache()
  */
 public class ChatGroup {
     private String groupId;
@@ -42,7 +42,7 @@ public class ChatGroup {
      *
      * @return  ChatGroup
      *
-     * @see {@link ChatGroup#serialize()}
+     * @see #serialize()
      */
     public static ChatGroup deserialize(Engine engine, String jsonString) {
         ChatGroup group = getSerializer().fromJson(jsonString, ChatGroup.class);
@@ -57,7 +57,7 @@ public class ChatGroup {
      *
      * @return  json格式的{@code String}
      *
-     * @see {@link ChatGroup#deserialize(Engine, String)}
+     * @see #deserialize(Engine, String)
      */
     public String serialize() {
         return getSerializer().toJson(this);

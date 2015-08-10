@@ -35,13 +35,8 @@ public class Channel extends EventEmitter {
     }
 
     /***
-     * 订阅此 Channel
-     *<ul>
-     *<li><p>针对不同的 Channel 会进行相应的鉴权</>
-     *</>
-     *<li><p>该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果</>
-     *</>
-     *</ul>
+     * 订阅此 Channel, 针对不同的 Channel 会进行相应的鉴权
+     * 该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果
      */
     public void subscribe() {
         LogUtil.debug(TAG, "Begin auth channel: " + channel);
