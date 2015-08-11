@@ -85,7 +85,8 @@ public class ChatManager extends BaseManager {
 
                 @Override
                 public void onError(ResponseError error) {
-                    LogUtil.verbose(TAG, "Auth failed, " + error.getMessage());
+                    LogUtil.verbose(TAG, error.getMessage());
+                    onLoginFailed(error);
                     onLogout();
                 }
             };

@@ -33,7 +33,7 @@ public class DemoApplication extends Application {
         }
         // 初始化 EngineOptions
         // appId 是在推送宝官网注册应用时分配的 ID；authUrl 用于鉴权, 推荐用 https, 参见 登录 一节
-        EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser"
+        EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://www.tuisongbao.com/api/engineDemo/authUser"
         );
         engine = new Engine(this, options);
 
