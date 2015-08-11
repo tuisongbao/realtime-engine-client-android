@@ -163,6 +163,13 @@ public class ChatMessagesAdapter extends BaseAdapter {
             voiceButton.setVisibility(View.GONE);
 
             showVideoWidget(message, convertView, imageView, textView);
+        } else if (content.getType() == TYPE.LOCATION) {
+            textView.setVisibility(View.VISIBLE);
+            imageView.setVisibility(View.GONE);
+            voiceButton.setVisibility(View.GONE);
+
+            textView.setText("Not support location message now, coming soon...");
+            textView.setTextSize(17);
         }
     }
 

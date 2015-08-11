@@ -151,7 +151,8 @@ public class ChatMessage {
         IMAGE("image", 2),
         VOICE("voice", 3),
         VIDEO("video", 4),
-        EVENT("event", 5);
+        EVENT("event", 5),
+        LOCATION("location", 6);
 
         private String name;
         private int index;
