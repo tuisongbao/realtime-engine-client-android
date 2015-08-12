@@ -14,6 +14,12 @@ import com.tuisongbao.engine.utils.StrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * <STRONG>Private Channel</STRONG>
+ *
+ * <P>
+ *     在普通 {@link Channel} 的基础上添加了用户认证的机制。
+ */
 public class PrivateChannel extends Channel {
     private static final String TAG = "TSB" + PrivateChannel.class.getSimpleName();
 

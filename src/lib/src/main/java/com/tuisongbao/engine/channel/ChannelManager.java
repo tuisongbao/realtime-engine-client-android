@@ -13,6 +13,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * <STRONG>Pub/Sub 管理类</STRONG>
+ *
+ * <P>
+ *     推送宝 {@link Engine} 中，Pub/Sub 模块的管理类。
+ *     可通过调用 {@link Engine#getChannelManager()} 获得该实例。
+ *     网络掉线后，当网络再次可用时，会重新 {@link #subscribe(String, String)} 所有已经订阅成功的 {@code Channel}。
+ */
 public class ChannelManager extends BaseManager {
     private static final String TAG = "TSB" + ChannelManager.class.getSimpleName();
 
@@ -67,14 +75,14 @@ public class ChannelManager extends BaseManager {
         bind(Protocol.CHANNEL_EVENT_USER_REMOVED, presenceUserStatusListener);
     }
 
-    /***
+    /**
      * 订阅 channel 并返回 channel 实例。通过给 channelName 添加不同的前缀来区分不同类型的 channel.
      * public channel 不需要前缀； private channel 以 `private-` 为前缀； presence channel 以 `presence-` 为前缀, 针对不同的 Channel 会进行相应的鉴权
      *
      * 该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果
      *
-     * @param channelName 必填
-     * @param authData 在创建 {@link PresenceChannel} 时必须指定该值，其它的可设置为 null
+     * @param channelName   必填
+     * @param authData      在创建 {@link PresenceChannel} 时必须指定该值，其它的可设置为 null
      * @return Channel 实例
      */
     public Channel subscribe(String channelName, String authData) {

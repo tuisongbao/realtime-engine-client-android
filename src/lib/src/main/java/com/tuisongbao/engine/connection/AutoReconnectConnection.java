@@ -7,12 +7,18 @@ import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
 /**
- * Created by root on 15-7-29.
+ * <STRONG>自动连接管理类</STRONG>
+ *
+ * <P>
+ * 继承于 {@link Connection}，不同的是，当连接断开时，该类会进行自动重连。
+ *
+ * @author Katherine Zhu
+ * @version v2.1.0
  */
 public class AutoReconnectConnection extends Connection {
     private static final String TAG = "TSB" + AutoReconnectConnection.class.getSimpleName();
     /**
-     * 重连次数间隔
+     * 重连间隔
      */
     private int mReconnectGap = 0;
     /**
@@ -117,21 +123,18 @@ public class AutoReconnectConnection extends Connection {
              * engine_connection:error ConnectionEvent 的 data.reconnectIn 、 data.reconnectInMax
              * 来调整基数和最大值，当然对应的 data.reconnectStrategy 需为 backoff 。
              *
-             * 以默认值为例，不断自动重连时，间隔将依次为（单位毫秒）：0 1 2 4 8 16 64 128 256 1024 2048 4096 8192
-             * 10000 10000 ... 。
+             * 以默认值为例，不断自动重连时，间隔将依次为（单位秒）：1 2 4 8 10 10 10....
              */
             if (mReconnectMax <= 0) {
                 mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
             }
             if (mReconnectIn < 0) {
-                mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+                mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
             }
             if (mReconnectTimes <= 0) {
                 mReconnectGap = mReconnectIn;
             } else {
-                if (mReconnectGap <= 0) {
-                    mReconnectGap = 1;
-                } else if(mReconnectGap * 2 < mReconnectMax) {
+                if(mReconnectGap * 2 < mReconnectMax) {
                     mReconnectGap = mReconnectGap * 2;
                 } else {
                     mReconnectGap = mReconnectMax;
@@ -140,9 +143,9 @@ public class AutoReconnectConnection extends Connection {
         }
         try {
             LogUtil.verbose(TAG, "Start to sleep： " + mReconnectGap);
-            trigger(EVENT_CONNECT_IN, mReconnectGap);
+            trigger(EVENT_CONNECTING_IN, mReconnectGap);
             if (mReconnectGap > 0) {
-                Thread.sleep(mReconnectGap);
+                Thread.sleep(mReconnectGap * 1000);
             }
             LogUtil.verbose(TAG, "End to sleep： " + mReconnectGap);
         } catch (Exception e) {

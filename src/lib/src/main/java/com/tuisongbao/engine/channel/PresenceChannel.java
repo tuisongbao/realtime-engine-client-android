@@ -1,5 +1,6 @@
 package com.tuisongbao.engine.channel;
 
+import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
@@ -9,6 +10,17 @@ import com.tuisongbao.engine.utils.StrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * <STRONG>Presence Channel</STRONG>
+ *
+ * <P>
+ *     在 {@link PrivateChannel} 的基础上，可以监听用户上下线的通知，使用 {@link #bind(String, Emitter.Listener)} 方法可以获取以下事件的回调通知：
+ *
+ * <UL>
+ *     <LI>{@code engine:user_added}</LI>
+ *     <LI>{@code engine:user_removed}</LI>
+ * </UL>
+ */
 public class PresenceChannel extends PrivateChannel {
     private String channelData;
     private String authData;

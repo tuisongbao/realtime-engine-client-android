@@ -11,6 +11,17 @@ import com.tuisongbao.engine.log.LogUtil;
 
 import org.json.JSONException;
 
+/**
+ * <STRONG>普通 Channel</STRONG>
+ *
+ * <P>
+ *     使用 {@link #bind(String, Listener)} 方法可以获取以下事件的回调通知：
+ *
+ * <UL>
+ *     <LI>{@code engine:subscription_succeeded}</LI>
+ *     <LI>{@code engine:subscription_error}</LI>
+ * </UL>
+ */
 public class Channel extends EventEmitter {
     private static final String TAG = "TSB" + Channel.class.getSimpleName();
 

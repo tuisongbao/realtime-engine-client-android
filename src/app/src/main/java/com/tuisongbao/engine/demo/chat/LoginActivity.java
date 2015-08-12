@@ -134,13 +134,13 @@ public class LoginActivity extends Activity {
             }
         };
 
-        connection.bind(Connection.State.Initialized.getName(), stateListener);
-        connection.bind(Connection.State.Connecting.getName(), stateListener);
-        connection.bind(Connection.State.Connected.getName(), stateListener);
-        connection.bind(Connection.State.Disconnected.getName(), stateListener);
-        connection.bind(Connection.State.Failed.getName(), stateListener);
+        connection.bind(Connection.State.Initialized, stateListener);
+        connection.bind(Connection.State.Connecting, stateListener);
+        connection.bind(Connection.State.Connected, stateListener);
+        connection.bind(Connection.State.Disconnected, stateListener);
+        connection.bind(Connection.State.Failed, stateListener);
 
-        connection.bind(Connection.EVENT_CONNECT_IN, new Emitter.Listener() {
+        connection.bind(Connection.EVENT_CONNECTING_IN, new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
                 Log.i(TAG, "Connecting in " + args[0] + " seconds");

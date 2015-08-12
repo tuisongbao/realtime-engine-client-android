@@ -14,14 +14,20 @@ import com.tuisongbao.engine.log.LogUtil;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * <STRONG>语音消息帮助类</STRONG>
+ *
+ * <P>
+ *     该类的使用为单例，应调用 {@code ChatVoicePlayer.getInstance()} 方法获取。并且该类<STRONG>只</STRONG>用于播放语音消息。
+ */
 public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaPlayer.OnErrorListener {
     private static final String TAG = "TSB" + ChatVoicePlayer.class.getSimpleName();
 
     private static MediaPlayer mMediaPlayer;
     private static ChatVoicePlayer mInstance;
     private ChatMessage currentPlayingMessage;
-    HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<ChatMessage, ChatVoicePlayer.OnStopListener>();
-    HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<ChatMessage, ChatVoicePlayer.OnErrorListener>();
+    HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<>();
+    HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<>();
 
     public interface OnStopListener {
         void onStop();
@@ -43,6 +49,17 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         return mInstance;
     }
 
+    /**
+     * 开始播放
+     *
+     * <P>
+     *     播放前，会自动停止上一个录音。
+     *
+     * @param message           语音消息实例
+     * @param stopListener      停止事件的处理方法
+     * @param errorListener     出错事件的处理方法
+     * @param progressCallback  下载进度的处理方法
+     */
     public void start(final ChatMessage message, final OnStopListener stopListener, final OnErrorListener errorListener
             , final ProgressCallback progressCallback) {
         try {
@@ -51,6 +68,13 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         } catch (Exception e) {
             LogUtil.error(TAG, e);
         }
+    }
+
+    /**
+     * 停止播放
+     */
+    public void stop() {
+        mMediaPlayer.stop();
     }
 
     private void stopLastMedia() {
@@ -100,10 +124,6 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
                 callbackErrorListener(message, error.getMessage());
             }
         }, progressCallback);
-    }
-
-    public void stop() {
-        mMediaPlayer.stop();
     }
 
     private void callbackErrorListener(ChatMessage message, String errorMessage) {

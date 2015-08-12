@@ -8,7 +8,6 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
-
 public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
     protected Engine engine;
     private EngineCallback mCallback;
@@ -48,10 +47,10 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
             } else {
                 data = genCallbackData(request, response);
             }
-            ((EngineCallback)callback).onSuccess(data);
+            callback.onSuccess(data);
         } else {
             ResponseError error = new Gson().fromJson(responseData.getError(), ResponseError.class);
-            ((EngineCallback) callback).onError(error);
+            callback.onError(error);
         }
     }
 }

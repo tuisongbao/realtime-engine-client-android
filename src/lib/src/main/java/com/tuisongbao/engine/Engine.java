@@ -13,8 +13,14 @@ import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
 /**
- * 推送宝实时引擎客户端 SDK 的入口, 通过这个类可以获得两个管理类， {@link ChatManager} 和 {@link ChannelManager};
- * Pub/Sub 功能实现主要通过 {@link ChannelManager}, Chat 功能实现则通过 {@link ChatManager}
+ * <STRONG>推送宝实时引擎客户端 SDK 的入口</STRONG>
+ *
+ * <P>
+ *     通过 {@link EngineOptions} 初始化该类。
+ *     初始化过程中会创建 {@link AutoReconnectConnection}，{@link ChatManager} 和 {@link ChannelManager} 的实例，有且只有一个。
+ *     支持单个应用中多个实例。
+ *
+ * @author Katherine Zhu
  */
 public final class Engine {
     private static final String TAG = "TSB" + Engine.class.getSimpleName();
@@ -67,10 +73,6 @@ public final class Engine {
         }
     }
 
-    /**
-     *
-     * @return Application context
-     */
     public static Context getContext() {
         return mApplicationContext;
     }
@@ -78,34 +80,34 @@ public final class Engine {
     /**
      * 获取 Engine 的配置
      *
-     * @return {@link EngineOptions}
+     * @return 当前的配置
      */
     public EngineOptions getEngineOptions() {
         return mEngineOptions;
     }
 
     /**
-     * 获取 ChatManager 的唯一实例
+     * 获取 ChatManager 的实例
      *
-     * @return {@link ChatManager}
+     * @return {@code ChatManager} 实例
      */
     public ChatManager getChatManager() {
         return chatManager;
     }
 
     /**
-     * 获取 ChannelManager 的唯一实例
+     * 获取 ChannelManager 的实例
      *
-     * @return {@link ChannelManager}
+     * @return {@code ChannelManager} 实例
      */
     public ChannelManager getChannelManager() {
         return channelManager;
     }
 
     /**
-     * 获取 Connection 的唯一实例
+     * 获取 Connection 的实例
      *
-     * @return {@link Connection}
+     * @return {@code Connection} 实例
      */
     public Connection getConnection() {
         return connection;

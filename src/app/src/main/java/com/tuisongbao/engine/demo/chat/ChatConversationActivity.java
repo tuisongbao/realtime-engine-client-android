@@ -180,7 +180,7 @@ public class ChatConversationActivity extends Activity implements
                 ChatMessageContent content = new ChatMessageContent();
                 content.setType(ChatMessage.TYPE.TEXT);
                 content.setText(mContentEditText.getText().toString());
-                mConversation.sendMessage(content, sendMessageCallback);
+                mConversation.sendMessage(content, sendMessageCallback, null);
                 mContentEditText.setText("");
                 hideSoftKeyboard();
             }
@@ -338,17 +338,18 @@ public class ChatConversationActivity extends Activity implements
         request();
 
         mRecorder = new ChatVoiceRecorder();
-        mRecorder.setMaxDuration(10 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
-
+        mRecorder.setMaxDuration(10 * 1000);
+        mRecorder.setMinDuration(2 * 1000);
+        mRecorder.bind(ChatVoiceRecorder.EVENT_MAX_DURATION_REACHED, new Emitter.Listener() {
             @Override
-            public void onEvent() {
+            public void call(Object... args) {
                 onRecordFinished();
                 onRecordStart();
             }
         });
-        mRecorder.setMinDuration(2 * 1000, new ChatVoiceRecorder.ChatVoiceEventCallback() {
+        mRecorder.bind(ChatVoiceRecorder.EVENT_SHORTER_THAN_MIN_DURATION, new Emitter.Listener() {
             @Override
-            public void onEvent() {
+            public void call(Object... args) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -372,12 +373,12 @@ public class ChatConversationActivity extends Activity implements
             String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
             ChatMessageVideoContent content = new ChatMessageVideoContent();
             content.setFilePath(videoPath);
-            mConversation.sendMessage(content, sendMessageCallback);
+            mConversation.sendMessage(content, sendMessageCallback, null);
         } else if (requestCode == REQUEST_CODE_PHOTO && resultCode == RESULT_OK) {
             String photoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_PHOTO);
             ChatMessageImageContent content = new ChatMessageImageContent();
             content.setFilePath(photoPath);
-            mConversation.sendMessage(content, sendMessageCallback);
+            mConversation.sendMessage(content, sendMessageCallback, null);
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -505,7 +506,7 @@ public class ChatConversationActivity extends Activity implements
     private void sendVoiceMessage(String filePath) {
         ChatMessageVoiceContent content = new ChatMessageVoiceContent();
         content.setFilePath(filePath);
-        mConversation.sendMessage(content, sendMessageCallback);
+        mConversation.sendMessage(content, sendMessageCallback, null);
     }
 
     private void request() {
@@ -576,7 +577,7 @@ public class ChatConversationActivity extends Activity implements
             public void onError(ResponseError error) {
 
             }
-        });
+        }, null);
         // TODO: 15-8-7 Progress bar
 
         message.setFrom(LoginCache.getUserId());

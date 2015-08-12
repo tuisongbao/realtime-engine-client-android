@@ -27,6 +27,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * <STRONG>Chat 消息</STRONG>
+ *
+ * <UL>
+ *     <LI>提供了多媒体消息的资源下载 {@link #downloadingOriginal}</LI>
+ *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
+ *     <LI>可以在 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 中直接播放语音类型的消息</LI>
+ * </UL>
+ */
 public class ChatMessage {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
     /***
@@ -62,11 +71,11 @@ public class ChatMessage {
     }
 
     /**
-     * 将实例反序列化为 ChatMessage
+     * 将字符串反序列化为 ChatMessage
      *
-     * @return  ChatGroup
-     *
-     * @see #serialize()
+     * @param engine        Engine 实例，用来确定 ChatMessage 的上下文
+     * @param jsonString    合法的 JSON 格式 {@code String}
+     * @return ChatMessage 实例
      */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
@@ -77,11 +86,9 @@ public class ChatMessage {
     }
 
     /**
-     * 将实例序列化为{@code String}，可用于在{@code Intent}之间直接传递该实例
+     * 将实例序列化为 JSON 格式的 {@code String}，可用于在 {@code Intent} 之间直接传递该实例
      *
-     * @return  json格式的{@code String}
-     *
-     * @see #deserialize(Engine, String)
+     * @return  JSON 格式的 {@code String}
      */
     public String serialize() {
         return getSerializer().toJson(this);
@@ -92,15 +99,34 @@ public class ChatMessage {
         mChatManager = engine.getChatManager();
     }
 
+    /**
+     * 获取聊天类型
+     *
+     * @return 单聊或群聊
+     */
     public ChatType getChatType() {
         return type;
     }
 
+    /**
+     * 设置聊天类型
+     *
+     * @param type 聊天类型
+     * @return ChatMessage 实例
+     */
     public ChatMessage setChatType(ChatType type) {
         this.type = type;
         return this;
     }
 
+    /**
+     * 获取自增消息 ID
+     *
+     * <P>
+     *     每个 {@link com.tuisongbao.engine.chat.conversation.entity.ChatConversation} 都是从 0 开始。
+     *
+     * @return 自增消息 ID
+     */
     public long getMessageId() {
         return messageId;
     }
@@ -110,33 +136,74 @@ public class ChatMessage {
         return this;
     }
 
+    /**
+     * 获取消息发送者唯一标识
+     *
+     * @return 消息发发送者唯一标识
+     */
     public String getFrom() {
         return from;
     }
 
+    /**
+     * 设置消息发送者唯一标识
+     *
+     * @param from 消息发送者唯一标识
+     * @return
+     */
     public ChatMessage setFrom(String from) {
         this.from = from;
         return this;
     }
 
+    /**
+     * 获取消息接收者唯一标识
+     *
+     * @return 消息发接收者唯一标识
+     */
     public String getRecipient() {
         return to;
     }
 
+    /**
+     * 设置消息接收者唯一标识
+     *
+     * @param to 消息接收者唯一标识
+     * @return
+     */
     public ChatMessage setRecipient(String to) {
         this.to = to;
         return this;
     }
 
+    /**
+     * 获取消息内容
+     *
+     * <P>
+     *     ChatMessageContent 是父类，应根据 {@link ChatMessageContent#getType()} 来获取相应的内容。
+     *
+     * @return 消息内容
+     */
     public ChatMessageContent getContent() {
         return content;
     }
 
+    /**
+     * 设置消息内容
+     *
+     * @param content 消息内容
+     * @return ChatMessage 实例
+     */
     public ChatMessage setContent(ChatMessageContent content) {
         this.content = content;
         return this;
     }
 
+    /**
+     * 获取消息创建时间，以服务器时间为准
+     *
+     * @return 创建时间，ISO8061 格式的字符串
+     */
     public String getCreatedAt() {
         return createdAt;
     }
@@ -146,27 +213,38 @@ public class ChatMessage {
         return this;
     }
 
+    /**
+     * 获取消息创建时间，以服务器时间为准
+     *
+     * @return 创建时间
+     * @since v2.1.1
+     */
+    public Date getCreatedAtInDate() {
+        if (createdAt == null) {
+            return null;
+        }
+        return StrUtils.getDateFromTimeStringIOS8061(createdAt);
+    }
+
+    /**
+     * 消息内容类型的枚举类
+     */
     public enum TYPE {
-        TEXT("text", 1),
-        IMAGE("image", 2),
-        VOICE("voice", 3),
-        VIDEO("video", 4),
-        EVENT("event", 5),
-        LOCATION("location", 6);
+        TEXT("text"),
+        IMAGE("image"),
+        VOICE("voice"),
+        VIDEO("video"),
+        EVENT("event"),
+        LOCATION("location");
 
         private String name;
-        private int index;
 
-        TYPE(String name, int index) {
+        TYPE(String name) {
             this.name = name;
         }
 
         public String getName() {
             return name;
-        }
-
-        public int getIndex() {
-            return index;
         }
 
         public static TYPE getType(String name) {
@@ -183,44 +261,56 @@ public class ChatMessage {
     }
 
     /**
-     * 下载图片
+     * 下载图片并存储在本地
      *
-     * @param isOriginal {@code true}表示下载原图; {@code false}表示下载缩略图
-     * @param callback 结果通知函数
-     * @param progressCallback 进度通知函数
+     * <P>
+     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
+     *
+     * @param isOriginal {@code true} 表示下载原图; {@code false} 表示下载缩略图
+     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
+     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
      */
-    public void downloadImage(boolean isOriginal, final EngineCallback<String> callback, final ProgressCallback progressCallback) {
-        downloadResource(isOriginal, callback, progressCallback);
+    public void downloadImage(boolean isOriginal, final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
+        downloadResource(isOriginal, filePathCallback, progressCallback);
     }
 
     /**
-     * 下载语音
+     * 下载语音并存储在本地
      *
-     * @param callback 结果通知函数
-     * @param progressCallback 进度通知函数
+     * <P>
+     *     可以直接使用 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 播放推送宝的语音消息，其中包含了下载。
+     *
+     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
+     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
      */
-    public void downloadVoice(final EngineCallback callback, final ProgressCallback progressCallback) {
-        downloadResource(true, callback, progressCallback);
+    public void downloadVoice(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
+        downloadResource(true, filePathCallback, progressCallback);
     }
 
     /**
      * 下载视频首帧缩略图
      *
-     * @param callback 结果通知函数
-     * @param progressCallback 进度通知函数
+     * <P>
+     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
+     *
+     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
+     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
      */
-    public void downloadVideoThumb(final EngineCallback callback, final ProgressCallback progressCallback) {
-        downloadResource(false, callback, progressCallback);
+    public void downloadVideoThumb(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
+        downloadResource(false, filePathCallback, progressCallback);
     }
 
     /**
      * 下载视频
      *
-     * @param callback 结果通知函数
-     * @param progressCallback 进度通知函数
+     * <P>
+     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
+     *
+     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
+     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
      */
-    public void downloadVideo(final EngineCallback callback, final ProgressCallback progressCallback) {
-        downloadResource(true, callback, progressCallback);
+    public void downloadVideo(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
+        downloadResource(true, filePathCallback, progressCallback);
     }
 
     public boolean generateThumbnail(int maxWidth) {

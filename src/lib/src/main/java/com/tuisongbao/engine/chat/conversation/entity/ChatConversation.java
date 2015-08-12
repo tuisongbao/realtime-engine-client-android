@@ -4,9 +4,6 @@ import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
-import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
@@ -17,8 +14,12 @@ import com.tuisongbao.engine.log.LogUtil;
 import java.util.List;
 
 /**
- * 会话类
- * 开启缓存时，所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ * <STRONG>会话类</STRONG>
+ *
+ * <UL>
+ *     <LI>开启缓存时，所有的 API 调用会根据缓存数据适当从服务器获取最新的数据，减少流量</LI>
+ *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
+ * </UL>
  *
  * @see ChatManager#enableCache()
  */
@@ -40,11 +41,9 @@ public class ChatConversation {
     }
 
     /**
-     * 将实例反序列化为 ChatConversation
+     * 将合法的 JSON 字符串反序列化为 ChatConversation
      *
-     * @return  ChatConversation
-     *
-     * @see #serialize()
+     * @return  ChatConversation 实例
      */
     public static ChatConversation deserialize(Engine engine, String jsonString) {
         try {
@@ -60,11 +59,9 @@ public class ChatConversation {
     }
 
     /**
-     * 将实例序列化为{@code String}，可用于在{@code Intent}之间直接传递该实例
+     * 将实例序列化为 {@code String}，可用于在 {@code Intent} 之间直接传递该实例
      *
-     * @return  json格式的{@code String}
-     *
-     * @see #deserialize(Engine, String)
+     * @return  JSON 格式的 {@code String}
      */
     public String serialize() {
         String stream = getSerializer().toJson(this);
@@ -108,6 +105,7 @@ public class ChatConversation {
     }
 
     /**
+     * 获取最后一条消息
      *
      * @return 最后一条消息
      */
@@ -138,12 +136,15 @@ public class ChatConversation {
     }
 
     /**
-     * 获取会话的历史消息。startMessageId 和 endMessageId 都可选，都为{@code null}时表示获取最新的{@code limit}条消息
+     * 获取会话的历史消息
      *
-     * @param startMessageId 起始 messageId
-     * @param endMessageId 结束的 messageId
-     * @param limit 消息条数限制
-     * @param callback 结果通知函数
+     * <P>
+     *     startMessageId 和 endMessageId 都可选，都为 {@code null} 时表示获取最新的 {@code limit} 条消息
+     *
+     * @param startMessageId    起始 messageId
+     * @param endMessageId      结束的 messageId
+     * @param limit             消息条数限制
+     * @param callback          处理方法
      */
     public void getMessages(Long startMessageId,Long endMessageId, int limit,
             EngineCallback<List<ChatMessage>> callback) {
@@ -153,18 +154,18 @@ public class ChatConversation {
     /***
      * 在会话中发送消息
      *
-     * @param body 消息实体
-     * @param callback 结果通知函数
-     *
-     * @see ChatMessageContent
-     * @see ChatMessageVoiceContent
-     * @see ChatMessageImageContent
-     * @see ChatMessageVideoContent
+     * @param body      消息实体
+     * @param callback  处理方法
      */
-    public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback) {
-        return sendMessage(body, callback, null);
-    }
-
+    /**
+     * 在会话中发送消息
+     *
+     * @param body          消息实体
+     * @param callback      结果处理方法
+     * @param progressCallback 进度处理方法
+     *
+     * @return ChatMessage 实例。当为发送图片时，会将缩略图的信息填入，方便开发者刷新页面。
+     */
     public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         ChatMessage message = new ChatMessage();
         message.setContent(body)

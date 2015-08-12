@@ -1,5 +1,8 @@
 package com.tuisongbao.engine.utils;
 
+import com.tuisongbao.engine.log.LogUtil;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -56,6 +59,20 @@ public class StrUtils {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         return format.format(date);
+    }
+
+    public static Date getDateFromTimeStringIOS8061(String dateString) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date date = new Date();
+        if (dateString != null) {
+            try {
+                date = format.parse(dateString);
+            } catch (ParseException e) {
+                LogUtil.error(TAG, e);
+            }
+        }
+        return date;
     }
 
     public static String getTimestampStringOnlyContainNumber(Date date) {

@@ -9,7 +9,7 @@ import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import org.json.JSONObject;
 
 /**
- * Created by root on 15-8-5.
+ * 消息主体内容
  */
 public class ChatMessageContent {
     private ChatMessage.TYPE type;

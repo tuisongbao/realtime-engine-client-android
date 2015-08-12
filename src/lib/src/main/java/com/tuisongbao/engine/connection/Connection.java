@@ -26,23 +26,106 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
+/**
+ * <STRONG>网络连接管理类</STRONG>
+ *
+ * <P>
+ *     每个 Engine 都有一个该实例，用于建立 WebSocket 连接和底层消息的收发，包括 Chat 和 Pub/Sub。
+ *     该类提供连接状态的通知，可以通过 {@link #bind(State, Listener)} 方法绑定 {@link State} 状态的通知。
+ *     需注意的是，当连接断开时，该类 <STRONG>不会</STRONG> 再重新连接，其子类 {@link AutoReconnectConnection} 会进行自动重连。
+ *
+ * <P>
+ *     还可以绑定的事件有 {@value #EVENT_CONNECTING}, {@value #EVENT_CONNECTING_IN}, {@value #EVENT_STATE_CHANGED}, {@value #EVENT_ERROR}
+ *
+ * @author Katherine Zhu
+ */
 public class Connection extends BaseEngineIODataSource {
+    /**
+     * 连接状态发生转换时会触发该事件，事件回调接收两个参数，类型均为 {@link State}:
+     *
+     * <pre>
+     *    connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "连接状态从 " + args[0] + " 转变为 " + args[1]);
+     *        }
+     *    });
+     * </pre>
+     */
     public static final String EVENT_STATE_CHANGED = "state_changed";
+    /**
+     * 正在进行连接时会触发该事件，事件回调没有参数:
+     *
+     * <pre>
+     *    connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "正在连接中...");
+     *        }
+     *    });
+     * </pre>
+     */
     public static final String EVENT_CONNECTING = "connecting";
-    public static final String EVENT_CONNECT_IN = "connecting_in";
+    /**
+     * 准备重新建立连接时会触发该事件，事件回调接收一个参数，类型为 {@code int}, 单位为 <STRONG>秒</STRONG>:
+     *
+     * <pre>
+     *    connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "将在 " + args[0] + " 秒后重连");
+     *        }
+     *    });
+     * </pre>
+     */
+    public static final String EVENT_CONNECTING_IN = "connecting_in";
+    /**
+     * 连接发生错误时会触发该事件，事件回调接收一个参数，类型为 {@code String}:
+     *
+     * <pre>
+     *    connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "连接出错，错误原因：" + args[0]);
+     *        }
+     *    });
+     * </pre>
+     */
     public static final String EVENT_ERROR = "error";
 
+
+
+    /**
+     * Connection 帮助类，表连接状态，可通过绑定事件处理方法获取状态通知
+     *
+     */
     public enum State {
+        /**
+         * 初始化
+         */
         Initialized("initialized"),
+        /**
+         * 连接中，
+         */
         Connecting("connecting"),
+        /**
+         * 已连接
+         */
         Connected("connected"),
+        /**
+         * 连接失败，配置错误引起的，可通过绑定 {@link #EVENT_ERROR} 事件获取具体错误信息
+         */
         Failed("failed"),
+        /**
+         * 连接断开，之前连接过，现在被<STRONG>主动断开</STRONG>时会有该状态
+         */
         Disconnected("disconnected");
 
         private String name;
 
         State(String name) {
             this.name = name;
+
         }
 
         public String getName() {
@@ -55,7 +138,7 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    public class Options {
+    private class Options {
         private String appId;
         private String platform = "Android";
         private String protocol = "v1";
@@ -140,8 +223,19 @@ public class Connection extends BaseEngineIODataSource {
         return mSocket.id();
     }
 
+    /**
+     * 建立连接，可通过绑定 {@link State} 获取连接结果
+     *
+     * <P>
+     * 如果当前状态为 {@link State#Connected}，不会做任何操作。建议在调用 {@link #disconnect()} 之后，用来恢复连接时使用。
+     */
     @Override
     public void connect() {
+        if (mLastState == State.Connected) {
+            LogUtil.warn(TAG, "Already connected");
+            return;
+        }
+
         LogUtil.info(TAG, "Connecting...");
 
         if (mLastState != State.Connecting) {
@@ -170,18 +264,51 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
+    /**
+     * 断开连接，可通过绑定 {@link State} 获取连接结果
+     *
+     * <P>
+     * 如果当前状态为 {@link State#Disconnected}，不会做任何操作。连接断开后，可通过调用 {@link #connect()} 恢复连接。
+     */
     @Override
     public void disconnect() {
+        if (mLastState == State.Disconnected) {
+            LogUtil.warn(TAG, "Already disconnected");
+            return;
+        }
         if (mSocket != null) {
             mSocket.close();
+            updateState(State.Disconnected);
             mSocket = null;
         }
     }
 
+    /**
+     * 绑定连接状态回调处理方法
+     *
+     * <pre>
+     *    connection.bind(Connection.State.Connected, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Connection.State state = (Connection.State)args[0];
+     *            Log.i(TAG, "Connection state: " + state.toString());
+     *        }
+     *    });
+     * </pre>
+     *
+     * @param state     连接状态
+     * @param listener  处理方法，回调中包含一个参数，表明当前状态，类型为 {@code State}
+     */
     public void bind(State state, Listener listener) {
         bind(state.getName(), listener);
     }
 
+    /**
+     * 解绑指定处理方法
+     *
+     * @param state     连接状态
+     * @param listener  处理方法
+     */
     public void unbind(State state, Listener listener) {
         unbind(state.getName(), listener);
     }
@@ -199,7 +326,6 @@ public class Connection extends BaseEngineIODataSource {
 
     protected void onSocketClosed(Object... args) {
         LogUtil.info(TAG, "Socket Close [msg=" + getArgsMSG(args) + "]");
-        updateState(State.Disconnected);
     }
 
     public BaseEvent send(BaseEvent event) {

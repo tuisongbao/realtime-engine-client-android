@@ -2,6 +2,9 @@ package com.tuisongbao.engine.chat.user;
 
 import com.tuisongbao.engine.utils.StrUtils;
 
+/**
+ * 聊天类型，单聊 或 群聊
+ */
 public enum ChatType {
     GroupChat("groupChat", 1), SingleChat("singleChat", 2);
 

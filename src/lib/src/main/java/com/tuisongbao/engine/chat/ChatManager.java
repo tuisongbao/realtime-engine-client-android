@@ -27,12 +27,40 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * 推送宝 {@link Engine} 中，Chat 模块的管理类
+ * <STRONG>Chat 管理类</STRONG>
+ *
+ * <P>
+ *     推送宝 {@link Engine} 中，Chat 模块的管理类。
+ *     可通过调用 {@link Engine#getChatManager()} 获得该实例。
+ *     创建并管理 {@link ChatGroupManager}, {@link ChatMessageManager} 和 {@link ChatConversationManager}。
+ *     通过该类 {@link #login(String)} 和 {@link #logout()}。
+ *     在用户已登录的情况下，使用 {@link #bind(String, Listener)} 方法可以获取以下事件的回调通知：
+ *
+ * <UL>
+ *     <LI>{@link #EVENT_LOGIN_SUCCEEDED}</LI>
+ *     <LI>{@link #EVENT_LOGIN_FAILED}</LI>
+ *     <LI>{@link #EVENT_MESSAGE_NEW}</LI>
+ *     <LI>{@link #EVENT_PRESENCE_CHANGED}</LI>
+ * </UL>
+ *
+ * @author Katherine Zhu
  */
 public class ChatManager extends BaseManager {
+    /**
+     * 有新消息时触发该事件，事件回调接收一个参数，类型为 {@link com.tuisongbao.engine.chat.message.entity.ChatMessage}
+     */
     public static final String EVENT_MESSAGE_NEW = "message:new";
+    /**
+     * 用户上下线通知的提醒，事件回调接收一个参数，类型为 {@link com.tuisongbao.engine.chat.user.entity.ChatUserPresence}
+     */
     public static final String EVENT_PRESENCE_CHANGED = "user:presenceChanged";
+    /**
+     * 登录成功时会触发该事件，包括自动登录 {@link #login(String)} 成功时也会触发该事件，事件回调接收一个参数，类型为 {@link ChatUser}
+     */
     public static final String EVENT_LOGIN_SUCCEEDED = "login:succeeded";
+    /**
+     * 登录失败时会触发该事件，事件回调接收一个参数，类型为 {@link ResponseError}
+     */
     public static final String EVENT_LOGIN_FAILED = "login:failed";
 
     private static final String TAG = "TSB" + ChatManager.class.getSimpleName();
@@ -50,13 +78,21 @@ public class ChatManager extends BaseManager {
         super(engine);
     }
 
+    /**
+     * 获取当前用户
+     *
+     * @return 当前用户；如果用户没有登录成功，返回 {@code null}
+     */
     public ChatUser getChatUser() {
         return mChatUser;
     }
 
     /**
-     *  登录聊天系统，在登录过程中，会根据{@link com.tuisongbao.engine.EngineOptions}中提供的 AuthEndPoint 进行鉴权。
-     *  通过绑定{@link ChatManager#EVENT_LOGIN_SUCCEEDED}, {@link ChatManager#EVENT_LOGIN_FAILED}事件获取登录结果
+     * 登录聊天系统。
+     *
+     * <P>
+     *     登录过程中，会根据 {@link com.tuisongbao.engine.EngineOptions} 中提供的 {@link com.tuisongbao.engine.EngineOptions#mAuthEndPoint} 进行鉴权。
+     *     需通过绑定 {@link #EVENT_LOGIN_SUCCEEDED} 和 {@link #EVENT_LOGIN_FAILED} 事件获取登录结果。
      *
      * @param userData 用户的唯一标识
      */
@@ -67,6 +103,7 @@ public class ChatManager extends BaseManager {
                 LogUtil.warn(TAG, "Duplicate login");
                 return;
             } else {
+                // Stop retrying failed events when switching user.
                 failedAllPendingEvents();
             }
 
@@ -93,16 +130,15 @@ public class ChatManager extends BaseManager {
 
             if (engine.getConnection().isConnected()) {
                 auth(userData, mAuthCallback);
-                return;
             }
         } catch (Exception e) {
             LogUtil.error(TAG, e);
+            trigger(EVENT_LOGIN_FAILED, engine.getUnhandledResponseError());
         }
-        trigger(EVENT_LOGIN_FAILED);
     }
 
     /**
-     * 退出登录，并解绑所有挂载在 ChatManager 上的 Event 的回调函数
+     * 退出登录，并解绑所有挂载在 ChatManager 上的事件处理方法。
      */
     public void logout() {
         try {
@@ -154,7 +190,7 @@ public class ChatManager extends BaseManager {
     /**
      * 获取 {@link com.tuisongbao.engine.chat.conversation.entity.ChatConversation} 的管理类，同一个 ChatManager 上返回的是同一个引用
      *
-     * @return {@link ChatConversationManager}
+     * @return ChatConversationManager 实例
      */
     public ChatConversationManager getConversationManager() {
         return conversationManager;
@@ -163,7 +199,7 @@ public class ChatManager extends BaseManager {
     /**
      * 获取 {@link com.tuisongbao.engine.chat.group.entity.ChatGroup} 的管理类，同一个 ChatManager 上返回的是同一个引用
      *
-     * @return {@link ChatGroupManager}
+     * @return ChatGroupManager 实例
      */
     public ChatGroupManager getGroupManager() {
         return groupManager;

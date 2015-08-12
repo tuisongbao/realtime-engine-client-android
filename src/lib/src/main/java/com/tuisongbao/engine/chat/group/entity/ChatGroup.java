@@ -10,8 +10,12 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import java.util.List;
 
 /**
- * 群组类
- * 开启缓存时，所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ * <STRONG>群组类</STRONG>
+ *
+ * <UL>
+ *     <LI>开启缓存时，所有的 API 调用会根据缓存数据适当从服务器获取最新的数据，减少流量</LI>
+ *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
+ * </UL>
  *
  * @see ChatManager#enableCache()
  */
@@ -38,11 +42,9 @@ public class ChatGroup {
     }
 
     /**
-     * 将实例反序列化为 ChatGroup
+     * 将合法的 JSON 字符串反序列化为 ChatGroup
      *
-     * @return  ChatGroup
-     *
-     * @see #serialize()
+     * @return  ChatGroup 实例
      */
     public static ChatGroup deserialize(Engine engine, String jsonString) {
         ChatGroup group = getSerializer().fromJson(jsonString, ChatGroup.class);
@@ -53,11 +55,9 @@ public class ChatGroup {
     }
 
     /**
-     * 将实例序列化为{@code String}，可用于在{@code Intent}之间直接传递该实例
+     * 将实例序列化为 JSON 格式的 {@code String}，可用于在 {@code Intent} 之间直接传递该实例
      *
-     * @return  json格式的{@code String}
-     *
-     * @see #deserialize(Engine, String)
+     * @return  JSON 格式的 {@code String}
      */
     public String serialize() {
         return getSerializer().toJson(this);
@@ -130,7 +130,7 @@ public class ChatGroup {
     /**
      * 获取群组下用户列表
      *
-     * @param callback 结果通知函数
+     * @param callback 结果处理方法
      */
     public void getUsers(EngineCallback<List<ChatUserPresence>> callback) {
         mGroupManager.getUsers(groupId, callback);
@@ -140,7 +140,7 @@ public class ChatGroup {
      * 邀请加入群组
      *
      * @param userIds 邀请加入的用户id列表
-     * @param callback 结果通知函数
+     * @param callback 结果处理方法
      */
     public void joinInvitation(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.joinInvitation(groupId, userIds, callback);
@@ -150,7 +150,7 @@ public class ChatGroup {
      * 移除群组中的用户
      *
      * @param userIds 被移除的用户的id列表
-     * @param callback 结果通知函数
+     * @param callback 结果处理方法
      */
     public void removeUsers(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.removeUsers(groupId, userIds, callback);
@@ -159,7 +159,7 @@ public class ChatGroup {
     /**
      * 当前用户离开群组
      *
-     * @param callback 结果通知函数
+     * @param callback 结果处理方法
      */
     public void leave(EngineCallback<String> callback) {
         mGroupManager.leave(groupId, callback);
