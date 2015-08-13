@@ -32,10 +32,13 @@ import java.net.URLEncoder;
  * <P>
  *     每个 Engine 都有一个该实例，用于建立 WebSocket 连接和底层消息的收发，包括 Chat 和 Pub/Sub。
  *     该类提供连接状态的通知，可以通过 {@link #bind(State, Listener)} 方法绑定 {@link State} 状态的通知。
- *     需注意的是，当连接断开时，该类 <STRONG>不会</STRONG> 再重新连接，其子类 {@link AutoReconnectConnection} 会进行自动重连。
+ *     需注意的是，当连接断开时，该类 <STRONG>不会</STRONG> 再重新连接，其子类 {@link AutoReconnectConnection} 会进行自动重连。还可以绑定的事件有
  *
- * <P>
- *     还可以绑定的事件有 {@value #EVENT_CONNECTING}, {@value #EVENT_CONNECTING_IN}, {@value #EVENT_STATE_CHANGED}, {@value #EVENT_ERROR}
+ * <UL>
+ *     <LI>{@value #EVENT_CONNECTING_IN}</LI>
+ *     <LI>{@value #EVENT_STATE_CHANGED}</LI>
+ *     <LI>{@value #EVENT_ERROR}</LI>
+ * </UL>
  *
  * @author Katherine Zhu
  */
@@ -53,19 +56,6 @@ public class Connection extends BaseEngineIODataSource {
      * </pre>
      */
     public static final String EVENT_STATE_CHANGED = "state_changed";
-    /**
-     * 正在进行连接时会触发该事件，事件回调没有参数:
-     *
-     * <pre>
-     *    connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
-     *        &#64;Override
-     *        public void call(final Object... args) {
-     *            Log.i(TAG, "正在连接中...");
-     *        }
-     *    });
-     * </pre>
-     */
-    public static final String EVENT_CONNECTING = "connecting";
     /**
      * 准备重新建立连接时会触发该事件，事件回调接收一个参数，类型为 {@code int}, 单位为 <STRONG>秒</STRONG>:
      *
