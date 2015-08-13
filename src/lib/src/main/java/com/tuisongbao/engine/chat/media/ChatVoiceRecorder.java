@@ -17,12 +17,7 @@ import java.util.Date;
  * <STRONG>语音消息帮助类</STRONG>
  *
  * <P>
- *     录制语音并存储到本地。使用 {@link #bind(String, Listener)} 方法可以获取以下事件的回调通知：
- * <UL>
- *     <LI>{@link #EVENT_MAX_DURATION_REACHED}</LI>
- *     <LI>{@link #EVENT_SHORTER_THAN_MIN_DURATION}</LI>
- *     <LI>{@link #EVENT_ERROR}</LI>
- * </UL>
+ *     录制语音并存储到本地。
  */
 public class ChatVoiceRecorder extends EventEmitter {
     private static final String TAG = "TSB" + ChatVoiceRecorder.class.getSimpleName();
@@ -31,32 +26,9 @@ public class ChatVoiceRecorder extends EventEmitter {
      * 当出现错误时会触发该事件，处理方法接收一个回调参数，类型均为 {@code String}，表示错误原因
      */
     public static final String EVENT_ERROR = "chat_recorder:error";
-    /**
-     * 当录音时长不足最小时长时触发该事件，处理方法接收两个回调参数，类型均为 {@code int}，第一个参数表示当前录音时长，第二个参数表示最小时长：
-     *
-     * <pre>
-     *    recorder.bind(ChatVoiceRecorder.EVENT_SHORTER_THAN_MIN_DURATION, new Emitter.Listener() {
-     *        &#64;Override
-     *        public void call(final Object... args) {
-     *            Log.i(TAG, "当前录音时长为 " + args[0] + " 毫秒，小于最小时长 " + args[1] + " 毫秒");
-     *        }
-     *    });
-     * </pre>
-     */
-    public static final String EVENT_SHORTER_THAN_MIN_DURATION = "chat_recorder:durationNotSatisfied";
-    /**
-     * 当超过最大时长限制时触发该事件，处理方法接收一个回调参数，类型为 {@code int}，表示最大时长：
-     *
-     * <pre>
-     *    recorder.bind(ChatVoiceRecorder.EVENT_SHORTER_THAN_MIN_DURATION, new Emitter.Listener() {
-     *        &#64;Override
-     *        public void call(final Object... args) {
-     *            Log.i(TAG, "当前录音超过最大时长 " + args[0] + " 毫秒");
-     *        }
-     *    });
-     * </pre>
-     */
-    public static final String EVENT_MAX_DURATION_REACHED = "chat_recorder:maxDurationReached";
+
+    private static final String EVENT_SHORTER_THAN_MIN_DURATION = "chat_recorder:durationNotSatisfied";
+    private static final String EVENT_MAX_DURATION_REACHED = "chat_recorder:maxDurationReached";
 
     private MediaRecorder mRecorder;
     private String mCurrentVoiceFilePath;
@@ -111,7 +83,6 @@ public class ChatVoiceRecorder extends EventEmitter {
             mStartTime = new Date().getTime();
         } catch (IOException e) {
             trigger(EVENT_ERROR, e.getMessage());
-            LogUtil.error(TAG, e.getMessage());
         }
     }
 
@@ -130,7 +101,6 @@ public class ChatVoiceRecorder extends EventEmitter {
         } catch (Exception e) {
             mRecorder.reset();
             trigger(EVENT_ERROR, e.getMessage());
-            LogUtil.error(TAG, e.getMessage());
         } finally {
             long duration = endTime - mStartTime;
             if (mMinDuration > 0 && duration < mMinDuration) {
@@ -151,10 +121,13 @@ public class ChatVoiceRecorder extends EventEmitter {
         try {
             mRecorder.reset();
             mRecorder.release();
+
+            unbind(EVENT_SHORTER_THAN_MIN_DURATION);
+            unbind(EVENT_MAX_DURATION_REACHED);
+            unbind(EVENT_ERROR);
         } catch (Exception e) {
             mRecorder.reset();
             trigger(EVENT_ERROR, e.getMessage());
-            LogUtil.error(TAG, e.getMessage());
         }
     }
 
@@ -175,25 +148,46 @@ public class ChatVoiceRecorder extends EventEmitter {
             mRecorder.reset();
             trigger(EVENT_ERROR, e.getMessage());
             // FIXME: 15-8-8 stop failed -1007, if the recording time is short.
-            LogUtil.error(TAG, e.getMessage());
         }
     }
 
     /**
-     * 设置最大时长
+     * 设置最大时长以及事件处理方法，该方法接收一个参数，类型为 {@code int}
+     *
+     * <pre>
+     *     new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "录音超过最大时长 " + args[0] + " 毫秒");
+     *        }
+     *    }
+     * </pre>
      *
      * @param duration  时长，单位为 <STRONG>毫秒</STRONG>
+     * @param listener  处理方法
      */
-    public void setMaxDuration(int duration) {
+    public void setMaxDuration(int duration, Listener listener) {
         mMaxDuration = duration;
+        bind(EVENT_MAX_DURATION_REACHED, listener);
     }
 
     /**
-     * 设置最小时长
+     * 设置最小时长以及事件处理方法，该方法接收两个参数，类型均为 {@code int}
+     *
+     * <pre>
+     *     new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "录音时长为 " + args[0] + " 毫秒，小于最小时长 " + args[1] + " 毫秒");
+     *        }
+     *    }
+     * </pre>
      *
      * @param duration 时长，单位为 <STRONG>毫秒</STRONG>
+     * @param listener  处理方法
      */
-    public void setMinDuration(int duration) {
+    public void setMinDuration(int duration, Listener listener) {
         mMinDuration = duration;
+        bind(EVENT_SHORTER_THAN_MIN_DURATION, listener);
     }
 }

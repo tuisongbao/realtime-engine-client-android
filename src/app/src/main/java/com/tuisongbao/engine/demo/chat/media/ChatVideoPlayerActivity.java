@@ -30,7 +30,7 @@ public class ChatVideoPlayerActivity extends Activity {
         final TextView textView = (TextView)findViewById(R.id.video_progress);
 
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, getIntent().getStringExtra("message"));
-        message.downloadVideo(new EngineCallback<String>() {
+        message.getContent().download(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {

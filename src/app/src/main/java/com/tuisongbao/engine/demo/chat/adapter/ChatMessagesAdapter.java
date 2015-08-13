@@ -244,7 +244,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final ChatMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        message.downloadImage(false, new EngineCallback<String>() {
+        message.getContent().downloadThumb(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {
@@ -311,7 +311,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
         };
         imageView.setOnClickListener(listener);
-        message.downloadVideoThumb(new EngineCallback<String>() {
+        message.getContent().downloadThumb(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {

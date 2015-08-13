@@ -74,7 +74,9 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
      * 停止播放
      */
     public void stop() {
-        mMediaPlayer.stop();
+        if (mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+        }
     }
 
     private void stopLastMedia() {
@@ -92,7 +94,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             errorListenerHashMap.put(message, errorListener);
         }
 
-        message.downloadVoice(new EngineCallback<String>() {
+        message.getContent().download(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {

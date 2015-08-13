@@ -329,7 +329,7 @@ public class ChatConversationActivity extends Activity implements
 
             @Override
             public void onScroll(AbsListView arg0, int firstVisibleItem,
-                    int visibleItemCount, int totalItemCount) {
+                                 int visibleItemCount, int totalItemCount) {
                 this.currentFirstVisibleItem = firstVisibleItem;
             }
         });
@@ -338,27 +338,26 @@ public class ChatConversationActivity extends Activity implements
         request();
 
         mRecorder = new ChatVoiceRecorder();
-        mRecorder.setMaxDuration(10 * 1000);
-        mRecorder.setMinDuration(2 * 1000);
-        mRecorder.bind(ChatVoiceRecorder.EVENT_MAX_DURATION_REACHED, new Emitter.Listener() {
+        mRecorder.setMinDuration(2 * 1000, new Emitter.Listener() {
             @Override
-            public void call(Object... args) {
-                onRecordFinished();
-                onRecordStart();
-            }
-        });
-        mRecorder.bind(ChatVoiceRecorder.EVENT_SHORTER_THAN_MIN_DURATION, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
+            public void call(final Object... args) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Recording time is so short!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),
+                                "duration is " + args[0] + ", less then min duration " + args[1], Toast.LENGTH_SHORT).show();
                     }
                 });
             }
         });
-
+        mRecorder.setMaxDuration(10 * 1000, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.w(TAG, "Reach max duration " + args[0] + ", send message automatically");
+                onRecordFinished();
+                onRecordStart();
+            }
+        });
         DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mMessageNewListener);
     }
 
@@ -467,7 +466,6 @@ public class ChatConversationActivity extends Activity implements
 
     @Override
     public void onLoaderReset(Loader<Cursor> arg0) {
-        // TODO Auto-generated method stub
 
     }
 

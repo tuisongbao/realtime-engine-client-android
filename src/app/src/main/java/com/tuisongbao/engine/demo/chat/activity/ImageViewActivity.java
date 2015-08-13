@@ -27,7 +27,7 @@ public class ImageViewActivity extends Activity {
 
         String messageString = getIntent().getStringExtra("message");
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
-        message.downloadImage(true, new EngineCallback<String>() {
+        message.getContent().download(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 runOnUiThread(new Runnable() {

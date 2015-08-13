@@ -160,19 +160,19 @@ public class ChatConversation {
     /**
      * 在会话中发送消息
      *
-     * @param body          消息实体
+     * @param content          消息实体
      * @param callback      结果处理方法
      * @param progressCallback 进度处理方法
      *
      * @return ChatMessage 实例。当为发送图片时，会将缩略图的信息填入，方便开发者刷新页面。
      */
-    public ChatMessage sendMessage(ChatMessageContent body, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
+    public ChatMessage sendMessage(ChatMessageContent content, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         ChatMessage message = new ChatMessage();
-        message.setContent(body)
+        message.setContent(content)
                 .setChatType(type)
                 .setRecipient(target)
                 .setFrom(mEngine.getChatManager().getChatUser().getUserId());
-        message.generateThumbnail(200);
+        content.generateThumbnail(200);
         return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
     }
 

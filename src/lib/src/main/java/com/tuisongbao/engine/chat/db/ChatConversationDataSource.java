@@ -126,11 +126,6 @@ public class ChatConversationDataSource {
      * @param message
      */
     public void upsertMessage(String userId, final ChatMessage message) {
-        if (updateMessage(message) > 0) {
-            // This message exists, there must be have a conversation related with this message. so return.
-            return;
-        }
-
         // This message exists, but the new message has not something new to update.
         if (isMessageExist(message)) {
             return;
@@ -235,32 +230,20 @@ public class ChatConversationDataSource {
         removeMessages(userId, type, target);
     }
 
-    /***
-     * Only used for updating the localpath field
-     *
-     * @param message
-     * @return the rows effected
-     */
-    public int updateMessage(ChatMessage message) {
-        String uniqueMessageId = generateUniqueMessageId(message);
-        String whereClause = ChatMessageSQLiteHelper.COLUMN_ID + " = ?";
-
-        ContentValues values = new ContentValues();
-        ChatMessageContent content = message.getContent();
-        if (content != null && isMediaMessage(message)) {
-            ChatMessageFileContent file = content.getFile();
-            String originalPath = file.getFilePath();
-            String thumbnailPath = file.getThumbnailPath();
-            if (!StrUtils.isEmpty(originalPath)) {
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH, originalPath);
-            }
-            if (!StrUtils.isEmpty(thumbnailPath)) {
-                values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, thumbnailPath);
-            }
+    public int updateMessageFilePath(boolean isOriginal, String url, String filePath) {
+        String urlColumn;
+        String filePathColumn;
+        if (isOriginal) {
+            urlColumn = ChatMessageSQLiteHelper.COLUMN_FILE_URL;
+            filePathColumn = ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH;
+        } else {
+            urlColumn = ChatMessageSQLiteHelper.COLUMN_FILE_THUMB_URL;
+            filePathColumn = ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH;
         }
-        values.put(ChatMessageSQLiteHelper.COLUMN_CREATED_AT, message.getCreatedAt());
-
-        return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ uniqueMessageId });
+        String whereClause = urlColumn + " = ?";
+        ContentValues values = new ContentValues();
+        values.put(filePathColumn, filePath);
+        return messageDB.update(TABLE_MESSAGE, values, whereClause, new String[]{ url });
     }
 
     public void deleteAllData() {

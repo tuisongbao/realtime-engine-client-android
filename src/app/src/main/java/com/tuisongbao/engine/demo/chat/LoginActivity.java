@@ -47,7 +47,7 @@ public class LoginActivity extends Activity {
 
                 @Override
                 public void run() {
-                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -95,7 +95,7 @@ public class LoginActivity extends Activity {
 
     private boolean validate() {
         if (StrUtils.isEmpty(mEditTextAccount.getText().toString())) {
-            Toast.makeText(this, "用户名不能为空", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "用户名不能为空", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -127,8 +127,8 @@ public class LoginActivity extends Activity {
                     @Override
                     public void run() {
                         Connection.State state = (Connection.State)args[0];
-                        Log.i(TAG, "Connecting state: " + state.toString());
-                        Toast.makeText(context, "Connecting state: " + state.toString(), Toast.LENGTH_LONG).show();
+                        Log.i(TAG, "Connection state: " + state.toString());
+                        Toast.makeText(context, "Connecting state: " + state.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -148,18 +148,6 @@ public class LoginActivity extends Activity {
                     @Override
                     public void run() {
                         Toast.makeText(context, "Connecting in " + args[0] + " seconds", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
-        connection.bind(Connection.EVENT_CONNECTING, new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                Log.i(TAG, "Connecting...");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "Connecting...", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

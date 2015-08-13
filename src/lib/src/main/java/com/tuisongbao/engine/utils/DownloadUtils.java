@@ -60,9 +60,9 @@ public class DownloadUtils {
             , final ProgressCallback progressCallback) {
         try {
             URL url = new URL(urlString);
-            URLConnection conexion = url.openConnection();
-            conexion.connect();
-            int lenghtOfFile = conexion.getContentLength();
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            int lenghtOfFile = connection.getContentLength();
             InputStream is = url.openStream();
             File outputFile = getOutputFile(outputFileName, folder);
             FileOutputStream fos = new FileOutputStream(outputFile);
@@ -88,6 +88,9 @@ public class DownloadUtils {
             callback.onSuccess(filePath);
         } catch (Exception e) {
             LogUtil.error(TAG, e);
+            ResponseError error = new ResponseError();
+            error.setMessage("Downloading resource failed " + e.getMessage());
+            callback.onError(error);
         }
     }
 

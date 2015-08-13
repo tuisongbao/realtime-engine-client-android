@@ -1,37 +1,23 @@
 package com.tuisongbao.engine.chat.message.entity;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.callback.EngineCallback;
-import com.tuisongbao.engine.common.callback.ProgressCallback;
-import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
-import com.tuisongbao.engine.utils.DownloadUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Date;
 
 /**
  * <STRONG>Chat 消息</STRONG>
  *
  * <UL>
- *     <LI>提供了多媒体消息的资源下载 {@link #downloadingOriginal}</LI>
+ *     <LI></LI>
  *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
  *     <LI>可以在 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 中直接播放语音类型的消息</LI>
  * </UL>
@@ -49,10 +35,7 @@ public class ChatMessage {
     private ChatMessageContent content;
     private String createdAt;
 
-    transient private ChatManager mChatManager;
     transient private Engine mEngine;
-    transient private boolean downloadingThumbnail = false;
-    transient private boolean downloadingOriginal = false;
 
     public ChatMessage() {
     }
@@ -79,8 +62,8 @@ public class ChatMessage {
      */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
-        message.mEngine = engine;
-        message.mChatManager = engine.getChatManager();
+        message.content = new ChatMessageContent();
+        message.setEngine(engine);
 
         return message;
     }
@@ -96,7 +79,6 @@ public class ChatMessage {
 
     public void setEngine(Engine engine) {
         this.mEngine = engine;
-        mChatManager = engine.getChatManager();
     }
 
     /**
@@ -185,6 +167,10 @@ public class ChatMessage {
      * @return 消息内容
      */
     public ChatMessageContent getContent() {
+        if (content == null) {
+            content = new ChatMessageContent();
+        }
+        content.setEngine(mEngine);
         return content;
     }
 
@@ -260,198 +246,9 @@ public class ChatMessage {
         }
     }
 
-    /**
-     * 下载图片并存储在本地
-     *
-     * <P>
-     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
-     *
-     * @param isOriginal {@code true} 表示下载原图; {@code false} 表示下载缩略图
-     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
-     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
-     */
-    public void downloadImage(boolean isOriginal, final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
-        downloadResource(isOriginal, filePathCallback, progressCallback);
-    }
-
-    /**
-     * 下载语音并存储在本地
-     *
-     * <P>
-     *     可以直接使用 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 播放推送宝的语音消息，其中包含了下载。
-     *
-     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
-     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
-     */
-    public void downloadVoice(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
-        downloadResource(true, filePathCallback, progressCallback);
-    }
-
-    /**
-     * 下载视频首帧缩略图
-     *
-     * <P>
-     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
-     *
-     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
-     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
-     */
-    public void downloadVideoThumb(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
-        downloadResource(false, filePathCallback, progressCallback);
-    }
-
-    /**
-     * 下载视频
-     *
-     * <P>
-     *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测图片路径是否有效，路径不存在时会重新下载。
-     *
-     * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
-     * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
-     */
-    public void downloadVideo(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
-        downloadResource(true, filePathCallback, progressCallback);
-    }
-
-    public boolean generateThumbnail(int maxWidth) {
-        if (getContent().getType() != TYPE.IMAGE) {
-            return false;
-        }
-
-        String thumbnailPath = getContent().getFile().getThumbnailPath();
-        if (isFileExists(thumbnailPath)) {
-            return false;
-        }
-
-        // Create thumbnail bitmap
-        String filePath = getContent().getFile().getFilePath();
-        Bitmap image = BitmapFactory.decodeFile(filePath);
-        float bitmapRatio = (float)image.getWidth() / (float) image.getHeight();
-
-        int width = Math.min(image.getWidth(), maxWidth);
-        int height = (int) (width / bitmapRatio);
-        Bitmap thumbnail = Bitmap.createScaledBitmap(image, width, height, true);
-
-        // Save thumbnail
-        String fileName = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
-        FileOutputStream out = null;
-        try {
-            File file = DownloadUtils.getOutputFile(fileName, getContent().getType().getName());
-            out = new FileOutputStream(file.getAbsolutePath());
-            thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
-
-            // Update thumbnail path in message
-            getContent().getFile().setThumbnailPath(file.getAbsolutePath());
-            return true;
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                LogUtil.error(TAG, e);
-            }
-        }
-        return false;
-    }
-
-    private ResponseError permissionCheck() {
-        if (!isMediaMessage()) {
-            ResponseError error = new ResponseError();
-            error.setMessage("No resource to download, this is not a media message.");
-            return error;
-        }
-        return null;
-    }
-
-    private boolean isFileExists(String filePath) {
-        if (StrUtils.isEmpty(filePath)) {
-            return false;
-        }
-        File fileTest = new File(filePath);
-        if (!fileTest.exists()) {
-            LogUtil.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
-            return false;
-        }
-        return true;
-    }
-
-    private void downloadResource(final boolean isOriginal, final EngineCallback callback, final ProgressCallback progressCallback) {
-        ResponseError error = permissionCheck();
-        if (error != null) {
-            callback.onError(error);
-            return;
-        }
-
-        String filePath;
-        String downloadUrl;
-        final boolean isDownloading;
-        ChatMessageFileContent file = getContent().getFile();
-        if (isOriginal) {
-            filePath = file.getFilePath();
-            downloadUrl = file.getUrl();
-            isDownloading = downloadingOriginal;
-        } else {
-            filePath = file.getThumbnailPath();
-            downloadUrl = file.getThumbUrl();
-            isDownloading = downloadingThumbnail;
-        }
-
-        if (isDownloading) {
-            return;
-        }
-
-        if (isFileExists(filePath)) {
-            callback.onSuccess(filePath);
-            return;
-        }
-
-        TYPE type = content.getType();
-        // Download thumbnail of video
-        if (content.getType() == TYPE.VIDEO && !isOriginal) {
-            type = TYPE.IMAGE;
-        }
-        DownloadUtils.downloadResourceIntoLocal(downloadUrl, type, new EngineCallback<String>() {
-
-            @Override
-            public void onSuccess(String filePath) {
-                updateFilePath(isOriginal, filePath);
-                callback.onSuccess(filePath);
-            }
-
-            @Override
-            public void onError(ResponseError error) {
-                callback.onError(error);
-            }
-        }, progressCallback);
-    }
-
     @Override
     public String toString() {
         return String.format("ChatMessage[messageId: %s, from: %s, to: %s, chatType: %s, content: %s, createdAt: %s]"
                 , messageId, from, to, type.getName(), content.toString(), createdAt);
-    }
-
-    private void updateFilePath(boolean isOriginal, String filePath) {
-        if (isOriginal) {
-            downloadingOriginal = false;
-            content.getFile().setFilePath(filePath);
-        } else {
-            downloadingThumbnail = false;
-            content.getFile().setThumbnailPath(filePath);
-        }
-        if (mChatManager.isCacheEnabled()) {
-            ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), mEngine);
-            dataSource.open();
-            dataSource.updateMessage(this);
-            dataSource.close();
-        }
-    }
-
-    private boolean isMediaMessage() {
-        TYPE contentType = getContent().getType();
-        return contentType == TYPE.IMAGE || contentType == TYPE.VOICE || contentType == TYPE.VIDEO;
     }
 }
