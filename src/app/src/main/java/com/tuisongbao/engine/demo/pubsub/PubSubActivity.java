@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.channel.Channel;
+import com.tuisongbao.engine.channel.PresenceChannel;
+import com.tuisongbao.engine.channel.entity.User;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 
@@ -58,14 +60,14 @@ public class PubSubActivity extends Activity {
                     return;
                 }
                 Channel channel = DemoApplication.getChannelManager().subscribe(channelName, authData);
-                channel.bind("engine:subscription_succeeded", new Emitter.Listener() {
+                channel.bind(Channel.EVENT_SUBSCRIPTION_SUCCESS, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         String data = args[0].toString();
                         Log.i(TAG, "Get " + data);
                     }
                 });
-                channel.bind("engine:subscription_error", new Emitter.Listener() {
+                channel.bind(Channel.EVENT_SUBSCRIPTION_ERROR, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
                         String message = args[0].toString();
@@ -82,6 +84,22 @@ public class PubSubActivity extends Activity {
                 };
                 channel.bind("cool-event", listener);
                 channel.unbind("cool-event", listener);
+
+                Channel presenceChannel = DemoApplication.getChannelManager().subscribe("presence-" + channelName, authData);
+                presenceChannel.bind(PresenceChannel.EVENT_USER_ADDED, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        User user = (User)args[0];
+                        Log.i(TAG, user.getId() + " add, " + user.getInfo());
+                    }
+                });
+                presenceChannel.bind(PresenceChannel.EVENT_USER_REMOVED, new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        User user = (User)args[0];
+                        Log.i(TAG, user.getId() + " removed, " + user.getInfo());
+                    }
+                });
             }
         });
 

@@ -18,11 +18,31 @@ import org.json.JSONException;
  *     使用 {@link #bind(String, Listener)} 方法可以获取以下事件的回调通知：
  *
  * <UL>
- *     <LI>{@code engine:subscription_succeeded}</LI>
- *     <LI>{@code engine:subscription_error}</LI>
+ *     <LI>{@link #EVENT_SUBSCRIPTION_SUCCESS}</LI>
+ *     <LI>{@link #EVENT_SUBSCRIPTION_ERROR}</LI>
  * </UL>
  */
 public class Channel extends EventEmitter {
+    /**
+     * 订阅 Channel 成功时会触发该事件，对于普通 Channel，事件回调没有参数；
+     * 对于 {@link PresenceChannel}，事件回调接收一个参数，类型为 {@code List<OnlineUser>}：
+     *
+     * <pre>
+     *    connection.bind(Channel.EVENT_SUBSCRIPTION_SUCCESS, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            List&lt;OnlineUser&gt; onlineUsers = (List)args[0];
+     *            Log.i(TAG, "当前在线用户有 " + onlineUsers.size() + " 个");
+     *        }
+     *    });
+     * </pre>
+     */
+    public static final String EVENT_SUBSCRIPTION_SUCCESS = "engine:subscription_succeeded";
+    /**
+     * 订阅 Channel 失败时会触发该事件，事件回调接收一个参数，类型为 {@code String}，表明失败原因
+     */
+    public static final String EVENT_SUBSCRIPTION_ERROR = "engine:subscription_error";
+
     private static final String TAG = "TSB" + Channel.class.getSimpleName();
 
     protected Engine engine;

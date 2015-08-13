@@ -1,7 +1,10 @@
 package com.tuisongbao.engine.channel;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.channel.entity.OnlineUser;
 import com.tuisongbao.engine.channel.entity.User;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
@@ -11,6 +14,7 @@ import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,7 +41,7 @@ public final class ChannelManager extends BaseManager {
 
                 if (channel != null) {
                     String message = event.getData().getAsJsonObject().get("message").getAsString();
-                    channel.trigger(trimInternalSign(Protocol.CHANNEL_EVENT_SUBSCRIPTION_ERROR), message);
+                    channel.trigger(Channel.EVENT_SUBSCRIPTION_ERROR, message);
 
                     mChannelMap.remove(channelName);
                 }
@@ -51,8 +55,16 @@ public final class ChannelManager extends BaseManager {
                 String channelName = event.getChannel();
                 Channel channel = mChannelMap.get(channelName);
 
-                if (channel != null) {
-                    channel.trigger(trimInternalSign(Protocol.CHANNEL_EVENT_SUBSCRIPTION_SUCCESS), event.getData());
+                if (channel == null) {
+                    return;
+                }
+                JsonElement data = event.getData();
+                if (isPresenceChannel(channel.getName())) {
+                    List<OnlineUser> onlineUsers = new Gson().fromJson(data,
+                            new TypeToken<List<OnlineUser>>(){}.getType());
+                    channel.trigger(Channel.EVENT_SUBSCRIPTION_SUCCESS, onlineUsers);
+                } else {
+                    channel.trigger(Channel.EVENT_SUBSCRIPTION_SUCCESS);
                 }
             }
         });

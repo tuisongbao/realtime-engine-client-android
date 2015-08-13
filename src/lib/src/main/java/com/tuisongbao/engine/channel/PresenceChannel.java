@@ -22,6 +22,15 @@ import org.json.JSONObject;
  * </UL>
  */
 public class PresenceChannel extends PrivateChannel {
+    /**
+     * 用户上线时会触发该事件，事件回调有一个参数，类型为 {@link com.tuisongbao.engine.channel.entity.User}；
+     */
+    public static final String EVENT_USER_ADDED = "engine:user_added";
+    /**
+     * 用户下线时会触发该事件，事件回调有一个参数，类型为 {@link com.tuisongbao.engine.channel.entity.User}；
+     */
+    public static final String EVENT_USER_REMOVED = "engine:user_removed";
+
     private String channelData;
     private String authData;
 

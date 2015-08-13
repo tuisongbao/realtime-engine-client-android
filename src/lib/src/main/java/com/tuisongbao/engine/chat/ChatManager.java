@@ -15,7 +15,6 @@ import com.tuisongbao.engine.chat.user.event.handler.ChatUserPresenceChangedEven
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.EngineCallback;
-import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
@@ -39,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *     推送宝 {@link Engine} 中，Chat 模块的管理类。
  *     可通过调用 {@link Engine#getChatManager()} 获得该实例。
  *     创建并管理 {@link ChatGroupManager}, {@link ChatMessageManager} 和 {@link ChatConversationManager}。
- *     通过该类 {@link #login(String)} 和 {@link #logout()}。
+ *     通过该类 {@link #login(String)} 和 {@link #logout(EngineCallback)}。
  *     在用户已登录的情况下，使用 {@link #bind(String, Listener)} 方法可以获取以下事件的回调通知：
  *
  * <UL>
