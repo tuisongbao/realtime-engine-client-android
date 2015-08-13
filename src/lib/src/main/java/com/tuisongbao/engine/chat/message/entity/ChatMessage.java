@@ -62,7 +62,6 @@ public class ChatMessage {
      */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
-        message.content = new ChatMessageContent();
         message.setEngine(engine);
 
         return message;

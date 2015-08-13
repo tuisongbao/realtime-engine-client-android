@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatGroupManager extends BaseManager {
+public final class ChatGroupManager extends BaseManager {
     private static final String TAG = "TSB" + ChatGroupManager.class.getSimpleName();
 
     private ChatGroupDataSource dataSource;

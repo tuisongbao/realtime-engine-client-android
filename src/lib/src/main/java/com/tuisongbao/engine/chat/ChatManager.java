@@ -15,7 +15,10 @@ import com.tuisongbao.engine.chat.user.event.handler.ChatUserPresenceChangedEven
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseError;
+import com.tuisongbao.engine.common.event.BaseEvent;
+import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
@@ -25,6 +28,9 @@ import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <STRONG>Chat 管理类</STRONG>
@@ -45,7 +51,7 @@ import org.json.JSONObject;
  *
  * @author Katherine Zhu
  */
-public class ChatManager extends BaseManager {
+public final class ChatManager extends BaseManager {
     /**
      * 有新消息时触发该事件，事件回调接收一个参数，类型为 {@link com.tuisongbao.engine.chat.message.entity.ChatMessage}
      */
@@ -73,6 +79,18 @@ public class ChatManager extends BaseManager {
     private boolean mIsCacheEnabled = true;
     private String mUserData;
     private EngineCallback mAuthCallback;
+
+    private Thread retryEventsThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
+            while (events.hasNext()) {
+                BaseEvent event = events.next();
+                BaseEventHandler handler = pendingEvents.get(event);
+                send(event, handler);
+            }
+        }
+    });
 
     public ChatManager(Engine engine) {
         super(engine);
@@ -139,8 +157,10 @@ public class ChatManager extends BaseManager {
 
     /**
      * 退出登录，并解绑所有挂载在 ChatManager 上的事件处理方法。
+     *
+     * @param callback 处理方法
      */
-    public void logout() {
+    public void logout(EngineCallback<String> callback) {
         try {
             if (!hasLogin()) {
                 return;
@@ -148,8 +168,10 @@ public class ChatManager extends BaseManager {
             onLogout();
             ChatLogoutEvent event = new ChatLogoutEvent();
             send(event, null);
+            callback.onSuccess("OK");
         } catch (Exception e) {
             LogUtil.error(TAG, e);
+            callback.onError(engine.getUnhandledResponseError());
         }
     }
 
@@ -187,6 +209,28 @@ public class ChatManager extends BaseManager {
         return mChatUser != null;
     }
 
+    public void onLoginFailed(ResponseError error) {
+        mAuthCallback = null;
+
+        trigger(EVENT_LOGIN_FAILED, error);
+    }
+
+    public void onLogout() {
+        mChatUser = null;
+
+        mUserData = null;
+        mAuthCallback = null;
+
+        unbind(Protocol.EVENT_NAME_MESSAGE_NEW);
+        unbind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE);
+
+        unbind(EVENT_MESSAGE_NEW);
+        unbind(EVENT_PRESENCE_CHANGED);
+
+        groupManager = null;
+        conversationManager = null;
+    }
+
     /**
      * 获取 {@link com.tuisongbao.engine.chat.conversation.entity.ChatConversation} 的管理类，同一个 ChatManager 上返回的是同一个引用
      *
@@ -209,6 +253,67 @@ public class ChatManager extends BaseManager {
         return messageManager;
     }
 
+    /**
+     * 如果发送 Event 不成功，会一直尝试。切换用户之后 {@link #login(String)}，会将所有还未发送成功的 Event 清空。
+     *
+     * @param event
+     * @param handler
+     * @return
+     */
+    @Override
+    public boolean send(BaseEvent event, BaseEventHandler handler) {
+        try {
+            boolean sent = super.send(event, handler);
+            if (!sent) {
+                addFailedEvent(event, handler);
+            } else {
+                // Pull event out from pendingEvents
+                pendingEvents.remove(event, handler);
+            }
+        } catch (Exception e1) {
+            addFailedEvent(event, handler);
+        }
+        return true;
+    }
+
+    private void addFailedEvent(BaseEvent event, BaseEventHandler handler) {
+        LogUtil.error(TAG, "Failed to send event " + event.getName());
+
+        // Avoid duplicated put
+        if (pendingEvents.get(event) == null) {
+            backoffGap = 0;
+            pendingEvents.put(event, handler);
+        }
+        try {
+            retryEventsThread.sleep(backoffGap);
+            retryEventsThread.start();
+            backoffGap = Math.min(backoffGapMax, backoffGap * 2);
+        } catch (Exception e2) {
+            LogUtil.error(TAG, e2);
+        }
+    }
+
+    protected void failedAllPendingEvents() {
+        try {
+            retryEventsThread.interrupt();
+
+            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
+            while (events.hasNext()) {
+                BaseEvent event = events.next();
+                BaseEventHandler handler = pendingEvents.get(event);
+                ResponseError error = new ResponseError();
+                error.setMessage("Network issue, request failed");
+                // TODO: 15-8-13 How??
+//                handler.getCallback().onError(error);
+            }
+
+            pendingEvents = new ConcurrentHashMap<>();
+            backoffGap = 1;
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+        }
+    }
+
     @Override
     protected void connected() {
         super.connected();
@@ -217,6 +322,12 @@ public class ChatManager extends BaseManager {
             // Auto login if connection is available.
             auth(mUserData, mAuthCallback);
         }
+    }
+
+    @Override
+    protected void disconnected() {
+        super.disconnected();
+        failedAllPendingEvents();
     }
 
     private JSONObject getAuthParams(String userData) {
@@ -273,27 +384,5 @@ public class ChatManager extends BaseManager {
         bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler(engine));
 
         trigger(EVENT_LOGIN_SUCCEEDED, mChatUser);
-    }
-
-    public void onLoginFailed(ResponseError error) {
-        mAuthCallback = null;
-
-        trigger(EVENT_LOGIN_FAILED, error);
-    }
-
-    public void onLogout() {
-        mChatUser = null;
-
-        mUserData = null;
-        mAuthCallback = null;
-
-        unbind(Protocol.EVENT_NAME_MESSAGE_NEW);
-        unbind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE);
-
-        unbind(EVENT_MESSAGE_NEW);
-        unbind(EVENT_PRESENCE_CHANGED);
-
-        groupManager = null;
-        conversationManager = null;
     }
 }

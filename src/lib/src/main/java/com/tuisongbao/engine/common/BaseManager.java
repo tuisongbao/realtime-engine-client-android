@@ -7,7 +7,6 @@ import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,17 +14,6 @@ public class BaseManager extends EventEmitter {
     public static Engine engine;
 
     protected ConcurrentMap<BaseEvent, BaseEventHandler> pendingEvents = new ConcurrentHashMap<>();
-    protected Thread retryEventsThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
-            while (events.hasNext()) {
-                BaseEvent event = events.next();
-                BaseEventHandler handler = pendingEvents.get(event);
-                send(event, handler);
-            }
-        }
-    });
     protected int backoffGap = 1;
     protected final int backoffGapMax = 10 * 1000;
 
@@ -57,18 +45,6 @@ public class BaseManager extends EventEmitter {
             }
         } catch (Exception e1) {
             LogUtil.error(TAG, "Failed to send event " + event.getName());
-
-            if (pendingEvents.get(event) == null) {
-                backoffGap = 0;
-                pendingEvents.put(event, handler);
-            }
-            try {
-                retryEventsThread.sleep(backoffGap);
-                retryEventsThread.start();
-                backoffGap = Math.min(backoffGapMax, backoffGap * 2);
-            } catch (Exception e2) {
-                LogUtil.error(TAG, e2);
-            }
             return false;
         }
         return true;
@@ -80,24 +56,5 @@ public class BaseManager extends EventEmitter {
 
     protected void disconnected() {
         LogUtil.info(TAG, "Disconnected");
-        failedAllPendingEvents();
-    }
-
-    protected void failedAllPendingEvents() {
-        try {
-            retryEventsThread.interrupt();
-
-            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
-            while (events.hasNext()) {
-                BaseEvent event = events.next();
-                BaseEventHandler handler = pendingEvents.get(event);
-                handler.getCallback().onError(null);
-            }
-
-            pendingEvents = new ConcurrentHashMap<>();
-            backoffGap = 1;
-        } catch (Exception e) {
-            LogUtil.error(TAG, e);
-        }
     }
 }

@@ -32,7 +32,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatConversationManager extends BaseManager {
+public final class ChatConversationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
 
     private ChatManager mChatManager;

@@ -220,6 +220,9 @@ public class ChatMessageContent {
         }
 
         if (isDownloading) {
+            error = new ResponseError();
+            error.setMessage("Download is in process...");
+            callback.onError(error);
             return;
         }
 

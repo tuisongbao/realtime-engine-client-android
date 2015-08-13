@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.LoginActivity;
@@ -38,8 +40,23 @@ public class ChatSettingsFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                DemoApplication.engine.getChatManager().logout();
-                Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
+                DemoApplication.engine.getChatManager().logout(new EngineCallback<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getActivity(), "登出成功", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(ResponseError error) {
+
+                    }
+                });
+
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
                 LoginCache.clear();

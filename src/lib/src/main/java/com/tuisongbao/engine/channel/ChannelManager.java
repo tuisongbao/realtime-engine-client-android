@@ -21,7 +21,7 @@ import java.util.Map;
  *     可通过调用 {@link Engine#getChannelManager()} 获得该实例。
  *     网络掉线后，当网络再次可用时，会重新 {@link #subscribe(String, String)} 所有已经订阅成功的 {@code Channel}。
  */
-public class ChannelManager extends BaseManager {
+public final class ChannelManager extends BaseManager {
     private static final String TAG = "TSB" + ChannelManager.class.getSimpleName();
 
     private Map<String, Channel> mChannelMap = new HashMap<>();
