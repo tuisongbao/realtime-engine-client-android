@@ -220,9 +220,10 @@ public class ChatMessage {
         VOICE("voice"),
         VIDEO("video"),
         EVENT("event"),
-        LOCATION("location");
+        LOCATION("location"),
+        UNKNOWN("unknown");
 
-        private String name;
+        private final String name;
 
         TYPE(String name) {
             this.name = name;
@@ -234,14 +235,13 @@ public class ChatMessage {
 
         public static TYPE getType(String name) {
             if (!StrUtils.isEmpty(name)) {
-                TYPE[] types = values();
-                for (TYPE type : types) {
+                for (TYPE type : values()) {
                     if (type.getName().equals(name)) {
                         return type;
                     }
                 }
             }
-            return null;
+            return UNKNOWN;
         }
     }
 

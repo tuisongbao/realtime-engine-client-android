@@ -35,7 +35,7 @@ import java.util.List;
 public final class ChatConversationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
 
-    private ChatManager mChatManager;
+    private final ChatManager mChatManager;
     private ChatConversationDataSource dataSource;
 
     public ChatConversationManager(Engine engine) {

@@ -11,8 +11,8 @@ package com.tuisongbao.engine;
  * @author Katherine Zhu
  */
 public class EngineOptions {
-    private String mEngineAppId;
-    private String mAuthEndPoint;
+    private final String mEngineAppId;
+    private final String mAuthEndPoint;
 
     /**
      * 初始化配置

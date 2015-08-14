@@ -55,14 +55,11 @@ public class DemoApplication extends Application {
 
     private String getProcessName(int pid) {
         String processName = null;
-        ActivityManager am = (ActivityManager) this
-                .getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> l = am
-                .getRunningAppProcesses();
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> l = am.getRunningAppProcesses();
         Iterator<ActivityManager.RunningAppProcessInfo> i = l.iterator();
         while (i.hasNext()) {
-            ActivityManager.RunningAppProcessInfo info = (i
-                    .next());
+            ActivityManager.RunningAppProcessInfo info = (i.next());
             try {
                 if (info.pid == pid) {
                     processName = info.processName;

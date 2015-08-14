@@ -35,7 +35,7 @@ public final class ChatGroupManager extends BaseManager {
     private static final String TAG = "TSB" + ChatGroupManager.class.getSimpleName();
 
     private ChatGroupDataSource dataSource;
-    private ChatManager mChatManager;
+    private final ChatManager mChatManager;
 
     public ChatGroupManager(Engine engine) {
         mChatManager = engine.getChatManager();

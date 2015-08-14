@@ -26,8 +26,8 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
     private static MediaPlayer mMediaPlayer;
     private static ChatVoicePlayer mInstance;
     private ChatMessage currentPlayingMessage;
-    HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<>();
-    HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<>();
+    private final HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<>();
+    private final HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<>();
 
     public interface OnStopListener {
         void onStop();
@@ -37,7 +37,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
         void onError(String error);
     }
 
-    public ChatVoicePlayer() {
+    private ChatVoicePlayer() {
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }

@@ -79,7 +79,7 @@ public final class ChatManager extends BaseManager {
     private String mUserData;
     private EngineCallback mAuthCallback;
 
-    private Thread retryEventsThread = new Thread(new Runnable() {
+    private final Thread retryEventsThread = new Thread(new Runnable() {
         @Override
         public void run() {
             Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
@@ -214,7 +214,7 @@ public final class ChatManager extends BaseManager {
         trigger(EVENT_LOGIN_FAILED, error);
     }
 
-    public void onLogout() {
+    private void onLogout() {
         mChatUser = null;
 
         mUserData = null;
@@ -292,7 +292,7 @@ public final class ChatManager extends BaseManager {
         }
     }
 
-    protected void failedAllPendingEvents() {
+    private void failedAllPendingEvents() {
         try {
             retryEventsThread.interrupt();
 
@@ -346,6 +346,7 @@ public final class ChatManager extends BaseManager {
     private void auth(final String userData, final EngineCallback callback) {
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void run() {
                 String authRequestData = getAuthParams(userData).toString();

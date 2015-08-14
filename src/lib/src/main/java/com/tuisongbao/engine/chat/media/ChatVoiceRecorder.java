@@ -25,12 +25,13 @@ public class ChatVoiceRecorder extends EventEmitter {
     /**
      * 当出现错误时会触发该事件，处理方法接收一个回调参数，类型均为 {@code String}，表示错误原因
      */
+    @SuppressWarnings("WeakerAccess")
     public static final String EVENT_ERROR = "chat_recorder:error";
 
     private static final String EVENT_SHORTER_THAN_MIN_DURATION = "chat_recorder:durationNotSatisfied";
     private static final String EVENT_MAX_DURATION_REACHED = "chat_recorder:maxDurationReached";
 
-    private MediaRecorder mRecorder;
+    private final MediaRecorder mRecorder;
     private String mCurrentVoiceFilePath;
     private int mMaxDuration = -1; // in millisecond
     private int mMinDuration = 2 * 1000; // in millisecond

@@ -8,7 +8,8 @@ public class ChatMessageEventContent {
 
         GroupJoined("group:joined"),
         GroupRemoved("group:removed"),
-        GroupDismissed("group:dismissed");
+        GroupDismissed("group:dismissed"),
+        Unknown("unknown");
 
         private String name;
 
@@ -29,7 +30,7 @@ public class ChatMessageEventContent {
                     }
                 }
             }
-            return null;
+            return Unknown;
         }
     }
 

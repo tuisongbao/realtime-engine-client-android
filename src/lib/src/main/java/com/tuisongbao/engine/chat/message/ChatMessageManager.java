@@ -26,9 +26,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by root on 15-8-3.
- */
 public class ChatMessageManager extends BaseManager {
     private static final String TAG = "TSB" + ChatMessageManager.class.getSimpleName();
 

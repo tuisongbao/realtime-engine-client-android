@@ -29,7 +29,6 @@ public final class Engine {
     private ChatManager chatManager;
     private ChannelManager channelManager;
     private EngineDataSink sink;
-    private EnginePipeline pipeline = new EnginePipeline();
 
     private static Context mApplicationContext = null;
     private EngineOptions mEngineOptions;
@@ -53,6 +52,7 @@ public final class Engine {
 
             connection = new AutoReconnectConnection(this);
             sink = new EngineDataSink(this);
+            EnginePipeline pipeline = new EnginePipeline();
             pipeline.addSource(connection);
             pipeline.addSink(sink);
 
@@ -60,7 +60,6 @@ public final class Engine {
                 LogUtil.warn(TAG
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 channelManager = new ChannelManager(this);
-                return;
             } else {
                 LogUtil.info(TAG,
                         "Successfully load configurations for engine.");

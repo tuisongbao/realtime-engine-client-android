@@ -64,8 +64,7 @@ public class ChatConversation {
      * @return  JSON 格式的 {@code String}
      */
     public String serialize() {
-        String stream = getSerializer().toJson(this);
-        return stream;
+        return getSerializer().toJson(this);
     }
 
     public ChatType getType() {
