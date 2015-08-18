@@ -10,7 +10,7 @@ import com.qiniu.android.storage.UploadOptions;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.chat.message.event.handler.ChatMessageSendEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
@@ -126,7 +126,7 @@ public class ChatMessageManager extends BaseManager {
             @Override
             public void onSuccess(JSONObject responseObject) {
                 ChatMessageContent content = message.getContent();
-                ChatMessageFileContent file = message.getContent().getFile();
+                ChatMessageFileEntity file = message.getContent().getFile();
                 try {
                     file.setKey(responseObject.getString("key"));
                 } catch (Exception e) {

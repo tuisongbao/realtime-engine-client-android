@@ -35,9 +35,13 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String COLUMN_FILE_WIDTH = "width";
     public static final String COLUMN_FILE_HEIGHT = "height";
     /**
-     * video's duration
+     * video and voice' duration
      */
     public static final String COLUMN_FILE_DURATION = "duration";
+    /**
+     * location
+     */
+    public static final String COLUMN_LOCATION = "location";
     /**
      * event
      */
@@ -74,6 +78,8 @@ public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
             + COLUMN_FILE_WIDTH + " integer, "
             + COLUMN_FILE_HEIGHT + " integer, "
             + COLUMN_FILE_DURATION + " double, "
+
+            + COLUMN_LOCATION + " text,"
 
             + COLUMN_EVENT_TYPE + " text, "
             + COLUMN_EVENT_TARGET + " text, "

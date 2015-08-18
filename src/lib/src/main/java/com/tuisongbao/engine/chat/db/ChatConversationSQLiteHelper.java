@@ -10,7 +10,7 @@ public class ChatConversationSQLiteHelper extends ChatBaseSQLiteHelper {
 
     private static final String TAG = "TSB" + ChatConversationSQLiteHelper.class.getSimpleName();
     private static final String DATABASE_NAME = "chatConversation.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String COLUMN_ID = "_id";
 
     public static final String COLUMN_USER_ID = "userId";

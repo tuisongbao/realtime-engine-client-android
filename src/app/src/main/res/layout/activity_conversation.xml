@@ -73,6 +73,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/photo" />
+
+            <Button
+                android:id="@+id/conversation_message_create_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/location" />
         </LinearLayout>
     </LinearLayout>
 

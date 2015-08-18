@@ -23,5 +23,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.github.nkzawa:engine.io-client:0.5.1'
     compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.qiniu:qiniu-android-sdk:7.0.+'
+    compile 'com.qiniu:qiniu-android-sdk:7.0.7.1'
 }

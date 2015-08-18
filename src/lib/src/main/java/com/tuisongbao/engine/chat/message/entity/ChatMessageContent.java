@@ -8,8 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -35,8 +36,9 @@ public class ChatMessageContent {
 
     private ChatMessage.TYPE type;
     private String text;
-    private ChatMessageFileContent file;
-    private ChatMessageEventContent event;
+    private ChatMessageFileEntity file;
+    private ChatMessageEventEntity event;
+    private ChatMessageLocationEntity location;
     private JsonObject extra;
 
     transient private boolean downloadingThumbnail = false;
@@ -59,13 +61,13 @@ public class ChatMessageContent {
         this.type = type;
     }
 
-    public void setFile(ChatMessageFileContent file) {
+    public void setFile(ChatMessageFileEntity file) {
         this.file = file;
     }
 
-    public ChatMessageFileContent getFile() {
+    public ChatMessageFileEntity getFile() {
         if (file == null) {
-            file = new ChatMessageFileContent();
+            file = new ChatMessageFileEntity();
         }
         return file;
     }
@@ -90,20 +92,28 @@ public class ChatMessageContent {
         return extra;
     }
 
-    public ChatMessageEventContent getEvent() {
+    public ChatMessageEventEntity getEvent() {
         if (event == null) {
-            event = new ChatMessageEventContent();
+            event = new ChatMessageEventEntity();
         }
         return event;
     }
 
-    public void setEvent(ChatMessageEventContent event) {
+    public void setEvent(ChatMessageEventEntity event) {
         this.event = event;
+    }
+
+    public ChatMessageLocationEntity getLocation() {
+        return location;
+    }
+
+    public void setLocation(ChatMessageLocationEntity location) {
+        this.location = location;
     }
 
     public void setFilePath(String path) {
         if (file == null) {
-            file = new ChatMessageFileContent();
+            file = new ChatMessageFileEntity();
         }
         file.setFilePath(path);
     }
@@ -208,7 +218,7 @@ public class ChatMessageContent {
         String filePath;
         String downloadUrl;
         final boolean isDownloading;
-        ChatMessageFileContent file = getFile();
+        ChatMessageFileEntity file = getFile();
         if (isOriginal) {
             filePath = file.getFilePath();
             downloadUrl = file.getUrl();

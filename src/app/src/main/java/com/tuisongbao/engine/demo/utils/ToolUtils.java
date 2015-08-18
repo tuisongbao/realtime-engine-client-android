@@ -3,7 +3,7 @@ package com.tuisongbao.engine.demo.utils;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.text.ParseException;
@@ -23,16 +23,16 @@ public class ToolUtils {
         }
 
         ChatMessageContent body = message.getContent();
-        ChatMessageEventContent event = body.getEvent();
+        ChatMessageEventEntity event = body.getEvent();
         String maker = message.getFrom();
         String target = event.getTarget();
         String eventMessage = "";
-        ChatMessageEventContent.TYPE eventType = event.getType();
-        if (eventType == ChatMessageEventContent.TYPE.GroupJoined) {
+        ChatMessageEventEntity.TYPE eventType = event.getType();
+        if (eventType == ChatMessageEventEntity.TYPE.GroupJoined) {
             eventMessage = String.format("%s 邀请 %s 加入群组", maker, target);
-        } else if (eventType == ChatMessageEventContent.TYPE.GroupRemoved) {
+        } else if (eventType == ChatMessageEventEntity.TYPE.GroupRemoved) {
             eventMessage = String.format("%s 被 %s 移出群组", target, maker);
-        } else if (eventType == ChatMessageEventContent.TYPE.GroupDismissed) {
+        } else if (eventType == ChatMessageEventEntity.TYPE.GroupDismissed) {
             eventMessage = String.format("%s 解散了该群", maker);
         }
         return eventMessage;

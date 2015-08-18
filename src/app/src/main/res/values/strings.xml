@@ -34,7 +34,8 @@
     <string name="voice">语音</string>
     <string name="video">视频</string>
     <string name="image">图片</string>
-    <string name="photo">照片</string>
+    <string name="photo">拍照</string>
+    <string name="location">地理位置</string>
     <string name="record">按住 说话</string>
 
     <!-- fragment list -->

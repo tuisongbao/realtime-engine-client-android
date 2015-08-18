@@ -3,7 +3,7 @@ package com.tuisongbao.engine.chat.message.entity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
@@ -48,7 +48,7 @@ public class ChatMessage {
                 new ChatMessageTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessageContentSerializer.class,
                 new ChatMessageContentSerializer());
-        gsonBuilder.registerTypeAdapter(ChatMessageEventContent.TYPE.class, new ChatMessageEventTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageEventEntity.TYPE.class, new ChatMessageEventTypeSerializer());
 
         return gsonBuilder.create();
     }

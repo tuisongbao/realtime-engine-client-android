@@ -1,9 +1,6 @@
 package com.tuisongbao.engine.chat.message.entity.content;
 
-/**
- * Created by root on 15-8-5.
- */
-public class ChatMessageFileContent {
+public class ChatMessageFileEntity {
     private String key;
     private String url;
     private String thumbUrl;
@@ -39,7 +36,7 @@ public class ChatMessageFileContent {
         return thumbnailPath;
     }
 
-    public ChatMessageFileContent setKey(String key) {
+    public ChatMessageFileEntity setKey(String key) {
         this.key = key;
         return this;
     }
@@ -48,7 +45,7 @@ public class ChatMessageFileContent {
         return key;
     }
 
-    public ChatMessageFileContent setName(String name) {
+    public ChatMessageFileEntity setName(String name) {
         this.name = name;
         return this;
     }
@@ -57,7 +54,7 @@ public class ChatMessageFileContent {
         return name;
     }
 
-    public ChatMessageFileContent setMimeType(String mimeType) {
+    public ChatMessageFileEntity setMimeType(String mimeType) {
         this.mimeType = mimeType;
         return this;
     }
@@ -66,7 +63,7 @@ public class ChatMessageFileContent {
         return mimeType;
     }
 
-    public ChatMessageFileContent setEtag(String etag) {
+    public ChatMessageFileEntity setEtag(String etag) {
         this.etag = etag;
         return this;
     }
@@ -75,7 +72,7 @@ public class ChatMessageFileContent {
         return etag;
     }
 
-    public ChatMessageFileContent setSize(double size) {
+    public ChatMessageFileEntity setSize(double size) {
         this.size = size;
         return this;
     }
@@ -84,7 +81,7 @@ public class ChatMessageFileContent {
         return size;
     }
 
-    public ChatMessageFileContent setDuration(double duration) {
+    public ChatMessageFileEntity setDuration(double duration) {
         this.duration = duration;
         return this;
     }
@@ -93,7 +90,7 @@ public class ChatMessageFileContent {
         return duration;
     }
 
-    public ChatMessageFileContent setFrame(int width, int height) {
+    public ChatMessageFileEntity setFrame(int width, int height) {
         this.width = width;
         this.height = height;
         return this;
@@ -107,7 +104,7 @@ public class ChatMessageFileContent {
         return width;
     }
 
-    public ChatMessageFileContent setUrl(String url) {
+    public ChatMessageFileEntity setUrl(String url) {
         this.url = url;
         return this;
     }
@@ -116,7 +113,7 @@ public class ChatMessageFileContent {
         return url;
     }
 
-    public ChatMessageFileContent setThumbUrl(String thumbUrl) {
+    public ChatMessageFileEntity setThumbUrl(String thumbUrl) {
         this.thumbUrl = thumbUrl;
         return this;
     }

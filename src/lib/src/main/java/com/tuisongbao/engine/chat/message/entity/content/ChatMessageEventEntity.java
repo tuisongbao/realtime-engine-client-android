@@ -2,7 +2,7 @@ package com.tuisongbao.engine.chat.message.entity.content;
 
 import com.tuisongbao.engine.utils.StrUtils;
 
-public class ChatMessageEventContent {
+public class ChatMessageEventEntity {
     public enum TYPE {
         FriendAdded("friend:added"),
 

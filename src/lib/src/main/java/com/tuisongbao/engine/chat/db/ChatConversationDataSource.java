@@ -13,8 +13,9 @@ import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -324,16 +325,19 @@ public class ChatConversationDataSource {
         String contentType = cursor.getString(6);
         ChatMessageContent content = new ChatMessageContent();
         content.setType(TYPE.getType(contentType));
-        if (StrUtils.isEqual(TYPE.TEXT.getName(), contentType)) {
+        if (contentType.equals(TYPE.TEXT.getName())) {
             content.setText(cursor.getString(5));
-        } else if (StrUtils.isEqual(TYPE.EVENT.getName(), contentType)) {
-            ChatMessageEventContent event = new ChatMessageEventContent();
-            event.setType(ChatMessageEventContent.TYPE.getType(cursor.getString(16)));
-            event.setTarget(cursor.getString(17));
+        } else if (contentType.equals(TYPE.LOCATION.getName())) {
+            ChatMessageLocationEntity location = ChatMessageLocationEntity.deserialize(cursor.getString(16));
+            content.setLocation(location);
+        } else if (contentType.equals(TYPE.EVENT.getName())) {
+            ChatMessageEventEntity event = new ChatMessageEventEntity();
+            event.setType(ChatMessageEventEntity.TYPE.getType(cursor.getString(17)));
+            event.setTarget(cursor.getString(18));
 
             content.setEvent(event);
         } else {
-            ChatMessageFileContent file = new ChatMessageFileContent();
+            ChatMessageFileEntity file = new ChatMessageFileEntity();
             file.setFrame(cursor.getInt(13), cursor.getInt(14));
             file.setDuration(cursor.getDouble(15));
             file.setFilePath(cursor.getString(7));
@@ -346,12 +350,12 @@ public class ChatConversationDataSource {
             content.setFile(file);
         }
 
-        String extraString = cursor.getString(18);
+        String extraString = cursor.getString(19);
         Gson gson = new Gson();
         content.setExtra(gson.fromJson(extraString, JsonObject.class));
 
         message.setContent(content);
-        message.setCreatedAt(cursor.getString(19));
+        message.setCreatedAt(cursor.getString(20));
 
         return message;
     }
@@ -396,7 +400,7 @@ public class ChatConversationDataSource {
         if (message.getContent().getType() == TYPE.TEXT) {
             values.put(ChatMessageSQLiteHelper.COLUMN_CONTENT, content.getText());
         } else if (isMediaMessage(message)) {
-            ChatMessageFileContent file = content.getFile();
+            ChatMessageFileEntity file = content.getFile();
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_ORIGINAL_PATH, file.getFilePath());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_THUMBNAIL_PATH, file.getThumbnailPath());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_URL, file.getUrl());
@@ -408,8 +412,11 @@ public class ChatConversationDataSource {
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_HEIGHT, file.getHeight());
             values.put(ChatMessageSQLiteHelper.COLUMN_FILE_DURATION, file.getDuration());
 
+        } else if (message.getContent().getType() == TYPE.LOCATION) {
+            ChatMessageLocationEntity location = content.getLocation();
+            values.put(ChatMessageSQLiteHelper.COLUMN_LOCATION, location.toString());
         } else if (message.getContent().getType() == TYPE.EVENT) {
-            ChatMessageEventContent event = message.getContent().getEvent();
+            ChatMessageEventEntity event = message.getContent().getEvent();
             values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TYPE, event.getType().getName());
             values.put(ChatMessageSQLiteHelper.COLUMN_EVENT_TARGET, event.getTarget());
         }

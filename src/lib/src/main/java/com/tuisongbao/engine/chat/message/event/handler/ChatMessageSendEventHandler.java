@@ -5,15 +5,14 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.chat.message.event.ChatMessageSendEvent;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
-/**
- * Created by root on 15-8-2.
- */
 public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
 
     @Override
@@ -23,16 +22,26 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         ChatMessage sentMessage = ((ChatMessageSendEvent)request).getData();
 
         ChatMessageContent responseMessageContent = responseMessage.getContent();
-        if (responseMessageContent != null) {
+        // Get file and location entity from response message
+        ChatMessageFileEntity fileInResponseMessage = responseMessageContent.getFile();
+        ChatMessageLocationEntity locationInResponseMessage = responseMessageContent.getLocation();
+
+        // Get file and location entity from sent message
+        ChatMessageFileEntity fileInSentMessage = sentMessage.getContent().getFile();
+        ChatMessageLocationEntity locationInSentMessage = sentMessage.getContent().getLocation();
+
+        // Merge file and location properties into sent message
+        if (fileInResponseMessage != null) {
             // Media message, get download url and update DB
-            ChatMessageContent content = sentMessage.getContent();
-            content.getFile().setUrl(responseMessageContent.getFile().getUrl());
-            content.getFile().setThumbUrl(responseMessageContent.getFile().getThumbUrl());
+            fileInSentMessage.setUrl(fileInResponseMessage.getUrl());
+            fileInSentMessage.setThumbUrl(fileInResponseMessage.getThumbUrl());
+        } else if (locationInResponseMessage != null) {
+            locationInSentMessage.setPoi(locationInResponseMessage.getPoi());
         }
         sentMessage.setFrom(userId);
         sentMessage.setMessageId(responseMessage.getMessageId());
 
-        if (sentMessage != null && engine.getChatManager().isCacheEnabled()) {
+        if (engine.getChatManager().isCacheEnabled()) {
             ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
             dataSource.open();
             dataSource.upsertMessage(userId, sentMessage);

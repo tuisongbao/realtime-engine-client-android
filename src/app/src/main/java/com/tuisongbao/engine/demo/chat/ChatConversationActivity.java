@@ -8,6 +8,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -34,9 +35,11 @@ import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.location.ChatLocationManager;
 import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
 import com.tuisongbao.engine.chat.media.ChatVoiceRecorder;
 import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
 import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
@@ -217,10 +220,35 @@ public class ChatConversationActivity extends Activity implements
 
             @Override
             public void onClick(View arg0) {
-                Intent intent = new Intent(getApplicationContext(),
-                        ChatCameraActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ChatCameraActivity.class);
                 intent.setAction(ChatCameraActivity.ACTION_VIDEO);
                 startActivityForResult(intent, REQUEST_CODE_TAKE_VIDEO);
+            }
+        });
+
+        Button locationButton = (Button) findViewById(R.id.conversation_message_create_location);
+        locationButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View arg0) {
+                Toast.makeText(getApplicationContext(), "正在定位...", Toast.LENGTH_LONG).show();
+                ChatLocationManager.getInstance().getCurrentLocation(new EngineCallback<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location == null) {
+                            Toast.makeText(getApplicationContext(), "定位失败", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "定位成功，发送当前位置", Toast.LENGTH_LONG).show();
+                            ChatMessageLocationContent content = new ChatMessageLocationContent(location);
+                            mConversation.sendMessage(content, sendMessageCallback, null);
+                        }
+                    }
+
+                    @Override
+                    public void onError(ResponseError error) {
+
+                    }
+                });
             }
         });
 
