@@ -32,11 +32,11 @@ public class AutoReconnectConnection extends Connection {
     /**
      * 重连基数
      */
-    private int mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+    private int mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN;
     /**
      * 重连最大间隔
      */
-    private int mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+    private int mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN_MAX;
     private int mConnectionType = Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
 
     public AutoReconnectConnection(Engine engine) {
@@ -114,7 +114,7 @@ public class AutoReconnectConnection extends Connection {
              * data.reconnectStrategy 来启用，通过 data.reconnectIn 设置重连间隔。
              */
             if (mReconnectIn <= 0) {
-                mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+                mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN_MAX;
             }
             mReconnectGap = mReconnectIn;
         } else {
@@ -126,10 +126,10 @@ public class AutoReconnectConnection extends Connection {
              * 以默认值为例，不断自动重连时，间隔将依次为（单位秒）：1 2 4 8 10 10 10....
              */
             if (mReconnectMax <= 0) {
-                mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+                mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN_MAX;
             }
             if (mReconnectIn < 0) {
-                mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
+                mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN;
             }
             if (mReconnectTimes <= 0) {
                 mReconnectGap = mReconnectIn;
@@ -158,8 +158,8 @@ public class AutoReconnectConnection extends Connection {
         mReconnectGap = 0;
         mReconnectTimes = 0;
         mReconnectStrategy = Protocol.CONNECTION_STRATEGY_BACKOFF;
-        mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN;
-        mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX;
+        mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN;
+        mReconnectMax = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN_MAX;
         mConnectionType = Protocol.CONNECTION_STRATEGY_CONNECTION_TYPE_RECONNECTION_BY_STRATEGY;
     }
 }

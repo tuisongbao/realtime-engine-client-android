@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class BaseManager extends EventEmitter {
-    public static Engine engine;
+    protected static Engine engine;
 
     protected ConcurrentMap<BaseEvent, BaseEventHandler> pendingEvents = new ConcurrentHashMap<>();
     protected int backoffGap = 1;
@@ -19,10 +19,10 @@ public class BaseManager extends EventEmitter {
 
     private static final String TAG = "TSB" + BaseManager.class.getSimpleName();
 
-    public BaseManager() {}
+    protected BaseManager() {}
 
-    public BaseManager(Engine engine) {
-        this.engine = engine;
+    protected BaseManager(Engine engine) {
+        BaseManager.engine = engine;
         engine.getConnection().bind(Connection.EVENT_STATE_CHANGED, new Listener() {
             @Override
             public void call(Object... args) {

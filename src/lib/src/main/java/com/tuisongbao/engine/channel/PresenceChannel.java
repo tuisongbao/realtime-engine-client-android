@@ -32,26 +32,18 @@ public class PresenceChannel extends PrivateChannel {
     public static final String EVENT_USER_REMOVED = "engine:user_removed";
 
     private String channelData;
-    private String authData;
+    transient private String authData;
 
     public PresenceChannel(String name, Engine engine) {
         super(name, engine);
     }
 
-    public String getChannelData() {
-        return channelData;
-    }
-
-    public void setChannelData(String channelData) {
+    private void setChannelData(String channelData) {
         this.channelData = channelData;
     }
 
     public void setAuthData(String authData) {
         this.authData = authData;
-    }
-
-    public String getAuthData() {
-        return authData;
     }
 
     @Override
@@ -68,7 +60,6 @@ public class PresenceChannel extends PrivateChannel {
         PresenceChannel data = new PresenceChannel(channel, engine);
         data.setSignature(signature);
         data.setChannelData(channelData);
-        message.setAuthData(authData);
         message.setData(data);
 
         return message;

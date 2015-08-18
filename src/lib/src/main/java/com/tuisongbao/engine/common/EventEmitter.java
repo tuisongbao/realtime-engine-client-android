@@ -5,9 +5,6 @@ import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.handler.IEventHandler;
 import com.tuisongbao.engine.log.LogUtil;
 
-/**
- * Created by root on 15-7-31.
- */
 public class EventEmitter extends Emitter {
     private static final String TAG = "TSB" + EventEmitter.class.getSimpleName();
 

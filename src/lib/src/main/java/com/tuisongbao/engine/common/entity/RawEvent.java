@@ -4,9 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
-/**
- * Created by root on 15-7-31.
- */
 public class RawEvent extends BaseEvent<JsonElement> {
 
     public RawEvent(String name) {

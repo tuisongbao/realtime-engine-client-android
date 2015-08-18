@@ -32,12 +32,11 @@ public class EnginePipeline implements IEnginePipeline {
      */
     @Override
     public void ferry(String event) {
-        List<IEngineDataSink> deadSinks = new ArrayList<IEngineDataSink>();
-        for(Iterator<IEngineDataSink> i = mSinks.iterator(); i.hasNext();) {
-            IEngineDataSink sink = i.next();
+        List<IEngineDataSink> deadSinks = new ArrayList<>();
+        for (IEngineDataSink sink : mSinks) {
             try {
                 sink.receive(event);
-            } catch(DataSinkException e) {
+            } catch (DataSinkException e) {
                 LogUtil.warn(TAG, "The sink " +
                         sink + " exploded when we sent a new message " +
                         "-- removing it from the pipeline: " + e);
@@ -125,8 +124,8 @@ public class EnginePipeline implements IEnginePipeline {
      * Remove and stop all sinks in the pipeline.
      */
     public void clearSinks() {
-        for(Iterator<IEngineDataSink> i = mSinks.iterator(); i.hasNext();) {
-            (i.next()).stop();
+        for (IEngineDataSink mSink : mSinks) {
+            (mSink).stop();
         }
         mSinks.clear();
     }

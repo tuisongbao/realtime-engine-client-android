@@ -83,8 +83,6 @@ public class Connection extends BaseEngineIODataSource {
      */
     public static final String EVENT_ERROR = "error";
 
-
-
     /**
      * Connection 帮助类，表连接状态，可通过绑定事件处理方法获取状态通知
      *
@@ -111,7 +109,7 @@ public class Connection extends BaseEngineIODataSource {
          */
         Disconnected("disconnected");
 
-        private String name;
+        private final String name;
 
         State(String name) {
             this.name = name;
@@ -139,29 +137,8 @@ public class Connection extends BaseEngineIODataSource {
         public Options() {
         }
 
-        public Options setAppId(String appId) {
+        public void setAppId(String appId) {
             this.appId = appId;
-            return this;
-        }
-
-        public Options setPlatform(String platform) {
-            this.platform = platform;
-            return this;
-        }
-
-        public Options setProtocol(String protocol) {
-            this.protocol = protocol;
-            return this;
-        }
-
-        public Options setSDKVersion(String sdkVersion) {
-            this.sdkVersion = sdkVersion;
-            return this;
-        }
-
-        public Options setTransport(String transport) {
-            this.transport = transport;
-            return this;
         }
 
         public String getAppId() {
@@ -189,15 +166,15 @@ public class Connection extends BaseEngineIODataSource {
     /***
      * Record the last error received from server. If socket closed unexpectedly, use the strategy in this error to reconnect.
      */
-    protected ConnectionEventData lastConnectionError;
-    protected Socket mSocket;
-    protected Engine mEngine;
-    protected State mLastState;
+    ConnectionEventData lastConnectionError;
+    private Socket mSocket;
+    private final Engine mEngine;
+    private State mLastState;
 
     private Long mRequestId = 1L;
-    private Options mOptions = new Options();
+    private final Options mOptions = new Options();
 
-    public Connection(Engine engine) {
+    Connection(Engine engine) {
         mEngine = engine;
         mOptions.setAppId(mEngine.getEngineOptions().getAppId());
         updateState(State.Initialized);
@@ -248,7 +225,6 @@ public class Connection extends BaseEngineIODataSource {
                 String webSocketUrl = getWebSocketURL(socketAddr);
                 if (!StrUtils.isEmpty(webSocketUrl)) {
                     openSocket(webSocketUrl);
-                    return;
                 }
             }
         }
@@ -303,7 +279,7 @@ public class Connection extends BaseEngineIODataSource {
         unbind(state.getName(), listener);
     }
 
-    protected void updateState(State state) {
+    void updateState(State state) {
         if (state == mLastState) return;
 
         trigger(state.getName(), state);
@@ -314,7 +290,7 @@ public class Connection extends BaseEngineIODataSource {
         mLastState = state;
     }
 
-    protected void onSocketClosed(Object... args) {
+    void onSocketClosed(Object... args) {
         LogUtil.info(TAG, "Socket Close [msg=" + getArgsMSG(args) + "]");
     }
 
@@ -366,7 +342,7 @@ public class Connection extends BaseEngineIODataSource {
                 @Override
                 public void call(Object... args) {
                     LogUtil.verbose(TAG, "Socket receive " + args[0].toString());
-                    if (args != null && args.length > 0) {
+                    if (args.length > 0) {
                         try {
                             onEvent(args[0].toString());
                         } catch (Exception e) {
@@ -425,7 +401,7 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    protected void handleConnectionEvent(String eventName, ConnectionEventData data) {
+    void handleConnectionEvent(String eventName, ConnectionEventData data) {
         if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
             LogUtil.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
@@ -442,7 +418,7 @@ public class Connection extends BaseEngineIODataSource {
         }
     }
 
-    private void onEvent(String eventString) throws JSONException {
+    private void onEvent(String eventString) {
         Gson gson = new Gson();
         RawEvent rawEvent = gson.fromJson(eventString, RawEvent.class);
         String eventName = rawEvent.getName();
@@ -458,6 +434,10 @@ public class Connection extends BaseEngineIODataSource {
     }
 
     private String getArgsMSG(Object... args) {
-        return args == null || args.length == 0 ? "<empty>" : args.toString();
+        if (args.length > 0) {
+            return args[0].toString();
+        } else {
+            return "empty content";
+        }
     }
 }

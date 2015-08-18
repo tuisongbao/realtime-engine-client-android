@@ -28,7 +28,7 @@ import java.util.Map;
 public final class ChannelManager extends BaseManager {
     private static final String TAG = "TSB" + ChannelManager.class.getSimpleName();
 
-    private Map<String, Channel> mChannelMap = new HashMap<>();
+    private final Map<String, Channel> mChannelMap = new HashMap<>();
 
     public ChannelManager(Engine engine) {
         super(engine);

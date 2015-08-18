@@ -9,9 +9,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by root on 15-8-7.
- */
 public class PushUtils {
     private static final String TAG = PushUtils.class.getSimpleName();
 

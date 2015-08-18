@@ -14,25 +14,25 @@ import java.io.InputStreamReader;
 public class BaseResponse {
     private static final String TAG = "TSB" + BaseResponse.class.getSimpleName();
 
-    private HttpResponse mRresponse;
+    private HttpResponse mResponse;
     private String mBody;
 
     public BaseResponse(HttpResponse paramHttpResponse)
     {
-        this.mRresponse = paramHttpResponse;
+        this.mResponse = paramHttpResponse;
         LogUtil.info(TAG, this.toString());
     }
 
     public int status()
     {
-        StatusLine localStatusLine = this.mRresponse.getStatusLine();
-        if (localStatusLine != null) return this.mRresponse.getStatusLine().getStatusCode();
+        StatusLine localStatusLine = this.mResponse.getStatusLine();
+        if (localStatusLine != null) return this.mResponse.getStatusLine().getStatusCode();
         return -1;
     }
 
     public boolean isStatusOk()
     {
-        return this.mRresponse != null && status() == 200;
+        return this.mResponse != null && status() == 200;
     }
 
     public JSONObject getJSONData()
@@ -42,7 +42,9 @@ public class BaseResponse {
         {
             jsonData = new JSONObject(body());
         }
-        catch (Exception e) {}
+        catch (Exception e) {
+            LogUtil.error(TAG, "Body: " + body(), e);
+        }
         return jsonData;
     }
 
@@ -53,12 +55,12 @@ public class BaseResponse {
         }
         mBody = "";
         try {
-            if (this.mRresponse.getEntity() != null) {
+            if (this.mResponse.getEntity() != null) {
                 // if Use EntityUtil.toString, the chinese text will be wrong.
-                InputStream in = mRresponse.getEntity().getContent();
+                InputStream in = mResponse.getEntity().getContent();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 StringBuilder str = new StringBuilder();
-                String line = null;
+                String line;
                 while((line = reader.readLine()) != null)
                 {
                     str.append(line);
@@ -66,7 +68,9 @@ public class BaseResponse {
                 in.close();
                 mBody = str.toString();
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            LogUtil.error(TAG, e);
+        }
         return mBody;
     }
 

@@ -204,6 +204,7 @@ public class ChatMessage {
      * @return 创建时间
      * @since v2.1.1
      */
+
     public Date getCreatedAtInDate() {
         if (createdAt == null) {
             return null;

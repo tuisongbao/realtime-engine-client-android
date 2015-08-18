@@ -4,12 +4,9 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
-import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.log.LogUtil;
-
-import org.json.JSONException;
 
 /**
  * <STRONG>普通 Channel</STRONG>
@@ -45,12 +42,12 @@ public class Channel extends EventEmitter {
 
     private static final String TAG = "TSB" + Channel.class.getSimpleName();
 
-    protected Engine engine;
+    final Engine engine;
 
     /**
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
      */
-    protected String channel;
+    String channel;
 
     public Channel(String name, Engine engine) {
         this.engine = engine;
@@ -61,7 +58,7 @@ public class Channel extends EventEmitter {
         return channel;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         channel = name;
     }
 
@@ -86,9 +83,9 @@ public class Channel extends EventEmitter {
             @Override
             public void onError(ResponseError error) {
                 LogUtil.info(TAG, "Channel validation failed: " + error.getMessage());
-                trigger(formatEventName(Protocol.CHANNEL_EVENT_SUBSCRIPTION_ERROR), error.getMessage());
+                trigger(EVENT_SUBSCRIPTION_ERROR, error.getMessage());
 
-                // remove reference from tsbchannel manager
+                // remove reference from ChannelManager
                 engine.getChannelManager().unsubscribe(channel);
             }
         });
@@ -107,20 +104,20 @@ public class Channel extends EventEmitter {
             // Remove listeners on engineIO layer
             engine.getChannelManager().unbind(channel);
         } catch (Exception e) {
-
+            LogUtil.error(TAG, e);
         }
     }
 
-    protected void sendSubscribeRequest() throws JSONException {
+    private void sendSubscribeRequest() {
         SubscribeEvent message = generateSubscribeMessage();
         engine.getChannelManager().send(message, null);
     }
 
-    protected void validate(EngineCallback<String> callback) {
+    void validate(EngineCallback<String> callback) {
         callback.onSuccess(channel);
     }
 
-    protected SubscribeEvent generateSubscribeMessage() {
+    SubscribeEvent generateSubscribeMessage() {
         SubscribeEvent message = new SubscribeEvent();
         // As PresenceChannel has all properties, so use it to be the event data.
         PresenceChannel data = new PresenceChannel(channel, engine);
@@ -133,12 +130,5 @@ public class Channel extends EventEmitter {
     @Override
     public String toString() {
         return "channel name:" + this.channel;
-    }
-
-    /***
-     *  Do not let developer know our internal event name.
-     */
-    protected String formatEventName(String origin) {
-        return origin.replace("engine_channel", "engine");
     }
 }

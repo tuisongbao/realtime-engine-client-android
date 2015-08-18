@@ -36,9 +36,9 @@ public class ChatMessageManager extends BaseManager {
     /**
      * 发送消息
      *
-     * @param message
-     *            消息
-     * @param callback
+     * @param message           消息
+     * @param callback          结果处理方法
+     * @param progressCallback  进度处理方法
      */
     public ChatMessage sendMessage(final ChatMessage message,
                             final EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
@@ -121,7 +121,7 @@ public class ChatMessageManager extends BaseManager {
 
     private EngineCallback<JSONObject> getUploaderHandlerOfMediaMessage(final ChatMessage message,
                                                                            final EngineCallback<ChatMessage> callback) {
-        EngineCallback<JSONObject> responseHandler = new EngineCallback<JSONObject>() {
+        return new EngineCallback<JSONObject>() {
 
             @Override
             public void onSuccess(JSONObject responseObject) {
@@ -164,6 +164,5 @@ public class ChatMessageManager extends BaseManager {
                 callback.onError(error);
             }
         };
-        return responseHandler;
     }
 }

@@ -1,7 +1,6 @@
 package com.tuisongbao.engine.chat.user.entity;
 
 public class ChatUser {
-
     private boolean isNew;
     private String userId;
     private String nickname;
@@ -24,7 +23,7 @@ public class ChatUser {
     }
 
     public String getUploadToken() {
-        return this.uploadToken;
+        return uploadToken;
     }
 
     public String getNickname() {

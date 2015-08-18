@@ -40,6 +40,7 @@ public class ChatGroupDataSource {
         groupMemberSQLiteHelper.close();
     }
 
+    // FIXME: 15-8-18 Query without userId will cause error if switching users
     public String getLatestLastActiveAt(String userId) {
         String sql = "SELECT * FROM " + ChatGroupSQLiteHelper.TABLE_CHAT_GROUP
                 + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";

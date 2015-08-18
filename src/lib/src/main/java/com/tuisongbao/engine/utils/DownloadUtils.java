@@ -21,9 +21,10 @@ public class DownloadUtils {
     /***
      * Download image and save to local, return path of the local image file.
      *
-     * @param urlString download url
-     * @param type according to different type, save file into different folder
-     * @param callback
+     * @param urlString         下载 url
+     * @param type              文件将会被保存在该 type 名字的目录下
+     * @param callback          结果处理方法
+     * @param progressCallback  进度处理方法
      */
     public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final EngineCallback<String> callback
             , final ProgressCallback progressCallback) {
@@ -35,7 +36,7 @@ public class DownloadUtils {
                 try {
                     // The last string is timestamp, use it to be the file name
                     String outputFileName = StrUtils.getTimestampStringOnlyContainNumber(new Date());
-                    String folder = "";
+                    String folder;
                     // TODO: the suffix seems not work, no matter what the real format is, the image or voice can show and play respectively. Check why.
                     folder = type.getName();
                     if (type == TYPE.IMAGE) {
@@ -62,17 +63,17 @@ public class DownloadUtils {
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             connection.connect();
-            int lenghtOfFile = connection.getContentLength();
+            int lengthOfFile = connection.getContentLength();
             InputStream is = url.openStream();
             File outputFile = getOutputFile(outputFileName, folder);
             FileOutputStream fos = new FileOutputStream(outputFile);
             byte data[] = new byte[1024];
             long total = 0;
             int progress = 0;
-            int count = 0;
+            int count;
             while ((count = is.read(data)) != -1) {
                 total += count;
-                int progress_temp = (int) total * 100 / lenghtOfFile;
+                int progress_temp = (int) total * 100 / lengthOfFile;
                 if (progress_temp % 10 == 0 && progress != progress_temp) {
                     progress = progress_temp;
                 }
@@ -96,7 +97,7 @@ public class DownloadUtils {
 
     public static File getOutputFile(String outputFileName, String folderName) throws IOException {
         File file;
-        String filePath = null;
+        String filePath;
         if (hasSDCard()) {
             filePath = getSDCardPath() + "/tuisongbao/" + folderName + "/" + outputFileName;
 

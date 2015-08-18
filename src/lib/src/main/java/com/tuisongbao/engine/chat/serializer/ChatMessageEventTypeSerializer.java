@@ -11,9 +11,6 @@ import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent
 
 import java.lang.reflect.Type;
 
-/**
- * Created by root on 15-8-7.
- */
 public class ChatMessageEventTypeSerializer implements
         JsonSerializer<ChatMessageEventContent.TYPE>, JsonDeserializer<ChatMessageEventContent.TYPE> {
 

@@ -23,7 +23,7 @@ import org.json.JSONObject;
 public class PrivateChannel extends Channel {
     private static final String TAG = "TSB" + PrivateChannel.class.getSimpleName();
 
-    protected String signature;
+    String signature;
 
     public PrivateChannel(String name, Engine engine) {
         super(name, engine);
@@ -33,7 +33,7 @@ public class PrivateChannel extends Channel {
         this.signature = signature;
     }
 
-    protected JSONObject getHttpRequestObjectOfAuth() throws JSONException {
+    JSONObject getHttpRequestObjectOfAuth() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("socketId", engine.getConnection().getSocketId());
         json.put("channelName", channel);
@@ -51,7 +51,7 @@ public class PrivateChannel extends Channel {
         return message;
     }
 
-    protected boolean validateResponseDataOfAuth(JSONObject data, EngineCallback<String> callback) {
+    boolean validateResponseDataOfAuth(JSONObject data, EngineCallback<String> callback) {
         signature = data.optString("signature");
         if (StrUtils.isEmpty(signature)) {
             ResponseError error = new ResponseError();
@@ -63,7 +63,7 @@ public class PrivateChannel extends Channel {
     }
 
     @Override
-    protected void validate(final EngineCallback<String> callback) {
+    void validate(final EngineCallback<String> callback) {
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
@@ -81,7 +81,7 @@ public class PrivateChannel extends Channel {
                         HttpConstants.HTTP_METHOD_POST, engine.getEngineOptions().getAuthEndpoint(), json.toString());
                 BaseResponse authResponse = authRequest.execute();
                 if (authResponse == null || !authResponse.isStatusOk()) {
-                    error.setMessage("Error accured when call auth server");
+                    error.setMessage("Error occurred when call auth server");
                     callback.onError(error);
                     return;
                 }

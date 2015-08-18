@@ -3,9 +3,6 @@ package com.tuisongbao.engine.common.entity;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-/**
- * Created by root on 15-7-31.
- */
 public class ResponseEventData {
     private long to;
     private boolean ok;

@@ -25,8 +25,8 @@ import java.util.List;
 public class PubSubActivity extends Activity {
     private static String TAG = "TSB" + "com.tuisongbao.android.engine.demo:PubSubActivity";
 
-    private Button mSubscribeChannelButton;
-    private Button mUnsubscribeChannelButton;
+    Button mSubscribeChannelButton;
+    Button mUnsubscribeChannelButton;
     private EditText mSubscribeChannelEditText;
     private EditText mSubscribeChannelAuthDataEditText;
     private EditText mUnsubscribeChannelEditText;
@@ -55,7 +55,7 @@ public class PubSubActivity extends Activity {
             public void onClick(final View arg0) {
                 String channelName = mSubscribeChannelEditText.getText().toString();
                 String authData = mSubscribeChannelAuthDataEditText.getText().toString();
-                if (channelName == null || channelName.trim().length() < 1) {
+                if (channelName.trim().length() < 1) {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -110,7 +110,7 @@ public class PubSubActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                 String channelName = mUnsubscribeChannelEditText.getText().toString();
-                if (channelName == null || channelName.trim().length() < 1) {
+                if (channelName.trim().length() < 1) {
                     Toast.makeText(PubSubActivity.this, "channel name 必须包含有效字符", Toast.LENGTH_LONG).show();
                     return;
                 }

@@ -9,9 +9,6 @@ import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
-/**
- * Created by root on 15-8-3.
- */
 public class ChatConversationDeleteEventHandler extends BaseEventHandler<String> {
     @Override
     protected String genCallbackDataWithCache(BaseEvent request, RawEvent response) {

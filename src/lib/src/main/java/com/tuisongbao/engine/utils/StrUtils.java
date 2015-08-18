@@ -30,10 +30,10 @@ public class StrUtils {
     }
 
     /**
-     * If str is null, returns "", or return str.
+     * 获取一个非 null 的 String，如果 str 为 null，返回空字符串，否则返回原 str
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 非 null 字符串
      */
     public static String strNotNull(String str) {
         return isEmpty(str) ? "" : str;
@@ -51,7 +51,7 @@ public class StrUtils {
                 return false;
             }
 
-            return strRight == strLeft || strRight.equals(strLeft);
+            return strRight.equals(strLeft);
         }
     }
 

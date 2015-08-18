@@ -21,8 +21,6 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.log.LogUtil;
 import com.tuisongbao.engine.utils.StrUtils;
 
-import org.json.JSONException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,7 +176,7 @@ public final class ChatConversationManager extends BaseManager {
     }
 
     private void requestMissingMessagesInLocalCache(ChatType chatType, String target, Long startMessageId,
-            Long endMessageId, int limit, EngineCallback<List<ChatMessage>> callback) throws JSONException {
+            Long endMessageId, int limit, EngineCallback<List<ChatMessage>> callback) {
         ChatMessageMultiGetEventHandler response = new ChatMessageMultiGetEventHandler();
         response.setMessageIdSpan(startMessageId, endMessageId);
         response.setCallback(callback);
@@ -200,7 +198,7 @@ public final class ChatConversationManager extends BaseManager {
 
         // Check whether missing messages from begin.
         Long maxCachedMessageId = messages.get(0).getMessageId();
-        if (startMessageId != null && maxCachedMessageId < startMessageId) {
+        if (maxCachedMessageId < startMessageId) {
             ChatMessageGetEvent message = getRequestOfGetMessages(chatType, target, startMessageId, maxCachedMessageId, limit);
             response.incRequestCount();
             send(message, response);
@@ -245,7 +243,7 @@ public final class ChatConversationManager extends BaseManager {
     }
 
     private void sendRequestOfGetConversations(ChatType chatType, String target, String lastActiveAt,
-            EngineCallback<List<ChatConversation>> callback) throws JSONException {
+            EngineCallback<List<ChatConversation>> callback) {
         ChatConversationGetEvent event = new ChatConversationGetEvent();
         ChatConversation data = new ChatConversation(engine);
         data.setType(chatType);

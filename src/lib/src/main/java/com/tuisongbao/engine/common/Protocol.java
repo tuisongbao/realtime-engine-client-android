@@ -43,11 +43,11 @@ public class Protocol {
     /**
      * backoff default reconnection, in seconds
      */
-    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTIN = 1;
+    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN = 1;
     /**
      * backoff default reconnection, in seconds
      */
-    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECTINMAX = 10;
+    public static final int CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN_MAX = 10;
     /**
      * 禁止连接，出现4000 ~ 4099（连接将被服务端关闭, 客户端 不 应该进行重连）时
      */

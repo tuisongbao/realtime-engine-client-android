@@ -28,7 +28,6 @@ import com.tuisongbao.engine.utils.StrUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -82,9 +81,7 @@ public final class ChatManager extends BaseManager {
     private final Thread retryEventsThread = new Thread(new Runnable() {
         @Override
         public void run() {
-            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
-            while (events.hasNext()) {
-                BaseEvent event = events.next();
+            for (BaseEvent event : pendingEvents.keySet()) {
                 BaseEventHandler handler = pendingEvents.get(event);
                 send(event, handler);
             }
@@ -255,9 +252,9 @@ public final class ChatManager extends BaseManager {
     /**
      * 如果发送 Event 不成功，会一直尝试。切换用户之后 {@link #login(String)}，会将所有还未发送成功的 Event 清空。
      *
-     * @param event
-     * @param handler
-     * @return
+     * @param event     event
+     * @param handler   处理方法
+     * @return 是否发送成功
      */
     @Override
     public boolean send(BaseEvent event, BaseEventHandler handler) {
@@ -284,7 +281,7 @@ public final class ChatManager extends BaseManager {
             pendingEvents.put(event, handler);
         }
         try {
-            retryEventsThread.sleep(backoffGap);
+            Thread.sleep(backoffGap);
             retryEventsThread.start();
             backoffGap = Math.min(backoffGapMax, backoffGap * 2);
         } catch (Exception e2) {
@@ -296,9 +293,7 @@ public final class ChatManager extends BaseManager {
         try {
             retryEventsThread.interrupt();
 
-            Iterator<BaseEvent> events = pendingEvents.keySet().iterator();
-            while (events.hasNext()) {
-                BaseEvent event = events.next();
+            for (BaseEvent event : pendingEvents.keySet()) {
                 BaseEventHandler handler = pendingEvents.get(event);
                 ResponseError error = new ResponseError();
                 error.setMessage("Network issue, request failed");
@@ -346,7 +341,6 @@ public final class ChatManager extends BaseManager {
     private void auth(final String userData, final EngineCallback callback) {
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
-            @SuppressWarnings("unchecked")
             @Override
             public void run() {
                 String authRequestData = getAuthParams(userData).toString();
