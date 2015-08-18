@@ -9,7 +9,7 @@ import com.tuisongbao.engine.connection.AutoReconnectConnection;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.engineio.pipeline.EnginePipeline;
 import com.tuisongbao.engine.engineio.sink.EngineDataSink;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 /**
@@ -45,7 +45,7 @@ public final class Engine {
         try {
             mEngineOptions = options;
             if (options == null || StrUtils.isEmpty(mEngineOptions.getAppId())) {
-                LogUtil.warn(TAG
+                LogUtils.warn(TAG
                         , "No AppId, you do not have permission to use cool engine!");
                 return;
             }
@@ -57,18 +57,18 @@ public final class Engine {
             pipeline.addSink(sink);
 
             if (StrUtils.isEmpty(mEngineOptions.getAuthEndpoint())) {
-                LogUtil.warn(TAG
+                LogUtils.warn(TAG
                         , "No auth endpoint, you only can subscribe public channel, and can not implement cool Chat!");
                 channelManager = new ChannelManager(this);
             } else {
-                LogUtil.info(TAG,
+                LogUtils.info(TAG,
                         "Successfully load configurations for engine.");
                 chatManager = new ChatManager(this);
                 channelManager = new ChannelManager(this);
             }
 
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 

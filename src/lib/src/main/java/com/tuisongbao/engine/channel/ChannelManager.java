@@ -9,7 +9,7 @@ import com.tuisongbao.engine.channel.entity.User;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.RawEvent;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.HashMap;
@@ -118,13 +118,13 @@ public final class ChannelManager extends BaseManager {
                 // If not specified prefix found, default is public channel.
                 channel = new Channel(channelName, engine);
             }
-            LogUtil.info(TAG, "Subscribe channel: " + channelName);
+            LogUtils.info(TAG, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
             channel.subscribe();
             return channel;
 
         } catch (Exception e) {
-            LogUtil.error(TAG, "Channel subscribe failed.", e);
+            LogUtils.error(TAG, "Channel subscribe failed.", e);
             return null;
         }
     }
@@ -145,13 +145,13 @@ public final class ChannelManager extends BaseManager {
                 mChannelMap.remove(channelName);
             }
         } catch (Exception e) {
-            LogUtil.error(TAG, "Channel subscribe failed.", e);
+            LogUtils.error(TAG, "Channel subscribe failed.", e);
         }
     }
 
     @Override
     protected void connected() {
-        LogUtil.info(TAG, "Resend all subscribe channel request");
+        LogUtils.info(TAG, "Resend all subscribe channel request");
         HashSet<Channel> values = new HashSet<>(mChannelMap.values());
         for (Channel channel : values) {
             channel.subscribe();

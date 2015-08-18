@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.http.response;
 
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -20,7 +20,7 @@ public class BaseResponse {
     public BaseResponse(HttpResponse paramHttpResponse)
     {
         this.mResponse = paramHttpResponse;
-        LogUtil.info(TAG, this.toString());
+        LogUtils.info(TAG, this.toString());
     }
 
     public int status()
@@ -43,7 +43,7 @@ public class BaseResponse {
             jsonData = new JSONObject(body());
         }
         catch (Exception e) {
-            LogUtil.error(TAG, "Body: " + body(), e);
+            LogUtils.error(TAG, "Body: " + body(), e);
         }
         return jsonData;
     }
@@ -69,7 +69,7 @@ public class BaseResponse {
                 mBody = str.toString();
             }
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
         return mBody;
     }

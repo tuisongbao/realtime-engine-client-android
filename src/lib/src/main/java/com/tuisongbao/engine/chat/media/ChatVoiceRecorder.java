@@ -5,7 +5,7 @@ import android.media.MediaRecorder.OnInfoListener;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.EventEmitter;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.DownloadUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -68,7 +68,7 @@ public class ChatVoiceRecorder extends EventEmitter {
                 public void onInfo(MediaRecorder recorder, int what, int extra) {
                     try {
                         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-                            LogUtil.warn(TAG, "Maximum Duration Reached");
+                            LogUtils.warn(TAG, "Maximum Duration Reached");
                             trigger(EVENT_MAX_DURATION_REACHED, mMaxDuration);
                         }
                     } catch (Exception e) {

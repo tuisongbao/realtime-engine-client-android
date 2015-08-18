@@ -21,7 +21,7 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.ExecutorUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -114,7 +114,7 @@ public final class ChatManager extends BaseManager {
         try {
             if (StrUtils.isEqual(userData, mUserData)) {
                 trigger(EVENT_LOGIN_SUCCEEDED, getChatUser());
-                LogUtil.warn(TAG, "Duplicate login");
+                LogUtils.warn(TAG, "Duplicate login");
                 return;
             } else {
                 // Stop retrying failed events when switching user.
@@ -127,7 +127,7 @@ public final class ChatManager extends BaseManager {
                 public void onSuccess(ChatLoginData data) {
                     mUserData = userData;
 
-                    LogUtil.verbose(TAG, "Auth success");
+                    LogUtils.verbose(TAG, "Auth success");
                     ChatLoginEvent event = new ChatLoginEvent();
                     event.setData(data);
                     ChatLoginEventHandler handler = new ChatLoginEventHandler();
@@ -136,7 +136,7 @@ public final class ChatManager extends BaseManager {
 
                 @Override
                 public void onError(ResponseError error) {
-                    LogUtil.verbose(TAG, error.getMessage());
+                    LogUtils.verbose(TAG, error.getMessage());
                     onLoginFailed(error);
                     onLogout();
                 }
@@ -146,7 +146,7 @@ public final class ChatManager extends BaseManager {
                 auth(userData, mAuthCallback);
             }
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
             trigger(EVENT_LOGIN_FAILED, engine.getUnhandledResponseError());
         }
     }
@@ -166,7 +166,7 @@ public final class ChatManager extends BaseManager {
             send(event, null);
             callback.onSuccess("OK");
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
             callback.onError(engine.getUnhandledResponseError());
         }
     }
@@ -197,7 +197,7 @@ public final class ChatManager extends BaseManager {
             groupManager.clearCache();
             conversationManager.clearCache();
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -273,7 +273,7 @@ public final class ChatManager extends BaseManager {
     }
 
     private void addFailedEvent(BaseEvent event, BaseEventHandler handler) {
-        LogUtil.error(TAG, "Failed to send event " + event.getName());
+        LogUtils.error(TAG, "Failed to send event " + event.getName());
 
         // Avoid duplicated put
         if (pendingEvents.get(event) == null) {
@@ -285,7 +285,7 @@ public final class ChatManager extends BaseManager {
             retryEventsThread.start();
             backoffGap = Math.min(backoffGapMax, backoffGap * 2);
         } catch (Exception e2) {
-            LogUtil.error(TAG, e2);
+            LogUtils.error(TAG, e2);
         }
     }
 
@@ -304,7 +304,7 @@ public final class ChatManager extends BaseManager {
             pendingEvents = new ConcurrentHashMap<>();
             backoffGap = 1;
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 

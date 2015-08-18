@@ -9,7 +9,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class ChatConversation {
 
             return conversation;
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
             return null;
         }
     }

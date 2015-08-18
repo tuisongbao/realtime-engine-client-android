@@ -3,7 +3,7 @@ package com.tuisongbao.engine.engineio.pipeline;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
 import com.tuisongbao.engine.engineio.sink.IEngineDataSink;
 import com.tuisongbao.engine.engineio.source.IEngineDataSource;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,7 +37,7 @@ public class EnginePipeline implements IEnginePipeline {
             try {
                 sink.receive(event);
             } catch (DataSinkException e) {
-                LogUtil.warn(TAG, "The sink " +
+                LogUtils.warn(TAG, "The sink " +
                         sink + " exploded when we sent a new message " +
                         "-- removing it from the pipeline: " + e);
                 deadSinks.add(sink);

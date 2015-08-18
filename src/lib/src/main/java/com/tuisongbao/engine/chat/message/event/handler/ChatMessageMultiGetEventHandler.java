@@ -8,7 +8,7 @@ import com.tuisongbao.engine.chat.message.event.ChatMessageGetEvent;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.event.BaseEvent;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
 
     public void incRequestCount() {
         this.requestCount++;
-        LogUtil.debug(TAG, this + " has " + requestCount + " requests");
+        LogUtils.debug(TAG, this + " has " + requestCount + " requests");
     }
 
     public void setMessageIdSpan(Long startMessageId, Long endMessageId) {
@@ -57,7 +57,7 @@ public class ChatMessageMultiGetEventHandler extends ChatMessageGetEventHandler 
     public void onResponse(BaseEvent request, RawEvent response) {
         requestCount--;
         genCallbackDataWithCache(request, response);
-        LogUtil.debug(TAG, this + " remain " + requestCount + " requests");
+        LogUtils.debug(TAG, this + " remain " + requestCount + " requests");
         if (requestCount < 1) {
             super.onResponse(request, response);
         }

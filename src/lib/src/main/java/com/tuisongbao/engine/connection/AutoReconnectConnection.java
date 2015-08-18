@@ -3,7 +3,7 @@ package com.tuisongbao.engine.connection;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.connection.entity.ConnectionEventData;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 /**
@@ -142,14 +142,14 @@ public class AutoReconnectConnection extends Connection {
             }
         }
         try {
-            LogUtil.verbose(TAG, "Start to sleep： " + mReconnectGap);
+            LogUtils.verbose(TAG, "Start to sleep： " + mReconnectGap);
             trigger(EVENT_CONNECTING_IN, mReconnectGap);
             if (mReconnectGap > 0) {
                 Thread.sleep(mReconnectGap * 1000);
             }
-            LogUtil.verbose(TAG, "End to sleep： " + mReconnectGap);
+            LogUtils.verbose(TAG, "End to sleep： " + mReconnectGap);
         } catch (Exception e) {
-            LogUtil.error(TAG, "Connection sleep exception", e);
+            LogUtils.error(TAG, "Connection sleep exception", e);
         }
         mReconnectTimes++;
     }

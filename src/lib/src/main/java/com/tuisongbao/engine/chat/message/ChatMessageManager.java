@@ -17,7 +17,7 @@ import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONObject;
@@ -52,7 +52,7 @@ public class ChatMessageManager extends BaseManager {
             }
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
         return message;
     }
@@ -130,7 +130,7 @@ public class ChatMessageManager extends BaseManager {
                 try {
                     file.setKey(responseObject.getString("key"));
                 } catch (Exception e) {
-                    LogUtil.error(TAG, e);
+                    LogUtils.error(TAG, e);
 
                     // If can not get key from response, Server can not generate download url, so call error directly.
                     ResponseError error = new ResponseError();
@@ -139,7 +139,7 @@ public class ChatMessageManager extends BaseManager {
                     return;
                 }
                 try {
-                    LogUtil.info(TAG, "Get response from QINIU " + responseObject.toString(4));
+                    LogUtils.info(TAG, "Get response from QINIU " + responseObject.toString(4));
 
                     ChatMessage.TYPE messageType = content.getType();
                     if (messageType == ChatMessage.TYPE.IMAGE) {
@@ -150,7 +150,7 @@ public class ChatMessageManager extends BaseManager {
                         file.setDuration(formatInfoInResponse.getDouble("duration"));
                     }
                 } catch (Exception e) {
-                    LogUtil.error(TAG, e);
+                    LogUtils.error(TAG, e);
                 } finally {
                     // If some exception occurs when parsing the other properties, do not block sending message.
                     content.setFile(file);

@@ -4,7 +4,7 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.connection.Connection;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,17 +44,17 @@ public class BaseManager extends EventEmitter {
                 engine.getSink().setHandler(sentEvent, handler);
             }
         } catch (Exception e1) {
-            LogUtil.error(TAG, "Failed to send event " + event.getName());
+            LogUtils.error(TAG, "Failed to send event " + event.getName());
             return false;
         }
         return true;
     }
 
     protected void connected() {
-        LogUtil.info(TAG, "Connected");
+        LogUtils.info(TAG, "Connected");
     }
 
     protected void disconnected() {
-        LogUtil.info(TAG, "Disconnected");
+        LogUtils.info(TAG, "Disconnected");
     }
 }

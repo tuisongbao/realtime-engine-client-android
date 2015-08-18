@@ -2,7 +2,7 @@ package com.tuisongbao.engine.http.request;
 
 import com.tuisongbao.engine.http.HttpsClient;
 import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
@@ -67,12 +67,12 @@ public class BaseRequest extends HttpEntityEnclosingRequestBase
         BaseResponse localResponse = null;
         try
         {
-            LogUtil.info(TAG, this.toString());
+            LogUtils.info(TAG, this.toString());
             localResponse = new BaseResponse(this.httpClient.execute(this));
         }
         catch (IOException localIOException)
         {
-            LogUtil.error(TAG, localIOException.getMessage()
+            LogUtils.error(TAG, localIOException.getMessage()
                     + "\n IOException when executing request. Do you have permission to access the internet?");
         }
         return localResponse;

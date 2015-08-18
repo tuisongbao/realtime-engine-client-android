@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.http;
 
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -33,7 +33,7 @@ public class HttpsClient {
         try {
             return new HttpsClient().getHttpsClient();
         } catch (Exception e) {
-            LogUtil.error(TAG, "Get httpsClient", e);
+            LogUtils.error(TAG, "Get httpsClient", e);
         }
         return new HttpsClient().getHttpClient();
     }

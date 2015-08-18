@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQuery;
 
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
     private static final String TAG = "TSB" + ChatBaseSQLiteHelper.class.getSimpleName();
@@ -29,7 +29,7 @@ public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
                     public Cursor newCursor(SQLiteDatabase arg0, SQLiteCursorDriver arg1,
                             String arg2, SQLiteQuery arg3) {
                         // Log the db query operations.
-                        LogUtil.verbose(TAG, arg3.toString());
+                        LogUtils.verbose(TAG, arg3.toString());
                         return new SQLiteCursor(arg1, arg2, arg3);
                     }
                 }, version);

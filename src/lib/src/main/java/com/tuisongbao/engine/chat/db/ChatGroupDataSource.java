@@ -9,7 +9,7 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class ChatGroupDataSource {
         values.put(ChatGroupSQLiteHelper.COLUMN_GROUP_ID, group.getGroupId());
 
         groupDB.insert(ChatGroupSQLiteHelper.TABLE_CHAT_GROUP, null, values);
-        LogUtil.verbose(TAG, "insert " + group);
+        LogUtils.verbose(TAG, "insert " + group);
 
         insertUserIfNotExist(group.getGroupId(), userId);
     }
@@ -86,7 +86,7 @@ public class ChatGroupDataSource {
         String sql = "SELECT * FROM " + ChatGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER
                 + " WHERE " + ChatGroupUserSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'";
         cursor = groupMemberDB.rawQuery(sql, null);
-        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " groups of user "
+        LogUtils.verbose(TAG, "Get " + cursor.getCount() + " groups of user "
                 + userId + ", groupId:" + groupId);
 
         if (cursor.getCount() < 1) {
@@ -123,7 +123,7 @@ public class ChatGroupDataSource {
         sql += ";";
 
         cursor = groupDB.rawQuery(sql, null);
-        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " groups");
+        LogUtils.verbose(TAG, "Get " + cursor.getCount() + " groups");
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             ChatGroup group = createGroup(cursor);
@@ -149,7 +149,7 @@ public class ChatGroupDataSource {
         }
         sql += ";";
         Cursor cursor = groupDB.rawQuery(sql, null);
-        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " groups with query "
+        LogUtils.verbose(TAG, "Get " + cursor.getCount() + " groups with query "
                 + "[userId:" + userId + ", groupId:" + groupId + "]");
 
         List<ChatGroup> groups = new ArrayList<ChatGroup>();
@@ -169,7 +169,7 @@ public class ChatGroupDataSource {
         ContentValues values = getContentValuesExceptGroupId(group);
 
         int rowsAffected = groupDB.update(ChatGroupSQLiteHelper.TABLE_CHAT_GROUP, values, whereClause, new String[]{ group.getGroupId() });
-        LogUtil.verbose(TAG, "Update " + group + " and " + rowsAffected + " rows affected");
+        LogUtils.verbose(TAG, "Update " + group + " and " + rowsAffected + " rows affected");
         return rowsAffected;
     }
 
@@ -178,7 +178,7 @@ public class ChatGroupDataSource {
         String whereClause = "SELECT " + ChatGroupUserSQLiteHelper.COLUMN_USER_ID
                 + " WHERE " + ChatGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ?";
         Cursor cursor = groupMemberDB.rawQuery(whereClause, new String[]{ groupId });
-        LogUtil.verbose(TAG, "Get " + cursor.getCount() + " users from group " + groupId);
+        LogUtils.verbose(TAG, "Get " + cursor.getCount() + " users from group " + groupId);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -208,7 +208,7 @@ public class ChatGroupDataSource {
             values.put(ChatGroupUserSQLiteHelper.COLUMN_GROUP_ID, groupId);
             values.put(ChatGroupUserSQLiteHelper.COLUMN_USER_ID, userId);
             groupMemberDB.insert(ChatGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, null, values);
-            LogUtil.verbose(TAG, groupId + " has new member " + userId);
+            LogUtils.verbose(TAG, groupId + " has new member " + userId);
         }
     }
 
@@ -216,7 +216,7 @@ public class ChatGroupDataSource {
         String whereClause = ChatGroupUserSQLiteHelper.COLUMN_GROUP_ID + " = ? AND "
                 + ChatGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
         int rowsAffected = groupMemberDB.delete(ChatGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
-        LogUtil.info(TAG, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
+        LogUtils.info(TAG, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
 
         // Remove conversation
         ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), mEngine);
@@ -238,7 +238,7 @@ public class ChatGroupDataSource {
     public void remove(String groupId, String userId) {
         String whereClause = ChatGroupSQLiteHelper.COLUMN_GROUP_ID + " = ?";
         int rowsAffected = groupDB.delete(ChatGroupSQLiteHelper.TABLE_CHAT_GROUP, whereClause, new String[]{ groupId });
-        LogUtil.info(TAG, "Remove group " + groupId + " and " + rowsAffected + " rows affected");
+        LogUtils.info(TAG, "Remove group " + groupId + " and " + rowsAffected + " rows affected");
 
         if (!StrUtils.isEmpty(userId)) {
             removeUser(groupId, userId);

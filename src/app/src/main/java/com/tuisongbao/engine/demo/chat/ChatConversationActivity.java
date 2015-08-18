@@ -50,7 +50,7 @@ import com.tuisongbao.engine.demo.chat.adapter.ChatMessagesAdapter;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;
 import com.tuisongbao.engine.demo.chat.media.ChatCameraActivity;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -291,7 +291,7 @@ public class ChatConversationActivity extends Activity implements
                     Object tag = mVoiceRecorderButton.getTag();
                     // User has cancel this operation
                     if (tag != null && tag.equals("cancel")) {
-                        LogUtil.info(TAG,
+                        LogUtils.info(TAG,
                                 "Voice operation has been canceled");
                         mRecorder.cancel();
                     } else {
@@ -365,7 +365,7 @@ public class ChatConversationActivity extends Activity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK) {
             mImageUri = intent.getData();
-            LogUtil.debug(TAG, "mImageUri" + mImageUri.getPath() + "  " + mImageUri);
+            LogUtils.debug(TAG, "mImageUri" + mImageUri.getPath() + "  " + mImageUri);
             // Query the real path of the image.
             getLoaderManager().restartLoader(0, null, this);
         } else if (requestCode == REQUEST_CODE_TAKE_VIDEO && resultCode == RESULT_OK) {
@@ -489,12 +489,12 @@ public class ChatConversationActivity extends Activity implements
     }
 
     private void onRecordStart() {
-        LogUtil.info(TAG, "Recording.....");
+        LogUtils.info(TAG, "Recording.....");
         mRecorder.start();
     }
 
     private void onRecordFinished() {
-        LogUtil.info(TAG, "Record finished");
+        LogUtils.info(TAG, "Record finished");
         String filePath = mRecorder.stop();
         if (!ToolUtils.isEmptyString(filePath)) {
             sendVoiceMessage(filePath);

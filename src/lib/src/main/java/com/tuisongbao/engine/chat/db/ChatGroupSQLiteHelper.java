@@ -3,7 +3,7 @@ package com.tuisongbao.engine.chat.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 public class ChatGroupSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_GROUP = "chatGroup";
@@ -38,14 +38,14 @@ public class ChatGroupSQLiteHelper extends ChatBaseSQLiteHelper {
           + COLUMN_USER_COUNT_LIMIT + " integer, "
           + COLUMN_LAST_ACTIVE_AT + " text"
           + ");";
-        LogUtil.debug(TAG, createDatabaseString);
+        LogUtils.debug(TAG, createDatabaseString);
         database.execSQL(createDatabaseString);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
-        LogUtil.warn(TAG, "Upgrading database from version " + oldVersion + " to "
-                    + newVersion + ", which will destroy all old data");
+        LogUtils.warn(TAG, "Upgrading database from version " + oldVersion + " to "
+                + newVersion + ", which will destroy all old data");
         database.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_GROUP);
         onCreate(database);
     }

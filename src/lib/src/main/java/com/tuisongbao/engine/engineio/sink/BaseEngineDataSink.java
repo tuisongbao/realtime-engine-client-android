@@ -2,7 +2,7 @@ package com.tuisongbao.engine.engineio.sink;
 
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.engineio.exception.DataSinkException;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -52,7 +52,7 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
         }
 
         public synchronized void done() {
-            LogUtil.debug(TAG, "Stopping notification thread");
+            LogUtils.debug(TAG, "Stopping notification thread");
             mRunning = false;
             interrupt();
         }
@@ -65,7 +65,7 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
                         mNotificationReceived.await();
                     }
                 } catch(InterruptedException e) {
-                    LogUtil.debug(TAG, "Interrupted while waiting for a new " +
+                    LogUtils.debug(TAG, "Interrupted while waiting for a new " +
                             "item for notification -- likely shutting down");
                     return;
                 } finally {
@@ -73,12 +73,12 @@ public abstract class BaseEngineDataSink extends EventEmitter implements IEngine
                 }
 
                 String event;
-                LogUtil.debug(TAG, "Received rawEvent number: " + mNotifications.size());
+                LogUtils.debug(TAG, "Received rawEvent number: " + mNotifications.size());
                 while((event = mNotifications.poll()) != null) {
                     propagateEvent(event);
                 }
             }
-            LogUtil.debug(TAG, "Stopped event receive");
+            LogUtils.debug(TAG, "Stopped event receive");
         }
     }
 }

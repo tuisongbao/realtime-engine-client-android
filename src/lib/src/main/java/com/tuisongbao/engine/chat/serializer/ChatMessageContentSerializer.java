@@ -11,7 +11,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.lang.reflect.Type;
 
@@ -50,7 +50,7 @@ public class ChatMessageContentSerializer implements JsonDeserializer<ChatMessag
                 content.setExtra(extraInJson);
             }
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
         return content;
     }

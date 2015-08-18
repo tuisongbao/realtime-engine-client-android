@@ -9,7 +9,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             stopLastMedia();
             startPlay(message, stopListener, errorListener, progressCallback);
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -116,7 +116,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
                         });
                     }
                 } catch (IOException e) {
-                    LogUtil.error(TAG, e);
+                    LogUtils.error(TAG, e);
                     callbackErrorListener(message, e.getMessage());
                 }
             }
@@ -152,7 +152,7 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
 
     @Override
     public boolean onError(MediaPlayer arg0, int arg1, int arg2) {
-        LogUtil.info(TAG, arg1 + "; " + arg2);
+        LogUtils.info(TAG, arg1 + "; " + arg2);
         return false;
     }
 }

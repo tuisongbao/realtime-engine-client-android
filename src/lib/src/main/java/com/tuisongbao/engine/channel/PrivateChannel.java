@@ -7,7 +7,7 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.ExecutorUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -74,7 +74,7 @@ public class PrivateChannel extends Channel {
                     json = getHttpRequestObjectOfAuth();
                 } catch (JSONException e) {
                     callback.onError(engine.getUnhandledResponseError());
-                    LogUtil.error(TAG, "Channel validation failed.",  e);
+                    LogUtils.error(TAG, "Channel validation failed.", e);
                     return;
                 }
                 BaseRequest authRequest = new BaseRequest(

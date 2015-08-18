@@ -21,7 +21,7 @@ import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.List;
 
@@ -71,7 +71,7 @@ public final class ChatGroupManager extends BaseManager {
             send(event, response);
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -109,7 +109,7 @@ public final class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
 
     }
@@ -134,7 +134,7 @@ public final class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -159,7 +159,7 @@ public final class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -184,7 +184,7 @@ public final class ChatGroupManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -205,7 +205,7 @@ public final class ChatGroupManager extends BaseManager {
             send(event, response);
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 

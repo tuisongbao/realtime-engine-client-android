@@ -3,7 +3,6 @@ package com.tuisongbao.engine.utils;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.entity.RawEvent;
-import com.tuisongbao.engine.log.LogUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -37,7 +36,7 @@ public class PushUtils {
             // We not get the push token, wait for a second and retry.
         }
         // If connection is not available or the push token is null, retry.
-        LogUtil.info(TAG, "Waiting... now the connection is " + engine.getConnection().isConnected()
+        LogUtils.info(TAG, "Waiting... now the connection is " + engine.getConnection().isConnected()
                 + " and token " + mPushToken);
         ExecutorUtils.getTimers().schedule(new Runnable() {
             @Override
@@ -101,7 +100,7 @@ public class PushUtils {
             }
             return true;
         } catch (Exception e) {
-            LogUtil.warn(TAG, "Load push config failed", e);
+            LogUtils.warn(TAG, "Load push config failed", e);
         }
         return false;
     }

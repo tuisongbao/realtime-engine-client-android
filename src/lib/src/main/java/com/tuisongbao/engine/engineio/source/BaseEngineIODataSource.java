@@ -1,7 +1,7 @@
 package com.tuisongbao.engine.engineio.source;
 
 import com.tuisongbao.engine.engineio.exception.DataSourceException;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -24,17 +24,17 @@ public class BaseEngineIODataSource extends BaseEngineDataSource
         if(!mRunning) {
             mRunning = true;
             new Thread(this).start();
-            LogUtil.debug(TAG, "Start");
+            LogUtils.debug(TAG, "Start");
         }
     }
 
     public synchronized void stop() {
         super.stop();
         if(!mRunning) {
-            LogUtil.debug(TAG, "Already stopped.");
+            LogUtils.debug(TAG, "Already stopped.");
             return;
         }
-        LogUtil.debug(TAG, "Stopping...");
+        LogUtils.debug(TAG, "Stopping...");
         mRunning = false;
         disconnect();
     }
@@ -46,7 +46,7 @@ public class BaseEngineIODataSource extends BaseEngineDataSource
             try {
                 connect();
             } catch(DataSourceException e) {
-                LogUtil.error(TAG, "Unable to connect to target engine -- " +
+                LogUtils.error(TAG, "Unable to connect to target engine -- " +
                         "sleeping for awhile before trying again");
                 try {
                     Thread.sleep(5000);
@@ -63,7 +63,7 @@ public class BaseEngineIODataSource extends BaseEngineDataSource
 
             mConnectionLock.unlock();
         }
-        LogUtil.warn(TAG, "Stopped");
+        LogUtils.warn(TAG, "Stopped");
     }
 
     protected void waitForConnect() {
@@ -71,7 +71,7 @@ public class BaseEngineIODataSource extends BaseEngineDataSource
             // waiting for connection
             mConnectionChanged.await();
         } catch(InterruptedException e) {
-            LogUtil.debug(TAG, "Interrupted while waiting for a new " +
+            LogUtils.debug(TAG, "Interrupted while waiting for a new " +
                     "item for notification -- likely shutting down");
             stop();
         }

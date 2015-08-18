@@ -1,19 +1,17 @@
-package com.tuisongbao.engine.log;
+package com.tuisongbao.engine.utils;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
 import android.util.Log;
-
-import com.tuisongbao.engine.utils.StrUtils;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class LogUtil {
-    private static final String TAG = "TSB" + LogUtil.class.getSimpleName();
-    private static final String LOG_FILE_NAME_STRING = "push-error-logs.txt";
+public class LogUtils {
+    private static final String TAG = "TSB" + LogUtils.class.getSimpleName();
+    private static final String LOG_FILE_NAME_STRING = "engine-error-logs.txt";
 
 
     public static int mLogLevel = 0;
@@ -122,7 +120,7 @@ public class LogUtil {
                 try {
                     file = new File(
                             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                            LogUtil.LOG_FILE_NAME_STRING);
+                            LogUtils.LOG_FILE_NAME_STRING);
 
                     // ensure that the log file is less than 1M.
                     if (file.length() < 1 * 1024 * 1024) {

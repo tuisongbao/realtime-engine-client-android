@@ -18,7 +18,7 @@ import com.tuisongbao.engine.chat.message.event.handler.ChatMessageMultiGetEvent
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public final class ChatConversationManager extends BaseManager {
             sendRequestOfGetConversations(chatType, target, lastActiveAt, callback);
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -101,7 +101,7 @@ public final class ChatConversationManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -126,7 +126,7 @@ public final class ChatConversationManager extends BaseManager {
 
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -161,7 +161,7 @@ public final class ChatConversationManager extends BaseManager {
             requestMissingMessagesInLocalCache(chatType, target, startMessageId, endMessageId, limit, callback);
         } catch (Exception e) {
             callback.onError(engine.getUnhandledResponseError());
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -171,7 +171,7 @@ public final class ChatConversationManager extends BaseManager {
             dataSource.deleteAllData();
             dataSource.close();
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 
@@ -185,7 +185,7 @@ public final class ChatConversationManager extends BaseManager {
         // Query local data
         dataSource.open();
         List<ChatMessage> messages = dataSource.getMessages(currentUserId, chatType, target, startMessageId, endMessageId, limit);
-        LogUtil.debug(TAG, "Get " + messages.size() + " messages");
+        LogUtils.debug(TAG, "Get " + messages.size() + " messages");
         dataSource.close();
 
         // if startMessageId is null, pull the latest messages.

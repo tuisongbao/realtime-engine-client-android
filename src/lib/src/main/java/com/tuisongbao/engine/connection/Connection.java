@@ -15,7 +15,7 @@ import com.tuisongbao.engine.engineio.source.BaseEngineIODataSource;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.PushUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -199,11 +199,11 @@ public class Connection extends BaseEngineIODataSource {
     @Override
     public void connect() {
         if (mLastState == State.Connected) {
-            LogUtil.warn(TAG, "Already connected");
+            LogUtils.warn(TAG, "Already connected");
             return;
         }
 
-        LogUtil.info(TAG, "Connecting...");
+        LogUtils.info(TAG, "Connecting...");
 
         if (mLastState != State.Connecting) {
             updateState(State.Connecting);
@@ -220,7 +220,7 @@ public class Connection extends BaseEngineIODataSource {
                 try {
                     socketAddr = json.getString(Protocol.REQUEST_KEY_WS_ADDR);
                 } catch (JSONException e) {
-                    LogUtil.error(TAG, "Engine server request url getCallbackData exception", e);
+                    LogUtils.error(TAG, "Engine server request url getCallbackData exception", e);
                 }
                 String webSocketUrl = getWebSocketURL(socketAddr);
                 if (!StrUtils.isEmpty(webSocketUrl)) {
@@ -239,7 +239,7 @@ public class Connection extends BaseEngineIODataSource {
     @Override
     public void disconnect() {
         if (mLastState == State.Disconnected) {
-            LogUtil.warn(TAG, "Already disconnected");
+            LogUtils.warn(TAG, "Already disconnected");
             return;
         }
         if (mSocket != null) {
@@ -284,20 +284,20 @@ public class Connection extends BaseEngineIODataSource {
 
         trigger(state.getName(), state);
 
-        LogUtil.info(TAG, "State changed from " + mLastState + " to " + state);
+        LogUtils.info(TAG, "State changed from " + mLastState + " to " + state);
         trigger(EVENT_STATE_CHANGED, mLastState, state);
 
         mLastState = state;
     }
 
     void onSocketClosed(Object... args) {
-        LogUtil.info(TAG, "Socket Close [msg=" + getArgsMSG(args) + "]");
+        LogUtils.info(TAG, "Socket Close [msg=" + getArgsMSG(args) + "]");
     }
 
     public BaseEvent send(BaseEvent event) {
         event.setId(getRequestId());
         String eventString = event.serialize();
-        LogUtil.verbose(TAG, "Send event:" + eventString);
+        LogUtils.verbose(TAG, "Send event:" + eventString);
         mSocket.send(eventString);
         return event;
     }
@@ -319,7 +319,7 @@ public class Connection extends BaseEngineIODataSource {
         try {
             webSocketUrl += URLEncoder.encode(mOptions.getPlatform().replace(" ", "%20"), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            LogUtil.warn(TAG, "Encoding Platform: " + mOptions.getPlatform() + " failed by " + e.getMessage());
+            LogUtils.warn(TAG, "Encoding Platform: " + mOptions.getPlatform() + " failed by " + e.getMessage());
             webSocketUrl += "Unknown";
         }
         return webSocketUrl;
@@ -335,18 +335,18 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.info(TAG, "Socket Open [msg=" + getArgsMSG(args) + "]");
+                    LogUtils.info(TAG, "Socket Open [msg=" + getArgsMSG(args) + "]");
                 }
             }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.verbose(TAG, "Socket receive " + args[0].toString());
+                    LogUtils.verbose(TAG, "Socket receive " + args[0].toString());
                     if (args.length > 0) {
                         try {
                             onEvent(args[0].toString());
                         } catch (Exception e) {
-                            LogUtil.info(TAG, "Handle Message Exception [msg="
+                            LogUtils.info(TAG, "Handle Message Exception [msg="
                                     + e.getLocalizedMessage() + "]");
                         }
                     }
@@ -356,7 +356,7 @@ public class Connection extends BaseEngineIODataSource {
                 @Override
                 public void call(Object... args) {
                     String errorMessage = ((Exception) args[0]).getLocalizedMessage();
-                    LogUtil.error(TAG, "Socket Error [msg=" + errorMessage);
+                    LogUtils.error(TAG, "Socket Error [msg=" + errorMessage);
                     trigger(EVENT_ERROR, errorMessage);
                 }
             }).on(Socket.EVENT_CLOSE, new Emitter.Listener() {
@@ -369,28 +369,28 @@ public class Connection extends BaseEngineIODataSource {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.verbose(TAG, "Socket Flush [msg=" + getArgsMSG(args) + "]");
+                    LogUtils.verbose(TAG, "Socket Flush [msg=" + getArgsMSG(args) + "]");
                 }
             }).on(Socket.EVENT_TRANSPORT, new Emitter.Listener() {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.verbose(TAG, "Socket Transport [msg=" + getArgsMSG(args) + "]");
+                    LogUtils.verbose(TAG, "Socket Transport [msg=" + getArgsMSG(args) + "]");
                 }
             }).on(Socket.EVENT_HANDSHAKE, new Emitter.Listener() {
 
                 @Override
                 public void call(Object... args) {
-                    LogUtil.verbose(TAG, "Socket HandShake");
+                    LogUtils.verbose(TAG, "Socket HandShake");
                     if (args != null && args.length > 0 && args[0] instanceof HandshakeData) {
-                        LogUtil.info(TAG, "Socket HandShake [mSocketId=" + ((HandshakeData) args[0]).sid + "]");
+                        LogUtils.info(TAG, "Socket HandShake [mSocketId=" + ((HandshakeData) args[0]).sid + "]");
                     }
                 }
             });
             mSocket.open();
             waitForConnect();
         } catch (URISyntaxException e) {
-            LogUtil.error(TAG, "Open socket failed", e);
+            LogUtils.error(TAG, "Open socket failed", e);
         }
     }
 
@@ -403,18 +403,18 @@ public class Connection extends BaseEngineIODataSource {
 
     void handleConnectionEvent(String eventName, ConnectionEventData data) {
         if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ERROR)) {
-            LogUtil.info(TAG, "Connection error: " + data);
+            LogUtils.info(TAG, "Connection error: " + data);
             lastConnectionError = data;
             updateState(State.Failed);
             trigger(EVENT_ERROR, data.getMessage());
             disconnect();
         } else if (StrUtils.isEqual(eventName, Protocol.EVENT_NAME_CONNECTION_ESTABLISHED)) {
-            LogUtil.info(TAG, "Connected");
+            LogUtils.info(TAG, "Connected");
             updateState(State.Connected);
 
             PushUtils.bindPush(mEngine);
         } else {
-            LogUtil.info(TAG, "Unknown event " + eventName + " with message " + data.getMessage());
+            LogUtils.info(TAG, "Unknown event " + eventName + " with message " + data.getMessage());
         }
     }
 
@@ -429,7 +429,7 @@ public class Connection extends BaseEngineIODataSource {
             // Notify the pipeline which will ferries data to sink
             dispatchEvent(eventString);
         } else {
-            LogUtil.warn(TAG, "Received unknown event");
+            LogUtils.warn(TAG, "Received unknown event");
         }
     }
 

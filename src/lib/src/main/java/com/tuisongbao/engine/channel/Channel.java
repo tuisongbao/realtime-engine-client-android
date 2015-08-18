@@ -6,7 +6,7 @@ import com.tuisongbao.engine.channel.message.UnsubscribeEvent;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 
 /**
  * <STRONG>普通 Channel</STRONG>
@@ -67,22 +67,22 @@ public class Channel extends EventEmitter {
      * 该操作是异步的，需要通过绑定 engine:subscription_succeeded 和 engine:subscription_error Event 来获取订阅结果
      */
     public void subscribe() {
-        LogUtil.debug(TAG, "Begin auth channel: " + channel);
+        LogUtils.debug(TAG, "Begin auth channel: " + channel);
         validate(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String t) {
-                LogUtil.info(TAG, "Channel validation pass: " + t);
+                LogUtils.info(TAG, "Channel validation pass: " + t);
                 try {
                     sendSubscribeRequest();
                 } catch (Exception e) {
-                    LogUtil.error(TAG, "Send subscribe request failed", e);
+                    LogUtils.error(TAG, "Send subscribe request failed", e);
                 }
             }
 
             @Override
             public void onError(ResponseError error) {
-                LogUtil.info(TAG, "Channel validation failed: " + error.getMessage());
+                LogUtils.info(TAG, "Channel validation failed: " + error.getMessage());
                 trigger(EVENT_SUBSCRIPTION_ERROR, error.getMessage());
 
                 // remove reference from ChannelManager
@@ -104,7 +104,7 @@ public class Channel extends EventEmitter {
             // Remove listeners on engineIO layer
             engine.getChannelManager().unbind(channel);
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         }
     }
 

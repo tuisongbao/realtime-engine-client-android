@@ -6,7 +6,6 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +27,7 @@ public class DownloadUtils {
      */
     public static void downloadResourceIntoLocal(final String urlString, final TYPE type, final EngineCallback<String> callback
             , final ProgressCallback progressCallback) {
-        LogUtil.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
+        LogUtils.info(TAG, "Begin to download " + type.getName() + " from " + urlString);
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override
@@ -51,7 +50,7 @@ public class DownloadUtils {
                     ResponseError error = new ResponseError();
                     error.setMessage(e.getMessage());
                     callback.onError(error);
-                    LogUtil.error(TAG, e);
+                    LogUtils.error(TAG, e);
                 }
             }
         });
@@ -88,7 +87,7 @@ public class DownloadUtils {
             String filePath = outputFile.getPath();
             callback.onSuccess(filePath);
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
             ResponseError error = new ResponseError();
             error.setMessage("Downloading resource failed " + e.getMessage());
             callback.onError(error);

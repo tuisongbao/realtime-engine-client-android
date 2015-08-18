@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.utils;
 
-import com.tuisongbao.engine.log.LogUtil;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,7 +67,7 @@ public class StrUtils {
             try {
                 date = format.parse(dateString);
             } catch (ParseException e) {
-                LogUtil.error(TAG, e);
+                LogUtils.error(TAG, e);
             }
         }
         return date;

@@ -13,7 +13,7 @@ import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileContent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.log.LogUtil;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.DownloadUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -164,14 +164,14 @@ public class ChatMessageContent {
             getFile().setThumbnailPath(file.getAbsolutePath());
             return true;
         } catch (Exception e) {
-            LogUtil.error(TAG, e);
+            LogUtils.error(TAG, e);
         } finally {
             try {
                 if (out != null) {
                     out.close();
                 }
             } catch (IOException e) {
-                LogUtil.error(TAG, e);
+                LogUtils.error(TAG, e);
             }
         }
         return false;
@@ -192,7 +192,7 @@ public class ChatMessageContent {
         }
         File fileTest = new File(filePath);
         if (!fileTest.exists()) {
-            LogUtil.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
+            LogUtils.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
             return false;
         }
         return true;
