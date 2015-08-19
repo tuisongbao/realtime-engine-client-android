@@ -100,6 +100,8 @@ public class ChatConversationsAdapter extends BaseAdapter {
             simplifiedMessage = "[语音]";
         } else if (messageType == TYPE.EVENT) {
             simplifiedMessage = ToolUtils.getEventMessage(lastMessage);
+        } else if (messageType == TYPE.LOCATION) {
+            simplifiedMessage = "[地理位置]";
         }
         messageTextView.setText(simplifiedMessage);
         messageTextView.setTextColor(mContext.getResources().getColor(R.color.gray));

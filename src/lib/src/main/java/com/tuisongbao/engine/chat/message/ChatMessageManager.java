@@ -45,7 +45,7 @@ public class ChatMessageManager extends BaseManager {
         try {
             message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
-            if (messageType == ChatMessage.TYPE.TEXT) {
+            if (messageType == ChatMessage.TYPE.TEXT || messageType == ChatMessage.TYPE.LOCATION) {
                 sendMessageEvent(message, callback);
             } else {
                 sendMediaMessage(message, callback, progressCallback);

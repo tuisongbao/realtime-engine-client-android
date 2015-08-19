@@ -171,7 +171,9 @@ public class ChatConversation {
                 .setChatType(type)
                 .setRecipient(target)
                 .setFrom(mEngine.getChatManager().getChatUser().getUserId());
-        content.generateThumbnail(200);
+        if (content.getType() == ChatMessage.TYPE.IMAGE) {
+            content.generateThumbnail(200);
+        }
         return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
     }
 

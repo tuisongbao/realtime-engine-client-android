@@ -35,7 +35,8 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
             // Media message, get download url and update DB
             fileInSentMessage.setUrl(fileInResponseMessage.getUrl());
             fileInSentMessage.setThumbUrl(fileInResponseMessage.getThumbUrl());
-        } else if (locationInResponseMessage != null) {
+        }
+        if (locationInResponseMessage != null) {
             locationInSentMessage.setPoi(locationInResponseMessage.getPoi());
         }
         sentMessage.setFrom(userId);

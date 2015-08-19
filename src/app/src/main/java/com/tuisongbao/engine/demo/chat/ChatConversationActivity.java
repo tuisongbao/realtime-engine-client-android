@@ -248,7 +248,7 @@ public class ChatConversationActivity extends Activity implements
                     public void onError(ResponseError error) {
 
                     }
-                });
+                }, 5);
             }
         });
 

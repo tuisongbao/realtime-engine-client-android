@@ -19,6 +19,7 @@ import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -168,8 +169,9 @@ public class ChatMessagesAdapter extends BaseAdapter {
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
-            textView.setText("Not support location message now, coming soon...");
-            textView.setTextSize(17);
+            ChatMessageLocationEntity location = content.getLocation();
+            String locationDescription = String.format("经纬度：(%s, %s), 兴趣点： %s", location.getLat(), location.getLng(), location.getPoi());
+            textView.setText(locationDescription);
         }
     }
 

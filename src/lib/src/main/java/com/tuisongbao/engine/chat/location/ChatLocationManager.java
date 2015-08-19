@@ -42,7 +42,7 @@ public class ChatLocationManager {
     /**
      * 超过该间隔，直接回调获取地理位置的处理方法。
      */
-    private int TIMEOUT = 30 * 1000;
+    private int TIMEOUT = 5 * 1000;
     /**
      * 获取地理位置超时处理方法
      */
@@ -64,11 +64,17 @@ public class ChatLocationManager {
      *
      * <P>
      *     处理方法的回调参数不保证一定会返回当前位置。在没有开启位置服务并且没有网络连接的情况下，是无法实时获取到当前位置的，此时会返回上一次记录的位置。
+     *     此外，超过给定时间限制后会触发 {@code onSuccess} 的回调，并将上一次记录的位置返回。
      *
      * @param callback 处理方法
+     * @param timeoutInSeconds 超时时间，单位是 “秒”，默认为 5 秒。
      * @return 上一次记录的位置，可能为 {@code null}
      */
-    public Location getCurrentLocation(final EngineCallback<Location> callback) {
+    public Location getCurrentLocation(final EngineCallback<Location> callback, int timeoutInSeconds) {
+        int timeout = TIMEOUT;
+        if (timeoutInSeconds > 0) {
+            timeout = timeoutInSeconds;
+        }
         manager = (LocationManager) Engine.getContext().getSystemService(Context.LOCATION_SERVICE);
 
         final LocationListener listener = new LocationListener() {
@@ -98,6 +104,7 @@ public class ChatLocationManager {
                 LogUtils.debug(TAG, "onProviderDisabled " + provider);
             }
         };
+
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
         String bestProvider = manager.getBestProvider(criteria, true);
@@ -125,13 +132,17 @@ public class ChatLocationManager {
                 manager.removeUpdates(listener);
             }
         };
-        timeoutHandler.postDelayed(callbackRunnable, TIMEOUT);
+        timeoutHandler.postDelayed(callbackRunnable, timeout);
         return bestLocation;
     }
 
     private boolean isBetterLocation(Location location, Location currentBestLocation) {
         if (null == currentBestLocation) {
             return true;
+        }
+
+        if (location == null) {
+            return false;
         }
 
         // Check whether the new location fix is newer or older
