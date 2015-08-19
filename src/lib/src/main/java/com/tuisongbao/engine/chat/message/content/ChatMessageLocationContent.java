@@ -13,4 +13,26 @@ public class ChatMessageLocationContent extends ChatMessageContent {
         ChatMessageLocationEntity entity = new ChatMessageLocationEntity(location);
         setLocation(entity);
     }
+
+    public ChatMessageLocationContent(double latitude, double longitude, String pointOfInterest) {
+        setType(ChatMessage.TYPE.LOCATION);
+
+        ChatMessageLocationEntity entity = new ChatMessageLocationEntity();
+        entity.setLat(latitude);
+        entity.setLng(longitude);
+        entity.setPoi(pointOfInterest);
+        setLocation(entity);
+    }
+
+    public double getLatitude() {
+        return getLocation().getLat();
+    }
+
+    public double getLongitude() {
+        return getLocation().getLng();
+    }
+
+    public String getPointOfInterest() {
+        return getLocation().getPoi();
+    }
 }

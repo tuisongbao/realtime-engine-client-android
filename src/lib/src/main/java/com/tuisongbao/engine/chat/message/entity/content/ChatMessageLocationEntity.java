@@ -9,6 +9,9 @@ public class ChatMessageLocationEntity {
     private double lng;
     private String poi;
 
+    public ChatMessageLocationEntity() {
+    }
+
     public ChatMessageLocationEntity(Location location) {
         setLat(location.getLatitude());
         setLng(location.getLongitude());

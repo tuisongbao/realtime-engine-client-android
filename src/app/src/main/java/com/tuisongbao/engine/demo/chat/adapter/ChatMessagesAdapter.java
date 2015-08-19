@@ -16,10 +16,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
+import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -169,8 +169,9 @@ public class ChatMessagesAdapter extends BaseAdapter {
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
-            ChatMessageLocationEntity location = content.getLocation();
-            String locationDescription = String.format("经纬度：(%s, %s), 兴趣点： %s", location.getLat(), location.getLng(), location.getPoi());
+            ChatMessageLocationContent location = (ChatMessageLocationContent)content;
+            String locationDescription = String.format("经纬度：(%s, %s), 兴趣点： %s"
+                    , location.getLongitude(), location.getLatitude(), location.getPointOfInterest());
             textView.setText(locationDescription);
         }
     }

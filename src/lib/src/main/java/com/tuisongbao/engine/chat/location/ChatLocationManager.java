@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.utils.LogUtils;
 
@@ -21,7 +22,7 @@ import java.util.Date;
  * <P>
  *     获取最近一次的位置以及当前位置，以经纬度标记。
  */
-public class ChatLocationManager {
+public class ChatLocationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatLocationManager.class.getSimpleName();
 
     /**
@@ -71,69 +72,75 @@ public class ChatLocationManager {
      * @return 上一次记录的位置，可能为 {@code null}
      */
     public Location getCurrentLocation(final EngineCallback<Location> callback, int timeoutInSeconds) {
-        int timeout = TIMEOUT;
-        if (timeoutInSeconds > 0) {
-            timeout = timeoutInSeconds;
-        }
-        manager = (LocationManager) Engine.getContext().getSystemService(Context.LOCATION_SERVICE);
+        try {
+            int timeout = TIMEOUT;
+            if (timeoutInSeconds > 0) {
+                timeout = timeoutInSeconds * 1000;
+            }
+            manager = (LocationManager) Engine.getContext().getSystemService(Context.LOCATION_SERVICE);
 
-        final LocationListener listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                LogUtils.info(TAG, "Get location update:" + locationDescription(bestLocation));
+            final LocationListener listener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    LogUtils.info(TAG, "Get location update:" + locationDescription(bestLocation));
+                    if (isBetterLocation(location, bestLocation)) {
+                        bestLocation = location;
+                        LogUtils.info(TAG, "Current best location:" + locationDescription(bestLocation));
+                    }
+                    timeoutHandler.removeCallbacks(callbackRunnable);
+                    callbackRunnable.run();
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                    LogUtils.debug(TAG, "onStatusChanged " + provider + " " + status);
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                    LogUtils.debug(TAG, "onProviderEnabled " + provider);
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+                    LogUtils.debug(TAG, "onProviderDisabled " + provider);
+                }
+            };
+
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            String bestProvider = manager.getBestProvider(criteria, true);
+            if (bestProvider == null) {
+                manager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, listener, null);
+            } else {
+                manager.requestSingleUpdate(bestProvider, listener, null);
+            }
+
+            for (String provider: manager.getAllProviders()) {
+                Location location = manager.getLastKnownLocation(provider);
+                LogUtils.debug(TAG, "Last known location:" + locationDescription(bestLocation));
                 if (isBetterLocation(location, bestLocation)) {
                     bestLocation = location;
                     LogUtils.info(TAG, "Current best location:" + locationDescription(bestLocation));
                 }
-                timeoutHandler.removeCallbacks(callbackRunnable);
-                callbackRunnable.run();
             }
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                LogUtils.debug(TAG, "onStatusChanged " + provider + " " + status);
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                LogUtils.debug(TAG, "onProviderEnabled " + provider);
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                LogUtils.debug(TAG, "onProviderDisabled " + provider);
-            }
-        };
-
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        String bestProvider = manager.getBestProvider(criteria, true);
-        if (bestProvider == null) {
-            manager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, listener, null);
-        } else {
-            manager.requestSingleUpdate(bestProvider, listener, null);
+            timeoutHandler = new Handler();
+            callbackRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    LogUtils.info(TAG, "Time is up, callback with last best location");
+                    callback.onSuccess(bestLocation);
+                    manager.removeUpdates(listener);
+                }
+            };
+            timeoutHandler.postDelayed(callbackRunnable, timeout);
+            return bestLocation;
+        } catch (Exception e) {
+            callback.onError(engine.getUnhandledResponseError());
+            LogUtils.error(TAG, e);
         }
-
-        for (String provider: manager.getAllProviders()) {
-            Location location = manager.getLastKnownLocation(provider);
-            LogUtils.debug(TAG, "Last known location:" + locationDescription(bestLocation));
-            if (isBetterLocation(location, bestLocation)) {
-                bestLocation = location;
-                LogUtils.info(TAG, "Current best location:" + locationDescription(bestLocation));
-            }
-        }
-
-        timeoutHandler = new Handler();
-        callbackRunnable = new Runnable() {
-            @Override
-            public void run() {
-                LogUtils.info(TAG, "Time is up, callback with last best location");
-                callback.onSuccess(bestLocation);
-                manager.removeUpdates(listener);
-            }
-        };
-        timeoutHandler.postDelayed(callbackRunnable, timeout);
-        return bestLocation;
+        return null;
     }
 
     private boolean isBetterLocation(Location location, Location currentBestLocation) {

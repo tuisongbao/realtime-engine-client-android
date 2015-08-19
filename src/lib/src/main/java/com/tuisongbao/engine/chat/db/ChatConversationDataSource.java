@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
+import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
@@ -329,7 +330,7 @@ public class ChatConversationDataSource {
             content.setText(cursor.getString(5));
         } else if (contentType.equals(TYPE.LOCATION.getName())) {
             ChatMessageLocationEntity location = ChatMessageLocationEntity.deserialize(cursor.getString(16));
-            content.setLocation(location);
+            content = new ChatMessageLocationContent(location.getLat(), location.getLng(), location.getPoi());
         } else if (contentType.equals(TYPE.EVENT.getName())) {
             ChatMessageEventEntity event = new ChatMessageEventEntity();
             event.setType(ChatMessageEventEntity.TYPE.getType(cursor.getString(17)));
