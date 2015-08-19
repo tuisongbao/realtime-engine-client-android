@@ -169,6 +169,7 @@ public class ChatMessage {
         if (content == null) {
             content = new ChatMessageContent();
         }
+        // TODO: 15-8-19 Return concrete content type
         content.setEngine(mEngine);
         return content;
     }

@@ -11,6 +11,7 @@ import android.os.Handler;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.utils.LogUtils;
 
 import java.text.SimpleDateFormat;
@@ -130,8 +131,14 @@ public class ChatLocationManager extends BaseManager {
                 @Override
                 public void run() {
                     LogUtils.info(TAG, "Time is up, callback with last best location");
-                    callback.onSuccess(bestLocation);
                     manager.removeUpdates(listener);
+                    if (bestLocation == null) {
+                        ResponseError error = new ResponseError();
+                        error.setMessage("Get location failed, please check the location access authority");
+                        callback.onError(error);
+                    } else {
+                        callback.onSuccess(bestLocation);
+                    }
                 }
             };
             timeoutHandler.postDelayed(callbackRunnable, timeout);

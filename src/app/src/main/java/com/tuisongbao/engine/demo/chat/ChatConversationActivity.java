@@ -235,18 +235,14 @@ public class ChatConversationActivity extends Activity implements
                 ChatLocationManager.getInstance().getCurrentLocation(new EngineCallback<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        if (location == null) {
-                            Toast.makeText(getApplicationContext(), "定位失败", Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(getApplicationContext(), "定位成功，发送当前位置", Toast.LENGTH_LONG).show();
-                            ChatMessageLocationContent content = new ChatMessageLocationContent(location);
-                            mConversation.sendMessage(content, sendMessageCallback, null);
-                        }
+                        Toast.makeText(getApplicationContext(), "定位成功，发送当前位置", Toast.LENGTH_LONG).show();
+                        ChatMessageLocationContent content = new ChatMessageLocationContent(location);
+                        mConversation.sendMessage(content, sendMessageCallback, null);
                     }
 
                     @Override
                     public void onError(ResponseError error) {
-
+                        Toast.makeText(getApplicationContext(), "定位失败", Toast.LENGTH_LONG).show();
                     }
                 }, 5);
             }
