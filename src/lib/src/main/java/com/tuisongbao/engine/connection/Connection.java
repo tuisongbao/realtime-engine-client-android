@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.connection;
 
-import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.engineio.client.HandshakeData;
 import com.github.nkzawa.engineio.client.Socket;
 import com.github.nkzawa.engineio.client.transports.Polling;
@@ -169,7 +168,7 @@ public class Connection extends BaseEngineIODataSource {
     ConnectionEventData lastConnectionError;
     private Socket mSocket;
     private final Engine mEngine;
-    private State mLastState;
+    protected State mLastState;
 
     private Long mRequestId = 1L;
     private final Options mOptions = new Options();
@@ -198,11 +197,6 @@ public class Connection extends BaseEngineIODataSource {
      */
     @Override
     public void connect() {
-        if (mLastState == State.Connected) {
-            LogUtils.warn(TAG, "Already connected");
-            return;
-        }
-
         LogUtils.info(TAG, "Connecting...");
 
         if (mLastState != State.Connecting) {
@@ -331,13 +325,13 @@ public class Connection extends BaseEngineIODataSource {
             ops.transports = new String[] { WebSocket.NAME, Polling.NAME };
 
             mSocket = new Socket(url, ops);
-            mSocket.on(Socket.EVENT_OPEN, new Emitter.Listener() {
+            mSocket.on(Socket.EVENT_OPEN, new Listener() {
 
                 @Override
                 public void call(Object... args) {
                     LogUtils.info(TAG, "Socket Open [msg=" + getArgsMSG(args) + "]");
                 }
-            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
+            }).on(Socket.EVENT_MESSAGE, new Listener() {
 
                 @Override
                 public void call(Object... args) {
@@ -351,7 +345,7 @@ public class Connection extends BaseEngineIODataSource {
                         }
                     }
                 }
-            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
+            }).on(Socket.EVENT_ERROR, new Listener() {
 
                 @Override
                 public void call(Object... args) {
@@ -359,25 +353,25 @@ public class Connection extends BaseEngineIODataSource {
                     LogUtils.error(TAG, "Socket Error [msg=" + errorMessage);
                     trigger(EVENT_ERROR, errorMessage);
                 }
-            }).on(Socket.EVENT_CLOSE, new Emitter.Listener() {
+            }).on(Socket.EVENT_CLOSE, new Listener() {
 
                 @Override
                 public void call(Object... args) {
                     onSocketClosed(args);
                 }
-            }).on(Socket.EVENT_FLUSH, new Emitter.Listener() {
+            }).on(Socket.EVENT_FLUSH, new Listener() {
 
                 @Override
                 public void call(Object... args) {
                     LogUtils.verbose(TAG, "Socket Flush [msg=" + getArgsMSG(args) + "]");
                 }
-            }).on(Socket.EVENT_TRANSPORT, new Emitter.Listener() {
+            }).on(Socket.EVENT_TRANSPORT, new Listener() {
 
                 @Override
                 public void call(Object... args) {
                     LogUtils.verbose(TAG, "Socket Transport [msg=" + getArgsMSG(args) + "]");
                 }
-            }).on(Socket.EVENT_HANDSHAKE, new Emitter.Listener() {
+            }).on(Socket.EVENT_HANDSHAKE, new Listener() {
 
                 @Override
                 public void call(Object... args) {

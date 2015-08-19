@@ -73,6 +73,7 @@ public class AutoReconnectConnection extends Connection {
     @Override
     protected void onSocketClosed(Object... args) {
         super.onSocketClosed(args);
+        updateState(State.Connecting);
         resetConnectionStrategy();
         reconnect();
     }
@@ -88,11 +89,11 @@ public class AutoReconnectConnection extends Connection {
         if (!StrUtils.isEmpty(reconnectStrategy)) {
             mReconnectStrategy = reconnectStrategy;
             int reconnectIn = data.getReconnectIn();
-            if (reconnectIn >= 0) {
+            if (reconnectIn > 0) {
                 mReconnectIn = reconnectIn;
             }
             int reconnectMax = data.getReconnectInMax();
-            if (reconnectMax >= 0) {
+            if (reconnectMax > 0) {
                 mReconnectMax = reconnectMax;
             }
         }
@@ -155,7 +156,7 @@ public class AutoReconnectConnection extends Connection {
     }
 
     private void resetConnectionStrategy() {
-        mReconnectGap = 0;
+        mReconnectGap = 1;
         mReconnectTimes = 0;
         mReconnectStrategy = Protocol.CONNECTION_STRATEGY_BACKOFF;
         mReconnectIn = Protocol.CONNECTION_STRATEGY_BACKOFF_DEFAULT_RECONNECT_IN;
