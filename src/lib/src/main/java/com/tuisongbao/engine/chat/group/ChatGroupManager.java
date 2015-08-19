@@ -5,6 +5,7 @@ import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.db.ChatGroupDataSource;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.group.entity.ChatGroupEventData;
+import com.tuisongbao.engine.chat.group.entity.ChatGroupUser;
 import com.tuisongbao.engine.chat.group.event.ChatGroupCreateEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetEvent;
 import com.tuisongbao.engine.chat.group.event.ChatGroupGetUsersEvent;
@@ -17,7 +18,6 @@ import com.tuisongbao.engine.chat.group.event.handler.ChatGroupGetUsersEventHand
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupJoinInvitationEventHandler;
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupLeaveEventHandler;
 import com.tuisongbao.engine.chat.group.event.handler.ChatGroupRemoveUsersEventHandler;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -122,7 +122,7 @@ public final class ChatGroupManager extends BaseManager {
      * @param callback 结果通知函数
      */
     public void getUsers(String groupId,
-            EngineCallback<List<ChatUserPresence>> callback) {
+            EngineCallback<List<ChatGroupUser>> callback) {
         try {
             ChatGroupGetUsersEvent event = new ChatGroupGetUsersEvent();
             ChatGroupEventData data = new ChatGroupEventData();

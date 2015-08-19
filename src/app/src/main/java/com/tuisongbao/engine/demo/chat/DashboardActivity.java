@@ -150,7 +150,7 @@ public class DashboardActivity extends FragmentActivity {
             @Override
             public void call(Object... args) {
                 ChatUserPresence data = (ChatUserPresence) args[0];
-                showToaster(data.getUserId() + " changed to " + data.getChangedTo());
+                showToaster(data.getUserId() + " changed to " + data.getChangedTo().getName());
             }
         });
         mListenersMap.put(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
