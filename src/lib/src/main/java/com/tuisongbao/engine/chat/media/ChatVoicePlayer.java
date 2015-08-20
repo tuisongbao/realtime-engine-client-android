@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 
+import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
@@ -94,7 +95,8 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
             errorListenerHashMap.put(message, errorListener);
         }
 
-        message.getContent().download(new EngineCallback<String>() {
+        ChatMessageVoiceContent content = (ChatMessageVoiceContent)message.getContent();
+        content.download(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(String filePath) {

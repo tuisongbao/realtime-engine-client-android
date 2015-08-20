@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
@@ -166,15 +167,21 @@ public class ChatConversation {
      * @return ChatMessage 实例。当为发送图片时，会将缩略图的信息填入，方便开发者刷新页面。
      */
     public ChatMessage sendMessage(ChatMessageContent content, EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
-        ChatMessage message = new ChatMessage();
-        message.setContent(content)
-                .setChatType(type)
-                .setRecipient(target)
-                .setFrom(mEngine.getChatManager().getChatUser().getUserId());
-        if (content.getType() == ChatMessage.TYPE.IMAGE) {
-            content.generateThumbnail(200);
+        try {
+            ChatMessage message = new ChatMessage(mEngine);
+            message.setContent(content)
+                    .setChatType(type)
+                    .setRecipient(target)
+                    .setFrom(mEngine.getChatManager().getChatUser().getUserId());
+            if (content.getType() == ChatMessage.TYPE.IMAGE) {
+                ((ChatMessageImageContent)content).generateThumbnail(200);
+            }
+            return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
+        } catch (Exception e) {
+            LogUtils.error(TAG, e);
+            callback.onError(mEngine.getUnhandledResponseError());
         }
-        return mEngine.getChatManager().getMessageManager().sendMessage(message, callback, progressCallback);
+        return null;
     }
 
     private static Gson getSerializer() {

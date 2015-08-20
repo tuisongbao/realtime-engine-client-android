@@ -121,4 +121,10 @@ public class ChatMessageFileEntity {
     public String getThumbUrl() {
         return thumbUrl;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ChatMessageFileEntity[key:%s, url:%s, thumbUrl: %s, name:%s, mimeType:%s, etag:%s, size:%s, width:%d"
+                + ", height:%d, duration:%s]", key, url, thumbUrl, name, mimeType, etag, size, width, height, duration);
+    }
 }

@@ -7,23 +7,23 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
+import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
 
 import java.lang.reflect.Type;
 
 public class ChatMessageEventTypeSerializer implements
-        JsonSerializer<ChatMessageEventEntity.TYPE>, JsonDeserializer<ChatMessageEventEntity.TYPE> {
+        JsonSerializer<ChatMessageEventContent.TYPE>, JsonDeserializer<ChatMessageEventContent.TYPE> {
 
     @Override
-    public JsonElement serialize(ChatMessageEventEntity.TYPE type, Type typeOfT,
+    public JsonElement serialize(ChatMessageEventContent.TYPE type, Type typeOfT,
                                  JsonSerializationContext arg) {
         return new JsonPrimitive(type.getName());
     }
 
     @Override
-    public ChatMessageEventEntity.TYPE deserialize(JsonElement json, Type typeOfT,
+    public ChatMessageEventContent.TYPE deserialize(JsonElement json, Type typeOfT,
                                 JsonDeserializationContext arg) throws JsonParseException {
-        return ChatMessageEventEntity.TYPE.getType(json.getAsString());
+        return ChatMessageEventContent.TYPE.getType(json.getAsString());
     }
 
 }

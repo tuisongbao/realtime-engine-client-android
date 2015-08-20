@@ -3,7 +3,12 @@ package com.tuisongbao.engine.chat.message.entity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
+import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
+import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
@@ -37,7 +42,8 @@ public class ChatMessage {
 
     transient private Engine mEngine;
 
-    public ChatMessage() {
+    public ChatMessage(Engine engine) {
+        mEngine = engine;
     }
 
     public static Gson getSerializer() {
@@ -48,7 +54,7 @@ public class ChatMessage {
                 new ChatMessageTypeSerializer());
         gsonBuilder.registerTypeAdapter(ChatMessageContentSerializer.class,
                 new ChatMessageContentSerializer());
-        gsonBuilder.registerTypeAdapter(ChatMessageEventEntity.TYPE.class, new ChatMessageEventTypeSerializer());
+        gsonBuilder.registerTypeAdapter(ChatMessageEventContent.TYPE.class, new ChatMessageEventTypeSerializer());
 
         return gsonBuilder.create();
     }
@@ -78,6 +84,12 @@ public class ChatMessage {
 
     public void setEngine(Engine engine) {
         this.mEngine = engine;
+
+        // setEngine and setContent may called in different order
+        // FIXME: 15-8-20 This engine reference is a trouble, how to avoid it ?
+        if (content != null) {
+            content.setEngine(engine);
+        }
     }
 
     /**
@@ -167,9 +179,8 @@ public class ChatMessage {
      */
     public ChatMessageContent getContent() {
         if (content == null) {
-            content = new ChatMessageContent();
+            return null;
         }
-        // TODO: 15-8-19 Return concrete content type
         content.setEngine(mEngine);
         return content;
     }
@@ -181,7 +192,26 @@ public class ChatMessage {
      * @return ChatMessage 实例
      */
     public ChatMessage setContent(ChatMessageContent content) {
-        this.content = content;
+        if (content.getType() == TYPE.IMAGE) {
+            this.content = new ChatMessageImageContent();
+            this.content.setFile(content.getFile());
+        } else if (content.getType() == TYPE.VOICE) {
+            this.content = new ChatMessageVoiceContent();
+            this.content.setFile(content.getFile());
+        } else if (content.getType() == TYPE.VIDEO) {
+            this.content = new ChatMessageVideoContent();
+            this.content.setFile(content.getFile());
+        } else if (content.getType() == TYPE.LOCATION) {
+            ChatMessageLocationEntity locationEntity = content.getLocation();
+            this.content = new ChatMessageLocationContent(locationEntity.getLat(), locationEntity.getLng(), locationEntity.getPoi());
+        } else if (content.getType() == TYPE.EVENT) {
+            this.content = new ChatMessageEventContent();
+            this.content.setEvent(content.getEvent());
+        } else {
+            this.content = new ChatMessageContent();
+            this.content.setText(content.getText());
+        }
+        content.setEngine(mEngine);
         return this;
     }
 

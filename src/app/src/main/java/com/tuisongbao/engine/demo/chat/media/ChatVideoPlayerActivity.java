@@ -7,6 +7,7 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
@@ -30,7 +31,8 @@ public class ChatVideoPlayerActivity extends Activity {
         final TextView textView = (TextView)findViewById(R.id.video_progress);
 
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, getIntent().getStringExtra("message"));
-        message.getContent().download(new EngineCallback<String>() {
+        ChatMessageVideoContent content = (ChatMessageVideoContent)message.getContent();
+        content.download(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {

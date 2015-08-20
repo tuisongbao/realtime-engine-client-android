@@ -22,23 +22,28 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
         ChatMessage sentMessage = ((ChatMessageSendEvent)request).getData();
 
         ChatMessageContent responseMessageContent = responseMessage.getContent();
-        // Get file and location entity from response message
-        ChatMessageFileEntity fileInResponseMessage = responseMessageContent.getFile();
-        ChatMessageLocationEntity locationInResponseMessage = responseMessageContent.getLocation();
+        if (responseMessageContent != null) {
+            // Get file and location entity from response message
+            ChatMessageFileEntity fileInResponseMessage = responseMessageContent.getFile();
+            ChatMessageLocationEntity locationInResponseMessage = responseMessageContent.getLocation();
 
-        // Get file and location entity from sent message
-        ChatMessageFileEntity fileInSentMessage = sentMessage.getContent().getFile();
-        ChatMessageLocationEntity locationInSentMessage = sentMessage.getContent().getLocation();
+            // Get file and location entity from sent message
+            ChatMessageFileEntity fileInSentMessage = sentMessage.getContent().getFile();
+            ChatMessageLocationEntity locationInSentMessage = sentMessage.getContent().getLocation();
 
-        // Merge file and location properties into sent message
-        if (fileInResponseMessage != null) {
-            // Media message, get download url and update DB
-            fileInSentMessage.setUrl(fileInResponseMessage.getUrl());
-            fileInSentMessage.setThumbUrl(fileInResponseMessage.getThumbUrl());
+            // Merge file and location properties into sent message
+            if (fileInResponseMessage != null) {
+                // Media message, get download url and update DB
+                fileInSentMessage.setUrl(fileInResponseMessage.getUrl());
+                fileInSentMessage.setThumbUrl(fileInResponseMessage.getThumbUrl());
+            }
+            if (locationInResponseMessage != null) {
+                locationInSentMessage.setPoi(locationInResponseMessage.getPoi());
+            }
+        } else {
+            // Send text message successfully
         }
-        if (locationInResponseMessage != null) {
-            locationInSentMessage.setPoi(locationInResponseMessage.getPoi());
-        }
+
         sentMessage.setFrom(userId);
         sentMessage.setMessageId(responseMessage.getMessageId());
 
@@ -48,8 +53,6 @@ public class ChatMessageSendEventHandler extends BaseEventHandler<ChatMessage> {
             dataSource.upsertMessage(userId, sentMessage);
             dataSource.close();
         }
-
-        sentMessage.setEngine(engine);
         return sentMessage;
     }
 

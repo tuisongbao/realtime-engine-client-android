@@ -16,7 +16,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.media.ChatVoicePlayer;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
@@ -142,7 +145,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             imageView.setVisibility(View.GONE);
             voiceButton.setVisibility(View.GONE);
 
-            textView.setText(content != null ? message.getContent().getText() : "");
+            textView.setText(content.getText());
             textView.setTextSize(17);
 
         } else if (content.getType() == TYPE.IMAGE) {
@@ -177,7 +180,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVoiceMessage(final ChatMessage message, View convertView, final Button voiceButton) {
-        ChatMessageContent content = message.getContent();
+        ChatMessageVoiceContent content = (ChatMessageVoiceContent)message.getContent();
         final double duration = content.getFile().getDuration();
         voiceButton.setText("voice: " + duration);
 
@@ -247,7 +250,8 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showImageMessage(final ChatMessage message, final View contentView, final ImageView imageView, final TextView textView) {
-        message.getContent().downloadThumb(new EngineCallback<String>() {
+        ChatMessageImageContent content = (ChatMessageImageContent)message.getContent();
+        content.downloadThumb(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {
@@ -298,7 +302,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
     }
 
     private void showVideoWidget(final ChatMessage message, View convertView, final ImageView imageView, final TextView textView) {
-        final ChatMessageContent content = message.getContent();
+        final ChatMessageVideoContent content = (ChatMessageVideoContent)message.getContent();
         final double duration = content.getFile().getDuration();
         textView.setText("duration: " + duration);
         textView.setTextColor(mContext.getResources().getColor(R.color.red));
@@ -314,7 +318,7 @@ public class ChatMessagesAdapter extends BaseAdapter {
             }
         };
         imageView.setOnClickListener(listener);
-        message.getContent().downloadThumb(new EngineCallback<String>() {
+        content.downloadThumb(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 ((ChatConversationActivity) mContext).runOnUiThread(new Runnable() {

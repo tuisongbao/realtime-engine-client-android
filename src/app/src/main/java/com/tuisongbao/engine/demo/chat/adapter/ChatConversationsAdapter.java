@@ -98,6 +98,8 @@ public class ChatConversationsAdapter extends BaseAdapter {
             simplifiedMessage = "[图片]";
         } else if (messageType == TYPE.VOICE) {
             simplifiedMessage = "[语音]";
+        } else if (messageType == TYPE.VIDEO) {
+            simplifiedMessage = "[视频]";
         } else if (messageType == TYPE.EVENT) {
             simplifiedMessage = ToolUtils.getEventMessage(lastMessage);
         } else if (messageType == TYPE.LOCATION) {

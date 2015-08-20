@@ -1,12 +1,8 @@
 package com.tuisongbao.engine.chat.message.content;
 
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 
-/**
- * Created by root on 15-8-6.
- */
-public class ChatMessageVideoContent extends ChatMessageContent {
+public class ChatMessageVideoContent extends ChatMessageMediaContent {
     public ChatMessageVideoContent() {
         setType(ChatMessage.TYPE.VIDEO);
     }

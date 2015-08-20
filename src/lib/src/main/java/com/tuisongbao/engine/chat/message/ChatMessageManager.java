@@ -43,7 +43,6 @@ public class ChatMessageManager extends BaseManager {
     public ChatMessage sendMessage(final ChatMessage message,
                             final EngineCallback<ChatMessage> callback, ProgressCallback progressCallback) {
         try {
-            message.setEngine(engine);
             ChatMessage.TYPE messageType = message.getContent().getType();
             if (messageType == ChatMessage.TYPE.TEXT || messageType == ChatMessage.TYPE.LOCATION) {
                 sendMessageEvent(message, callback);

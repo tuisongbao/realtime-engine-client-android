@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
@@ -27,7 +28,8 @@ public class ImageViewActivity extends Activity {
 
         String messageString = getIntent().getStringExtra("message");
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
-        message.getContent().download(new EngineCallback<String>() {
+        ChatMessageImageContent content = (ChatMessageImageContent)message.getContent();
+        content.download(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 runOnUiThread(new Runnable() {
