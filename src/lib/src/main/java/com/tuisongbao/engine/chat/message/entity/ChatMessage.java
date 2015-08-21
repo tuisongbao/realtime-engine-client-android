@@ -4,11 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
-import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
-import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 import com.tuisongbao.engine.chat.serializer.ChatMessageChatTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
@@ -69,6 +64,17 @@ public class ChatMessage {
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
         message.setEngine(engine);
+
+        // Generate the concrete content, for accessing specific properties.
+        // Gson not support this case.
+        ChatMessageContent content = message.getContent();
+        ChatMessageContent concreteContent = ChatMessageContent.getConcreteContent(content.getType());
+        concreteContent.setEngine(engine);
+        concreteContent.setText(content.getText());
+        concreteContent.setFile(content.getFile());
+        concreteContent.setExtra(content.getExtra());
+        concreteContent.setLocation(content.getLocation());
+        message.setContent(concreteContent);
 
         return message;
     }
@@ -192,26 +198,8 @@ public class ChatMessage {
      * @return ChatMessage 实例
      */
     public ChatMessage setContent(ChatMessageContent content) {
-        if (content.getType() == TYPE.IMAGE) {
-            this.content = new ChatMessageImageContent();
-            this.content.setFile(content.getFile());
-        } else if (content.getType() == TYPE.VOICE) {
-            this.content = new ChatMessageVoiceContent();
-            this.content.setFile(content.getFile());
-        } else if (content.getType() == TYPE.VIDEO) {
-            this.content = new ChatMessageVideoContent();
-            this.content.setFile(content.getFile());
-        } else if (content.getType() == TYPE.LOCATION) {
-            ChatMessageLocationEntity locationEntity = content.getLocation();
-            this.content = new ChatMessageLocationContent(locationEntity.getLat(), locationEntity.getLng(), locationEntity.getPoi());
-        } else if (content.getType() == TYPE.EVENT) {
-            this.content = new ChatMessageEventContent();
-            this.content.setEvent(content.getEvent());
-        } else {
-            this.content = new ChatMessageContent();
-            this.content.setText(content.getText());
-        }
-        content.setEngine(mEngine);
+        this.content = content;
+        this.content.setEngine(mEngine);
         return this;
     }
 

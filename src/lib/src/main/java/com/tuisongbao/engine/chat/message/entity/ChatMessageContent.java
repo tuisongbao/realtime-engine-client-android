@@ -3,6 +3,11 @@ package com.tuisongbao.engine.chat.message.entity;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageLocationContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVideoContent;
+import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
@@ -27,6 +32,22 @@ public class ChatMessageContent {
 
     public ChatMessageContent() {
         type = ChatMessage.TYPE.TEXT;
+    }
+
+    public static ChatMessageContent getConcreteContent(ChatMessage.TYPE type) {
+        ChatMessageContent content = new ChatMessageContent();
+        if (type == ChatMessage.TYPE.IMAGE) {
+            content = new ChatMessageImageContent();
+        } else if (type == ChatMessage.TYPE.VOICE) {
+            content = new ChatMessageVoiceContent();
+        } else if (type == ChatMessage.TYPE.VIDEO) {
+            content = new ChatMessageVideoContent();
+        } else if (type == ChatMessage.TYPE.LOCATION) {
+            content = new ChatMessageLocationContent();
+        } else if (type == ChatMessage.TYPE.EVENT) {
+            content = new ChatMessageEventContent();
+        }
+        return content;
     }
 
     public void setEngine(Engine engine) {

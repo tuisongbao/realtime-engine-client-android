@@ -49,13 +49,13 @@ public class ChatVoiceRecorder extends EventEmitter {
      */
     public void start() {
         try {
-            String filename = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".3gp";
+            String filename = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".wav";
             File file = DownloadUtils.getOutputFile(filename, ChatMessage.TYPE.VOICE.getName());
             mCurrentVoiceFilePath = file.getAbsolutePath();
 
             mRecorder.reset();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             mRecorder.setOutputFile(mCurrentVoiceFilePath);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 

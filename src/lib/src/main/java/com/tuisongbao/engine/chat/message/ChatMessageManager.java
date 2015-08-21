@@ -125,7 +125,7 @@ public class ChatMessageManager extends BaseManager {
             @Override
             public void onSuccess(JSONObject responseObject) {
                 ChatMessageContent content = message.getContent();
-                ChatMessageFileEntity file = message.getContent().getFile();
+                ChatMessageFileEntity file = content.getFile();
                 try {
                     file.setKey(responseObject.getString("key"));
                 } catch (Exception e) {
@@ -148,6 +148,9 @@ public class ChatMessageManager extends BaseManager {
                         JSONObject formatInfoInResponse = responseObject.getJSONObject("avinfo").getJSONObject("format");
                         file.setDuration(formatInfoInResponse.getDouble("duration"));
                     }
+                    file.setMimeType(responseObject.getString("mimeType"));
+                    file.setEtag(responseObject.getString("etag"));
+                    file.setSize(responseObject.getDouble("fsize"));
                 } catch (Exception e) {
                     LogUtils.error(TAG, e);
                 } finally {

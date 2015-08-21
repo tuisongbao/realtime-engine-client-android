@@ -11,9 +11,6 @@ import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
 import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 
-/**
- * Created by root on 15-8-2.
- */
 public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
     private final String TAG = "TSB" + ChatMessageNewEventHandler.class.getSimpleName();
 
@@ -23,7 +20,7 @@ public class ChatMessageNewEventHandler extends BaseEventHandler<ChatMessage> {
 
     @Override
     public ChatMessage genCallbackData(BaseEvent request, RawEvent response) {
-        ChatMessage message = ChatMessage.getSerializer().fromJson(response.getData(), ChatMessage.class);
+        ChatMessage message = ChatMessage.deserialize(engine, response.getData().toString());
         return message;
     }
 

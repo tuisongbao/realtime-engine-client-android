@@ -7,6 +7,10 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
 
 public class ChatMessageLocationContent extends ChatMessageContent {
+    public ChatMessageLocationContent() {
+
+    }
+
     public ChatMessageLocationContent(Location location) {
         setType(ChatMessage.TYPE.LOCATION);
 

@@ -324,8 +324,7 @@ public class ChatConversationDataSource {
         message.setChatType(ChatType.getType(cursor.getString(4)));
 
         String contentType = cursor.getString(6);
-        ChatMessageContent content = new ChatMessageContent();
-        content.setType(TYPE.getType(contentType));
+        ChatMessageContent content = ChatMessageContent.getConcreteContent(TYPE.getType(contentType));
         if (contentType.equals(TYPE.TEXT.getName())) {
             content.setText(cursor.getString(5));
         } else if (contentType.equals(TYPE.LOCATION.getName())) {
