@@ -3,6 +3,7 @@ package com.tuisongbao.engine.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,6 +52,76 @@ public class StrUtils {
 
             return strRight.equals(strLeft);
         }
+    }
+
+    /**
+     * 以指定的分隔符来进行字符串元素连接
+     * <p>
+     * 例如有字符串数组array和连接符为逗号(,)
+     * <code>
+     * String[] array = new String[] { "hello", "tuisongbao" };
+     * </code>
+     * 那么得到的结果是:
+     * <code>
+     * hello,tuisongbao
+     * </code>
+     * </p>
+     *
+     * @param array 需要连接的字符串数组
+     * @param sep   元素连接之间的分隔符
+     * @return 连接好的新字符串
+     */
+    public static String join(String[] array, String sep) {
+        if (array == null) {
+            return null;
+        }
+
+        int arraySize = array.length;
+        int sepSize = 0;
+        if (sep != null && !sep.equals("")) {
+            sepSize = sep.length();
+        }
+
+        int bufSize = (arraySize == 0 ? 0 : ((array[0] == null ? 16 : array[0].length()) + sepSize) * arraySize);
+        StringBuilder buf = new StringBuilder(bufSize);
+
+        for (int i = 0; i < arraySize; i++) {
+            if (i > 0) {
+                buf.append(sep);
+            }
+            if (array[i] != null) {
+                buf.append(array[i]);
+            }
+        }
+        return buf.toString();
+    }
+
+    /**
+     * @see #join(String[], String)
+     */
+    public static String join(List<String> list, String sep) {
+        if (list == null || list.size() < 1) {
+            return null;
+        }
+
+        int arraySize = list.size();
+        int sepSize = 0;
+        if (sep != null && !sep.equals("")) {
+            sepSize = sep.length();
+        }
+
+        int bufSize = (arraySize == 0 ? 0 : ((list.get(0) == null ? 16 : list.get(0).length()) + sepSize) * arraySize);
+        StringBuilder buf = new StringBuilder(bufSize);
+
+        for (int i = 0; i < list.size(); i++) {
+            if (i > 0) {
+                buf.append(sep);
+            }
+            if (list.get(i) != null) {
+                buf.append(list.get(i));
+            }
+        }
+        return buf.toString();
     }
 
     public static String getTimeStringIOS8061(Date date) {

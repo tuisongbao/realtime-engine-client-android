@@ -53,15 +53,11 @@ public class ChatConversationDataSource {
     }
 
     public String getLatestLastActiveAt(String userId) {
-        String sql = "SELECT * FROM " + ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION
-                + " WHERE " + ChatConversationSQLiteHelper.COLUMN_USER_ID + " = '" + userId + "'"
-                + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
-        Cursor cursor = conversationDB.rawQuery(sql, null);
-        if (cursor.isAfterLast()) {
+        List<ChatConversation> conversationsOfUser = getList(userId, null, null);
+        if (conversationsOfUser == null || conversationsOfUser.size() < 1) {
             return null;
         }
-        cursor.moveToFirst();
-        return cursor.getString(5);
+        return conversationsOfUser.get(0).getLastActiveAt();
     }
 
     /***
@@ -104,7 +100,9 @@ public class ChatConversationDataSource {
             queryString = queryString
                     + " AND " + ChatConversationSQLiteHelper.COLUMN_TYPE + " = '" + type.getName() + "'";
         }
-        queryString = queryString + ";";
+        queryString = queryString
+                + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC"
+                + ";";
         cursor = conversationDB.rawQuery(queryString, null);
         LogUtils.verbose(TAG, "Get " + cursor.getCount() + " conversations by user "
                 + userId + " and target " + target);

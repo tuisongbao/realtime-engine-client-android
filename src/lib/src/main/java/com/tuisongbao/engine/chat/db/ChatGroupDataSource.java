@@ -40,16 +40,12 @@ public class ChatGroupDataSource {
         groupMemberSQLiteHelper.close();
     }
 
-    // FIXME: 15-8-18 Query without userId will cause error if switching users
     public String getLatestLastActiveAt(String userId) {
-        String sql = "SELECT * FROM " + ChatGroupSQLiteHelper.TABLE_CHAT_GROUP
-                + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC LIMIT 1";
-        Cursor cursor = groupDB.rawQuery(sql, null);
-        if (cursor.isAfterLast()) {
+        List<ChatGroup> groupsOfUser = getList(userId, null);
+        if (groupsOfUser == null || groupsOfUser.size() < 1) {
             return null;
         }
-        cursor.moveToFirst();
-        return cursor.getString(7);
+        return groupsOfUser.get(0).getLastActiveAt();
     }
 
     /***
@@ -110,16 +106,14 @@ public class ChatGroupDataSource {
             inClauseString = " = '" + groupId + "'";
         } else if (groupId == null) {
             // Join ids to ('title1', 'title2', 'title3') format
-            inClauseString = " IN ('" + usersGroupIdList.get(0) + "'";
-            for (int i = 1; i < usersGroupIdList.size(); i++) {
-                inClauseString = inClauseString + ",'" + usersGroupIdList.get(i) + "'";
-            }
-            inClauseString += ")";
+            inClauseString = StrUtils.join(usersGroupIdList, "','");
+            inClauseString = "('" + inClauseString + "')";
         }
 
-        String idClause = ChatGroupSQLiteHelper.COLUMN_GROUP_ID + inClauseString;
+        String idClause = ChatGroupSQLiteHelper.COLUMN_GROUP_ID + " IN " + inClauseString;
         sql = "SELECT * FROM " + ChatGroupSQLiteHelper.TABLE_CHAT_GROUP
-                + " WHERE " + idClause;
+                + " WHERE " + idClause
+                + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC";
         sql += ";";
 
         cursor = groupDB.rawQuery(sql, null);
@@ -259,6 +253,7 @@ public class ChatGroupDataSource {
         group.setUserCanInvite(cursor.getInt(4) == 1 ? true : false);
         group.setUserCount(cursor.getInt(5));
         group.setUserCountLimit(cursor.getInt(6));
+        group.setLastActiveAt(cursor.getString(7));
 
         return group;
     }

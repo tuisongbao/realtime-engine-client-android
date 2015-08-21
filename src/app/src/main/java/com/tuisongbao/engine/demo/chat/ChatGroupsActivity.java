@@ -59,7 +59,6 @@ public class ChatGroupsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        request();
     }
 
     @Override
