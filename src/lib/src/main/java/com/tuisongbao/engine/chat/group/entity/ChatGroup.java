@@ -5,6 +5,7 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.Entity;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatGroup {
+public class ChatGroup extends Entity {
     private String groupId;
     private String owner;
     private boolean isPublic;

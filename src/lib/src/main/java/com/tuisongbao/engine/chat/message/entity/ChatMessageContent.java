@@ -11,6 +11,7 @@ import com.tuisongbao.engine.chat.message.content.ChatMessageVoiceContent;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageEventEntity;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageFileEntity;
 import com.tuisongbao.engine.chat.message.entity.content.ChatMessageLocationEntity;
+import com.tuisongbao.engine.common.entity.Entity;
 
 import org.json.JSONObject;
 
@@ -18,7 +19,7 @@ import org.json.JSONObject;
  * 消息主体内容
  *
  */
-public class ChatMessageContent {
+public class ChatMessageContent extends Entity {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
 
     protected ChatMessage.TYPE type;

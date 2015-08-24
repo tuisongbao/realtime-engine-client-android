@@ -10,6 +10,7 @@ import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
+import com.tuisongbao.engine.common.entity.Entity;
 import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatConversation {
+public class ChatConversation extends Entity {
     transient private static final String TAG = ChatConversation.class.getSimpleName();
 
     private ChatType type;

@@ -2,6 +2,7 @@ package com.tuisongbao.engine.chat.group.entity;
 
 import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
 import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.Entity;
 
 /**
  * <STRONG> {@link ChatGroup} 成员实体类 </STRONG>
@@ -12,7 +13,7 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
  *
  * @see ChatGroup#getUsers(EngineCallback)
  */
-public class ChatGroupUser {
+public class ChatGroupUser extends Entity {
     private String userId;
     private ChatUserPresence.Presence presence;
 
