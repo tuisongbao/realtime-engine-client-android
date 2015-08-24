@@ -251,6 +251,7 @@ public class ChatConversationDataSource {
         open();
         conversationDB.delete(TABLE_CONVERSATION, null, null);
         messageDB.delete(TABLE_MESSAGE, null, null);
+        close();
     }
 
     private void insert(ChatConversation conversation, String userId) {

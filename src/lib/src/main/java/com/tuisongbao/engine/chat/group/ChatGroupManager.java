@@ -210,6 +210,12 @@ public final class ChatGroupManager extends BaseManager {
     }
 
     public void clearCache() {
-        dataSource.deleteAllData();
+        try {
+            dataSource.open();
+            dataSource.deleteAllData();
+            dataSource.close();
+        } catch (Exception e) {
+            LogUtils.error(TAG, e);
+        }
     }
 }

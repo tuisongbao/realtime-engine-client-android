@@ -243,6 +243,7 @@ public class ChatGroupDataSource {
         open();
         groupDB.delete(ChatGroupSQLiteHelper.TABLE_CHAT_GROUP, null, null);
         groupMemberDB.delete(ChatGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, null, null);
+        close();
     }
 
     private ChatGroup createGroup(Cursor cursor) {
