@@ -1,13 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:background="@color/white"
+    >
 
     <ListView
-        android:id="@+id/fragment_conversations_listview"
+        android:id="@+id/fg_conversations_listView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:divider="@color/color_dddddd"
+        android:dividerHeight="0.5dip" >
     </ListView>
 
 </LinearLayout>

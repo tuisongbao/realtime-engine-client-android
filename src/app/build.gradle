@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin:'android-apt'
+def AAVersion='3.3.2'
 
 android {
     compileSdkVersion 22
@@ -17,10 +19,33 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile project(':lib')
+    // 注解
+    apt "org.androidannotations:androidannotations:$AAVersion"
+    compile "org.androidannotations:androidannotations-api:$AAVersion"
+    compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
+    compile 'com.j256.ormlite:ormlite-core:4.+'
+    compile 'com.j256.ormlite:ormlite-android:4.+'
+    // 图片缓存
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+
+}
+
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+    }
 }

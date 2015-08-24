@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/main_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <View
+        android:id="@+id/middle"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/color_dddddd" />
+
+    <RadioGroup
+        android:id="@+id/main_rg_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/main_rb_conversations"
+            style="@style/demo_tabbar"
+            android:drawableTop="@drawable/tabbar_conversations_bg"
+            android:text="@string/dashboard_item_talk" />
+
+        <RadioButton
+            android:id="@+id/main_rb_contacts"
+            style="@style/demo_tabbar"
+            android:drawableTop="@drawable/tabbar_contacts_bg"
+            android:text="@string/dashboard_item_list" />
+
+        <RadioButton
+            android:id="@+id/main_rb_settings"
+            style="@style/demo_tabbar"
+            android:drawableTop="@drawable/tabbar_setting_bg"
+            android:text="@string/dashboard_item_setting" />
+    </RadioGroup>
+
+</LinearLayout>

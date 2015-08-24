@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Engine Demo</string>
     <string name="action_settings">Settings</string>
     <string name="bind">绑定</string>
@@ -34,11 +32,20 @@
     <string name="voice">语音</string>
     <string name="video">视频</string>
     <string name="image">图片</string>
-    <string name="photo">拍照</string>
-    <string name="location">地理位置</string>
+    <string name="photo">照片</string>
     <string name="record">按住 说话</string>
 
     <!-- fragment list -->
     <string name="chat_contacts_group">群组</string>
     <string name="chat_group_quit">退出群组</string>
+
+    <!-- register -->
+    <string name="regist_userName">登\u0020\u0020录\u0020\u0020名:</string>
+    <string name="regist_pwd">密\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020码:</string>
+    <string name="regist_confirmPwd">确认密码:</string>
+    <string name="menu_regist_title">注册</string>
+    <string name="hint_regist_userName">请输入用户名</string>
+    <string name="hint_regist_pwd">6~20位字母、数字、符号</string>
+    <string name="hint_regist_rpwd">重复密码</string>
+    <string name="regist_btn">注\u0020\u0020册</string>
 </resources>
