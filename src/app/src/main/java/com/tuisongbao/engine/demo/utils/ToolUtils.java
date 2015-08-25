@@ -17,7 +17,7 @@ public class ToolUtils {
     }
 
     public static String getEventMessage(ChatMessage message) {
-        if (message.getContent().getType() != TYPE.EVENT) {
+        if (message.getContent().getType().equals(TYPE.EVENT.getName())) {
             return "";
         }
 

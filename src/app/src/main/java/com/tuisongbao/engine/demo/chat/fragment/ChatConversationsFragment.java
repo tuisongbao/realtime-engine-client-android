@@ -18,10 +18,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
-import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
@@ -52,7 +51,7 @@ public class ChatConversationsFragment extends Fragment {
         return mConversationsFragment;
     }
 
-    private Emitter.Listener mListener;
+    private Emitter.Listener mConversationNewListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,7 +70,7 @@ public class ChatConversationsFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-                    long arg3) {
+                                    long arg3) {
                 mClickedChatConversation = mConversationList.get(arg2);
                 resetUnread(mClickedChatConversation);
 
@@ -79,7 +78,8 @@ public class ChatConversationsFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(),
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, mClickedChatConversation.serialize());
+                intent.putExtra(ChatConversationActivity.EXTRA_TARGET, mClickedChatConversation.getTarget());
+                intent.putExtra(ChatConversationActivity.EXTRA_TYPE, mClickedChatConversation.getType().getName());
                 startActivity(intent);
             }
         });
@@ -88,45 +88,43 @@ public class ChatConversationsFragment extends Fragment {
 
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-                    final int arg2, long arg3) {
+                                           final int arg2, long arg3) {
                 new AlertDialog.Builder(getActivity())
-                    .setTitle("确定删除该会话吗？")
-                    .setPositiveButton("确定", new OnClickListener() {
+                        .setTitle("确定删除该会话吗？")
+                        .setPositiveButton("确定", new OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog,
-                                int which) {
-                            deleteConversation(mConversationList.get(arg2));
-                        }
-                    })
-                    .setNegativeButton("取消", new OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                deleteConversation(mConversationList.get(arg2));
+                            }
+                        })
+                        .setNegativeButton("取消", new OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog,
-                                int which) {
-                            // empty
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                // empty
 
-                        }
-                    }).show();
+                            }
+                        }).show();
                 return true;
             }
         });
-        request();
 
-        mListener = new Emitter.Listener() {
+        mConversationNewListener = new Emitter.Listener() {
             @Override
-            public void call(final Object... args) {
+            public void call(Object... args) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ChatMessage message = (ChatMessage)args[0];
-                        onMessageReceived(message);
+                        mConversationList = DemoApplication.getConversationManager().getLocalList();
+                        mConversationsAdapter.refresh(mConversationList);
                     }
                 });
             }
         };
 
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mListener);
         return mRootView;
     }
 
@@ -134,12 +132,16 @@ public class ChatConversationsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mClickedChatConversation = null;
+        DemoApplication.engine.getChatManager().getConversationManager()
+                .bind(ChatConversationManager.EVENT_CONVERSATION_NEW, mConversationNewListener);
+        request();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        DemoApplication.engine.getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mListener);
+        DemoApplication.engine.getChatManager().getConversationManager()
+                .unbind(ChatConversationManager.EVENT_CONVERSATION_NEW, mConversationNewListener);
     }
 
     @Override
@@ -149,24 +151,6 @@ public class ChatConversationsFragment extends Fragment {
 
     public void onMessageSent(ChatMessage message) {
         updateLatestMessageOfConversation(message, message.getRecipient());
-        mConversationsAdapter.refresh(mConversationList);
-    }
-
-    private void onMessageReceived(ChatMessage message) {
-        ChatType chatType = message.getChatType();
-        String target = null;
-        if (chatType.equals(ChatType.SingleChat)) {
-            target = message.getFrom();
-        } else if (chatType.equals(ChatType.GroupChat)) {
-            target = message.getRecipient();
-        }
-
-        for (ChatConversation conversation : mConversationList) {
-            if (conversation.getTarget().equals(target)) {
-                conversation.setLastMessage(message);
-                conversation.incUnreadMessageCount();
-            }
-        }
         mConversationsAdapter.refresh(mConversationList);
     }
 

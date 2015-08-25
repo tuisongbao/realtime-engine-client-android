@@ -75,6 +75,7 @@ public class ChatMessage extends Entity {
         concreteContent.setFile(content.getFile());
         concreteContent.setExtra(content.getExtra());
         concreteContent.setLocation(content.getLocation());
+        concreteContent.setEvent(content.getEvent());
         message.setContent(concreteContent);
 
         return message;

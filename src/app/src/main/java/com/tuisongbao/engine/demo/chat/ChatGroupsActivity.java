@@ -11,7 +11,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.chat.group.entity.ChatGroup;
 import com.tuisongbao.engine.chat.user.ChatType;
 import com.tuisongbao.engine.common.callback.EngineCallback;
@@ -43,13 +42,10 @@ public class ChatGroupsActivity extends Activity {
                     long arg3) {
                 ChatGroup group = mListGroup.get(arg2);
 
-                ChatConversation conversation = new ChatConversation(DemoApplication.engine);
-                conversation.setTarget(group.getGroupId());
-                conversation.setType(ChatType.GroupChat);
-
                 Intent intent = new Intent(ChatGroupsActivity.this,
                         ChatConversationActivity.class);
-                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION, conversation.serialize());
+                intent.putExtra(ChatConversationActivity.EXTRA_TARGET, group.getGroupId());
+                intent.putExtra(ChatConversationActivity.EXTRA_TYPE, ChatType.GroupChat.getName());
                 startActivity(intent);
             }
         });

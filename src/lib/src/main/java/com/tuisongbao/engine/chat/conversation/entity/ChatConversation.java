@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.chat.conversation.entity;
 
-import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
@@ -26,6 +25,20 @@ import java.util.List;
  * @see ChatManager#enableCache()
  */
 public class ChatConversation extends Entity {
+    /**
+     * 新消息事件，监听该事件，可以实时获取当前会话的新消息
+     *
+     * <pre>
+     *    conversation.bind(ChatConversation.EVENT_MESSAGE_NEW, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            ChatMessage message = (ChatMessage)args[0];
+     *            Log.i(TAG, "当前会话收到新消息 " + message);
+     *        }
+     *    });
+     * </pre>
+     */
+    transient public static final String EVENT_MESSAGE_NEW = "conversation:message:new";
     transient private static final String TAG = ChatConversation.class.getSimpleName();
 
     private ChatType type;
@@ -40,33 +53,6 @@ public class ChatConversation extends Entity {
     public ChatConversation(Engine engine) {
         mEngine = engine;
         mConversationManager = engine.getChatManager().getConversationManager();
-    }
-
-    /**
-     * 将合法的 JSON 字符串反序列化为 ChatConversation
-     *
-     * @return  ChatConversation 实例
-     */
-    public static ChatConversation deserialize(Engine engine, String jsonString) {
-        try {
-            ChatConversation conversation = getSerializer().fromJson(jsonString, ChatConversation.class);
-            conversation.mEngine = engine;
-            conversation.mConversationManager = engine.getChatManager().getConversationManager();
-
-            return conversation;
-        } catch (Exception e) {
-            LogUtils.error(TAG, e);
-            return null;
-        }
-    }
-
-    /**
-     * 将实例序列化为 {@code String}，可用于在 {@code Intent} 之间直接传递该实例
-     *
-     * @return  JSON 格式的 {@code String}
-     */
-    public String serialize() {
-        return getSerializer().toJson(this);
     }
 
     public ChatType getType() {
@@ -183,10 +169,6 @@ public class ChatConversation extends Entity {
             callback.onError(mEngine.getUnhandledResponseError());
         }
         return null;
-    }
-
-    private static Gson getSerializer() {
-        return ChatMessage.getSerializer();
     }
 
     @Override

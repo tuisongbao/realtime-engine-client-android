@@ -68,9 +68,9 @@ public class ChatConversationActivity extends Activity implements
     }
 
     public final static String BROADCAST_ACTION_MESSAGE_SENT = "com.tuisongbao.demo.ChatConversationActivity.MessageSent";
-    public final static String BROADCAST_ACTION_MESSAGE_SENT_PROGRESS = "com.tuisongbao.demo.ChatConversationActivity.MessageSent.progress";
     public final static String BROADCAST_EXTRA_KEY_MESSAGE = "com.tuisongbao.demo.ChatConversationActivity.ExtraMessage";
-    public static final String EXTRA_CONVERSATION = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_CONVERSATION";
+    public static final String EXTRA_TARGET = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_TARGET";
+    public static final String EXTRA_TYPE = "com.tuisongbao.demo.chat.ChatConversationActivity.EXTRA_TYPE";
     private static final String TAG = ChatConversationActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_IMAGE = 1;
@@ -131,8 +131,9 @@ public class ChatConversationActivity extends Activity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        String conversationString = getIntent().getStringExtra(EXTRA_CONVERSATION);
-        mConversation = ChatConversation.deserialize(DemoApplication.engine, conversationString);
+        String target = getIntent().getStringExtra(EXTRA_TARGET);
+        String type = getIntent().getStringExtra(EXTRA_TYPE);
+        mConversation = DemoApplication.getConversationManager().loadOne(target, ChatType.getType(type));
 
         mMessagesListView = (ListView) findViewById(R.id.conversation_messages_list_view);
         mContentEditText = (EditText) findViewById(R.id.conversation_message_content_edittext);
@@ -382,7 +383,7 @@ public class ChatConversationActivity extends Activity implements
                 onRecordStart();
             }
         });
-        DemoApplication.engine.getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mMessageNewListener);
+        mConversation.bind(ChatConversation.EVENT_MESSAGE_NEW, mMessageNewListener);
     }
 
     @Override
@@ -612,29 +613,15 @@ public class ChatConversationActivity extends Activity implements
         @Override
         public void call(Object... args) {
             ChatMessage message = (ChatMessage)args[0];
-            String target = mConversation.getTarget();
-
-            Log.i(TAG, "App get " + message.toString() + " to "
-                            + message.getRecipient()
-                            + " and corrent target is " + target);
-
-            // Only receive message sent to current conversation
-            boolean showMessage = false;
-            if (message.getChatType() == ChatType.SingleChat) {
-                showMessage = message.getFrom().equals(target);
-            } else if (message.getChatType() == ChatType.GroupChat) {
-                showMessage = message.getRecipient().equals(target);
-            }
-            if (message != null && showMessage) {
-                mMessageList.add(message);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMessagesAdapter.refresh(mMessageList);
-                        mMessagesListView.setSelection(mMessageList.size() - 1);
-                    }
-                });
-            }
+            mMessageList.add(message);
+            mConversation.resetUnread(null);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMessagesAdapter.refresh(mMessageList);
+                    mMessagesListView.setSelection(mMessageList.size() - 1);
+                }
+            });
         }
     };
 

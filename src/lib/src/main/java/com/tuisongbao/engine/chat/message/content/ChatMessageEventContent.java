@@ -1,9 +1,14 @@
 package com.tuisongbao.engine.chat.message.content;
 
+import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.utils.StrUtils;
 
 public class ChatMessageEventContent extends ChatMessageContent {
+    public ChatMessageEventContent() {
+        setType(ChatMessage.TYPE.EVENT);
+    }
+
     public enum TYPE {
         FriendAdded("friend:added"),
 
