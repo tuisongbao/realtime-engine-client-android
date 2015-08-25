@@ -16,6 +16,7 @@ import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
+import com.tuisongbao.engine.chat.user.entity.ChatUser;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.utils.LogUtil;
@@ -101,6 +102,10 @@ public class App extends Application {
 
     public Engine getEngine() {
         return engine;
+    }
+
+    public ChatUser getUser() {
+        return getChatManager().getChatUser();
     }
 
     public ChatManager getChatManager() {

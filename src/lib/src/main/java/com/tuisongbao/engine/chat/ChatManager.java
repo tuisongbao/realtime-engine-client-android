@@ -143,7 +143,11 @@ public final class ChatManager extends BaseManager {
 
             if (engine.getConnection().isConnected()) {
                 auth(userData, mAuthCallback);
+            }else{
+                auth(userData, mAuthCallback);
+                LogUtils.error(TAG, "---------------------------");
             }
+
         } catch (Exception e) {
             LogUtils.error(TAG, e);
             trigger(EVENT_LOGIN_FAILED, engine.getUnhandledResponseError());

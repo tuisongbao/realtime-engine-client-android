@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1.0"
+        android:background="@color/color_ebebeb" >
+
+        <ProgressBar
+            android:id="@+id/cgt_pb_chat_loading"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginTop="5dip"
+            android:visibility="gone" />
+
+        <ListView
+            android:id="@+id/cgt_lv_chat_showBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#0000"
+            android:divider="@null"
+            android:dividerHeight="5dp"
+            android:scrollbarStyle="outsideOverlay"
+            android:stackFromBottom="true" />
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dip"
+        android:background="@color/color_bfbfbf" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_fefefe"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/cgt_btn_chat_speech"
+            android:layout_width="35dip"
+            android:layout_height="35dip"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="8dip"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/demo_selector_chat_input_speech_bg" />
+
+        <Button
+            android:id="@+id/cgt_btn_chat_keyboard"
+            android:layout_width="35dip"
+            android:layout_height="35dip"
+            android:layout_marginBottom="8dip"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/demo_selector_chat_input_keyboard_bg"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/cgt_ll_chat_input_box"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="8dip"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            android:layout_marginTop="8dip"
+            android:layout_weight="1.0"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:id="@+id/cgt_et_chat_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginRight="15dip"
+                android:layout_weight="1.0"
+                android:background="@drawable/demo_selector_chat_input_inputbox_bg"
+                android:lineSpacingExtra="3dip"
+                android:maxHeight="80dip"
+                android:paddingBottom="3dip"
+                android:paddingRight="40dip"
+                android:textColor="@color/black"
+                android:textCursorDrawable="@null"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/cgt_btn_chat_pressToTalk"
+            android:layout_width="0dip"
+            android:layout_height="35dip"
+            android:layout_marginBottom="8dip"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            android:layout_marginTop="8dip"
+            android:layout_weight="1.0"
+            android:background="@drawable/demo_selector_chat_input_presstotalk_bg"
+            android:gravity="center"
+            android:text="语音"
+            android:textColor="@color/color_727272"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/cgt_btn_chat_plus"
+            android:layout_width="35dip"
+            android:layout_height="35dip"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="8dip"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="15dip"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/demo_selector_chat_input_plus_bg" />
+
+        <Button
+            android:id="@+id/cgt_btn_chat_send"
+            android:layout_width="45dip"
+            android:layout_height="35dip"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="8dip"
+            android:layout_marginRight="10dip"
+            android:layout_marginTop="8dip"
+            android:background="@drawable/demo_selector_chat_input_send_bg"
+            android:text="发送"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cgt_ll_chat_smilingface_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_fefefe"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dip"
+            android:background="@color/color_bfbfbf" />
+
+        <LinearLayout
+            android:id="@+id/cgt_ll_chat_smilingface_body"
+            android:layout_width="match_parent"
+            android:layout_height="130dip"
+            android:layout_marginBottom="5dip"
+            android:layout_marginTop="5dip"
+            android:orientation="vertical" >
+        </LinearLayout>
+
+        <RadioGroup
+            android:id="@+id/cgt_rg_chat_smilingface_tab"
+            android:layout_width="match_parent"
+            android:layout_height="20dip"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal" >
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>

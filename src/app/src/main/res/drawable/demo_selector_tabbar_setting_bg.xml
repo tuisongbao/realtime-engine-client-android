@@ -2,8 +2,8 @@
 <!-- 微博列表tab tab背景selector -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@drawable/demo_tabbar_find_sel" android:state_pressed="true"/>
-    <item android:drawable="@drawable/demo_tabbar_find_sel" android:state_checked="true"/>
-    <item android:drawable="@drawable/demo_tabbar_find_nor"/>
+    <item android:drawable="@drawable/demo_tabbar_setting_sel" android:state_pressed="true"/>
+    <item android:drawable="@drawable/demo_tabbar_setting_sel" android:state_checked="true"/>
+    <item android:drawable="@drawable/demo_tabbar_setting_nor"/>
 
 </selector>

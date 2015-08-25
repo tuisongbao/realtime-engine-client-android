@@ -12,14 +12,19 @@ import android.widget.EditText;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.common.callback.EngineCallback;
+import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.app.App;
+import com.tuisongbao.engine.demo.entity.DemoGroup;
 import com.tuisongbao.engine.demo.entity.Response;
 import com.tuisongbao.engine.demo.service.rest.UserService;
 import com.tuisongbao.engine.demo.utils.AppToast;
+import com.tuisongbao.engine.demo.utils.DemoGroupUtil;
 import com.tuisongbao.engine.demo.utils.L;
 import com.tuisongbao.engine.demo.utils.LogUtil;
 import com.tuisongbao.engine.demo.utils.SpUtil;
@@ -27,6 +32,7 @@ import com.tuisongbao.engine.demo.utils.SpUtil;
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -34,7 +40,9 @@ import org.androidannotations.annotations.rest.RestService;
 import org.androidannotations.api.rest.RestErrorHandler;
 import org.springframework.core.NestedRuntimeException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +67,9 @@ public class LoginActivity extends BaseActivity{
     @RestService
     UserService userService;
 
+    @Bean
+    DemoGroupUtil demoGroupUtil;
+
     private SpUtil sp;
     private Vibrator vibrator;
 
@@ -68,10 +79,32 @@ public class LoginActivity extends BaseActivity{
     private Emitter.Listener mLoginSuccessListener = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            GlobalParams.ISLOGIN = true;
-            Intent intent = new Intent(LoginActivity.this, MainActivity_.class);
-            startActivity(intent);
-            finish();
+            App.getContext().getGroupManager().getList(null, new EngineCallback<List<ChatGroup>>() {
+                @Override
+                public void onSuccess(List<ChatGroup> chatGroups) {
+                    L.i(TAG, "---------------------------" + chatGroups);
+                    List<String> ids  = new ArrayList<String>();
+
+                    for (ChatGroup group : chatGroups){
+                        ids.add(group.getGroupId());
+                    }
+                    List<DemoGroup> demoGroups = null;
+                    if(!ids.isEmpty()){
+                        demoGroups = demoGroupUtil.getDemoGroups(ids);
+                    }
+
+                    L.i(TAG, "---------------------------" + demoGroups);
+                    GlobalParams.ISLOGIN = true;
+                    Intent intent = new Intent(LoginActivity.this, MainActivity_.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onError(ResponseError error) {
+
+                }
+            });
         }
     };
 
@@ -175,7 +208,7 @@ public class LoginActivity extends BaseActivity{
                 return;
             }
             L.i(TAG, "logined ----------------------" + userResult);
-            AppToast.getToast().show("登陆Demo成功");
+            AppToast.getToast().show("登陆Demo成功" + username);
             App.getContext().getChatManager().login(username);
         } catch (Exception e){
             L.i(TAG, "Exception ----------------------" + e);
@@ -203,9 +236,14 @@ public class LoginActivity extends BaseActivity{
         Emitter.Listener stateListener = new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                Connection.State state = (Connection.State)args[0];
-                String msg = "Connecting state: " + state.toString();
-                AppToast.getToast().show(msg);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Connection.State state = (Connection.State)args[0];
+                        String msg = "Connecting state: " + state.toString();
+                        AppToast.getToast().show(msg);
+                    }
+                });
             }
         };
 
@@ -218,25 +256,41 @@ public class LoginActivity extends BaseActivity{
         connection.bind(Connection.EVENT_CONNECTING_IN, new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                String msg = "Connecting in " + args[0] + " seconds";
-                Log.i(TAG, msg);
-                AppToast.getToast().show(msg);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg = "Connecting in " + args[0] + " seconds";
+                        Log.i(TAG, msg);
+                        AppToast.getToast().show(msg);
+                    }
+                });
             }
         });
         connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                String msg = "Connection state changed from " + args[0] + " to " + args[1];
-                Log.i(TAG, msg);
-                AppToast.getToast().show(msg);
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg = "Connection state changed from " + args[0] + " to " + args[1];
+                        Log.i(TAG, msg);
+                        AppToast.getToast().show(msg);
+                    }
+                });
             }
         });
         connection.bind(Connection.EVENT_ERROR, new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
-                String msg =  "Connection error," + args[0];
-                Log.i(TAG, msg);
-                AppToast.getToast().show(msg);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg =  "Connection error," + args[0];
+                        Log.i(TAG, msg);
+                        AppToast.getToast().show(msg);
+                    }
+                });
             }
         });
     }

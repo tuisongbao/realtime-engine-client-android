@@ -25,7 +25,7 @@
             style="@style/demo_editText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ansonhu"
+            android:text="aaronwang"
             android:hint="请输入用户名" />
     </LinearLayout>
 

@@ -1,15 +1,18 @@
 package com.tuisongbao.engine.demo;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.ViewConfiguration;
-import android.view.Window;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.SearchView;
 
 import com.tuisongbao.engine.demo.activity.LoginActivity_;
 import com.tuisongbao.engine.demo.adapter.TabAdapter;
@@ -24,13 +27,11 @@ import com.tuisongbao.engine.demo.utils.SpUtil;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.WindowFeature;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-@WindowFeature({ Window.FEATURE_NO_TITLE })
 @EActivity(R.layout.activity_main)
 public class MainActivity extends FragmentActivity implements RadioGroup.OnCheckedChangeListener {
     private static final String TAG = LogUtil.makeLogTag(MainActivity.class);
@@ -72,6 +73,9 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
 
     @AfterViews
     public void afterViews() {
+        ActionBar actionBar = this.getActionBar();
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(true);
         setOverflowShowingAlways();
 
         fragments = new ArrayList<>();
@@ -83,6 +87,23 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
         mViewPager.setOffscreenPageLimit(2);
         mViewPager.setAdapter(adapter);
         mRg_tab.setOnCheckedChangeListener(this);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                ((RadioButton) mRg_tab.getChildAt(position)).setChecked(true);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         initData();
     }
 
@@ -150,6 +171,38 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
         }
         mRb_show.setChecked(true);
         mViewPager.setCurrentItem(id);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.demo_menu_conversation, menu);
+        MenuItem searchItem = menu.findItem(R.id.menu_weixin_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                AppToast.getToast().show("返回上一页");
+                // Intent upIntent = NavUtils.getParentActivityIntent(this);
+                // if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                //
+                // TaskStackBuilder.create(this)
+                // .addNextIntentWithParentStack(upIntent).startActivities();
+                // } else {
+                // upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                // NavUtils.navigateUpTo(this, upIntent);
+                // }
+                break;
+            case R.id.menu_weixin_addFriend:
+                AppToast.getToast().show(R.string.text_menu_weixin_addFriend);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }
