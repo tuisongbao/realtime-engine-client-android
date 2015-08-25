@@ -107,10 +107,10 @@ public class ChatGroupDataSource {
         } else if (groupId == null) {
             // Join ids to ('title1', 'title2', 'title3') format
             inClauseString = StrUtils.join(usersGroupIdList, "','");
-            inClauseString = "('" + inClauseString + "')";
+            inClauseString = " IN ('" + inClauseString + "')";
         }
 
-        String idClause = ChatGroupSQLiteHelper.COLUMN_GROUP_ID + " IN " + inClauseString;
+        String idClause = ChatGroupSQLiteHelper.COLUMN_GROUP_ID + inClauseString;
         sql = "SELECT * FROM " + ChatGroupSQLiteHelper.TABLE_CHAT_GROUP
                 + " WHERE " + idClause
                 + " ORDER BY datetime(" + ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT + ") DESC";
