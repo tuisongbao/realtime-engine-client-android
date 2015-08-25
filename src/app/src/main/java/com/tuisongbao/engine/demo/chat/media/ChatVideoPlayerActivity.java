@@ -14,12 +14,15 @@ import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.download.DownloadManager;
+import com.tuisongbao.engine.download.DownloadTask;
 
 import java.io.File;
 
 public class ChatVideoPlayerActivity extends Activity {
     VideoView videoView;
     MediaController mediaController;
+    DownloadTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class ChatVideoPlayerActivity extends Activity {
 
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, getIntent().getStringExtra("message"));
         ChatMessageVideoContent content = (ChatMessageVideoContent)message.getContent();
-        content.download(new EngineCallback<String>() {
+        task = content.download(new EngineCallback<String>() {
 
             @Override
             public void onSuccess(final String filePath) {
@@ -69,5 +72,12 @@ public class ChatVideoPlayerActivity extends Activity {
                 });
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        DownloadManager.getInstance().cancel(task);
     }
 }

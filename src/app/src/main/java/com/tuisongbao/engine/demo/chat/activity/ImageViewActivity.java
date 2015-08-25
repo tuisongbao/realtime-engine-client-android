@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
@@ -14,11 +15,13 @@ import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.download.DownloadManager;
+import com.tuisongbao.engine.download.DownloadTask;
 
-/**
- * Created by root on 15-8-6.
- */
 public class ImageViewActivity extends Activity {
+    ChatMessageImageContent content;
+    DownloadTask task;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,8 +31,8 @@ public class ImageViewActivity extends Activity {
 
         String messageString = getIntent().getStringExtra("message");
         ChatMessage message = ChatMessage.deserialize(DemoApplication.engine, messageString);
-        ChatMessageImageContent content = (ChatMessageImageContent)message.getContent();
-        content.download(new EngineCallback<String>() {
+        content = (ChatMessageImageContent)message.getContent();
+        task = content.download(new EngineCallback<String>() {
             @Override
             public void onSuccess(final String path) {
                 runOnUiThread(new Runnable() {
@@ -43,7 +46,12 @@ public class ImageViewActivity extends Activity {
 
             @Override
             public void onError(ResponseError error) {
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "下载图片失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         }, new ProgressCallback() {
             @Override
@@ -59,5 +67,12 @@ public class ImageViewActivity extends Activity {
                 });
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        DownloadManager.getInstance().cancel(task);
     }
 }

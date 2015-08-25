@@ -1,11 +1,5 @@
 package com.tuisongbao.engine.demo.chat.media;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -25,8 +19,14 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.utils.DownloadUtils;
+import com.tuisongbao.engine.utils.FileUtils;
 import com.tuisongbao.engine.utils.StrUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
 
 @SuppressLint("NewApi")
 public class ChatCameraActivity extends Activity {
@@ -115,10 +115,10 @@ public class ChatCameraActivity extends Activity {
 
         @Override
         protected Void doInBackground(byte[]... data) {
-            FileOutputStream outStream = null;
+            FileOutputStream outStream;
             try {
                 mResourcePath = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
-                final File outFile = DownloadUtils.getOutputFile(mResourcePath, "images");
+                final File outFile = FileUtils.getOutputFile("/demo/image/" + StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg");
 
                 outStream = new FileOutputStream(outFile);
                 outStream.write(data[0]);
@@ -187,7 +187,8 @@ public class ChatCameraActivity extends Activity {
             mRecorder.setProfile(CamcorderProfile
                     .get(CamcorderProfile.QUALITY_CIF));
 
-            mResourcePath = DownloadUtils.getOutputFile(StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".mp4", "videos").getAbsolutePath();
+            String filePath = "/demo/video/" + StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".mp4";
+            mResourcePath = FileUtils.getOutputFile(filePath).getAbsolutePath();
             mRecorder.setOutputFile(mResourcePath);
 
             mRecorder.setPreviewDisplay(mPreview.getSurface());

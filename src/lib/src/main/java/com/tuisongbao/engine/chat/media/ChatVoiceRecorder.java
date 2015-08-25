@@ -3,10 +3,9 @@ package com.tuisongbao.engine.chat.media;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnInfoListener;
 
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.common.EventEmitter;
+import com.tuisongbao.engine.utils.FileUtils;
 import com.tuisongbao.engine.utils.LogUtils;
-import com.tuisongbao.engine.utils.DownloadUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.io.File;
@@ -50,7 +49,11 @@ public class ChatVoiceRecorder extends EventEmitter {
     public void start() {
         try {
             String filename = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".wav";
-            File file = DownloadUtils.getOutputFile(filename, ChatMessage.TYPE.VOICE.getName());
+            File file = FileUtils.getOutputFile("/tuisongbao/image/" + filename);
+            if (file == null) {
+                trigger(EVENT_ERROR, "创建音频文件失败");
+                return;
+            }
             mCurrentVoiceFilePath = file.getAbsolutePath();
 
             mRecorder.reset();
