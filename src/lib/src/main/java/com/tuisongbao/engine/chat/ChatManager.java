@@ -21,8 +21,8 @@ import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
 import com.tuisongbao.engine.http.HttpConstants;
 import com.tuisongbao.engine.http.request.BaseRequest;
 import com.tuisongbao.engine.http.response.BaseResponse;
-import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.ExecutorUtils;
+import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import org.json.JSONException;
@@ -102,7 +102,7 @@ public final class ChatManager extends BaseManager {
     }
 
     /**
-     * 登录聊天系统。
+     * 登录聊天系统
      *
      * <P>
      *     登录过程中，会根据 {@link com.tuisongbao.engine.EngineOptions} 中提供的 {@link com.tuisongbao.engine.EngineOptions#mAuthEndPoint} 进行鉴权。
@@ -110,23 +110,21 @@ public final class ChatManager extends BaseManager {
      *
      * @param userData 用户的唯一标识
      */
-    public void login(final String userData) {
+    public void login(String userData) {
         try {
             if (StrUtils.isEqual(userData, mUserData)) {
                 trigger(EVENT_LOGIN_SUCCEEDED, getChatUser());
                 LogUtils.warn(TAG, "Duplicate login");
                 return;
-            } else {
-                // Stop retrying failed events when switching user.
-                failedAllPendingEvents();
             }
+            // Stop retrying failed events when switching user.
+            failedAllPendingEvents();
 
+            mUserData = userData;
             mAuthCallback = new EngineCallback<ChatLoginData>() {
 
                 @Override
                 public void onSuccess(ChatLoginData data) {
-                    mUserData = userData;
-
                     LogUtils.verbose(TAG, "Auth success");
                     ChatLoginEvent event = new ChatLoginEvent();
                     event.setData(data);
@@ -312,7 +310,7 @@ public final class ChatManager extends BaseManager {
     protected void connected() {
         super.connected();
 
-        if (hasLogin()) {
+        if (mUserData != null && mAuthCallback != null) {
             // Auto login if connection is available.
             auth(mUserData, mAuthCallback);
         }
