@@ -1,8 +1,6 @@
 package com.tuisongbao.engine.chat.user.entity;
 
-import com.tuisongbao.engine.common.entity.Entity;
-
-public class ChatUser extends Entity {
+public class ChatUser {
     private boolean isNew;
     private String userId;
     private String nickname;

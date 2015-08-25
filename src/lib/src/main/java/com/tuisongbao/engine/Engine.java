@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.common.entity.Entity;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.connection.AutoReconnectConnection;
 import com.tuisongbao.engine.connection.Connection;
@@ -23,7 +22,7 @@ import com.tuisongbao.engine.utils.StrUtils;
  *
  * @author Katherine Zhu
  */
-public final class Engine extends Entity {
+public final class Engine {
     private static final String TAG = "TSB" + Engine.class.getSimpleName();
 
     private AutoReconnectConnection connection;

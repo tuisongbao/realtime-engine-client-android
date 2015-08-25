@@ -1,14 +1,12 @@
 package com.tuisongbao.engine.chat.user.entity;
 
-import com.tuisongbao.engine.common.entity.Entity;
-
 /**
  * <STRONG>Chat 用户上下线通知实体类</STRONG>
  *
  * <P>
  *     在 {@link com.tuisongbao.engine.chat.ChatManager#EVENT_PRESENCE_CHANGED} 事件处理方法中会使用。
  */
-public class ChatUserPresence extends Entity {
+public class ChatUserPresence {
     public enum Presence {
         Offline("offline"),
         Online("online"),

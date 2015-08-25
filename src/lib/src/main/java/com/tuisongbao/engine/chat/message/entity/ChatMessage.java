@@ -9,7 +9,6 @@ import com.tuisongbao.engine.chat.serializer.ChatMessageContentSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageEventTypeSerializer;
 import com.tuisongbao.engine.chat.serializer.ChatMessageTypeSerializer;
 import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.common.entity.Entity;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.Date;
@@ -23,7 +22,7 @@ import java.util.Date;
  *     <LI>可以在 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 中直接播放语音类型的消息</LI>
  * </UL>
  */
-public class ChatMessage extends Entity {
+public class ChatMessage {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
     /***
      * This value is not unique, it is the message's serial number in a conversation,

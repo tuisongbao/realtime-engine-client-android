@@ -7,9 +7,9 @@ import com.tuisongbao.engine.chat.message.content.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.entity.ChatMessage;
 import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
 import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
-import com.tuisongbao.engine.common.entity.Entity;
 import com.tuisongbao.engine.utils.LogUtils;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatConversation extends Entity {
+public class ChatConversation extends EventEmitter {
     /**
      * 新消息事件，监听该事件，可以实时获取当前会话的新消息
      *
@@ -49,6 +49,10 @@ public class ChatConversation extends Entity {
 
     transient private Engine mEngine;
     transient private ChatConversationManager mConversationManager;
+    /**
+     * 拓展项，用于挂载你需要的字段，比如会话相关联的群组的名称。
+     */
+    transient public Object extension;
 
     public ChatConversation(Engine engine) {
         mEngine = engine;

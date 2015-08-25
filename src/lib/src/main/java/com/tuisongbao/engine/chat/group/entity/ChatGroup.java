@@ -5,7 +5,6 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.common.callback.EngineCallback;
-import com.tuisongbao.engine.common.entity.Entity;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ import java.util.List;
  *
  * @see ChatManager#enableCache()
  */
-public class ChatGroup extends Entity {
+public class ChatGroup {
     private String groupId;
     private String owner;
     private boolean isPublic;
@@ -31,6 +30,11 @@ public class ChatGroup extends Entity {
 
     transient private Engine mEngine;
     transient private ChatGroupManager mGroupManager;
+    /**
+     * 拓展项，用于挂载你需要的字段，比如群组的名称。
+     * 不支持 {@link #serialize()}， 序列化过程中时会忽略该字段。
+     */
+    transient public Object extension;
 
     public ChatGroup() {
 
