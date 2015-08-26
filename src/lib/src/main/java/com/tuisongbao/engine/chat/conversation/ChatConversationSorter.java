@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.chat.conversation;
 
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.Comparator;

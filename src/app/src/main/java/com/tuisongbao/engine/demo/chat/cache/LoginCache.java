@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.demo.chat.cache;
 
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.util.ArrayList;

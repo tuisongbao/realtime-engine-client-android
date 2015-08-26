@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.group.entity.ChatGroupUser;
+import com.tuisongbao.engine.chat.group.ChatGroupUser;
 import com.tuisongbao.engine.demo.R;
 
 import java.util.List;

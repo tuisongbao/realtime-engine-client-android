@@ -7,7 +7,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
 
 import java.lang.reflect.Type;
 

@@ -7,7 +7,7 @@ import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 import com.tuisongbao.engine.common.event.BaseEvent;
-import com.tuisongbao.engine.common.event.handler.IEventHandler;
+import com.tuisongbao.engine.common.event.IEventHandler;
 import com.tuisongbao.engine.utils.StrUtils;
 
 /**

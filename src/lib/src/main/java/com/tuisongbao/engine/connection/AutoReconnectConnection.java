@@ -2,7 +2,6 @@ package com.tuisongbao.engine.connection;
 
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.Protocol;
-import com.tuisongbao.engine.connection.entity.ConnectionEventData;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 

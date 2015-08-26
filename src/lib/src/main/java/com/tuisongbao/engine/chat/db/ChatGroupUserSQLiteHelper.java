@@ -11,7 +11,7 @@ import com.tuisongbao.engine.utils.LogUtils;
  * @author root
  *
  */
-public class ChatGroupUserSQLiteHelper extends ChatBaseSQLiteHelper {
+class ChatGroupUserSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_GROUP_USER = "chatGroupUser";
 
     private static final String TAG = "TSB" + ChatGroupUserSQLiteHelper.class.getSimpleName();

@@ -2,7 +2,7 @@ package com.tuisongbao.engine.common;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.common.entity.RawEvent;
-import com.tuisongbao.engine.common.event.handler.IEventHandler;
+import com.tuisongbao.engine.common.event.IEventHandler;
 import com.tuisongbao.engine.utils.LogUtils;
 
 public class EventEmitter extends Emitter {

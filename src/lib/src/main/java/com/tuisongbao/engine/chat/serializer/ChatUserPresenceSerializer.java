@@ -7,12 +7,12 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
+import com.tuisongbao.engine.chat.ChatUserPresence;
 
 import java.lang.reflect.Type;
 
 /**
- * {@link com.tuisongbao.engine.chat.user.entity.ChatUserPresence.Presence} 的序列化工具
+ * {@link ChatUserPresence.Presence} 的序列化工具
  *
  * <P>
  *     序列化：{@code Presence.OFFLINE} 转变为其 {@code name} "offline"

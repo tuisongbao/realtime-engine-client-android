@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteQuery;
 
 import com.tuisongbao.engine.utils.LogUtils;
 
-public abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
+abstract class ChatBaseSQLiteHelper extends SQLiteOpenHelper {
     private static final String TAG = "TSB" + ChatBaseSQLiteHelper.class.getSimpleName();
 
     public ChatBaseSQLiteHelper(Context context, String name,

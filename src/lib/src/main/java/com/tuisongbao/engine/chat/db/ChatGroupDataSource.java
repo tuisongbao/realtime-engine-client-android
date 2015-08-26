@@ -6,9 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.group.ChatGroup;
+import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 

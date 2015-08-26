@@ -2,7 +2,7 @@ package com.tuisongbao.engine.common;
 
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.event.BaseEvent;
-import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
+import com.tuisongbao.engine.common.event.BaseEventHandler;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;

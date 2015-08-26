@@ -2,25 +2,21 @@ package com.tuisongbao.engine.chat;
 
 import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
+import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
+import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessageManager;
-import com.tuisongbao.engine.chat.message.event.handler.ChatMessageNewEventHandler;
-import com.tuisongbao.engine.chat.user.entity.ChatLoginData;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.chat.user.event.ChatLoginEvent;
-import com.tuisongbao.engine.chat.user.event.ChatLogoutEvent;
-import com.tuisongbao.engine.chat.user.event.handler.ChatLoginEventHandler;
-import com.tuisongbao.engine.chat.user.event.handler.ChatUserPresenceChangedEventHandler;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.common.event.BaseEvent;
-import com.tuisongbao.engine.common.event.handler.BaseEventHandler;
+import com.tuisongbao.engine.common.event.BaseEventHandler;
+import com.tuisongbao.engine.http.BaseRequest;
+import com.tuisongbao.engine.http.BaseResponse;
 import com.tuisongbao.engine.http.HttpConstants;
-import com.tuisongbao.engine.http.request.BaseRequest;
-import com.tuisongbao.engine.http.response.BaseResponse;
 import com.tuisongbao.engine.utils.ExecutorUtils;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -51,11 +47,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class ChatManager extends BaseManager {
     /**
-     * 有新消息时触发该事件，事件回调接收一个参数，类型为 {@link com.tuisongbao.engine.chat.message.entity.ChatMessage}
+     * 有新消息时触发该事件，事件回调接收一个参数，类型为 {@link ChatMessage}
      */
     public static final String EVENT_MESSAGE_NEW = "message:new";
     /**
-     * 用户上下线通知的提醒，事件回调接收一个参数，类型为 {@link com.tuisongbao.engine.chat.user.entity.ChatUserPresence}
+     * 用户上下线通知的提醒，事件回调接收一个参数，类型为 {@link ChatUserPresence}
      */
     public static final String EVENT_PRESENCE_CHANGED = "user:presenceChanged";
     /**
@@ -226,7 +222,7 @@ public final class ChatManager extends BaseManager {
     }
 
     /**
-     * 获取 {@link com.tuisongbao.engine.chat.conversation.entity.ChatConversation} 的管理类，同一个 ChatManager 上返回的是同一个引用
+     * 获取 {@link ChatConversation} 的管理类，同一个 ChatManager 上返回的是同一个引用
      *
      * @return ChatConversationManager 实例
      */
@@ -235,7 +231,7 @@ public final class ChatManager extends BaseManager {
     }
 
     /**
-     * 获取 {@link com.tuisongbao.engine.chat.group.entity.ChatGroup} 的管理类，同一个 ChatManager 上返回的是同一个引用
+     * 获取 {@link ChatGroup} 的管理类，同一个 ChatManager 上返回的是同一个引用
      *
      * @return ChatGroupManager 实例
      */

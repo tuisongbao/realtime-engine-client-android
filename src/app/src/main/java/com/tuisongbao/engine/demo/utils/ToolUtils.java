@@ -1,8 +1,8 @@
 package com.tuisongbao.engine.demo.utils;
 
-import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
+import com.tuisongbao.engine.chat.message.ChatMessage;
+import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import java.text.ParseException;

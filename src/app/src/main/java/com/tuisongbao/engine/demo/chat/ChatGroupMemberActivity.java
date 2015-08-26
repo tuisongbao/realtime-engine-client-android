@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupUser;
+import com.tuisongbao.engine.chat.group.ChatGroup;
+import com.tuisongbao.engine.chat.group.ChatGroupUser;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.DemoApplication;

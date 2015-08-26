@@ -24,8 +24,7 @@ public class DemoApplication extends Application {
 
         PushManager.init(this);
 
-        // remote service 启动时会有第二次 onCreate 的调用
-        // 为了解决这个问题，可以根据 process name 来防止SDK被初始化2次
+        // 启用 Push 时会有第二次 onCreate 的调用，可以根据 process name 来防止 Engine SDK被初始化2次
         String processName = getProcessName(android.os.Process.myPid());
         if (processName == null
                 || !processName.equalsIgnoreCase("com.tuisongbao.engine.demo")) {
@@ -33,7 +32,7 @@ public class DemoApplication extends Application {
         }
         // 初始化 EngineOptions
         // appId 是在推送宝官网注册应用时分配的 ID；authUrl 用于鉴权, 推荐用 https, 参见 登录 一节
-        EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://www.tuisongbao.com/api/engineDemo/authUser"
+        EngineOptions options = new EngineOptions("ab3d5241778158b2864c0852" , "http://192.168.225.102/api/engineDemo/authUser"
         );
         engine = new Engine(this, options);
 

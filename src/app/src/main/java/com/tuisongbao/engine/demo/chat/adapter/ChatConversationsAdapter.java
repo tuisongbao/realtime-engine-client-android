@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
-import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.message.ChatMessage;
+import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.utils.ToolUtils;
 

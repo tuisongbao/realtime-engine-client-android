@@ -13,9 +13,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.user.ChatType;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;

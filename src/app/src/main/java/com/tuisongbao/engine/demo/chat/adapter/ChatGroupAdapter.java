@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.group.entity.ChatGroup;
+import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.demo.R;
 
 public class ChatGroupAdapter extends BaseAdapter {

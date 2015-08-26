@@ -23,9 +23,9 @@ import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.user.entity.ChatUser;
-import com.tuisongbao.engine.chat.user.entity.ChatUserPresence;
+import com.tuisongbao.engine.chat.message.ChatMessage;
+import com.tuisongbao.engine.chat.ChatUser;
+import com.tuisongbao.engine.chat.ChatUserPresence;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.cache.LoginCache;

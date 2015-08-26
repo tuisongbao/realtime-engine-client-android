@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.utils.LogUtils;
 
-public class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
+class ChatMessageSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String TABLE_CHAT_MESSAGE = "chatMessage";
 
     private static final String TAG = "TSB" + ChatMessageSQLiteHelper.class.getSimpleName();
