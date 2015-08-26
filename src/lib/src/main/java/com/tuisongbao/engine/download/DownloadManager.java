@@ -6,6 +6,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 // TODO: 15-8-25 Merge with ExecutorUtils
+/**
+ * <STRONG>下载任务管理类</STRONG>
+ */
 public class DownloadManager {
     private static DownloadManager mInstance;
     private ThreadPoolExecutor mThreadPool;
@@ -35,6 +38,11 @@ public class DownloadManager {
         return mInstance;
     }
 
+    /**
+     * 开始运行下载任务。不一定立即执行，当队列拥挤时会有延迟。
+     *
+     * @param task  下载任务
+     */
     public void start(DownloadTask task) {
         /*
          * "Executes" the tasks' download Runnable in order to download the image. If no
@@ -43,6 +51,11 @@ public class DownloadManager {
         mThreadPool.execute(task);
     }
 
+    /**
+     * 取消下载任务
+     *
+     * @param task  下载任务
+     */
     public void cancel(DownloadTask task) {
         // FIXME: 15-8-25 I do not know this can work or not, need test
         if (!task.isRunning()) {

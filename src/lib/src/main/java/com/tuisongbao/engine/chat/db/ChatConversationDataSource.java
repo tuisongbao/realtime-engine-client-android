@@ -169,16 +169,6 @@ public class ChatConversationDataSource {
         return  lastMessage;
     }
 
-    /***
-     *
-     * @param userId
-     * @param type
-     * @param target
-     * @param startMessageId
-     * @param endMessageId
-     * @param limit
-     * @return
-     */
     public List<ChatMessage> getMessages(String userId, ChatType type, String target, Long startMessageId, Long endMessageId, int limit) {
         List<ChatMessage> messages = new ArrayList<ChatMessage>();
         Cursor cursor;

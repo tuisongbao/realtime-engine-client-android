@@ -1,11 +1,10 @@
 package com.tuisongbao.engine.chat.conversation;
 
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.ChatManager;
-import com.tuisongbao.engine.chat.message.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessageContent;
-import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.message.ChatMessageImageContent;
 import com.tuisongbao.engine.common.EventEmitter;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
@@ -17,11 +16,10 @@ import java.util.List;
  * <STRONG>会话类</STRONG>
  *
  * <UL>
+ *     <LI>直接在该对象上进行发送消息，获取消息，重置未读消息，删除会话等操作</LI>
+ *     <LI>绑定 {@link #EVENT_MESSAGE_NEW} 事件可监听新消息</LI>
  *     <LI>开启缓存时，所有的 API 调用会根据缓存数据适当从服务器获取最新的数据，减少流量</LI>
- *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
  * </UL>
- *
- * @see ChatManager#enableCache()
  */
 public class ChatConversation extends EventEmitter {
     /**
@@ -95,8 +93,12 @@ public class ChatConversation extends EventEmitter {
     }
 
     /**
-     * 获取最后一条消息
+     * 获取最后一条消息。
      *
+     * <P>
+     *      <STRONG>不是</STRONG>发送请求获取最后一条消息，是其本身的一个属性，表示获得该会话时，那一刻的最新的一条消息。
+     * </P>
+
      * @return 最后一条消息
      */
     public ChatMessage getLastMessage() {
@@ -107,8 +109,9 @@ public class ChatConversation extends EventEmitter {
         this.lastMessage = lastMessage;
     }
 
-    /***
-     * 重置未读消息
+    /**
+     * 重置未读消息。
+     * 将未读消息数设置为 0。
      *
      * @param callback 可选
      */
@@ -128,12 +131,18 @@ public class ChatConversation extends EventEmitter {
     /**
      * 获取会话的历史消息
      *
-     * <P>
-     *     startMessageId 和 endMessageId 都可选，都为 {@code null} 时表示获取最新的 {@code limit} 条消息
+     * messageId 是一个自增数，从 0 开始，数字越大表示消息越晚（新）。
+     * startMessageId 和 endMessageId 都可选，参数取值说明，按照顺序依次为 (startMessageId, endMessageId, limit)：
+     * <UL>
+     *     <LI>(null, null, 20) 获取最新的 20 条消息</LI>
+     *     <LI>(null, 40, 20) 如果最新的 messageId 是 50，返回 50 ～ 40；如果是 70, 返回 70 ~ 50</LI>
+     *     <LI>(40, null, 20) 获取 40 ~ 20 之间的消息</LI>
+     *     <LI>(40, 10, 30) 获取 40 ~ 10 之间的消息</LI>
+     * </UL>
      *
      * @param startMessageId    起始 messageId
      * @param endMessageId      结束的 messageId
-     * @param limit             消息条数限制
+     * @param limit             必填，消息条数限制
      * @param callback          处理方法
      */
     public void getMessages(Long startMessageId,Long endMessageId, int limit,
@@ -141,18 +150,12 @@ public class ChatConversation extends EventEmitter {
         mConversationManager.getMessages(type, target, startMessageId, endMessageId, limit, callback);
     }
 
-    /***
-     * 在会话中发送消息
-     *
-     * @param body      消息实体
-     * @param callback  处理方法
-     */
     /**
      * 在会话中发送消息
      *
-     * @param content          消息实体
-     * @param callback      结果处理方法
-     * @param progressCallback 进度处理方法
+     * @param content           消息实体
+     * @param callback          结果处理方法
+     * @param progressCallback  进度处理方法
      *
      * @return ChatMessage 实例。当为发送图片时，会将缩略图的信息填入，方便开发者刷新页面。
      */

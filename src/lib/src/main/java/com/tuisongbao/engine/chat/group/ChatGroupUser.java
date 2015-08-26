@@ -16,10 +16,20 @@ public class ChatGroupUser {
     private String userId;
     private ChatUserPresence.Presence presence;
 
+    /**
+     * 获取用户唯一标识
+     *
+     * @return  用户唯一标识
+     */
     public String getUserId() {
         return userId;
     }
 
+    /**
+     * 获取用户在线状态
+     *
+     * @return  用户在线状态
+     */
     public ChatUserPresence.Presence getPresence() {
         return presence;
     }

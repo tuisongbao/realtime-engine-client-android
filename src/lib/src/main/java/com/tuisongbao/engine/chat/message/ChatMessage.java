@@ -16,7 +16,6 @@ import java.util.Date;
  * <STRONG>Chat 消息</STRONG>
  *
  * <UL>
- *     <LI></LI>
  *     <LI>支持序列化和反序列化，方便在 {@code Intent} 中使用</LI>
  *     <LI>可以在 {@link com.tuisongbao.engine.chat.media.ChatVoicePlayer} 中直接播放语音类型的消息</LI>
  * </UL>
@@ -58,7 +57,7 @@ public class ChatMessage {
      *
      * @param engine        Engine 实例，用来确定 ChatMessage 的上下文
      * @param jsonString    合法的 JSON 格式 {@code String}
-     * @return ChatMessage 实例
+     * @return              ChatMessage 实例
      */
     public static ChatMessage deserialize(Engine engine, String jsonString) {
         ChatMessage message = getSerializer().fromJson(jsonString, ChatMessage.class);
@@ -110,8 +109,8 @@ public class ChatMessage {
     /**
      * 设置聊天类型
      *
-     * @param type 聊天类型
-     * @return ChatMessage 实例
+     * @param type  聊天类型
+     * @return      ChatMessage 实例
      */
     public ChatMessage setChatType(ChatType type) {
         this.type = type;
@@ -138,7 +137,7 @@ public class ChatMessage {
     /**
      * 获取消息发送者唯一标识
      *
-     * @return 消息发发送者唯一标识
+     * @return 消息发送者唯一标识
      */
     public String getFrom() {
         return from;
@@ -147,8 +146,8 @@ public class ChatMessage {
     /**
      * 设置消息发送者唯一标识
      *
-     * @param from 消息发送者唯一标识
-     * @return
+     * @param from  消息发送者唯一标识
+     * @return      已设置发送者的消息
      */
     public ChatMessage setFrom(String from) {
         this.from = from;
@@ -167,8 +166,8 @@ public class ChatMessage {
     /**
      * 设置消息接收者唯一标识
      *
-     * @param to 消息接收者唯一标识
-     * @return
+     * @param to    消息接收者唯一标识
+     * @return      已设置接收者的消息
      */
     public ChatMessage setRecipient(String to) {
         this.to = to;
@@ -180,6 +179,7 @@ public class ChatMessage {
      *
      * <P>
      *     ChatMessageContent 是父类，应根据 {@link ChatMessageContent#getType()} 来获取相应的内容。
+     * </P>
      *
      * @return 消息内容
      */
@@ -194,8 +194,8 @@ public class ChatMessage {
     /**
      * 设置消息内容
      *
-     * @param content 消息内容
-     * @return ChatMessage 实例
+     * @param content   消息内容
+     * @return          ChatMessage 实例
      */
     public ChatMessage setContent(ChatMessageContent content) {
         this.content = content;
@@ -223,7 +223,6 @@ public class ChatMessage {
      * @return 创建时间
      * @since v2.1.1
      */
-
     public Date getCreatedAtInDate() {
         if (createdAt == null) {
             return null;

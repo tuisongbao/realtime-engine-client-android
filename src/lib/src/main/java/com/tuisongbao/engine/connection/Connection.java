@@ -91,7 +91,7 @@ public class Connection extends BaseEngineIODataSource {
          */
         Initialized("initialized"),
         /**
-         * 连接中，
+         * 连接中
          */
         Connecting("connecting"),
         /**

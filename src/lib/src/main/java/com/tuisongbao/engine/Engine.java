@@ -19,8 +19,7 @@ import com.tuisongbao.engine.utils.StrUtils;
  *     通过 {@link EngineOptions} 初始化该类。
  *     初始化过程中会创建 {@link AutoReconnectConnection}，{@link ChatManager} 和 {@link ChannelManager} 的实例，有且只有一个。
  *     支持单个应用中多个实例。
- *
- * @author Katherine Zhu
+ * </P>
  */
 public final class Engine {
     private static final String TAG = "TSB" + Engine.class.getSimpleName();

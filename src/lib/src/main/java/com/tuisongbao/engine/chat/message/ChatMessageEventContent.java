@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.chat.message;
 
-import com.tuisongbao.engine.chat.message.ChatMessage;
-import com.tuisongbao.engine.chat.message.ChatMessageContent;
 import com.tuisongbao.engine.utils.StrUtils;
 
 public class ChatMessageEventContent extends ChatMessageContent {

@@ -1,8 +1,5 @@
 package com.tuisongbao.engine.chat.message;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.common.callback.EngineCallback;
@@ -11,20 +8,28 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.download.DownloadManager;
 import com.tuisongbao.engine.download.DownloadTask;
 import com.tuisongbao.engine.utils.FileUtils;
-import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Date;
 
+/**
+ * <STRONG>多媒体消息内容</STRONG>
+ *
+ * <P>
+ *     主要管理源（缩略图）文件的路径以及资源的下载。
+ * </P>
+ */
 public class ChatMessageMediaContent extends ChatMessageContent {
     private static final String TAG = "TSB" + ChatMessageMediaContent.class.getSimpleName();
 
     transient private boolean downloadingThumbnail = false;
     transient private boolean downloadingOriginal = false;
 
+    /**
+     * 设置源文件的绝对路径
+     *
+     * @param path  文件绝对路径
+     */
     public void setFilePath(String path) {
         if (file == null) {
             file = new ChatMessageFileEntity();
@@ -32,6 +37,11 @@ public class ChatMessageMediaContent extends ChatMessageContent {
         file.setFilePath(path);
     }
 
+    /**
+     * 获取源文件的绝对路径
+     *
+     * @return  文件绝对路径
+     */
     public String getFilePath() {
         if (file == null) {
             return null;
@@ -40,6 +50,11 @@ public class ChatMessageMediaContent extends ChatMessageContent {
         }
     }
 
+    /**
+     * 获取源文件的下载地址
+     *
+     * @return  源文件的下载地址
+     */
     public String getFileUrl() {
         if (file == null) {
             return null;
@@ -48,6 +63,11 @@ public class ChatMessageMediaContent extends ChatMessageContent {
         }
     }
 
+    /**
+     * 获取缩略图的绝对路径
+     *
+     * @return  文件绝对路径
+     */
     public String getThumbnailPath() {
         if (file == null) {
             return null;
@@ -56,6 +76,11 @@ public class ChatMessageMediaContent extends ChatMessageContent {
         }
     }
 
+    /**
+     * 获取缩略图的下载地址
+     *
+     * @return  缩略图的下载地址
+     */
     public String getThumbnailUrl() {
         if (file == null) {
             return null;
@@ -69,9 +94,11 @@ public class ChatMessageMediaContent extends ChatMessageContent {
      *
      * <P>
      *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测是否有缓存，不存在时会重新下载。
+     * </P>
      *
      * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
      * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
+     * @return  下载任务
      */
     public DownloadTask download(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
         return downloadResource(true, filePathCallback, progressCallback);
@@ -82,60 +109,14 @@ public class ChatMessageMediaContent extends ChatMessageContent {
      *
      * <P>
      *     该方法<STRONG>可以</STRONG>重复调用 ，SDK 会自行检测是否有缓存，不存在时会重新下载。
+     * </P>
      *
      * @param filePathCallback 路径回调处理方法，该方法接收一个参数，表示文件的绝对路径
      * @param progressCallback 进度回调处理方法，该方法接收一个参数，类型为 {@code int}， 表示下载进度
+     * @return  下载任务
      */
     public DownloadTask downloadThumb(final EngineCallback<String> filePathCallback, final ProgressCallback progressCallback) {
         return downloadResource(false, filePathCallback, progressCallback);
-    }
-
-    public boolean generateThumbnail(int maxWidth) {
-        if (getType() != ChatMessage.TYPE.IMAGE) {
-            return false;
-        }
-
-        String thumbnailPath = getFile().getThumbnailPath();
-        if (isFileExists(thumbnailPath)) {
-            return false;
-        }
-
-        // Create thumbnail bitmap
-        String filePath = getFile().getFilePath();
-        Bitmap image = BitmapFactory.decodeFile(filePath);
-        float bitmapRatio = (float)image.getWidth() / (float) image.getHeight();
-
-        int width = Math.min(image.getWidth(), maxWidth);
-        int height = (int) (width / bitmapRatio);
-        Bitmap thumbnail = Bitmap.createScaledBitmap(image, width, height, true);
-
-        // Save thumbnail
-        String fileName = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
-        FileOutputStream out = null;
-        try {
-            File file = FileUtils.getOutputFile("/tuisongbao/" + getType().getName() + "/" + fileName);
-            if (file == null) {
-                // If thumbnail can not be created, only can count on the downloading thumbnail.....
-                return false;
-            }
-            out = new FileOutputStream(file.getAbsolutePath());
-            thumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
-
-            // Update thumbnail path in message
-            getFile().setThumbnailPath(file.getAbsolutePath());
-            return true;
-        } catch (Exception e) {
-            LogUtils.error(TAG, e);
-        } finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                LogUtils.error(TAG, e);
-            }
-        }
-        return false;
     }
 
     private ResponseError permissionCheck() {
@@ -145,18 +126,6 @@ public class ChatMessageMediaContent extends ChatMessageContent {
             return error;
         }
         return null;
-    }
-
-    private boolean isFileExists(String filePath) {
-        if (StrUtils.isEmpty(filePath)) {
-            return false;
-        }
-        File fileTest = new File(filePath);
-        if (!fileTest.exists()) {
-            LogUtils.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
-            return false;
-        }
-        return true;
     }
 
     private DownloadTask downloadResource(final boolean isOriginal, final EngineCallback<String> callback,
@@ -187,7 +156,7 @@ public class ChatMessageMediaContent extends ChatMessageContent {
             return null;
         }
 
-        if (isFileExists(filePath)) {
+        if (FileUtils.isFileExists(filePath)) {
             callback.onSuccess(filePath);
             return null;
         }

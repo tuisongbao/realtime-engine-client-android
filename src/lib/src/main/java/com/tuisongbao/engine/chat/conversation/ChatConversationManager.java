@@ -19,15 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * {@link ChatConversation} 的管理类，每个 {@link Engine} 只有一个该实例。开启缓存时，
- * 所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。
+ * <STRONG>{@link ChatConversation} 的管理类</STRONG>
  *
- * @see ChatManager#enableCache()
+ * <UL>
+ *     <LI>每个 {@link Engine} 只有一个该实例。</LI>
+ *     <LI>所有的API调用会根据缓存数据适当从服务器获取最新的数据，减少流量。</LI>
+ * </UL>
  */
 public final class ChatConversationManager extends BaseManager {
     /**
-     * 新会话事件，该事件触发时表示有新的会话生成，需要开发者调用 {@link #getList(ChatType, String, EngineCallback)} 刷新 UI。
-     * 回调方法不带任何参数。
+     * 新会话事件，该事件触发时表示有新的会话生成，建议开发者调用 {@link #getList(ChatType, String, EngineCallback)} 或者 {@link #getLocalList()}
+     * 刷新 UI。
      */
     transient public static final String EVENT_CONVERSATION_NEW = "conversation:new";
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
@@ -78,7 +80,7 @@ public final class ChatConversationManager extends BaseManager {
     }
 
     /**
-     * 查找会话，不发送请求，只从缓存中查找。不存在时返回 {@code null}。
+     * 查找会话，不发送请求，只从缓存中查找，不存在时返回 {@code null}。获取最新的数据请使用 {@link #getList(ChatType, String, EngineCallback)}。
      *
      * @param target    必填，userId 或 groupId，表示与谁的会话
      * @return          缓存的会话
@@ -99,7 +101,7 @@ public final class ChatConversationManager extends BaseManager {
     }
 
     /**
-     * 获取本地会话，不发送请求，只从缓存中查找。不存在时会创建一个新会话。
+     * 获取本地会话，不发送请求，只从缓存中查找，不存在时会创建一个新会话。
      *
      * @param target    必填，userId 或 groupId，表示与谁的会话
      * @param type      聊天类型
@@ -184,8 +186,8 @@ public final class ChatConversationManager extends BaseManager {
     /**
      * 重置未读消息数
      *
-     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
-     * @param target 必填，userId 或 groupId
+     * @param chatType  {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target    必填，userId 或 groupId
      */
     public void resetUnread(ChatType chatType, String target, EngineCallback<String> callback) {
         try {
@@ -228,9 +230,9 @@ public final class ChatConversationManager extends BaseManager {
     /**
      * 删除会话
      *
-     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
-     * @param target 必填，userId 或 groupId
-     * @param callback 结果通知函数
+     * @param chatType  {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target    必填，userId 或 groupId
+     * @param callback  结果通知函数
      */
     public void delete(ChatType chatType, final String target,
             final EngineCallback<String> callback) {
@@ -265,12 +267,12 @@ public final class ChatConversationManager extends BaseManager {
     /**
      * 获取某个会话的历史消息。startMessageId 和 endMessageId 都可选，都为{@code null}时表示获取最新的{@code limit}条消息
      *
-     * @param chatType {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
-     * @param target 必填，userId 或 groupId
-     * @param startMessageId 起始 messageId
-     * @param endMessageId 结束的 messageId
-     * @param limit 消息条数限制
-     * @param callback 结果通知函数
+     * @param chatType          {@link ChatType#SingleChat}（单聊） 或 {@link ChatType#GroupChat} （群聊）
+     * @param target            必填，userId 或 groupId
+     * @param startMessageId    起始 messageId
+     * @param endMessageId      结束的 messageId
+     * @param limit             消息条数限制
+     * @param callback          结果通知函数
      */
     public void getMessages(ChatType chatType, String target, Long startMessageId,
             Long endMessageId, int limit,
@@ -278,6 +280,9 @@ public final class ChatConversationManager extends BaseManager {
         engine.getChatManager().getMessageManager().getMessages(chatType, target, startMessageId, endMessageId, limit, callback);
     }
 
+    /**
+     * 清除所有缓存的会话，包括相关消息
+     */
     public void clearCache() {
         try {
             dataSource.open();

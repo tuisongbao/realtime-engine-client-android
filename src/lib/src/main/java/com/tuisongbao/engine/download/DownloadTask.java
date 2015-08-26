@@ -12,6 +12,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+/**
+ * <STRONG>下载任务</STRONG>
+ */
 public class DownloadTask implements Runnable {
     private static final String TAG = "TSB" + DownloadTask.class.getSimpleName();
 
@@ -51,10 +54,18 @@ public class DownloadTask implements Runnable {
         }
     }
 
+    /**
+     * 获取当前任务的执行状态
+     *
+     * @return  {true} 表示正在执行，{false} 表示还未执行。
+     */
     public boolean isRunning() {
         return mRunningThread.isAlive();
     }
 
+    /**
+     * 停止任务
+     */
     public void cancel() {
         isCanceled = true;
         if (mRunningThread != null) {

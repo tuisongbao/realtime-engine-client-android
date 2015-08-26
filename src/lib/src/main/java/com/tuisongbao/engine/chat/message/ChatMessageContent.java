@@ -7,8 +7,7 @@ import com.tuisongbao.engine.Engine;
 import org.json.JSONObject;
 
 /**
- * 消息主体内容
- *
+ * <STRONG>消息内容</STRONG>
  */
 public class ChatMessageContent {
     transient private final String TAG = "TSB" + ChatMessage.class.getSimpleName();
@@ -104,7 +103,7 @@ public class ChatMessageContent {
                 , event, location, extra);
     }
 
-    public  boolean isMediaMessage() {
+    protected boolean isMediaMessage() {
         ChatMessage.TYPE contentType = getType();
         return contentType == ChatMessage.TYPE.IMAGE || contentType == ChatMessage.TYPE.VOICE || contentType == ChatMessage.TYPE.VIDEO;
     }

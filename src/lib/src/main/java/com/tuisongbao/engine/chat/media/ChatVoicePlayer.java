@@ -30,11 +30,20 @@ public class ChatVoicePlayer implements OnPreparedListener, android.media.MediaP
     private final HashMap<ChatMessage, OnStopListener> stopListenerHashMap = new HashMap<>();
     private final HashMap<ChatMessage, OnErrorListener> errorListenerHashMap = new HashMap<>();
 
+    /**
+     * 播放终止或被迫停止的监听接口
+     */
     public interface OnStopListener {
         void onStop();
     }
 
+    /**
+     * 播放出错的监听接口
+     */
     public interface OnErrorListener {
+        /**
+         * @param error 出错原因
+         */
         void onError(String error);
     }
 

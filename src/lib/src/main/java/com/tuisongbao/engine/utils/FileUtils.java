@@ -8,6 +8,18 @@ import java.io.IOException;
 public class FileUtils {
     private static final String TAG = "TSB" + FileUtils.class.getSimpleName();
 
+    public static boolean isFileExists(String filePath) {
+        if (StrUtils.isEmpty(filePath)) {
+            return false;
+        }
+        File fileTest = new File(filePath);
+        if (!fileTest.exists()) {
+            LogUtils.warn(TAG, "Local file at " + filePath + " is no longer exists, need to download again");
+            return false;
+        }
+        return true;
+    }
+
     public static File getOutputFile(String filePath) {
         String fileFullPath;
         if (hasSDCard()) {

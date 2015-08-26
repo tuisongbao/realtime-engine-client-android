@@ -21,7 +21,8 @@ import java.util.Date;
  * <STRONG>地理位置帮助类</STRONG>
  *
  * <P>
- *     获取最近一次的位置以及当前位置，以经纬度标记。
+ *     获取当前位置，以经纬度标记。
+ * </P>
  */
 public class ChatLocationManager extends BaseManager {
     private static final String TAG = "TSB" + ChatLocationManager.class.getSimpleName();
@@ -67,10 +68,11 @@ public class ChatLocationManager extends BaseManager {
      * <P>
      *     处理方法的回调参数不保证一定会返回当前位置。在没有开启位置服务并且没有网络连接的情况下，是无法实时获取到当前位置的，此时会返回上一次记录的位置。
      *     此外，超过给定时间限制后会触发 {@code onSuccess} 的回调，并将上一次记录的位置返回。
+     * </P>
      *
-     * @param callback 处理方法
-     * @param timeoutInSeconds 超时时间，单位是 “秒”，默认为 5 秒。
-     * @return 上一次记录的位置，可能为 {@code null}
+     * @param callback          处理方法
+     * @param timeoutInSeconds  超时时间，单位是 “秒”，默认为 5 秒。
+     * @return                  上一次记录的位置，可能为 {@code null}
      */
     public Location getCurrentLocation(final EngineCallback<Location> callback, int timeoutInSeconds) {
         try {
