@@ -1,9 +1,8 @@
-package com.tuisongbao.engine.channel.message;
+package com.tuisongbao.engine.channel;
 
-import com.tuisongbao.engine.channel.PresenceChannel;
 import com.tuisongbao.engine.common.event.BaseEvent;
 
-public class SubscribeEvent extends BaseEvent<PresenceChannel> {
+class SubscribeEvent extends BaseEvent<PresenceChannel> {
     public static final String NAME = "engine_channel:subscribe";
 
     public SubscribeEvent() {

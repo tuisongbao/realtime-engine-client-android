@@ -2,7 +2,6 @@ package com.tuisongbao.engine.channel;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -23,11 +22,11 @@ import org.json.JSONObject;
  */
 public class PresenceChannel extends PrivateChannel {
     /**
-     * 用户上线时会触发该事件，事件回调有一个参数，类型为 {@link com.tuisongbao.engine.channel.entity.User}；
+     * 用户上线时会触发该事件，事件回调有一个参数，类型为 {@link PresenceChannelUser}；
      */
     public static final String EVENT_USER_ADDED = "engine:user_added";
     /**
-     * 用户下线时会触发该事件，事件回调有一个参数，类型为 {@link com.tuisongbao.engine.channel.entity.User}；
+     * 用户下线时会触发该事件，事件回调有一个参数，类型为 {@link PresenceChannelUser}；
      */
     public static final String EVENT_USER_REMOVED = "engine:user_removed";
 

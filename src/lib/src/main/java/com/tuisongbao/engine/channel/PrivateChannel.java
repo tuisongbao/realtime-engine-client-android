@@ -1,7 +1,6 @@
 package com.tuisongbao.engine.channel;
 
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.channel.message.SubscribeEvent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.http.HttpConstants;

@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.channel.entity.OnlineUser;
-import com.tuisongbao.engine.channel.entity.User;
 import com.tuisongbao.engine.common.BaseManager;
 import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.entity.RawEvent;
@@ -60,9 +58,9 @@ public final class ChannelManager extends BaseManager {
                 }
                 JsonElement data = event.getData();
                 if (isPresenceChannel(channel.getName())) {
-                    List<OnlineUser> onlineUsers = new Gson().fromJson(data,
-                            new TypeToken<List<OnlineUser>>(){}.getType());
-                    channel.trigger(Channel.EVENT_SUBSCRIPTION_SUCCESS, onlineUsers);
+                    List<PresenceChannelOnlineUser> presenceChannelOnlineUsers = new Gson().fromJson(data,
+                            new TypeToken<List<PresenceChannelOnlineUser>>(){}.getType());
+                    channel.trigger(Channel.EVENT_SUBSCRIPTION_SUCCESS, presenceChannelOnlineUsers);
                 } else {
                     channel.trigger(Channel.EVENT_SUBSCRIPTION_SUCCESS);
                 }
@@ -73,12 +71,12 @@ public final class ChannelManager extends BaseManager {
             @Override
             public void call(Object... args) {
                 RawEvent event = (RawEvent)args[0];
-                User user = new Gson().fromJson(event.getData(), User.class);
+                PresenceChannelUser presenceChannelUser = new Gson().fromJson(event.getData(), PresenceChannelUser.class);
                 String channelName = event.getChannel();
                 Channel channel = mChannelMap.get(channelName);
 
                 if (channel != null) {
-                    channel.trigger(trimInternalSign(event.getName()), user);
+                    channel.trigger(trimInternalSign(event.getName()), presenceChannelUser);
                 }
             }
         };

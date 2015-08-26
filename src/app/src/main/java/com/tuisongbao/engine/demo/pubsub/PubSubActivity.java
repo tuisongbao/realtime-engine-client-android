@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.channel.Channel;
 import com.tuisongbao.engine.channel.PresenceChannel;
-import com.tuisongbao.engine.channel.entity.User;
+import com.tuisongbao.engine.channel.PresenceChannelUser;
 import com.tuisongbao.engine.demo.DemoApplication;
 import com.tuisongbao.engine.demo.R;
 
@@ -89,15 +89,15 @@ public class PubSubActivity extends Activity {
                 presenceChannel.bind(PresenceChannel.EVENT_USER_ADDED, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        User user = (User)args[0];
-                        Log.i(TAG, user.getId() + " add, " + user.getInfo());
+                        PresenceChannelUser presenceChannelUser = (PresenceChannelUser)args[0];
+                        Log.i(TAG, presenceChannelUser.getId() + " add, " + presenceChannelUser.getInfo());
                     }
                 });
                 presenceChannel.bind(PresenceChannel.EVENT_USER_REMOVED, new Emitter.Listener() {
                     @Override
                     public void call(Object... args) {
-                        User user = (User)args[0];
-                        Log.i(TAG, user.getId() + " removed, " + user.getInfo());
+                        PresenceChannelUser presenceChannelUser = (PresenceChannelUser)args[0];
+                        Log.i(TAG, presenceChannelUser.getId() + " removed, " + presenceChannelUser.getInfo());
                     }
                 });
             }
