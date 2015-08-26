@@ -6,9 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.tuisongbao.engine.Engine;
-import com.tuisongbao.engine.chat.group.ChatGroup;
-import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.ChatUser;
+import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -211,12 +210,6 @@ public class ChatGroupDataSource {
                 + ChatGroupUserSQLiteHelper.COLUMN_USER_ID + " = ?";
         int rowsAffected = groupMemberDB.delete(ChatGroupUserSQLiteHelper.TABLE_CHAT_GROUP_USER, whereClause, new String[]{ groupId, userId });
         LogUtils.info(TAG, "Remove user " + userId + " from " + groupId + ", " + rowsAffected + " rows affected");
-
-        // Remove conversation
-        ChatConversationDataSource dataSource = new ChatConversationDataSource(Engine.getContext(), mEngine);
-        dataSource.open();
-        dataSource.remove(userId, ChatType.GroupChat, groupId);
-        dataSource.close();
 
         // If the group is empty, remove this group.
         List<ChatGroup> groups = getList(userId, groupId);
