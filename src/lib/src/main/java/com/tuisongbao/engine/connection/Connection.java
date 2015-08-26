@@ -129,7 +129,7 @@ public class Connection extends BaseEngineIODataSource {
         private String platform = "Android";
         private String protocol = "v1";
         // TODO: Replace sdkVersion automatically by gradle task.
-        private String sdkVersion = "v2.1.0";
+        private String sdkVersion = "v2.2.0";
         private String transport = "websocket";
 
         public Options() {
