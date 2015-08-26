@@ -17,9 +17,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.FrameLayout;
 
-import com.tuisongbao.engine.chat.message.content.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage;
-import com.tuisongbao.engine.chat.message.entity.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.ChatMessage;
+import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
+import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
 import com.tuisongbao.engine.demo.app.App;
 
 import java.io.ByteArrayOutputStream;

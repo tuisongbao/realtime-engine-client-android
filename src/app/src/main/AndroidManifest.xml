@@ -71,6 +71,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity_" />
         </activity>
+        <activity android:name=".activity.GroupsActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity_" />
+        </activity>
         <activity android:name=".activity.GroupInfoActivity_">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

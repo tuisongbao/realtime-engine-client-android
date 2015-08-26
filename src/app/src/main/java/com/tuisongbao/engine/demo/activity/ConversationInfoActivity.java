@@ -5,21 +5,15 @@ import android.content.Intent;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.demo.adapter.GroupUserAdapter;
 import com.tuisongbao.engine.demo.app.App;
 import com.tuisongbao.engine.demo.utils.AppToast;
 
@@ -71,36 +65,9 @@ public class ConversationInfoActivity extends BaseActivity{
         names.add(App.getContext().getUser().getUserId());
         names.add(conversationTarget);
 
-        userList.setAdapter(new BaseAdapter() {
-            @Override
-            public int getCount() {
-                return names.size();
-            }
-
-            @Override
-            public Object getItem(int position) {
-                return names.get(position);
-            }
-
-            @Override
-            public long getItemId(int position) {
-                return 0;
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                convertView = View.inflate(ConversationInfoActivity.this, R.layout.demo_user_item, null);
-                ImageView avatar = (ImageView)convertView.findViewById(R.id.avatar);
-                TextView username = (TextView)convertView.findViewById(R.id.userName);
-                String name = names.get(position);
-                username.setText(name);
-                ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + name, avatar);
-
-                return convertView;
-            }
-        });
+        GroupUserAdapter adapter = new GroupUserAdapter(names, this);
+        userList.setAdapter(adapter);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

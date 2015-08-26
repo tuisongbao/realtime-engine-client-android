@@ -1,7 +1,9 @@
 package com.tuisongbao.engine.demo;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -16,7 +18,7 @@ import android.widget.SearchView;
 
 import com.tuisongbao.engine.demo.activity.LoginActivity_;
 import com.tuisongbao.engine.demo.adapter.TabAdapter;
-import com.tuisongbao.engine.demo.fragment.ContactsFragment;
+import com.tuisongbao.engine.demo.fragment.ContactsFragment_;
 import com.tuisongbao.engine.demo.fragment.ConversationsFragment_;
 import com.tuisongbao.engine.demo.fragment.SettingsFragment_;
 import com.tuisongbao.engine.demo.utils.AppToast;
@@ -80,7 +82,7 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
 
         fragments = new ArrayList<>();
         fragments.add(new ConversationsFragment_());
-        fragments.add(new ContactsFragment());
+        fragments.add(new ContactsFragment_());
         fragments.add(new SettingsFragment_());
         adapter = new TabAdapter(getSupportFragmentManager(), fragments);
         // 防止第一个fragment被销毁
@@ -173,11 +175,25 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
         mViewPager.setCurrentItem(id);
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.demo_menu_conversation, menu);
         MenuItem searchItem = menu.findItem(R.id.menu_weixin_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                AppToast.getToast().show("搜索展开");
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                AppToast.getToast().show("搜索合并");
+                return false;
+            }
+        });
         return super.onCreateOptionsMenu(menu);
     }
 

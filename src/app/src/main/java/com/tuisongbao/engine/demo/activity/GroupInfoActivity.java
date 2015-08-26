@@ -1,17 +1,20 @@
 package com.tuisongbao.engine.demo.activity;
 
+import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
 
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.group.entity.ChatGroup;
-import com.tuisongbao.engine.chat.group.entity.ChatGroupUser;
-import com.tuisongbao.engine.chat.user.ChatType;
+import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.group.ChatGroup;
+import com.tuisongbao.engine.chat.group.ChatGroupUser;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.MainActivity_;
@@ -117,8 +120,8 @@ public class GroupInfoActivity extends BaseActivity{
         }
 
         groupUserAdapter = new GroupUserAdapter(userIds, this);
-        userList.setAdapter(groupUserAdapter);
 
+        userList.setAdapter(groupUserAdapter);
     }
 
     public void request(){
@@ -130,8 +133,14 @@ public class GroupInfoActivity extends BaseActivity{
                 }
 
                 runOnUiThread(new Runnable() {
+                    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                     @Override
                     public void run() {
+                        if(userIds.size() > 4){
+                            ViewGroup.LayoutParams layoutParams = userList.getLayoutParams();
+                            layoutParams.height = 500;
+                            userList.setLayoutParams(layoutParams);
+                        }
                         groupUserAdapter.refresh(userIds);
                     }
                 });

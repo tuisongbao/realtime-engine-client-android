@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.tuisongbao.engine.chat.conversation.entity.ChatConversation;
-import com.tuisongbao.engine.chat.message.entity.ChatMessageContent;
+import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.message.ChatMessageContent;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
