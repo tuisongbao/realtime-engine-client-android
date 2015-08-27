@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -33,6 +32,8 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ import java.util.List;
  * Created by user on 15-8-25.
  */
 @EActivity(R.layout.activity_group_info)
-public class GroupInfoActivity extends BaseActivity{
+@OptionsMenu(R.menu.group_info)
+public class GroupInfoActivity extends BaseActivity {
     private static final String TAG = LogUtil.makeLogTag(GroupInfoActivity.class);
     @Extra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET)
     String conversationTarget;
@@ -70,15 +72,15 @@ public class GroupInfoActivity extends BaseActivity{
 
     @AfterExtras
     public void doSomethingAfterExtrasInjection() {
-        mConversation = App.getContext().getConversationManager().loadOne(conversationTarget,conversationType);
+        mConversation = App.getContext().getConversationManager().loadOne(conversationTarget, conversationType);
         App.getContext().getGroupManager().getList(conversationTarget, new EngineCallback<List<ChatGroup>>() {
             @Override
             public void onSuccess(List<ChatGroup> chatGroups) {
-                if (chatGroups != null && !chatGroups.isEmpty()){
+                if (chatGroups != null && !chatGroups.isEmpty()) {
                     mGroup = chatGroups.get(0);
                     L.i(TAG, "----------------" + mGroup);
                     mDemoGroup = demoGroupUtil.getDemoGroup(conversationTarget);
-                    if(mDemoGroup != null){
+                    if (mDemoGroup != null) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -109,13 +111,13 @@ public class GroupInfoActivity extends BaseActivity{
         actionBar.setDisplayShowTitleEnabled(true);
         setOverflowShowingAlways();
 
-        if(mDemoGroup != null) {
+        if (mDemoGroup != null) {
             actionBar.setTitle(mDemoGroup.getName());
-        }else {
+        } else {
             actionBar.setTitle(conversationTarget);
         }
 
-        if(userIds == null){
+        if (userIds == null) {
             userIds = new ArrayList<>();
         }
 
@@ -124,11 +126,11 @@ public class GroupInfoActivity extends BaseActivity{
         userList.setAdapter(groupUserAdapter);
     }
 
-    public void request(){
+    public void request() {
         mGroup.getUsers(new EngineCallback<List<ChatGroupUser>>() {
             @Override
             public void onSuccess(List<ChatGroupUser> chatGroupUsers) {
-                for (ChatGroupUser user : chatGroupUsers){
+                for (ChatGroupUser user : chatGroupUsers) {
                     userIds.add(user.getUserId());
                 }
 
@@ -136,11 +138,6 @@ public class GroupInfoActivity extends BaseActivity{
                     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                     @Override
                     public void run() {
-                        if(userIds.size() > 4){
-                            ViewGroup.LayoutParams layoutParams = userList.getLayoutParams();
-                            layoutParams.height = 500;
-                            userList.setLayoutParams(layoutParams);
-                        }
                         groupUserAdapter.refresh(userIds);
                     }
                 });
@@ -153,6 +150,21 @@ public class GroupInfoActivity extends BaseActivity{
         });
     }
 
+    @OptionsItem(R.id.menu_group_add)
+    void addUserToGroup() {
+        // You can specify the ID in the annotation, or use the naming convention
+        AppToast.getToast().show("加人");
+        Intent intent = new Intent(this, AddUserToGroup_.class);
+        ArrayList<String> usernames = new ArrayList(userIds);
+        intent.putStringArrayListExtra("oldDemoUserNames", usernames);
+        intent.putExtra(AddUserToGroup.EXTRA_GROUP, mGroup.serialize());
+        startActivity(intent);
+    }
+
+    @OptionsItem(R.id.menu_group_remove)
+    void removeUserInGroup() {
+        AppToast.getToast().show("减人");
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -174,7 +186,7 @@ public class GroupInfoActivity extends BaseActivity{
     }
 
     @Click(R.id.delete_conversation)
-    public void deleteConversation(){
+    public void deleteConversation() {
         mConversation.delete(new EngineCallback<String>() {
             @Override
             public void onSuccess(String s) {

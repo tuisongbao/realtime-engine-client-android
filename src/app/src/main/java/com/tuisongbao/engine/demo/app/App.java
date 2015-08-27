@@ -16,6 +16,7 @@ import com.tuisongbao.engine.channel.ChannelManager;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
+import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
@@ -31,6 +32,7 @@ public class App extends Application {
     private static final String LOGTAG = LogUtil.makeLogTag(App.class);
     private static App instance;
     private Engine engine;
+    private List<ChatGroup> chatGroups;
 
     @Override
     public void onCreate() {
@@ -141,5 +143,13 @@ public class App extends Application {
             }
         }
         return processName;
+    }
+
+    public List<ChatGroup> getChatGroups() {
+        return chatGroups;
+    }
+
+    public void setChatGroups(List<ChatGroup> chatGroups) {
+        this.chatGroups = chatGroups;
     }
 }

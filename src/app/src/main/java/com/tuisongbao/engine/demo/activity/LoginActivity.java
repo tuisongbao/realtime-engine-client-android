@@ -85,6 +85,7 @@ public class LoginActivity extends BaseActivity{
                     L.i(TAG, "---------------------------" + chatGroups);
                     List<String> ids  = new ArrayList<String>();
 
+                    App.getContext().setChatGroups(chatGroups);
                     for (ChatGroup group : chatGroups){
                         ids.add(group.getGroupId());
                     }

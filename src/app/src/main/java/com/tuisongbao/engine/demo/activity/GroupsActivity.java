@@ -57,7 +57,11 @@ public class GroupsActivity extends BaseActivity{
         demoGroupAdapter = new DemoGroupAdapter(demoGroups, this);
         
         groupListView.setAdapter(demoGroupAdapter);
-        request();
+        if(demoGroupUtil.getDemoGroups().isEmpty() || App.getContext().getChatGroups() == null){
+            request();
+        }else {
+            loadGroupWithCache();
+        }
     }
 
 
@@ -91,6 +95,31 @@ public class GroupsActivity extends BaseActivity{
             @Override
             public void onError(ResponseError error) {
 
+            }
+        });
+    }
+
+    public void loadGroupWithCache(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (ChatGroup group :
+                        App.getContext().getChatGroups()) {
+                    DemoGroup demoGroup = demoGroupUtil.getDemoGroup(group.getGroupId());
+
+                    if (demoGroup == null) {
+                        demoGroup = new DemoGroup(group.getGroupId(), "未命名群组", "");
+                    }
+
+                    demoGroups.add(demoGroup);
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        demoGroupAdapter.refresh(demoGroups);
+                    }
+                });
             }
         });
     }

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:fontawesometext="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <View
@@ -22,10 +23,13 @@
         android:paddingLeft="20dp"
         android:paddingTop="20dp">
 
-        <ImageView
-            android:layout_width="25dip"
-            android:layout_height="25dip"
-            android:src="@drawable/demo_logo" />
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            fontawesometext:fa_icon="fa-group"
+            android:layout_margin="10dp"
+            android:textSize="32sp"
+            />
 
         <TextView
             android:layout_width="wrap_content"

@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.readystatesoftware.viewbadger.BadgeView;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.app.App;
@@ -65,12 +66,20 @@ public class GroupUserAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = View.inflate(mContext, R.layout.demo_user_item, null);
+        convertView = View.inflate(mContext, R.layout.conversation_user_item, null);
         ImageView avatar = (ImageView) convertView.findViewById(R.id.avatar);
         TextView username = (TextView) convertView.findViewById(R.id.userName);
         String name = userIds.get(position);
         username.setText(name);
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + name, avatar);
+        if(convertView != null){
+            BadgeView badge = new BadgeView(mContext, convertView);
+
+            badge.setTextSize(12);
+            badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
+            badge.setText("X");
+            badge.show();
+        }
 
         return convertView;
     }

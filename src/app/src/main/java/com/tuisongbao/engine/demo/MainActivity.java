@@ -16,6 +16,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 
+import com.tuisongbao.engine.demo.activity.AddUserActivity_;
 import com.tuisongbao.engine.demo.activity.LoginActivity_;
 import com.tuisongbao.engine.demo.adapter.TabAdapter;
 import com.tuisongbao.engine.demo.fragment.ContactsFragment_;
@@ -191,7 +192,7 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 AppToast.getToast().show("搜索合并");
-                return false;
+                return true;
             }
         });
         return super.onCreateOptionsMenu(menu);
@@ -214,6 +215,9 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
                 break;
             case R.id.menu_weixin_addFriend:
                 AppToast.getToast().show(R.string.text_menu_weixin_addFriend);
+                Intent intent = new Intent(this,
+                        AddUserActivity_.class);
+                startActivity(intent);
                 break;
             default:
                 break;

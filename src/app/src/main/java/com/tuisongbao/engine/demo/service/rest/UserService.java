@@ -2,8 +2,10 @@ package com.tuisongbao.engine.demo.service.rest;
 
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.entity.DemoGroup;
+import com.tuisongbao.engine.demo.entity.DemoUser;
 import com.tuisongbao.engine.demo.entity.Response;
 
+import org.androidannotations.annotations.rest.Get;
 import org.androidannotations.annotations.rest.Post;
 import org.androidannotations.annotations.rest.Rest;
 import org.androidannotations.api.rest.RestClientErrorHandling;
@@ -30,6 +32,9 @@ public interface UserService extends RestClientErrorHandling, RestClientHeaders 
 
     @Post("/getChatGroups")
     List<DemoGroup> getGroupDemoInfo(LinkedMultiValueMap<String, String> groupIds);
+
+    @Get("/searchChatUsers?username={username}")
+    List<DemoUser> getDemoUser(String username);
 
     RestTemplate getRestTemplate();
 }
