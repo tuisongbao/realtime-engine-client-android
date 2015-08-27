@@ -75,7 +75,7 @@ public class ChatMessageImageContent extends ChatMessageMediaContent {
         String fileName = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
         FileOutputStream out = null;
         try {
-            File file = FileUtils.getOutputFile("/tuisongbao/" + getType().getName() + "/" + fileName);
+            File file = FileUtils.load("/tuisongbao/" + getType().getName() + "/" + fileName);
             if (file == null) {
                 // If thumbnail can not be created, only can count on the downloading thumbnail.....
                 return null;

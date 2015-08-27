@@ -75,7 +75,7 @@ public class DownloadTask implements Runnable {
 
     private void downloadFileWithProgress(final String urlString, final String fileName, final EngineCallback<String> callback
             , final ProgressCallback progressCallback) throws Exception {
-        File outputFile = FileUtils.getOutputFile(fileName);
+        File outputFile = FileUtils.load(fileName);
         if (outputFile == null) {
             ResponseError error = new ResponseError();
             error.setMessage("创建输出文件 " + fileName + " 失败");

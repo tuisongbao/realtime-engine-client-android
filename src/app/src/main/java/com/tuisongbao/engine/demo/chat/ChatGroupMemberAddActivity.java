@@ -59,7 +59,7 @@ public class ChatGroupMemberAddActivity extends Activity {
             for (String split : splits) {
                 list.add(split);
             }
-            mGroup.joinInvitation(list, new EngineCallback<String>() {
+            mGroup.inviteUsers(list, new EngineCallback<String>() {
 
                 @Override
                 public void onSuccess(String t) {

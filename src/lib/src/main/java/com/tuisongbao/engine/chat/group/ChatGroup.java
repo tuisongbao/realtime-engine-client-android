@@ -145,7 +145,7 @@ public class ChatGroup {
      * @param userIds 邀请加入的用户id列表
      * @param callback 结果处理方法
      */
-    public void joinInvitation(List<String> userIds, EngineCallback<String> callback) {
+    public void inviteUsers(List<String> userIds, EngineCallback<String> callback) {
         mGroupManager.joinInvitation(groupId, userIds, callback);
     }
 

@@ -30,7 +30,7 @@ public class ChatVoiceRecorder extends EventEmitter {
     private static final String EVENT_MAX_DURATION_REACHED = "chat_recorder:maxDurationReached";
 
     private final MediaRecorder mRecorder;
-    private String mCurrentVoiceFilePath;
+    private File mCurrentVoiceFile;
     private int mMaxDuration = -1; // in millisecond
     private int mMinDuration = 2 * 1000; // in millisecond
 
@@ -49,17 +49,17 @@ public class ChatVoiceRecorder extends EventEmitter {
     public void start() {
         try {
             String filename = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".wav";
-            File file = FileUtils.getOutputFile("/tuisongbao/image/" + filename);
+            File file = FileUtils.load("/tuisongbao/voice/" + filename);
             if (file == null) {
                 trigger(EVENT_ERROR, "创建音频文件失败");
                 return;
             }
-            mCurrentVoiceFilePath = file.getAbsolutePath();
+            mCurrentVoiceFile = file;
 
             mRecorder.reset();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            mRecorder.setOutputFile(mCurrentVoiceFilePath);
+            mRecorder.setOutputFile(mCurrentVoiceFile.getAbsolutePath());
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
             if (mMaxDuration > 0) {
@@ -108,10 +108,9 @@ public class ChatVoiceRecorder extends EventEmitter {
             long duration = endTime - mStartTime;
             if (mMinDuration > 0 && duration < mMinDuration) {
                 trigger(EVENT_SHORTER_THAN_MIN_DURATION, (int)duration, mMinDuration);
-                mCurrentVoiceFilePath = null;
             }
         }
-        return mCurrentVoiceFilePath;
+        return mCurrentVoiceFile.getAbsolutePath();
     }
 
     /**
@@ -145,7 +144,7 @@ public class ChatVoiceRecorder extends EventEmitter {
             mRecorder.stop();
             mRecorder.reset();
 
-            mCurrentVoiceFilePath = "";
+            mCurrentVoiceFile.delete();
         } catch (Exception e) {
             // After reset(), recorder become to `init` State, which will not cause IOException if call start() again.
             mRecorder.reset();

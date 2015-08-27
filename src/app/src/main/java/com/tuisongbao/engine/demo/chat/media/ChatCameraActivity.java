@@ -118,7 +118,7 @@ public class ChatCameraActivity extends Activity {
             FileOutputStream outStream;
             try {
                 mResourcePath = StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg";
-                final File outFile = FileUtils.getOutputFile("/demo/image/" + StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg");
+                final File outFile = FileUtils.load("/demo/image/" + StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".jpg");
 
                 outStream = new FileOutputStream(outFile);
                 outStream.write(data[0]);
@@ -188,7 +188,7 @@ public class ChatCameraActivity extends Activity {
                     .get(CamcorderProfile.QUALITY_CIF));
 
             String filePath = "/demo/video/" + StrUtils.getTimestampStringOnlyContainNumber(new Date()) + ".mp4";
-            mResourcePath = FileUtils.getOutputFile(filePath).getAbsolutePath();
+            mResourcePath = FileUtils.load(filePath).getAbsolutePath();
             mRecorder.setOutputFile(mResourcePath);
 
             mRecorder.setPreviewDisplay(mPreview.getSurface());
