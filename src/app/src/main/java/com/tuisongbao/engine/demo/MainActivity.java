@@ -53,7 +53,6 @@ public class MainActivity extends FragmentActivity implements RadioGroup.OnCheck
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        GlobalParams.activity = this;
         AppToast.getToast();
         if (!GlobalParams.ISLOGIN) {
             L.d(TAG, "MainActivity--->isLogin=" + GlobalParams.ISLOGIN);

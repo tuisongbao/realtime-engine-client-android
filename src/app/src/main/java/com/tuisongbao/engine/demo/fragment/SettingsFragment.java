@@ -14,6 +14,7 @@ import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.activity.LoginActivity_;
 import com.tuisongbao.engine.demo.app.App;
+import com.tuisongbao.engine.demo.utils.SpUtil;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -31,6 +32,8 @@ public class SettingsFragment extends Fragment {
 
     @ViewById
     TextView userName;
+
+    private SpUtil sp;
 
     @Click(R.id.chat_setting_logout)
     void logout(){
@@ -52,6 +55,7 @@ public class SettingsFragment extends Fragment {
         });
 
         GlobalParams.ISLOGIN = false;
+        sp.saveString(Constants.AUTOLOGINUSERNAME, null);
         Intent intent = new Intent(getActivity(), LoginActivity_.class);
         startActivity(intent);
         getActivity().finish();
@@ -69,7 +73,7 @@ public class SettingsFragment extends Fragment {
         String target = App.getContext().getChatManager().getChatUser().getUserId();
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + target, logo);
         userName.setText(target);
-
+        sp = new SpUtil(getActivity());
     }
 
 }

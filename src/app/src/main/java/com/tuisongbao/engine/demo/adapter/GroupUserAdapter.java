@@ -21,12 +21,23 @@ import java.util.List;
  * Created by user on 15-8-25.
  */
 public class GroupUserAdapter extends BaseAdapter {
+    private boolean isEdit;
     public GroupUserAdapter(List<String> userIds, Context mContext) {
         if (userIds == null) {
             return;
         }
         this.userIds = sortUserId(userIds);
         this.mContext = mContext;
+        this.isEdit = false;
+    }
+
+    public GroupUserAdapter(List<String> userIds, Context mContext, boolean isEdit) {
+        if (userIds == null) {
+            return;
+        }
+        this.userIds = sortUserId(userIds);
+        this.mContext = mContext;
+        this.isEdit = isEdit;
     }
 
     private List<String> sortUserId(List<String> userIds) {
@@ -72,10 +83,8 @@ public class GroupUserAdapter extends BaseAdapter {
         String name = userIds.get(position);
         username.setText(name);
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + name, avatar);
-        if(convertView != null){
-            BadgeView badge = new BadgeView(mContext, convertView);
-
-            badge.setTextSize(12);
+        if(avatar != null && isEdit){
+            BadgeView badge = new BadgeView(mContext, avatar);
             badge.setBadgePosition(BadgeView.POSITION_TOP_LEFT);
             badge.setText("X");
             badge.show();
@@ -91,5 +100,14 @@ public class GroupUserAdapter extends BaseAdapter {
         }
         this.userIds = sortUserId(userIds);
         notifyDataSetChanged();
+    }
+
+    public void setIsEdit(boolean isEdit) {
+        this.isEdit = isEdit;
+        notifyDataSetChanged();
+    }
+
+    public boolean isEdit() {
+        return isEdit;
     }
 }

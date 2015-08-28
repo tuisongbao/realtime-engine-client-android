@@ -26,4 +26,6 @@ public interface Constants {
     String AUTHUSERURL = "http://www.tuisongbao.com/api/engineDemo/authUser";
 
     String USERAVATARURL = "http://www.tuisongbao.com/engine/demo/chatUserAvatar?id=";
+
+    String AUTOLOGINUSERNAME = "AUTOLOGINUSERNAME";
 }

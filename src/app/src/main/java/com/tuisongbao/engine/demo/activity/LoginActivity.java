@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Vibrator;
 import android.support.annotation.UiThread;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -15,7 +14,7 @@ import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.connection.Connection;
+import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
@@ -145,7 +144,6 @@ public class LoginActivity extends BaseActivity{
         }
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        bindConnectionEvent();
     }
 
     private void getUserInfo() {
@@ -210,6 +208,8 @@ public class LoginActivity extends BaseActivity{
             }
             L.i(TAG, "logined ----------------------" + userResult);
             AppToast.getToast().show("登陆Demo成功" + username);
+            GlobalParams.USERNAME = username;
+            sp.saveString(Constants.AUTOLOGINUSERNAME, username);
             App.getContext().getChatManager().login(username);
         } catch (Exception e){
             L.i(TAG, "Exception ----------------------" + e);
@@ -222,6 +222,12 @@ public class LoginActivity extends BaseActivity{
         super.onResume();
         App.getContext().getChatManager().bind(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
         App.getContext().getChatManager().bind(ChatManager.EVENT_LOGIN_FAILED, mLoginFailedListener);
+        sp = new SpUtil(this);
+        String autoLoginUsername = sp.getString(Constants.AUTOLOGINUSERNAME);
+        L.i(TAG, "autoLogin------------:" + autoLoginUsername);
+        if(autoLoginUsername != null && !autoLoginUsername.isEmpty()){
+            App.getContext().getChatManager().login(autoLoginUsername);
+        }
     }
 
     @Override
@@ -231,68 +237,5 @@ public class LoginActivity extends BaseActivity{
         App.getContext().getChatManager().unbind(ChatManager.EVENT_LOGIN_FAILED, mLoginFailedListener);
     }
 
-    private void bindConnectionEvent() {
-        Connection connection = App.getContext().getEngine().getConnection();
 
-        Emitter.Listener stateListener = new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Connection.State state = (Connection.State)args[0];
-                        String msg = "Connecting state: " + state.toString();
-                        AppToast.getToast().show(msg);
-                    }
-                });
-            }
-        };
-
-        connection.bind(Connection.State.Initialized, stateListener);
-        connection.bind(Connection.State.Connecting, stateListener);
-        connection.bind(Connection.State.Connected, stateListener);
-        connection.bind(Connection.State.Disconnected, stateListener);
-        connection.bind(Connection.State.Failed, stateListener);
-
-        connection.bind(Connection.EVENT_CONNECTING_IN, new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String msg = "Connecting in " + args[0] + " seconds";
-                        Log.i(TAG, msg);
-                        AppToast.getToast().show(msg);
-                    }
-                });
-            }
-        });
-        connection.bind(Connection.EVENT_STATE_CHANGED, new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String msg = "Connection state changed from " + args[0] + " to " + args[1];
-                        Log.i(TAG, msg);
-                        AppToast.getToast().show(msg);
-                    }
-                });
-            }
-        });
-        connection.bind(Connection.EVENT_ERROR, new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String msg =  "Connection error," + args[0];
-                        Log.i(TAG, msg);
-                        AppToast.getToast().show(msg);
-                    }
-                });
-            }
-        });
-    }
 }

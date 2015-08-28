@@ -7,7 +7,9 @@ import android.os.Build;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.ChatType;
@@ -32,8 +34,10 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -54,6 +58,19 @@ public class GroupInfoActivity extends BaseActivity {
 
     @ViewById(R.id.user_list)
     GridView userList;
+
+    @ViewById(R.id.setting)
+    LinearLayout settingLinearLayout;
+
+   @OptionsMenuItem(R.id.menu_group_remove)
+    MenuItem menuRemove;
+
+    @OptionsMenuItem(R.id.menu_group_cancel)
+    MenuItem menuCancel;
+
+    @OptionsMenuItem(R.id.menu_group_add)
+    MenuItem menuAdd;
+
 
     private ChatGroup mGroup;
     private DemoGroup mDemoGroup;
@@ -91,6 +108,18 @@ public class GroupInfoActivity extends BaseActivity {
                         });
 
                     }
+
+                    if (App.getContext().getUser().getUserId().equals(mGroup.getOwner())){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                menuAdd.setVisible(true);
+                                menuRemove.setVisible(true);
+                                settingLinearLayout.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
                     request();
                 }
             }
@@ -164,6 +193,44 @@ public class GroupInfoActivity extends BaseActivity {
     @OptionsItem(R.id.menu_group_remove)
     void removeUserInGroup() {
         AppToast.getToast().show("减人");
+        groupUserAdapter.setIsEdit(true);
+        menuCancel.setVisible(true);
+        menuRemove.setVisible(false);
+    }
+
+    @OptionsItem(R.id.menu_group_cancel)
+    void cancelRemoveUserToGroup() {
+        menuCancel.setVisible(false);
+        menuRemove.setVisible(true);
+        groupUserAdapter.setIsEdit(false);
+    }
+
+    @ItemClick(R.id.user_list)
+    public void myListItemClicked(final String username) {
+        if (!groupUserAdapter.isEdit()){
+            return;
+        }
+        L.i(TAG, "remove user-------------------" + username);
+        List<String> removeUserIds = new ArrayList<>();
+        removeUserIds.add(username);
+        mGroup.removeUsers(removeUserIds, new EngineCallback<String>() {
+            @Override
+            public void onSuccess(String s) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AppToast.getToast().show("删除用户" + username + "成功");
+                        userIds.remove(username);
+                        groupUserAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(ResponseError error) {
+                AppToast.getToast().show("删除用户" + username + "失败");
+            }
+        });
     }
 
     @Override

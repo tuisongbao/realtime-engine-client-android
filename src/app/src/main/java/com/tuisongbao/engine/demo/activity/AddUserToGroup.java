@@ -171,7 +171,7 @@ public class AddUserToGroup extends BaseActivity {
                 ids.add(demoUser.getUsername());
             }
             final Activity self = this;
-            chatGroup.joinInvitation(ids, new EngineCallback<String>() {
+            chatGroup.inviteUsers(ids, new EngineCallback<String>() {
                 @Override
                 public void onSuccess(String s) {
 
@@ -205,6 +205,5 @@ public class AddUserToGroup extends BaseActivity {
             back();
         }
     }
-
 
 }
