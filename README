@@ -11,3 +11,23 @@
     ```
 
 - Read `Install-Linux-tar.txt` under `android-studio` path and start `Android Studio`
+
+# Android Gradle Plugin
+
+- [MUST READ]http://tools.android.com/tech-docs/new-build-system/user-guide
+
+    As the new Android SDK build system is working in progress, some items in this article may be a bit of out-of-date, you can also refer to the official doc, [Configuring Gradle](https://developer.android.com/tools/building/configuring-gradle.html) and [Android Plugin for Gradle](https://developer.android.com/tools/building/plugin-for-gradle.html), almost same thing.
+
+- http://blog.danlew.net/2015/04/27/victor/, after reading this article, you should basically know how to write a plugin for gradle.
+
+## Run Gradle in terminal
+
+Gradle is installed when installing Android Studio by default, the gradle executable is usually installed at `<user_home>/.gradle/wrapper/dists/gradle-<version>-bin/<some_key>/gradle-<version>/bin/`, you have to add this path to `.bashrc`, for instance:
+
+```bash
+# gradle
+export GRADLE=/root/.gradle/wrapper/dists/gradle-2.5-all/d3xh0kipe7wr2bvnx5sk0hao8/gradle-2.5/bin/
+export PATH=$PATH:$GRADLE
+```
+
+then, you can run `gradle` in terminal directly.
