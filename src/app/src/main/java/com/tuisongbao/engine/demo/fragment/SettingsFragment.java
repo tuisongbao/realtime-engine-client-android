@@ -13,6 +13,7 @@ import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.activity.LoginActivity_;
+import com.tuisongbao.engine.demo.activity.UserInfoActivity_;
 import com.tuisongbao.engine.demo.app.App;
 import com.tuisongbao.engine.demo.utils.SpUtil;
 
@@ -32,7 +33,6 @@ public class SettingsFragment extends Fragment {
 
     @ViewById
     TextView userName;
-
     private SpUtil sp;
 
     @Click(R.id.chat_setting_logout)
@@ -74,6 +74,12 @@ public class SettingsFragment extends Fragment {
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + target, logo);
         userName.setText(target);
         sp = new SpUtil(getActivity());
+    }
+
+    @Click(R.id.cgt_ll_me_userInfo)
+    void gotoUserInfo(){
+        Intent intent = new Intent(this.getActivity(), UserInfoActivity_.class);
+        startActivity(intent);
     }
 
 }

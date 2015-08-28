@@ -106,6 +106,24 @@
                 android:value=".activity.GroupInfoActivity_" />
         </activity>
 
+        <activity android:name=".activity.CreateGroupActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.GroupsActivity_" />
+        </activity>
+
+        <activity android:name=".activity.UserInfoActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity_" />
+        </activity>
+
+        <activity android:name=".activity.ChangePasswordActivity_">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.UserInfoActivity_" />
+        </activity>
+
         <!-- push configs start -->
         <service android:name="com.tuisongbao.android.service.NotificationIntentService" >
         </service>

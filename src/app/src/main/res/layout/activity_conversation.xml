@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrap="http://schemas.android.com/apk/res-auto"
+    xmlns:fontawesometext="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1.0"
-        android:background="@color/color_ebebeb" >
+        android:background="@color/color_ebebeb">
 
         <ProgressBar
             android:id="@+id/cgt_pb_chat_loading"
@@ -26,8 +28,13 @@
             android:cacheColorHint="#0000"
             android:divider="@null"
             android:dividerHeight="5dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:listSelector="#00000000"
             android:scrollbarStyle="outsideOverlay"
-            android:stackFromBottom="true" />
+            android:stackFromBottom="true"
+            android:transcriptMode="normal"
+            android:visibility="visible" />
     </FrameLayout>
 
     <View
@@ -39,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_fefefe"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/cgt_btn_chat_speech"
@@ -68,23 +75,24 @@
             android:layout_gravity="bottom"
             android:layout_marginBottom="8dip"
             android:layout_marginLeft="8dip"
-            android:layout_marginRight="8dip"
             android:layout_marginTop="8dip"
             android:layout_weight="1.0"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/cgt_et_chat_input"
+                android:id="@+id/activity_conversation_send"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginRight="15dip"
                 android:layout_weight="1.0"
                 android:background="@drawable/demo_selector_chat_input_inputbox_bg"
+                android:imeOptions="actionSend"
                 android:lineSpacingExtra="3dip"
                 android:maxHeight="80dip"
                 android:paddingBottom="3dip"
                 android:paddingRight="40dip"
+                android:singleLine="true"
                 android:textColor="@color/black"
                 android:textCursorDrawable="@null"
                 android:textSize="16sp" />
@@ -118,28 +126,15 @@
             android:layout_marginTop="8dip"
             android:background="@drawable/demo_selector_chat_input_plus_bg" />
 
-        <Button
-            android:id="@+id/cgt_btn_chat_send"
-            android:layout_width="45dip"
-            android:layout_height="35dip"
-            android:layout_gravity="center_vertical"
-            android:layout_marginBottom="8dip"
-            android:layout_marginRight="10dip"
-            android:layout_marginTop="8dip"
-            android:background="@drawable/demo_selector_chat_input_send_bg"
-            android:text="发送"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/cgt_ll_chat_smilingface_box"
+        android:id="@+id/mult_message_send_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_fefefe"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="visible">
 
         <View
             android:layout_width="match_parent"
@@ -150,19 +145,17 @@
             android:id="@+id/cgt_ll_chat_smilingface_body"
             android:layout_width="match_parent"
             android:layout_height="130dip"
-            android:layout_marginBottom="5dip"
-            android:layout_marginTop="5dip"
-            android:orientation="vertical" >
-        </LinearLayout>
+            android:visibility="gone"
+            android:orientation="horizontal">
 
-        <RadioGroup
-            android:id="@+id/cgt_rg_chat_smilingface_tab"
-            android:layout_width="match_parent"
-            android:layout_height="20dip"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="horizontal" >
-        </RadioGroup>
+            <com.beardedhen.androidbootstrap.FontAwesomeText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fontawesometext:fa_icon="fa-group"
+                android:layout_margin="10dp"
+                android:textSize="32sp"
+                />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

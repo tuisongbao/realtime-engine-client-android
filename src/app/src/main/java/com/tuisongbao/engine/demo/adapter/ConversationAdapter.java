@@ -95,9 +95,15 @@ public class ConversationAdapter extends BaseAdapter {
             holder.conversationName.setText(name);
         }
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + target, holder.conversationAvatar);
-        ChatMessageContent content = mList.get(position).getLastMessage().getContent();
-        String lastMessage = content.getText() != null ? content.getText() : content.getType().toString();
-        holder.lastMessage.setText(lastMessage);
+        ChatConversation chatConversation = mList.get(position);
+
+        if(chatConversation.getLastMessage() != null){
+            ChatMessageContent content =chatConversation .getLastMessage().getContent();
+
+            String lastMessage = content.getText() != null ? content.getText() : content.getType().toString();
+            holder.lastMessage.setText(lastMessage);
+        }
+
         holder.date.setText(mList.get(position).getLastActiveAt());
 
         return convertView;

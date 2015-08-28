@@ -21,11 +21,11 @@ public interface Constants {
 
     String APPID = "ab3d5241778158b2864c0852";
 
-    String APIURL = "http://www.tuisongbao.com/api/engineDemo";
+    String APIURL = "http://dev.tuisongbao.com/api/engineDemo";
 
-    String AUTHUSERURL = "http://www.tuisongbao.com/api/engineDemo/authUser";
+    String AUTHUSERURL = "http://dev.tuisongbao.com/api/engineDemo/authUser";
 
-    String USERAVATARURL = "http://www.tuisongbao.com/engine/demo/chatUserAvatar?id=";
+    String USERAVATARURL = "http://dev.tuisongbao.com/engine/demo/chatUserAvatar?id=";
 
     String AUTOLOGINUSERNAME = "AUTOLOGINUSERNAME";
 }

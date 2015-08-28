@@ -22,6 +22,8 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.OptionsItem;
+import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.List;
  * Created by user on 15-8-26.
  */
 @EActivity(R.layout.activity_group_list)
+@OptionsMenu(R.menu.groups)
 public class GroupsActivity extends BaseActivity{
     
     @ViewById(R.id.activity_groups_listView)
@@ -97,6 +100,13 @@ public class GroupsActivity extends BaseActivity{
 
             }
         });
+    }
+
+    @OptionsItem(R.id.menu_groups_create_group)
+    void createGroup(){
+        Intent intent = new Intent(this,
+                CreateGroupActivity_.class);
+        startActivity(intent);
     }
 
     public void loadGroupWithCache(){

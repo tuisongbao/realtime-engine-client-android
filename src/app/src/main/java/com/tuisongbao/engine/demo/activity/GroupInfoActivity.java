@@ -113,8 +113,10 @@ public class GroupInfoActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                menuAdd.setVisible(true);
-                                menuRemove.setVisible(true);
+                                if(menuAdd != null && menuRemove != null){
+                                    menuAdd.setVisible(true);
+                                    menuRemove.setVisible(true);
+                                }
                                 settingLinearLayout.setVisibility(View.VISIBLE);
                             }
                         });
