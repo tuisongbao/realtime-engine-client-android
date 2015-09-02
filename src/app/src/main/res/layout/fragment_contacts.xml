@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:fontawesometext="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <View
@@ -11,86 +11,94 @@
         android:layout_height="0.5dip"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
-        android:background="@color/color_d9d9d9" />
+        android:background="@color/black2" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/qun_zhu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
         android:orientation="horizontal"
         android:padding="5dp"
-        android:paddingLeft="20dp"
-        android:paddingTop="20dp">
+        android:paddingLeft="5dp"
+        >
 
-        <com.beardedhen.androidbootstrap.FontAwesomeText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            fontawesometext:fa_icon="fa-group"
-            android:layout_margin="10dp"
-            android:textSize="32sp"
+        <ImageView
+            android:id="@+id/iv_defult_group"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/defult_group"
             />
 
         <TextView
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/iv_defult_group"
+            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="10dp"
+            android:textSize="18.0dip"
             android:text="群组" />
-    </LinearLayout>
+
+        <ImageView
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/right" />
+    </RelativeLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_ebebeb"
         android:orientation="vertical"
         android:padding="5dp"
+        android:background="@color/black2"
         android:paddingLeft="20dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="我" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="horizontal">
+        android:id="@+id/call_self"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/setting_item_selector">
+        <ImageView
+            android:id="@+id/head"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_width="60.0dip"
+            android:layout_height="60.0dip"
+            android:src="@drawable/head" />
+        <TextView
+            android:textSize="18.0dip"
+            android:id="@+id/tvname"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/head"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Anson" />
 
         <ImageView
-            android:id="@+id/cgt_iv_userPhoto"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_margin="5dip"
-            android:src="@drawable/demo_logo" />
-
-        <LinearLayout
-            android:id="@+id/call_self"
-            android:layout_width="0dip"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:src="@drawable/right" />
 
-            <TextView
-                android:id="@+id/cgt_tv_userName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="20dip"
-                android:text="Anson Hu"
-                android:textColor="@color/color_2e2e2e"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_ebebeb"
+        android:background="@color/black2"
         android:orientation="vertical"
         android:padding="5dp"
         android:paddingLeft="20dp">
@@ -120,5 +128,6 @@
         android:layout_height="0.5dip"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
-        android:background="@color/color_d9d9d9" />
+        android:background="@color/black2" />
+
 </LinearLayout>

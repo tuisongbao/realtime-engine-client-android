@@ -262,7 +262,6 @@ public class ChatMessage {
             }
             return UNKNOWN;
         }
-
     }
 
     @Override

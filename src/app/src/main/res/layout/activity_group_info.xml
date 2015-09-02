@@ -9,13 +9,13 @@
         xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_ebebeb"
+        android:background="@color/black2"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/demo_selector_setting_item_bg"
+            android:background="@color/white"
             android:orientation="horizontal"
             android:padding="5dp">
 
@@ -66,12 +66,12 @@
                 android:layout_height="0.5dip"
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
-                android:background="@color/color_d9d9d9" />
+                android:background="@color/blackk" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/demo_selector_setting_item_bg"
+                android:background="@color/blackk"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
@@ -106,7 +106,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/demo_selector_setting_item_bg"
+                android:background="@color/blackk"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
@@ -133,12 +133,12 @@
                 android:layout_height="0.5dip"
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
-                android:background="@color/color_d9d9d9" />
+                android:background="@color/blackk" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/demo_selector_setting_item_bg"
+                android:background="@color/blackk"
                 android:orientation="horizontal"
                 android:padding="10dp">
 
