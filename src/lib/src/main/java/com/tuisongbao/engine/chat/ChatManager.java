@@ -361,15 +361,18 @@ public final class ChatManager extends BaseManager {
     }
 
     public void onLoginSuccess(ChatUser user) {
+        // When auto login, should not bind these events.
+        if (mChatUser == null && user != null) {
+            bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler(engine));
+            bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler(engine));
+        }
+
         mChatUser = user;
 
         // Init groups and conversations
         groupManager = new ChatGroupManager(engine);
         conversationManager = new ChatConversationManager(engine);
         messageManager = new ChatMessageManager(engine);
-
-        bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler(engine));
-        bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler(engine));
 
         trigger(EVENT_LOGIN_SUCCEEDED, mChatUser);
     }
