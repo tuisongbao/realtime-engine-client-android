@@ -73,6 +73,10 @@ public final class ChatManager extends BaseManager {
     private boolean mIsCacheEnabled = true;
     private String mUserData;
     private EngineCallback mAuthCallback;
+    /**
+     * 为了避免以下情况的发生： 在 Auth 请求还没返回，但是用户又一次调用 login，或者 auto login 触发
+     */
+    private boolean loginInProcess = false;
 
     private final Thread retryEventsThread = new Thread(new Runnable() {
         @Override
@@ -113,6 +117,7 @@ public final class ChatManager extends BaseManager {
                 LogUtils.warn(TAG, "Duplicate login");
                 return;
             }
+            loginInProcess = true;
             // Stop retrying failed events when switching user.
             failedAllPendingEvents();
 
@@ -307,7 +312,8 @@ public final class ChatManager extends BaseManager {
     protected void connected() {
         super.connected();
 
-        if (mUserData != null && mAuthCallback != null) {
+        if (mUserData != null && mAuthCallback != null && !loginInProcess) {
+            loginInProcess = true;
             // Auto login if connection is available.
             auth(mUserData, mAuthCallback);
         }
@@ -362,6 +368,8 @@ public final class ChatManager extends BaseManager {
     }
 
     public void onLoginSuccess(ChatUser user) {
+        loginInProcess = false;
+
         // When auto login, should not bind these events.
         if (!hasLogin()) {
             bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler(engine));
