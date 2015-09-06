@@ -1,5 +1,7 @@
 package com.tuisongbao.engine.demo;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.common.Utils;
+import com.tuisongbao.engine.demo.view.activity.AddUser_;
 import com.tuisongbao.engine.demo.view.fragment.ContactsFragment_;
 import com.tuisongbao.engine.demo.view.fragment.ConversationsFragment_;
 import com.tuisongbao.engine.demo.view.fragment.SettingsFragment_;
@@ -47,8 +50,8 @@ public class MainActivity extends FragmentActivity {
 
     private Fragment[] fragments;
     private String connectMsg = "";
-    private int index;
-    private int currentTabIndex;// 当前fragment的index
+    private int index = 0;
+    private int currentTabIndex = 0;// 当前fragment的index
     private int keyBackClickCount = 0;
 
     ConversationsFragment_ conversationsFragment;
@@ -58,9 +61,12 @@ public class MainActivity extends FragmentActivity {
     @ViewById(R.id.main_view_pager)
     ViewPager mViewPager;
 
+    Activity activity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity = this;
         App.getInstance2().addActivity(this);
         bindConnection();
     }
@@ -117,6 +123,7 @@ public class MainActivity extends FragmentActivity {
 
             }
         });
+        refreshTab();
     }
 
     public void onTabClicked(View view) {
@@ -139,6 +146,7 @@ public class MainActivity extends FragmentActivity {
 
     void refreshTab(){
         img_right.setVisibility(View.GONE);
+        img_right.setOnClickListener(null);
 
         if (currentTabIndex != index) {
             mViewPager.setCurrentItem(index);
@@ -148,12 +156,18 @@ public class MainActivity extends FragmentActivity {
             case 0:
                 img_right.setVisibility(View.VISIBLE);
                 txt_title.setText(R.string.app_name);
-                img_right.setImageResource(R.drawable.icon_add);
+                img_right.setImageResource(R.drawable.icon_titleaddfriend);
+                img_right.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(activity,
+                                AddUser_.class);
+                        startActivity(intent);
+                    }
+                });
                 break;
             case 1:
                 txt_title.setText(R.string.contacts);
-                img_right.setVisibility(View.VISIBLE);
-                img_right.setImageResource(R.drawable.icon_titleaddfriend);
                 break;
             case 2:
                 txt_title.setText(R.string.setting);

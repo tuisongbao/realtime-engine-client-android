@@ -6,7 +6,8 @@ package com.tuisongbao.engine.demo;
 public interface Constants {
     // 推送包
     String APPID = "ab3d5241778158b2864c0852";
-    String AUTHUSERURL = "http://192.168.222.23/api/engineDemo/authUser";
+    String BASEURL = "192.168.222.20";
+    String AUTHUSERURL = "http://" + BASEURL + "/api/engineDemo/authUser";
     // 聊天
     public static final String NEW_FRIENDS_USERNAME = "item_new_friends";
     String isFriend = "isFriend";
@@ -38,7 +39,7 @@ public interface Constants {
     // 主机地址
     // public static String IP = "http://wechatjuns.sinaapp.com/";
     // String MAIN_ENGINE = "http://10.16.16.79/wechat/index.php/mobile/";
-    String MAIN_ENGINE = "http://192.168.222.23/api/engineDemo/";
+    String MAIN_ENGINE = "http://" + BASEURL + "/api/engineDemo/";
 
     // 发送验证码 codeType 1注册 2修改密码
     String SendCodeURL = "";
@@ -72,7 +73,8 @@ public interface Constants {
     // 新建群组
     String newGroupURL = MAIN_ENGINE + "group/add_group";
 
-    String USERAVATARURL = "http://192.168.222.23/engine/demo/chatUserAvatar?id=";
-    String DEMOGROUPINFOURL = "http://192.168.222.23/api/engineDemo/getChatGroups";
-    String APIURL = "http://192.168.222.23/api/engineDemo";
+    String USERAVATARURL = "http://" + BASEURL + "/engine/demo/chatUserAvatar?id=";
+    String DEMOGROUPINFOURL = "http://" + BASEURL + "/api/engineDemo/getChatGroups";
+    String APIURL = "http://" + BASEURL + "/api/engineDemo";
+    String CREATEGROUPAPI = "http://" + BASEURL + "/api/engineDemo/createChatGroup";
 }

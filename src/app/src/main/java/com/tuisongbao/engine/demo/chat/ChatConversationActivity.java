@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,22 +30,25 @@ import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.google.gson.JsonObject;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.location.ChatLocationManager;
 import com.tuisongbao.engine.chat.media.ChatVoiceRecorder;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.message.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.ChatMessageVoiceContent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.GloableParams;
+import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.MessageStatus;
 import com.tuisongbao.engine.demo.chat.adapter.MessageAdapter;
-import com.tuisongbao.engine.demo.chat.adapter.VoicePlayClickListener;
 import com.tuisongbao.engine.demo.chat.callback.MessageCallback;
 import com.tuisongbao.engine.demo.chat.widght.PasteEditText;
 import com.tuisongbao.engine.demo.common.CommonUtils;
@@ -176,6 +180,8 @@ public class ChatConversationActivity extends BaseActivity {
     public String playMsgId;
     private Long mStartMessageId = null;
 
+    private Context mContext;
+
     InputMethodManager manager;
 
     AnimationDrawable animationDrawable;
@@ -190,6 +196,7 @@ public class ChatConversationActivity extends BaseActivity {
 
     ChatConversation mConversation;
     private ChatVoiceRecorder voiceRecorder;
+    Emitter.Listener mListener;
 
     private EngineCallback<ChatMessage> sendTextMessageCallback = new EngineCallback<ChatMessage>() {
 
@@ -201,6 +208,7 @@ public class ChatConversationActivity extends BaseActivity {
                 @Override
                 public void run() {
                     // TODO send message success tip
+                    Utils.showShortToast(mContext, "发送成功");
                 }
             });
         }
@@ -212,6 +220,7 @@ public class ChatConversationActivity extends BaseActivity {
                 @Override
                 public void run() {
                     // TODO send message failed handler
+                    Utils.showShortToast(mContext, "发送失败");
                 }
             });
         }
@@ -239,6 +248,7 @@ public class ChatConversationActivity extends BaseActivity {
         if (mConversation == null) {
             return;
         }
+        mContext = this;
         img_back.setVisibility(View.VISIBLE);
         img_right.setVisibility(View.VISIBLE);
         String name = conversationTarget;
@@ -263,6 +273,11 @@ public class ChatConversationActivity extends BaseActivity {
         loadMoreMessage();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     @AfterExtras
     public void afterExtras() {
         mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
@@ -277,6 +292,27 @@ public class ChatConversationActivity extends BaseActivity {
 
             }
         });
+        Log.i("after extras", "----------------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
+
+        mListener = new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                final ChatMessage message = (ChatMessage)args[0];
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("got new message", message + "");
+                        mMessageList.add(message);
+                        messageAdapter.refresh(mMessageList);
+                        scrollToBotton();
+                    }
+                });
+
+            }
+        };
+
+        mConversation.bind(ChatConversation.EVENT_MESSAGE_NEW, mListener);
+        Log.i("after extras2", "----------------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
         voiceRecorder = new ChatVoiceRecorder();
         voiceRecorder.setMinDuration(2 * 1000, new Emitter.Listener() {
             @Override
@@ -295,6 +331,24 @@ public class ChatConversationActivity extends BaseActivity {
             public void call(Object... args) {
                 onRecordFinished();
                 onRecordStart();
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("destory", "-----------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW));
+        mConversation.unbind(ChatManager.EVENT_MESSAGE_NEW);
+        mConversation.resetUnread(new EngineCallback<String>() {
+            @Override
+            public void onSuccess(String s) {
+
+            }
+
+            @Override
+            public void onError(ResponseError error) {
+
             }
         });
     }
@@ -407,14 +461,14 @@ public class ChatConversationActivity extends BaseActivity {
         mMessageList.add(message);
         messageAdapter.refresh(mMessageList);
         scrollToBotton();
-        mConversation.sendMessage(message.getContent(), new MessageCallback(message), new ProgressCallback(){
+        mConversation.sendMessage(message.getContent(), new MessageCallback(message), new ProgressCallback() {
 
             @Override
             public void progress(int percent) {
                 JsonObject json;
-                if(message.getContent().getExtra() == null){
+                if (message.getContent().getExtra() == null) {
                     json = new JsonObject();
-                }else{
+                } else {
                     json = message.getContent().getExtra();
                 }
 
@@ -440,7 +494,6 @@ public class ChatConversationActivity extends BaseActivity {
             int columnIndex = cursor.getColumnIndex("_data");
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            cursor = null;
 
             if (picturePath == null || picturePath.equals("null")) {
                 Toast toast = Toast.makeText(this, st8, Toast.LENGTH_SHORT);
@@ -507,7 +560,7 @@ public class ChatConversationActivity extends BaseActivity {
         if (!CommonUtils.isExitsSdcard()) {
             String st = getResources().getString(
                     R.string.sd_card_does_not_exist);
-            Toast.makeText(getApplicationContext(), st, 0).show();
+            Utils.showShortToast(this, st);
             return;
         }
         cameraFile = new File(App.getDemoDownLoadDir() + "/" + System.currentTimeMillis() + ".jpg");
@@ -536,6 +589,33 @@ public class ChatConversationActivity extends BaseActivity {
         }
         startActivityForResult(intent, REQUEST_CODE_LOCAL);
 
+    }
+
+    @Click(R.id.view_location)
+    public void sendLocation() {
+        ChatLocationManager.getInstance().getCurrentLocation(new EngineCallback<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                ChatMessageLocationContent content = new ChatMessageLocationContent(location);
+                ChatMessage message = generateSendingMsg(content);
+                sendMediaMessage(message);
+            }
+
+            @Override
+            public void onError(ResponseError error) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.showShortToast(mContext, "send message error");
+                    }
+                });
+            }
+        }, 5);
+    }
+
+    @Click({ R.id.view_file,  R.id.view_video, R.id.view_audio})
+    public void sendMore(){
+        Utils.showShortToast(this, "尽情期待");
     }
 
     /**
@@ -614,7 +694,8 @@ public class ChatConversationActivity extends BaseActivity {
 
     @Click(R.id.img_back)
     void back() {
-        Utils.finish(ChatConversationActivity.this);
+        Utils.start_Activity(this, MainActivity_.class);
+        finish();
     }
 
     /**
@@ -644,9 +725,6 @@ public class ChatConversationActivity extends BaseActivity {
                 }
                 try {
                     v.setPressed(true);
-                    if (VoicePlayClickListener.isPlaying)
-                        VoicePlayClickListener.currentPlayListener
-                                .stopPlayVoice();
                     recordingContainer.setVisibility(View.VISIBLE);
                     recordingHint
                             .setText(getString(R.string.move_up_to_cancel));

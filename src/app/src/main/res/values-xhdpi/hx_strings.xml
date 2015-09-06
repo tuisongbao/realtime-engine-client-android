@@ -42,6 +42,7 @@
     <string name="location_prefix">[我的位置]</string>
     <string name="picture">[图片消息]</string>
     <string name="video">[视频通话]</string>
+    <string name="event">[事件]</string>
     <string name="file">[文件消息]</string>
     <string name="voice_call">[语音通话]</string>
     <string name="voice_msg">[语音消息]</string>

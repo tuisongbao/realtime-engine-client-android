@@ -1,8 +1,11 @@
 package com.tuisongbao.engine.demo.view.activity;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.view.MenuItem;
+import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
@@ -40,11 +43,22 @@ public class FriendMsgActivity extends BaseActivity {
     @ViewById(R.id.user_list)
     GridView userList;
 
+    @ViewById(R.id.txt_title)
+    TextView txt_title;
+
+    @ViewById(R.id.img_back)
+    ImageView img_back;
+
     private ChatConversation mConversation;
 
     @AfterExtras
-    public void doSomethingAfterExtrasInjection() {
+    public void afterExtras() {
         mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
+    }
+
+    @Click(R.id.img_back)
+    void back() {
+        Utils.finish(FriendMsgActivity.this);
     }
 
     @AfterViews
@@ -52,7 +66,8 @@ public class FriendMsgActivity extends BaseActivity {
         if (mConversation == null) {
             return;
         }
-
+        img_back.setVisibility(View.VISIBLE);
+        txt_title.setText(mConversation.getTarget());
         final List<String> names = new ArrayList<>();
 
         names.add(App.getInstance2().getChatUser().getUserId());
@@ -62,20 +77,10 @@ public class FriendMsgActivity extends BaseActivity {
         userList.setAdapter(adapter);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home://返回上一菜单页
-                Utils.finish(FriendMsgActivity.this);
-                break;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Click(R.id.delete_conversation)
     public void deleteConversation() {
+        final Activity acitvity = this;
         mConversation.delete(new EngineCallback<String>() {
             @Override
             public void onSuccess(String s) {
@@ -86,7 +91,7 @@ public class FriendMsgActivity extends BaseActivity {
 
             @Override
             public void onError(ResponseError error) {
-
+                Utils.showLongToast(acitvity, "删除失败");
             }
         });
     }

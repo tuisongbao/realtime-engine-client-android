@@ -6,9 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.AnimationDrawable;
+import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.ChatMessageImageContent;
+import com.tuisongbao.engine.chat.message.ChatMessageVideoContent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -31,7 +30,10 @@ import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.MessageStatus;
-import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
+import com.tuisongbao.engine.demo.chat.ChatVideoPlayerActivity;
+import com.tuisongbao.engine.demo.chat.ChatVideoPlayerActivity_;
+import com.tuisongbao.engine.demo.chat.utils.ImageCache;
+import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.net.NetClient;
 
 import java.io.File;
@@ -61,7 +63,7 @@ public class MessageAdapter extends BaseAdapter {
     private static final int MESSAGE_TYPE_RECV_VOICE = 7;
     private static final int MESSAGE_TYPE_SENT_VIDEO = 8;
     private static final int MESSAGE_TYPE_RECV_VIDEO = 9;
-    private static final int MESSAGE_TYPE_SENT_FILE = 10;
+    private static final int MESSAGE_TYPE_EVENT = 10;
     private static final int MESSAGE_TYPE_RECV_FILE = 11;
     private static final int MESSAGE_TYPE_SENT_VOICE_CALL = 12;
     private static final int MESSAGE_TYPE_RECV_VOICE_CALL = 13;
@@ -153,6 +155,10 @@ public class MessageAdapter extends BaseAdapter {
             return isNotByMe(message) ? MESSAGE_TYPE_RECV_VIDEO
                     : MESSAGE_TYPE_SENT_VIDEO;
         }
+        if (message.getContent().getType() == TYPE.EVENT) {
+            return MESSAGE_TYPE_EVENT;
+
+        }
 
         return -1;// invalid
     }
@@ -180,6 +186,8 @@ public class MessageAdapter extends BaseAdapter {
                 return isNotByMe(message) ? inflater
                         .inflate(R.layout.row_received_video, null) : inflater
                         .inflate(R.layout.row_sent_video, null);
+            case EVENT:
+                return inflater.inflate(R.layout.row_event, null);
             default:
                 return isNotByMe(message) ? inflater
                         .inflate(R.layout.row_received_message, null) : inflater
@@ -286,6 +294,13 @@ public class MessageAdapter extends BaseAdapter {
                 } catch (Exception e) {
                 }
 
+            } else if (message.getContent().getType() == TYPE.EVENT) {
+                try {
+                    holder.tv = (TextView) convertView
+                            .findViewById(R.id.tv_event);
+                } catch (Exception e) {
+
+                }
             }
 
             convertView.setTag(holder);
@@ -311,6 +326,9 @@ public class MessageAdapter extends BaseAdapter {
             case VIDEO: // 视频
                 handleVideoMessage(message, holder, position, convertView);
                 break;
+            case EVENT: // Event
+                handleEventMessage(message, holder, position, convertView);
+                break;
             default:
                 // not supported
         }
@@ -329,6 +347,11 @@ public class MessageAdapter extends BaseAdapter {
         }
 
         return convertView;
+    }
+
+    private void handleEventMessage(ChatMessage message, ViewHolder holder, int position, View convertView) {
+        holder.tv.setText(Utils.getEventMessage(message));
+
     }
 
     /**
@@ -378,34 +401,25 @@ public class MessageAdapter extends BaseAdapter {
             }
         });
 
-        Log.i("send me", isNotByMe(message) + "");
-        // 接收方向的消息
         if (isNotByMe(message)) {
-            // "it is receive msg";
             String filePath = message.getContent().getFile().getThumbnailPath();
-            if (filePath != null && new File(filePath).exists()) {
-                // "!!!! not back receive, show image directly");
+
+            if (filePath != null && TextUtils.isEmpty(filePath) && new File(filePath).exists()) {
                 holder.pb.setVisibility(View.GONE);
                 holder.tv.setVisibility(View.GONE);
-                holder.iv.setImageResource(R.drawable.default_image);
-                message.getContent().getFile().getThumbnailPath();
-                showImageView(holder.iv, message, true);
+                Bitmap bmp = BitmapFactory.decodeFile(filePath);
+                holder.iv.setImageBitmap(bmp);
             } else {
-                // "!!!! back receive";
-                holder.iv.setImageResource(R.drawable.default_image);
                 showDownloadImageProgress(message, holder);
             }
-            return;
+        } else {
+            // 发送的消息
+            // process send message
+            // send pic, show the pic directly
+            showImageView(holder.iv, message, true);
+
+            handleMediaMessageStatus(holder, message);
         }
-
-        // 发送的消息
-        // process send message
-        // send pic, show the pic directly
-        showImageView(holder.iv, message, true);
-
-        handleMediaMessageStatus(holder, message);
-
-
     }
 
     void handleMediaMessageStatus(final ViewHolder holder, final ChatMessage message) {
@@ -418,17 +432,24 @@ public class MessageAdapter extends BaseAdapter {
 
         switch (MessageStatus.getMessageStatus(status)) {
             case SUCCESS:
-                holder.pb.setVisibility(View.GONE);
-                holder.tv.setVisibility(View.GONE);
-                break;
             case FAIL:
-                holder.pb.setVisibility(View.GONE);
-                holder.tv.setVisibility(View.GONE);
+                if (holder.pb != null) {
+                    holder.pb.setVisibility(View.GONE);
+                }
+                if (holder.tv != null) {
+                    holder.tv.setVisibility(View.GONE);
+                }
                 break;
             case INPROGRESS:
                 holder.staus_iv.setVisibility(View.GONE);
-                holder.pb.setVisibility(View.VISIBLE);
-                holder.tv.setVisibility(View.VISIBLE);
+                if (holder.pb != null) {
+                    holder.pb.setVisibility(View.VISIBLE);
+                } else {
+                    return;
+                }
+                if (holder.tv != null) {
+                    holder.tv.setVisibility(View.VISIBLE);
+                }
                 if (timers.containsKey(message.getMessageId()))
                     return;
                 // set a timer
@@ -444,12 +465,9 @@ public class MessageAdapter extends BaseAdapter {
                                     holder.pb.setVisibility(View.GONE);
                                     holder.tv.setVisibility(View.GONE);
                                     holder.staus_iv.setVisibility(View.VISIBLE);
-                                    Toast.makeText(
-                                            activity,
-                                            activity.getString(R.string.send_fail)
-                                                    + activity
-                                                    .getString(R.string.connect_failuer_toast),
-                                            0).show();
+                                    String errMsg = activity.getString(R.string.send_fail) + activity
+                                            .getString(R.string.connect_failuer_toast);
+                                    Utils.showShortToast(activity, errMsg);
                                     timer.cancel();
                                     return;
                                 }
@@ -493,51 +511,99 @@ public class MessageAdapter extends BaseAdapter {
     private void handleVideoMessage(final ChatMessage message,
                                     final ViewHolder holder, final int position, View convertView) {
 
-        ChatMessageContent content = message.getContent();
-        // final File image=new File(PathUtil.getInstance().getVideoPath(),
-        // videoBody.getFileName());
-        String localThumb = content.getFile().getThumbnailPath();
+        ChatMessageContent messageContent = message.getContent();
 
-        if (localThumb != null) {
-            showVideoThumbView(localThumb, holder.iv, localThumb, message);
+        String localThumb = messageContent.getFile().getThumbnailPath();
+
+        String thumbUrl = messageContent.getFile().getThumbUrl();
+
+        Log.i("video message", thumbUrl + ":" + localThumb);
+
+        showVideoThumbView(localThumb, holder.iv, thumbUrl, message);
+
+        if (messageContent.getFile().getDuration() > 0) {
+            String time = messageContent.getFile().getDuration() + "s";
+            holder.timeLength.setText(time);
         }
 
-        holder.timeLength.setText(content.getFile().getDuration() + "");
+        String filePath = messageContent.getFile().getFilePath();
+        final ChatMessageVideoContent content = (ChatMessageVideoContent) messageContent;
 
-        holder.playBtn.setImageResource(R.drawable.video_download_btn_nor);
-
-        if (isNotByMe(message)) {
-            if (content.getFile().getSize() > 0) {
-                String size = content.getFile().getSize() + "";
-                holder.size.setText(size);
-            }
-        }
-
-        if (isNotByMe(message)) {
-
-            // System.err.println("it is receive msg");
-            if (false) {
-                // System.err.println("!!!! back receive");
-                holder.iv.setImageResource(R.drawable.default_image);
-                showDownloadImageProgress(message, holder);
-
-            } else {
-                // System.err.println("!!!! not back receive, show image directly");
-                holder.iv.setImageResource(R.drawable.default_image);
-                if (localThumb != null) {
-                    showVideoThumbView(localThumb, holder.iv,
-                            content.getFile().getThumbnailPath(), message);
+        if (filePath != null && new File(filePath).exists()) {
+            holder.playBtn.setImageResource(R.drawable.video_download_btn_nor);
+            holder.iv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playVideo(message);
                 }
+            });
+        } else {
+            if (messageContent.getFile().getSize() > 0) {
+                String size = (int) messageContent.getFile().getSize() / 1024 + "kb";
+                holder.size.setText("待下载" + size);
+                holder.iv.setClickable(true);
+                holder.iv.setOnClickListener(new View.OnClickListener() {
 
+                    @Override
+                    public void onClick(View v) {
+                        Utils.showShortToast(activity, "播放视频");
+                        content.download(new EngineCallback<String>() {
+                            @Override
+                            public void onSuccess(String s) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        holder.playBtn.setImageResource(R.drawable.video_download_btn_nor);
+                                        holder.tv.setVisibility(View.GONE);
+                                        holder.iv.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                playVideo(message);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(ResponseError error) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Utils.showShortToast(activity, "eroor");
+                                    }
+                                });
+                            }
+                        }, new ProgressCallback() {
+                            @Override
+                            public void progress(final int percent) {
+                                activity.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (percent != 100) {
+                                            holder.tv.setVisibility(View.VISIBLE);
+                                            holder.tv.setText(percent + "%");
+
+                                        } else {
+                                            holder.tv.setVisibility(View.GONE);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }
-
-            return;
         }
-        holder.pb.setTag(position);
-        holder.pb.setVisibility(View.GONE);
-        holder.staus_iv.setVisibility(View.GONE);
-        holder.tv.setVisibility(View.GONE);
+        handleMediaMessageStatus(holder, message);
+    }
 
+    private void playVideo(ChatMessage message) {
+        Intent intent = new Intent(activity, ChatVideoPlayerActivity_.class);
+        intent.putExtra(ChatVideoPlayerActivity.LOCALPATH, message.getContent().getFile().getFilePath());
+        intent.putExtra(ChatVideoPlayerActivity.REMOTEPATH, message.getContent().getFile().getUrl());
+        intent.putExtra(ChatVideoPlayerActivity.CHATMESSAGE, message.serialize());
+        activity.startActivity(intent);
     }
 
     /**
@@ -550,40 +616,28 @@ public class MessageAdapter extends BaseAdapter {
      */
     private void handleVoiceMessage(final ChatMessage message,
                                     final ViewHolder holder, final int position, View convertView) {
-        ChatMessageContent content = message.getContent();
-        holder.tv.setText(content.getFile().getDuration() + "\"");
-        String username = target;
-        holder.iv.setOnClickListener(new VoicePlayClickListener(message,
-                holder.iv, holder.iv_read_status, this, activity, username));
-        holder.iv.setOnLongClickListener(new View.OnLongClickListener() {
+        if (message.getContent().getFile().getDuration() != 0) {
+            holder.tv.setText(message.getContent().getFile().getDuration() + "\"");
+        }
+        VoicePlayClickListener voicePlayClickListener = new VoicePlayClickListener(activity, message, holder.iv, this, new ProgressCallback() {
             @Override
-            public boolean onLongClick(View v) {
-                activity.startActivityForResult((new Intent(activity,
-                                ContextMenu.class)).putExtra("position", position)
-                                .putExtra("type", message.getContent().getFile().getMimeType()),
-                        ChatConversationActivity.REQUEST_CODE_CONTEXT_MENU);
-                return true;
+            public void progress(final int percent) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (percent != 100) {
+                            holder.tv.setVisibility(View.VISIBLE);
+                            holder.tv.setText(percent + "%");
+
+                        } else {
+                            holder.tv.setVisibility(View.GONE);
+
+                        }
+                    }
+                });
             }
         });
-        if (((ChatConversationActivity) activity).playMsgId != null
-                && ((ChatConversationActivity) activity).playMsgId.equals(message
-                .getMessageId()) && VoicePlayClickListener.isPlaying) {
-            AnimationDrawable voiceAnimation;
-            if (isNotByMe(message)) {
-                holder.iv.setImageResource(R.anim.voice_from_icon);
-            } else {
-                holder.iv.setImageResource(R.anim.voice_to_icon);
-            }
-            voiceAnimation = (AnimationDrawable) holder.iv.getDrawable();
-            voiceAnimation.start();
-        } else {
-            if (isNotByMe(message)) {
-                holder.iv.setImageResource(R.drawable.chatfrom_voice_playing);
-            } else {
-                holder.iv.setImageResource(R.drawable.chatto_voice_playing);
-            }
-        }
-
+        holder.iv.setOnClickListener(voicePlayClickListener);
         handleMediaMessageStatus(holder, message);
     }
 
@@ -598,6 +652,48 @@ public class MessageAdapter extends BaseAdapter {
      */
     private void handleLocationMessage(final ChatMessage message,
                                        final ViewHolder holder, final int position, View convertView) {
+        ChatMessageContent content = message.getContent();
+        String poi = content.getLocation().getPoi();
+        poi = poi == null || TextUtils.isEmpty(poi) ? "未知位置" : poi;
+        holder.tv.setText(poi);
+        if (isNotByMe(message) && holder.pb != null) {
+            holder.pb.setVisibility(View.GONE);
+            return;
+        }
+
+        int status = MessageStatus.SUCCESS.getValue();
+
+        if (message.getContent().getExtra() != null && message.getContent().getExtra().has("status")) {
+            status = message.getContent().getExtra().get("status").getAsInt();
+        }
+
+        // deal with send message
+        switch (MessageStatus.getMessageStatus(status)) {
+            case SUCCESS:
+                if (holder.pb != null) {
+                    holder.pb.setVisibility(View.GONE);
+                }
+                if (holder.staus_iv != null) {
+                    holder.staus_iv.setVisibility(View.GONE);
+                }
+                break;
+            case FAIL:
+                if (holder.pb != null) {
+                    holder.pb.setVisibility(View.GONE);
+                }
+                if (holder.staus_iv != null) {
+                    holder.staus_iv.setVisibility(View.VISIBLE);
+                }
+                break;
+            case INPROGRESS:
+                if (holder.pb != null) {
+                    holder.pb.setVisibility(View.VISIBLE);
+                }
+                holder.pb.setVisibility(View.VISIBLE);
+                break;
+            default:
+                sendMsgInBackground(message, holder);
+        }
     }
 
     /**
@@ -640,12 +736,7 @@ public class MessageAdapter extends BaseAdapter {
                         holder.pb.setVisibility(View.GONE);
                         holder.tv.setVisibility(View.GONE);
                         holder.staus_iv.setVisibility(View.VISIBLE);
-                        Toast.makeText(
-                                activity,
-                                activity.getString(R.string.send_fail)
-                                        + activity
-                                        .getString(R.string.connect_failuer_toast),
-                                0).show();
+                        Utils.showShortToast(activity, "加载失败");
                     }
                 });
             }
@@ -655,7 +746,8 @@ public class MessageAdapter extends BaseAdapter {
                 activity.runOnUiThread(new Runnable() {
                     public void run() {
                         holder.tv.setText(percent + "%");
-                    }});
+                    }
+                });
 
             }
         });
@@ -729,8 +821,33 @@ public class MessageAdapter extends BaseAdapter {
      * @param thumbnailUrl 远程缩略图路径
      * @param message
      */
-    private void showVideoThumbView(String localThumb, ImageView iv,
+    private void showVideoThumbView(String localThumb, final ImageView iv,
                                     String thumbnailUrl, final ChatMessage message) {
+        Bitmap bitmap = ImageCache.getInstance().get(localThumb);
+        if (bitmap != null) {
+            // thumbnail image is already loaded, reuse the drawable
+            iv.setImageBitmap(bitmap);
+        } else {
+            final ChatMessageVideoContent content = (ChatMessageVideoContent) message.getContent();
+            content.downloadThumb(new EngineCallback<String>() {
+                @Override
+                public void onSuccess(final String path) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Bitmap bmp = BitmapFactory.decodeFile(path);
+                            iv.setImageBitmap(bmp);
+                            iv.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(ResponseError error) {
+
+                }
+            }, null);
+        }
     }
 
     public void refresh(final List<ChatMessage> mMessageList) {

@@ -3,12 +3,13 @@ package com.tuisongbao.engine.demo.view.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -42,7 +43,8 @@ public class ConversationsFragment extends Fragment {
     ListView lvContact;
 
     private Activity ctx;
-    private View layout, layout_head;;
+
+    Emitter.Listener mListener;
 
 
     private ConversationAdpter adpter;
@@ -60,6 +62,23 @@ public class ConversationsFragment extends Fragment {
         super.onResume();
         conversationList.clear();
         initViews();
+        mListener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        refresh();
+                    }
+                });
+            }
+        };
+        App.getInstance2().getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mListener);
+    }
+
+    public void onPause() {
+        super.onPause();
+        App.getInstance2().getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mListener);
     }
 
     private void initViews() {

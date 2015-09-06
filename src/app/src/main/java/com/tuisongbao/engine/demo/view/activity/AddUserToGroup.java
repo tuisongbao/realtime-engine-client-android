@@ -4,11 +4,11 @@ package com.tuisongbao.engine.demo.view.activity;
  * Created by user on 15-9-2.
  */
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,10 +27,9 @@ import com.tuisongbao.engine.demo.view.BaseActivity;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
-import org.androidannotations.annotations.OptionsItem;
-import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.rest.RestService;
@@ -42,7 +41,6 @@ import java.util.List;
  * Created by user on 15-8-27.
  */
 @EActivity(R.layout.activity_add_user_to_group)
-@OptionsMenu(R.menu.add_user_to_group)
 public class AddUserToGroup extends BaseActivity {
     public static final String EXTRA_GROUP = "chatGroup";
     @ViewById(R.id.activity_addUser_search_listView)
@@ -61,12 +59,22 @@ public class AddUserToGroup extends BaseActivity {
 
     @ViewById(R.id.search_user)
     TextView search;
+
+    @ViewById(R.id.txt_right)
+    TextView txt_right;
+
     @RestService
     ChatDemoService userService;
+
+    @ViewById(R.id.txt_title)
+    TextView txt_title;
 
     List<String> oldDemoUserNames;
 
     ChatGroup chatGroup;
+
+    @ViewById(R.id.img_back)
+    ImageView img_back;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +87,10 @@ public class AddUserToGroup extends BaseActivity {
 
     @AfterViews
     public void afterViews() {
-        ActionBar actionBar = this.getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(true);
+        txt_right.setText("确认");
+        txt_title.setText("请选择加入组的用户");
+        img_back.setVisibility(View.VISIBLE);
+        txt_right.setVisibility(View.VISIBLE);
         demoUsers = new ArrayList<>();
         userAdapter = new DemoUserAdapter(this, demoUsers);
         userList.setAdapter(userAdapter);
@@ -147,19 +155,12 @@ public class AddUserToGroup extends BaseActivity {
         }
     }
 
+    @Click(R.id.img_back)
     void back() {
-
-        Intent upIntent = NavUtils.getParentActivityIntent(this);
-
-        if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-            Utils.finish(AddUserToGroup.this);
-        } else {
-            upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            NavUtils.navigateUpTo(this, upIntent);
-        }
+        Utils.finish(AddUserToGroup.this);
     }
 
-    @OptionsItem(R.id.menu_add_user_to_group_save)
+    @Click(R.id.txt_right)
     void addUserToGroup() {
         // You can specify the ID in the annotation, or use the naming convention
 

@@ -4,11 +4,16 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:orientation="vertical">
+    <include
+        android:id="@+id/top_bar"
+        layout="@layout/layout_title" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/black2"
         android:orientation="horizontal"
+        android:paddingBottom="2dip"
+        android:paddingTop="2dip"
         android:padding="5dp">
 
         <GridView
@@ -30,12 +35,16 @@
         android:background="@color/white"
         android:orientation="vertical">
 
-        <com.gc.materialdesign.views.ButtonRectangle
+        <Button
             android:id="@+id/delete_conversation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#dd0000"
-            android:text="删除会话" />
+            android:layout_height="45dp"
+            android:background="@drawable/btn_bg_red2"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp"
+            android:text="删除会话"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
     </LinearLayout>
 
 </LinearLayout>

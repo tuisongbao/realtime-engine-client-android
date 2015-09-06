@@ -45,6 +45,9 @@ public class ImageCache {
      * @return
      */
     public Bitmap get(String key){
+        if(key == null){
+            return null;
+        }
         return cache.get(key);
     }
 }

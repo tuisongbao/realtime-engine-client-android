@@ -9,14 +9,6 @@
         android:id="@+id/top_bar"
         layout="@layout/layout_title" />
 
-    <ListView
-        android:id="@+id/activity_addUser_listView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@color/black2"
-        android:dividerHeight="0.5dip"
-        ></ListView>
-
     <com.beardedhen.androidbootstrap.BootstrapEditText
         android:id="@+id/search_user"
         android:layout_width="match_parent"

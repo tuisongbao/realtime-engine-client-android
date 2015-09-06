@@ -22,12 +22,10 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.common.NetUtil;
 import com.tuisongbao.engine.demo.common.Utils;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Created by user on 15-8-31.
@@ -183,12 +181,11 @@ public class NetClient {
      *            请求参数 可以为空
      * @param res
      */
-    public List<DemoGroup> post(String url, RequestParams params,
+    public void post(String url, RequestParams params,
                                 final JsonHttpResponseHandler res) {
         System.out.println("请求URL：" + url);
         if (!NetUtil.checkNetWork(context)) {
             Utils.showLongToast(context, Constants.NET_ERROR);
-            return null;
         }
         Log.i("--------------", params.toString() + "_----" + res);
         try {
@@ -201,6 +198,5 @@ public class NetClient {
             // TODO
             e.printStackTrace();
         }
-        return null;
     }
 }

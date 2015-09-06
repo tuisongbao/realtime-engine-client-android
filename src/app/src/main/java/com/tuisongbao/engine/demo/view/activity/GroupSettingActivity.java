@@ -3,10 +3,9 @@ package com.tuisongbao.engine.demo.view.activity;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.GridView;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.ChatType;
@@ -31,7 +30,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ItemClick;
-import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -51,17 +49,17 @@ public class GroupSettingActivity extends BaseActivity {
     @ViewById(R.id.user_list)
     GridView userList;
 
-    @ViewById(R.id.setting)
-    LinearLayout settingLinearLayout;
+    @ViewById(R.id.iv_group_remove)
+    ImageView ivRemove;
 
-    @OptionsMenuItem(R.id.menu_group_remove)
-    MenuItem menuRemove;
+    @ViewById(R.id.iv_group_cancel)
+    ImageView ivCancel;
 
-    @OptionsMenuItem(R.id.menu_group_cancel)
-    MenuItem menuCancel;
+    @ViewById(R.id.iv_group_add)
+    ImageView ivAdd;
 
-    @OptionsMenuItem(R.id.menu_group_add)
-    MenuItem menuAdd;
+    @ViewById(R.id.img_back)
+    ImageView img_back;
 
 
     private ChatGroup mGroup;
@@ -77,7 +75,7 @@ public class GroupSettingActivity extends BaseActivity {
     TextView groupName;
 
     @AfterExtras
-    public void doSomethingAfterExtrasInjection() {
+    public void afterExtras() {
         mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
         App.getInstance2().getGroupManager().getList(conversationTarget, new EngineCallback<List<ChatGroup>>() {
             @Override
@@ -100,11 +98,10 @@ public class GroupSettingActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(menuAdd != null && menuRemove != null){
-                                    menuAdd.setVisible(true);
-                                    menuRemove.setVisible(true);
+                                if(ivAdd != null && ivRemove != null){
+                                    ivAdd.setVisibility(View.VISIBLE);
+                                    ivRemove.setVisibility(View.VISIBLE);
                                 }
-                                settingLinearLayout.setVisibility(View.VISIBLE);
                             }
                         });
                     }
@@ -118,7 +115,6 @@ public class GroupSettingActivity extends BaseActivity {
 
             }
         });
-//        mConversation = App.getContext().getConversationManager().loadOne(conversationTarget,conversationType);
     }
 
     @AfterViews
@@ -127,6 +123,7 @@ public class GroupSettingActivity extends BaseActivity {
             userIds = new ArrayList<>();
         }
 
+        img_back.setVisibility(View.VISIBLE);
         groupUserAdapter = new GroupUserAdapter(userIds, this);
 
         userList.setAdapter(groupUserAdapter);
@@ -156,25 +153,33 @@ public class GroupSettingActivity extends BaseActivity {
         });
     }
 
+    @Click(R.id.iv_group_add)
     void addUserToGroup() {
         // You can specify the ID in the annotation, or use the naming convention
         Intent intent = new Intent(this, AddUserToGroup_.class);
         ArrayList<String> usernames = new ArrayList(userIds);
         intent.putStringArrayListExtra("oldDemoUserNames", usernames);
-        intent.putExtra(AddUserToGroup.EXTRA_GROUP, mGroup.serialize());
+        intent.putExtra(AddUserToGroup_.EXTRA_GROUP, mGroup.serialize());
         startActivity(intent);
     }
 
+    @Click(R.id.iv_group_remove)
     void removeUserInGroup() {
         groupUserAdapter.setIsEdit(true);
-        menuCancel.setVisible(true);
-        menuRemove.setVisible(false);
+        ivCancel.setVisibility(View.VISIBLE);
+        ivRemove.setVisibility(View.GONE);
     }
 
+    @Click(R.id.iv_group_cancel)
     void cancelRemoveUserToGroup() {
-        menuCancel.setVisible(false);
-        menuRemove.setVisible(true);
+        ivCancel.setVisibility(View.GONE);
+        ivRemove.setVisibility(View.VISIBLE);
         groupUserAdapter.setIsEdit(false);
+    }
+
+    @Click(R.id.img_back)
+    void back() {
+        Utils.finish(GroupSettingActivity.this);
     }
 
     @ItemClick(R.id.user_list)
@@ -200,17 +205,6 @@ public class GroupSettingActivity extends BaseActivity {
             public void onError(ResponseError error) {
             }
         });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home://返回上一菜单页
-                Utils.finish(GroupSettingActivity.this);
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Click(R.id.delete_conversation)

@@ -3,6 +3,7 @@ package com.tuisongbao.engine.demo.adpter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -167,6 +168,7 @@ public class ConversationAdpter extends BaseAdapter {
      */
     private String getMessageDigest(ChatMessage message, Context context) {
         String digest = "";
+        Log.i("0000000", message.getContent().getType().toString());
         switch (message.getContent().getType()) {
             case LOCATION: // 位置消息
                 digest = getStrng(context, R.string.location_message);
@@ -179,6 +181,9 @@ public class ConversationAdpter extends BaseAdapter {
                 break;
             case VIDEO: // 视频消息
                 digest = getStrng(context, R.string.video);
+                break;
+            case EVENT: // 事件消息
+                digest = getStrng(context, R.string.event);
                 break;
             case TEXT: // 文本消息
                 digest = message.getContent().getText();

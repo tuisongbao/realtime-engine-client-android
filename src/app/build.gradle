@@ -42,7 +42,6 @@ dependencies {
     // 图片缓存
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile 'com.nineoldandroids:library:2.4.0+'
-    compile 'com.github.navasmdc:MaterialDesign:1.5@aar'
     compile 'com.beardedhen:androidbootstrap:+'
     compile files('libs/JunsNetHelper.jar')
     compile files('libs/JsonUtils.jar')

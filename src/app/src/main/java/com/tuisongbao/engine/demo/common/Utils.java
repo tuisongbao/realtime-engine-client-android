@@ -19,6 +19,8 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.tuisongbao.engine.chat.message.ChatMessage;
+import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
 import com.tuisongbao.engine.demo.R;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -118,7 +120,7 @@ public class Utils {
                                 String content, Intent i) {
         NotificationManager mn = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification notification = new Notification(R.drawable.ic_launcher,
+        Notification notification = new Notification(R.drawable.head,
                 Msg, System.currentTimeMillis());
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i,
@@ -318,4 +320,23 @@ public class Utils {
         return (int) (sDensity * nDip);
     }
 
+    public static String getEventMessage(ChatMessage message) {
+        if (message.getContent().getType() != ChatMessage.TYPE.EVENT) {
+            return "";
+        }
+
+        ChatMessageEventContent event = (ChatMessageEventContent)message.getContent();
+        String maker = message.getFrom();
+        String target = event.getTarget();
+        String eventMessage = "";
+        ChatMessageEventContent.TYPE eventType = event.getEventType();
+        if (eventType == ChatMessageEventContent.TYPE.GroupJoined) {
+            eventMessage = String.format("%s 邀请 %s 加入群组", maker, target);
+        } else if (eventType == ChatMessageEventContent.TYPE.GroupRemoved) {
+            eventMessage = String.format("%s 被 %s 移出群组", target, maker);
+        } else if (eventType == ChatMessageEventContent.TYPE.GroupDismissed) {
+            eventMessage = String.format("%s 解散了该群", maker);
+        }
+        return eventMessage;
+    }
 }

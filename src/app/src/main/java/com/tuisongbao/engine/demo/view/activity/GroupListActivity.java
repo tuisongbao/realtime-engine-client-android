@@ -113,10 +113,11 @@ public class GroupListActivity extends BaseActivity{
     void back(){
         Utils.finish(GroupListActivity.this);
     }
+
     @Click(R.id.img_right)
     void gotoCreateGroupActivity(){
         Utils.start_Activity(GroupListActivity.this,
-                AddGroupChatActivity.class);
+                CreateGroupChatActivity_.class);
     }
 
 }

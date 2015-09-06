@@ -64,6 +64,9 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".view.activity.RegisterActivity_"  android:screenOrientation="portrait">
+        </activity>
+        <activity
             android:name=".MainActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
@@ -76,7 +79,7 @@
             android:name=".chat.ChatConversationActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".view.activity.AddGroupChatActivity_"  android:screenOrientation="portrait">
+            android:name=".view.activity.CreateGroupChatActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
@@ -89,6 +92,12 @@
 
         <activity
             android:name=".view.activity.AddUserToGroup_"  android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".view.activity.AddUser_"  android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".chat.ChatVideoPlayerActivity_"  android:screenOrientation="portrait">
         </activity>
     </application>
 

@@ -76,7 +76,7 @@ public class LoginActivity extends BaseActivity{
 
     @Click(R.id.btn_registe)
     void registe(){
-        startActivity(new Intent(this, RegisterActivity.class));
+        startActivity(new Intent(this, RegisterActivity_.class));
         overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
     }
 
@@ -84,7 +84,12 @@ public class LoginActivity extends BaseActivity{
     void login(){
         String userName = etUserName.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-        getLoadingDialog("正在登录...").show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getLoadingDialog("正在登录...").show();
+            }
+        });
         App.getInstance2().getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
         getLogin(userName, password);
     }
