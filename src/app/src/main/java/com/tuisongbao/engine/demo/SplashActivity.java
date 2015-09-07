@@ -46,6 +46,7 @@ public class SplashActivity extends Activity{
                 public void onSuccess(List<ChatGroup> chatGroups) {
                     Log.d("main", "登陆聊天服务器成功！");
                     List<String> ids  = new ArrayList<String>();
+                    App.getInstance2().setToken(Utils.getValue(mContext, Constants.AccessToken));
 
                     for (ChatGroup group : chatGroups){
                         ids.add(group.getGroupId());
@@ -64,7 +65,7 @@ public class SplashActivity extends Activity{
 
                 @Override
                 public void onError(ResponseError error) {
-
+                    Log.i("login failed", error.getMessage());
                 }
             });
         }
@@ -99,11 +100,13 @@ public class SplashActivity extends Activity{
         bindConnectionEvent();
 
         if(connection.isConnected()){
+            Log.d("connected", "0");
             gotoLastView();
         }else{
             connection.bindOnce(Connection.State.Connected.getName(), new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
+                    Log.d("connected", "1");
                     gotoLastView();
                 }
             });
@@ -161,8 +164,9 @@ public class SplashActivity extends Activity{
     };
 
     private void getChatserive(final String userName, final String password) {
-        App.getInstance2().getChatManager().login(userName);
+        Log.d("loging", "------------------");
         App.getInstance2().getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
+        App.getInstance2().getChatManager().login(userName);
     }
 
 

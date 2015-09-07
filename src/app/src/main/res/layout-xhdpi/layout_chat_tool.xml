@@ -101,13 +101,13 @@
                 android:layout_width="60.0dip"
                 android:layout_height="60.0dip"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/chat_tool_send_file" />
+                android:src="@drawable/chat_tool_video" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="12sp"
-                android:text="@string/attach_file"
+                android:text="@string/attach_video"
                 android:textColor="@color/black1" />
         </LinearLayout>
         <LinearLayout

@@ -26,6 +26,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -82,6 +83,7 @@ public class LoginActivity extends BaseActivity{
 
     @Click(R.id.btn_login)
     void login(){
+        loginBtn.setEnabled(false);
         String userName = etUserName.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         runOnUiThread(new Runnable() {
@@ -106,16 +108,29 @@ public class LoginActivity extends BaseActivity{
                 @Override
                 public void onSuccess(JSONObject response) {
                     Log.i("login success", userName + "--------------" + response);
+                    String token = null;
+                    try {
+                        token = response.getString("token");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if(token != null){
+                        App.getInstance2().setToken(token) ;
+                        Utils.putValue(LoginActivity.this,
+                                Constants.AccessToken, token);
+                    }
                     App.getInstance2().getChatManager().login(userName);
                 }
 
                 @Override
                 public void onFailure(Throwable e, JSONObject errorResponse) {
                     getLoadingDialog("正在登录").dismiss();
+                    loginBtn.setEnabled(true);
                 }
             });
         } else {
             Utils.showLongToast(this, "请填写账号或密码！");
+            loginBtn.setEnabled(true);
         }
     }
 

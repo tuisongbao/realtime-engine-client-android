@@ -143,7 +143,7 @@ public class ConversationsFragment extends Fragment {
     @ItemClick(R.id.listview)
     public void gotoConversation(int position) {
         ChatConversation mClickedChatConversation = conversationList.get(position);
-
+        mClickedChatConversation.resetUnread(null);
         Intent intent = new Intent(this.getActivity(),
                 ChatConversationActivity_.class);
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, mClickedChatConversation.getTarget());

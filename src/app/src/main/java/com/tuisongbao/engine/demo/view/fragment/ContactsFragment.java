@@ -42,6 +42,9 @@ public class ContactsFragment extends Fragment {
             username = "";
         }
         userName.setText(username);
+    }
+
+    public void updateAvatar(){
         NetClient.getIconBitmap(userAvatar, Constants.USERAVATARURL + username);
     }
 

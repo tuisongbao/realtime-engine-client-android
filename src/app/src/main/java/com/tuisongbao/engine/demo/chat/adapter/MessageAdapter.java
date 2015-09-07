@@ -71,9 +71,6 @@ public class MessageAdapter extends BaseAdapter {
     private static final int MESSAGE_TYPE_RECV_VIDEO_CALL = 15;
     private LayoutInflater inflater;
 
-    public static final String IMAGE_DIR = "chat/image/";
-    public static final String VOICE_DIR = "chat/audio/";
-    public static final String VIDEO_DIR = "chat/video";
     private Activity activity;
     private Context context;
 
@@ -530,6 +527,7 @@ public class MessageAdapter extends BaseAdapter {
         final ChatMessageVideoContent content = (ChatMessageVideoContent) messageContent;
 
         if (filePath != null && new File(filePath).exists()) {
+            holder.size.setVisibility(View.GONE);
             holder.playBtn.setImageResource(R.drawable.video_download_btn_nor);
             holder.iv.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -656,7 +654,7 @@ public class MessageAdapter extends BaseAdapter {
         String poi = content.getLocation().getPoi();
         poi = poi == null || TextUtils.isEmpty(poi) ? "未知位置" : poi;
         holder.tv.setText(poi);
-        if (isNotByMe(message) && holder.pb != null) {
+        if (!isNotByMe(message) && holder.pb != null) {
             holder.pb.setVisibility(View.GONE);
             return;
         }
@@ -763,19 +761,6 @@ public class MessageAdapter extends BaseAdapter {
      */
     private void updateSendedView(final ChatMessage message,
                                   final ViewHolder holder) {
-    }
-
-    /**
-     * load image into image view
-     *
-     * @param thumbernailPath
-     * @param iv
-     * @return the image exists or not
-     */
-    private boolean showImageView(final String thumbernailPath,
-                                  final ImageView iv, final String localFullSizePath,
-                                  String remoteDir, final ChatMessage message) {
-        return false;
     }
 
     /**

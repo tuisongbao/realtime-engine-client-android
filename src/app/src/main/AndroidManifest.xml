@@ -99,6 +99,13 @@
         <activity
             android:name=".chat.ChatVideoPlayerActivity_"  android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".chat.ChatCameraActivity"  android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".view.activity.ChangePasswordActivity_"  android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

@@ -117,7 +117,6 @@ public final class ChatManager extends BaseManager {
                 LogUtils.warn(TAG, "Duplicate login");
                 return;
             }
-            loginInProcess = true;
             // Stop retrying failed events when switching user.
             failedAllPendingEvents();
 
@@ -143,11 +142,7 @@ public final class ChatManager extends BaseManager {
 
             if (engine.getConnection().isConnected()) {
                 auth(userData, mAuthCallback);
-            }else{
-                auth(userData, mAuthCallback);
-                LogUtils.error(TAG, "---------------------------");
             }
-
         } catch (Exception e) {
             LogUtils.error(TAG, e);
             trigger(EVENT_LOGIN_FAILED, engine.getUnhandledResponseError());
@@ -209,6 +204,7 @@ public final class ChatManager extends BaseManager {
     }
 
     public void onLoginFailed(ResponseError error) {
+        loginInProcess = false;
         mAuthCallback = null;
 
         trigger(EVENT_LOGIN_FAILED, error);
@@ -229,6 +225,8 @@ public final class ChatManager extends BaseManager {
         groupManager = null;
         conversationManager = null;
         messageManager = null;
+
+        loginInProcess = false;
     }
 
     /**
@@ -317,7 +315,6 @@ public final class ChatManager extends BaseManager {
         super.connected();
 
         if (mUserData != null && mAuthCallback != null && !loginInProcess) {
-            loginInProcess = true;
             // Auto login if connection is available.
             auth(mUserData, mAuthCallback);
         }
@@ -344,6 +341,7 @@ public final class ChatManager extends BaseManager {
     }
 
     private void auth(final String userData, final EngineCallback callback) {
+        loginInProcess = true;
         ExecutorUtils.getThreadQueue().execute(new Runnable() {
 
             @Override

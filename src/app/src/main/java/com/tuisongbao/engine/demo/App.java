@@ -30,6 +30,16 @@ public class App extends Application{
 
     private Engine engine;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String token;
+
     @Override
     public void onCreate() {
         instance = this;

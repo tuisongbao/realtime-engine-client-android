@@ -26,6 +26,7 @@ import com.tuisongbao.engine.demo.common.NetUtil;
 import com.tuisongbao.engine.demo.common.Utils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by user on 15-8-31.
@@ -131,6 +132,22 @@ public class NetClient {
 
     public static void getBinnerBitmap(String url, ImageLoadingListener listener) {
         mImageLoader.loadImage(url, listener);
+    }
+
+    public static void updateImage(String url, Bitmap bitmap, ImageView iv){
+
+        if(mImageLoader.getDiskCache().get(url)!= null && mImageLoader.getDiskCache().get(url).exists()){
+            Log.d("update disk cache", url);
+            mImageLoader.getDiskCache().remove(url);
+            try {
+                mImageLoader.getDiskCache().save(url, bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        mImageLoader.clearMemoryCache();
+        getIconBitmap(iv, url);
     }
 
     /**

@@ -135,6 +135,9 @@ public class MainActivity extends FragmentActivity {
                 }
                 break;
             case R.id.re_contact_list:
+                if (contactsFragment != null) {
+                    contactsFragment.updateAvatar();
+                }
                 index = 1;
                 break;
             case R.id.re_settings:

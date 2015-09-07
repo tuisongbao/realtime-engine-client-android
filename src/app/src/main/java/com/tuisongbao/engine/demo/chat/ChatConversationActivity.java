@@ -39,6 +39,7 @@ import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessageContent;
 import com.tuisongbao.engine.chat.message.ChatMessageImageContent;
 import com.tuisongbao.engine.chat.message.ChatMessageLocationContent;
+import com.tuisongbao.engine.chat.message.ChatMessageVideoContent;
 import com.tuisongbao.engine.chat.message.ChatMessageVoiceContent;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
@@ -49,7 +50,6 @@ import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.MessageStatus;
 import com.tuisongbao.engine.demo.chat.adapter.MessageAdapter;
-import com.tuisongbao.engine.demo.chat.callback.MessageCallback;
 import com.tuisongbao.engine.demo.chat.widght.PasteEditText;
 import com.tuisongbao.engine.demo.common.CommonUtils;
 import com.tuisongbao.engine.demo.common.Utils;
@@ -88,7 +88,6 @@ public class ChatConversationActivity extends BaseActivity {
     public static final int REQUEST_CODE_PICTURE = 7;
     public static final int REQUEST_CODE_LOCATION = 8;
     public static final int REQUEST_CODE_NET_DISK = 9;
-    public static final int REQUEST_CODE_FILE = 10;
     public static final int REQUEST_CODE_COPY_AND_PASTE = 11;
     public static final int REQUEST_CODE_PICK_VIDEO = 12;
     public static final int REQUEST_CODE_DOWNLOAD_VIDEO = 13;
@@ -115,6 +114,7 @@ public class ChatConversationActivity extends BaseActivity {
     public static final int CHATTYPE_SINGLE = 1;
     public static final int CHATTYPE_GROUP = 2;
     public static final String COPY_IMAGE = "EASEMOBIMG";
+    private static final int REQUEST_CODE_TAKE_VIDEO = 10;
     private List<ChatMessage> mMessageList;
 
 
@@ -281,17 +281,6 @@ public class ChatConversationActivity extends BaseActivity {
     @AfterExtras
     public void afterExtras() {
         mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
-        mConversation.resetUnread(new EngineCallback<String>() {
-            @Override
-            public void onSuccess(String s) {
-
-            }
-
-            @Override
-            public void onError(ResponseError error) {
-
-            }
-        });
         Log.i("after extras", "----------------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
 
         mListener = new Emitter.Listener() {
@@ -303,6 +292,7 @@ public class ChatConversationActivity extends BaseActivity {
                     public void run() {
                         Log.i("got new message", message + "");
                         mMessageList.add(message);
+                        mConversation.resetUnread(null);
                         messageAdapter.refresh(mMessageList);
                         scrollToBotton();
                     }
@@ -340,17 +330,7 @@ public class ChatConversationActivity extends BaseActivity {
         super.onDestroy();
         Log.i("destory", "-----------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW));
         mConversation.unbind(ChatManager.EVENT_MESSAGE_NEW);
-        mConversation.resetUnread(new EngineCallback<String>() {
-            @Override
-            public void onSuccess(String s) {
-
-            }
-
-            @Override
-            public void onError(ResponseError error) {
-
-            }
-        });
+        mConversation.resetUnread(null);
     }
 
     private ChatMessage generateSendingMsg(ChatMessageContent content){
@@ -513,7 +493,6 @@ public class ChatConversationActivity extends BaseActivity {
             }
             sendImage(file.getAbsolutePath());
         }
-
     }
 
     @OnActivityResult(REQUEST_CODE_LOCAL)
@@ -527,12 +506,19 @@ public class ChatConversationActivity extends BaseActivity {
     }
 
     @OnActivityResult(REQUEST_CODE_CAMERA)
-    void onResultCAMERA(int resultCode, Intent data) {
+    void onResultCamera(int resultCode, Intent data) {
         if (cameraFile != null && cameraFile.exists())
             sendImage(cameraFile.getAbsolutePath());
     }
 
-
+    @OnActivityResult(REQUEST_CODE_TAKE_VIDEO)
+    void onResultVideo(int resultCode, Intent intent) {
+        String videoPath = intent.getStringExtra(ChatCameraActivity.EXTRA_VIDEO);
+        ChatMessageVideoContent content = new ChatMessageVideoContent();
+        content.setFilePath(videoPath);
+        ChatMessage message = generateSendingMsg(content);
+        sendMediaMessage(message);
+    }
 
     /**
      * 显示或隐藏图标按钮页
@@ -613,7 +599,14 @@ public class ChatConversationActivity extends BaseActivity {
         }, 5);
     }
 
-    @Click({ R.id.view_file,  R.id.view_video, R.id.view_audio})
+    @Click(R.id.view_file)
+    void sendVideo(){
+        Intent intent = new Intent(getApplicationContext(), ChatCameraActivity.class);
+        intent.setAction(ChatCameraActivity.ACTION_VIDEO);
+        startActivityForResult(intent, REQUEST_CODE_TAKE_VIDEO);
+    }
+
+    @Click({ R.id.view_video, R.id.view_audio})
     public void sendMore(){
         Utils.showShortToast(this, "尽情期待");
     }
@@ -691,6 +684,8 @@ public class ChatConversationActivity extends BaseActivity {
             buttonSend.setVisibility(View.GONE);
         }
     }
+
+
 
     @Click(R.id.img_back)
     void back() {
@@ -862,6 +857,42 @@ public class ChatConversationActivity extends BaseActivity {
 
         }
 
+    }
+
+    class MessageCallback implements EngineCallback<ChatMessage>{
+        private ChatMessage sendingMessage;
+        public MessageCallback(final ChatMessage sendingMessage) {
+            this.sendingMessage = sendingMessage;
+        }
+
+        @Override
+        public void onSuccess(ChatMessage chatMessage) {
+            this.sendingMessage.setContent(chatMessage.getContent());
+            JsonObject json;
+            if(sendingMessage.getContent().getExtra() == null){
+                json = new JsonObject();
+            }else{
+                json = sendingMessage.getContent().getExtra();
+            }
+            json.addProperty("status", MessageStatus.SUCCESS.getValue());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    messageAdapter.refresh();
+                }
+            });
+        }
+
+        @Override
+        public void onError(ResponseError error) {
+            JsonObject json;
+            if(sendingMessage.getContent().getExtra() == null){
+                json = new JsonObject();
+            }else{
+                json = sendingMessage.getContent().getExtra();
+            }
+            json.addProperty("status", MessageStatus.FAIL.getValue());
+        }
     }
 }
 

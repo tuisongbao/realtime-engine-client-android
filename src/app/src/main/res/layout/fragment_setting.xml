@@ -69,7 +69,7 @@
                 android:drawablePadding="10dp"
                 android:drawableLeft="@drawable/icon_me_setting"
                 android:drawableRight="@drawable/right"
-                android:text="@string/settings" />
+                android:text="@string/change_password" />
             <View
                 android:background="@color/black2"
                 android:layout_width="fill_parent"
