@@ -1,5 +1,7 @@
 package com.tuisongbao.engine.chat.conversation;
 
+import android.util.Log;
+
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
@@ -48,6 +50,7 @@ public final class ChatConversationManager extends BaseManager {
         if (mChatManager.isCacheEnabled()) {
             dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         }
+        Log.d("000000000000000000000", "1111111111111111");
         mChatManager.bind(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
             @Override
             public void call(Object... args) {

@@ -49,113 +49,63 @@
     <uses-permission android:name="com.tuisongbao.engine.demo.permission.PUSH" />
 
     <application
-        android:name="com.tuisongbao.engine.demo.DemoApplication"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:name="com.tuisongbao.engine.demo.App"
+        android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.LoginActivity"
+            android:name=".SplashActivity_"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-         <activity
-            android:name="com.tuisongbao.engine.demo.pubsub.PubSubActivity"
-            android:label="@string/app_name" >
+        <activity
+            android:name=".view.activity.RegisterActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.DashboardActivity"
-            android:label="@string/app_name" >
+            android:name=".MainActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.ChatGroupsActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.LoginActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.ChatConversationActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.GroupListActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.ChatGroupCreateActivity"
-            android:label="@string/app_name" >
+            android:name=".chat.ChatConversationActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.ChatGroupMemberActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name="com.tuisongbao.engine.demo.chat.ChatGroupMemberAddActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.CreateGroupChatActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.activity.ImageViewActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.FriendMsgActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.media.ChatCameraActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.GroupSettingActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name="com.tuisongbao.engine.demo.chat.media.ChatVideoPlayerActivity"
-            android:label="@string/app_name" >
+            android:name=".view.activity.AddUserToGroup_"  android:screenOrientation="portrait">
         </activity>
-
-        <!-- push configs start -->
-        <service android:name="com.tuisongbao.android.service.NotificationIntentService" >
-        </service>
-
-        <service
-            android:name="com.tuisongbao.android.service.PushService"
-            android:exported="true"
-            android:process=":tps_v2" >
-            <intent-filter>
-                <action android:name="com.tuisongbao.chat.PushService" />
-            </intent-filter>
-        </service>
+        <activity
+            android:name=".view.activity.AddUser_"  android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".chat.ChatVideoPlayerActivity_"  android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".chat.ChatCameraActivity"  android:screenOrientation="portrait">
+        </activity>
 
         <activity
-            android:name="com.tuisongbao.android.richmedia.RichMediaActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|uiMode|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            android:name=".view.activity.ChangePasswordActivity_"  android:screenOrientation="portrait">
         </activity>
-
-        <service
-            android:name="com.tuisongbao.android.location.service.PushLocationService"
-            android:exported="true"
-            android:process=":tlocation_v2" >
-        </service>
-
-        <receiver
-            android:name="com.tuisongbao.android.broadcast.PushBroadcastReceiver"
-            android:exported="true" >
-            <intent-filter android:priority="0x7fffffff" >
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.USER_PRESENT" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-
-                <category android:name="com.tuisongbao.engine.demo" />
-            </intent-filter>
-            <intent-filter android:priority="0x7fffffff" >
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-
-                <data android:scheme="package" />
-            </intent-filter>
-            <intent-filter android:priority="0x7fffffff" >
-                <action android:name="com.tuisongbao.push.android.intent.RECEIVE" />
-                <action android:name="com.tuisongbao.push.android.intent.GEOFENCE" />
-                <action android:name="com.tuisongbao.push.android.intent.DEBUG_MESSAGE" />
-            </intent-filter>
-        </receiver>
-        <!-- push configs end -->
-
     </application>
 
 </manifest>
