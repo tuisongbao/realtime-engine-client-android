@@ -35,7 +35,7 @@
             android:layout_toLeftOf="@id/iv_userhead"
             android:gravity="center"
             android:padding="17dp"
-            android:background="@drawable/chatto_bg" >
+             >
 
             <TextView
                 android:id="@+id/tv_location"

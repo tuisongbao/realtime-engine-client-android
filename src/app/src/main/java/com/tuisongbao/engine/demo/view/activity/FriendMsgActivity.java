@@ -69,9 +69,13 @@ public class FriendMsgActivity extends BaseActivity {
         img_back.setVisibility(View.VISIBLE);
         txt_title.setText(mConversation.getTarget());
         final List<String> names = new ArrayList<>();
+        String me = App.getInstance2().getChatUser().getUserId();
 
-        names.add(App.getInstance2().getChatUser().getUserId());
-        names.add(conversationTarget);
+        if(!conversationTarget.equals(me)){
+            names.add(conversationTarget);
+        }
+
+        names.add(me);
 
         GroupUserAdapter adapter = new GroupUserAdapter(names, this);
         userList.setAdapter(adapter);

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
@@ -338,9 +338,21 @@ public class MessageAdapter extends BaseAdapter {
         // 添加时间
         TextView timestamp = (TextView) convertView
                 .findViewById(R.id.timestamp);
-        if (timestamp != null) {
-            timestamp.setText(message.getCreatedAt());
+        long previousMessageTime = 0l;
+
+        if(chatMessages.size() > 1 && position > 0){
+            previousMessageTime = chatMessages.get(position - 1).getCreatedAtInDate().getTime();
+        }
+
+        long timeInterval = message.getCreatedAtInDate().getTime() - previousMessageTime;
+
+        // 间隔5分钟显示一次时间
+        if (timestamp != null && timeInterval > 5 * 60 * 1000) {
+            String time = Utils.formatDateTime(message.getCreatedAtInDate());
+            timestamp.setText(time);
             timestamp.setVisibility(View.VISIBLE);
+        }else{
+            timestamp.setVisibility(View.GONE);
         }
 
         return convertView;
@@ -351,6 +363,14 @@ public class MessageAdapter extends BaseAdapter {
 
     }
 
+    private String formateDuration(double duration){
+        String durationStr = duration + "";
+        if(durationStr.length() > 3){
+            durationStr = durationStr.substring(0, 3);
+        }
+        return durationStr;
+    }
+    
     /**
      * 文本消息
      *
@@ -433,12 +453,17 @@ public class MessageAdapter extends BaseAdapter {
                 if (holder.pb != null) {
                     holder.pb.setVisibility(View.GONE);
                 }
-                if (holder.tv != null) {
+                if (message.getContent().getFile().getDuration() != 0) {
+                    holder.tv.setText(formateDuration(message.getContent().getFile().getDuration() ) + "\"");
+                    holder.tv.setVisibility(View.VISIBLE);
+                }else{
                     holder.tv.setVisibility(View.GONE);
                 }
                 break;
             case INPROGRESS:
-                holder.staus_iv.setVisibility(View.GONE);
+                if(holder.staus_iv != null){
+                    holder.staus_iv.setVisibility(View.GONE);
+                }
                 if (holder.pb != null) {
                     holder.pb.setVisibility(View.VISIBLE);
                 } else {
@@ -481,8 +506,15 @@ public class MessageAdapter extends BaseAdapter {
                                     JsonObject json = message.getContent().getExtra();
                                     json.addProperty("status", MessageStatus.SUCCESS.getValue());
                                     holder.pb.setVisibility(View.GONE);
-                                    holder.tv.setVisibility(View.GONE);
-                                    holder.staus_iv.setVisibility(View.GONE);
+                                    if(holder.staus_iv != null){
+                                        holder.staus_iv.setVisibility(View.GONE);
+                                    }
+                                    if (message.getContent().getFile().getDuration() != 0) {
+                                        holder.tv.setText(formateDuration(message.getContent().getFile().getDuration() ) + "\"");
+                                        holder.tv.setVisibility(View.VISIBLE);
+                                    }else{
+                                        holder.tv.setVisibility(View.GONE);
+                                    }
                                     timer.cancel();
                                 }
                             }
@@ -514,7 +546,7 @@ public class MessageAdapter extends BaseAdapter {
 
         String thumbUrl = messageContent.getFile().getThumbUrl();
 
-        Log.i("video message", thumbUrl + ":" + localThumb);
+        LogUtils.i("video message", thumbUrl + ":" + localThumb);
 
         showVideoThumbView(localThumb, holder.iv, thumbUrl, message);
 
@@ -553,6 +585,7 @@ public class MessageAdapter extends BaseAdapter {
                                     public void run() {
                                         holder.playBtn.setImageResource(R.drawable.video_download_btn_nor);
                                         holder.tv.setVisibility(View.GONE);
+                                        holder.size.setVisibility(View.GONE);
                                         holder.iv.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
@@ -615,8 +648,10 @@ public class MessageAdapter extends BaseAdapter {
     private void handleVoiceMessage(final ChatMessage message,
                                     final ViewHolder holder, final int position, View convertView) {
         if (message.getContent().getFile().getDuration() != 0) {
-            holder.tv.setText(message.getContent().getFile().getDuration() + "\"");
+            holder.tv.setText(formateDuration(message.getContent().getFile().getDuration() ) + "\"");
+            holder.tv.setVisibility(View.VISIBLE);
         }
+
         VoicePlayClickListener voicePlayClickListener = new VoicePlayClickListener(activity, message, holder.iv, this, new ProgressCallback() {
             @Override
             public void progress(final int percent) {
@@ -628,8 +663,12 @@ public class MessageAdapter extends BaseAdapter {
                             holder.tv.setText(percent + "%");
 
                         } else {
-                            holder.tv.setVisibility(View.GONE);
-
+                            if (message.getContent().getFile().getDuration() != 0) {
+                                holder.tv.setText(formateDuration(message.getContent().getFile().getDuration() ) + "\"");
+                                holder.tv.setVisibility(View.VISIBLE);
+                            }else{
+                                holder.tv.setVisibility(View.GONE);
+                            }
                         }
                     }
                 });
@@ -687,7 +726,6 @@ public class MessageAdapter extends BaseAdapter {
                 if (holder.pb != null) {
                     holder.pb.setVisibility(View.VISIBLE);
                 }
-                holder.pb.setVisibility(View.VISIBLE);
                 break;
             default:
                 sendMsgInBackground(message, holder);
@@ -785,8 +823,8 @@ public class MessageAdapter extends BaseAdapter {
             remoteUrl = message.getContent().getFile().getUrl();
         }
 
-        Log.i("file path:", filePath + "");
-        Log.i("remoteUrl:", remoteUrl + "");
+        LogUtils.i("file path:", filePath + "");
+        LogUtils.i("remoteUrl:", remoteUrl + "");
         if (filePath != null && new File(filePath).exists()) {
             NetClient.getGirlBitmap(iv, "file:///" + filePath);
         } else if (remoteUrl != null) {

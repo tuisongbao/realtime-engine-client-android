@@ -7,9 +7,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
 import com.juns.health.net.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.chat.group.ChatGroup;
@@ -45,6 +47,13 @@ public class CreateGroupChatActivity extends BaseActivity{
 
     @ViewById(R.id.btn_create_group)
     Button createBtn;
+
+
+    @ViewById(R.id.cb_can_invite)
+    CheckBox canInviteCheckBox;
+
+    @ViewById(R.id.cb_is_public)
+    CheckBox isPublicCheckBox;
     
     @AfterViews
     void afterView(){
@@ -63,7 +72,10 @@ public class CreateGroupChatActivity extends BaseActivity{
         }
         final Activity activity = this;
         try{
-            App.getInstance2().getGroupManager().create(null, new EngineCallback<ChatGroup>() {
+            boolean canInvite = canInviteCheckBox.isChecked();
+            boolean isPublic = isPublicCheckBox.isChecked();
+
+            App.getInstance2().getGroupManager().create(null, isPublic, canInvite, new EngineCallback<ChatGroup>() {
                 @Override
                 public void onSuccess(final ChatGroup chatGroup) {
                     RequestParams params = new RequestParams();
@@ -79,6 +91,7 @@ public class CreateGroupChatActivity extends BaseActivity{
                             demoGroup.setDescription(groupDescription);
                             GloableParams.GroupInfos.put(chatGroup.getGroupId(),demoGroup);
                             Utils.start_Activity(activity, GroupListActivity_.class);
+                            finish();
                         }
 
                         @Override
@@ -121,7 +134,7 @@ public class CreateGroupChatActivity extends BaseActivity{
     void textChange(){
         String groupName = etGroupName.getText().toString();
         String groupDescription = etGroupDescription.getText().toString();
-        Log.i("register", groupName + groupDescription);
+        LogUtils.i("register", groupName + groupDescription);
         if(TextUtils.isEmpty(groupName) || TextUtils.isEmpty(groupDescription) ){
             createBtn.setEnabled(true);
             return;

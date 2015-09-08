@@ -12,6 +12,16 @@ public class DemoUser implements Serializable {
     String createdAt;
     Object avatar;
 
+    public Boolean getChecked() {
+        return checked;
+    }
+
+    public void setChecked(Boolean checked) {
+        this.checked = checked;
+    }
+
+    Boolean checked;
+
     public DemoUser() {
     }
 

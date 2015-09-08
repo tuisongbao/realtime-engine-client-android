@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.juns.health.net.loopj.android.http.AsyncHttpClient;
 import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
 import com.juns.health.net.loopj.android.http.RequestParams;
@@ -204,7 +205,8 @@ public class NetClient {
         if (!NetUtil.checkNetWork(context)) {
             Utils.showLongToast(context, Constants.NET_ERROR);
         }
-        Log.i("--------------", params.toString() + "_----" + res);
+        LogUtils.i("--------------", params.toString() + "_----" + res);
+        
         try {
             if (params != null) {
                 client.post(url, params, res);

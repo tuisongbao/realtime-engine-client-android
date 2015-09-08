@@ -48,7 +48,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
             android:padding="17dp"
-                android:background="@drawable/chatfrom_bg" >
+                >
 
                 <ImageView
                     android:id="@+id/chatting_content_iv"

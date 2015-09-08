@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import com.apkfuns.logutils.LogUtils;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.EngineOptions;
 import com.tuisongbao.engine.channel.ChannelManager;
@@ -48,6 +49,12 @@ public class App extends Application{
         // CrashHandler crashHandler = CrashHandler.getInstance();// 全局异常捕捉
         // crashHandler.init(_context);
         initEngine();
+
+        // 初始化LogUtils
+        LogUtils.configTagPrefix = "TSB-";
+
+        // 为 false 时不输出日志
+        // LogUtils.configAllowLog = false;
     }
 
 

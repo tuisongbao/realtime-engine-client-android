@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
 import com.juns.health.net.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.demo.App;
@@ -72,7 +73,7 @@ public class ChangePasswordActivity extends BaseActivity{
         }
         try{
             RequestParams params = new RequestParams();
-            Log.i("tag login", oldPassword + "--------------" + password);
+            LogUtils.i("tag login", oldPassword + "--------------" + password);
             params.put("currentPassword", oldPassword);
             params.put("newPassword", password);
             params.put("token", App.getInstance2().getToken());
@@ -112,7 +113,7 @@ public class ChangePasswordActivity extends BaseActivity{
         String oldPassword = tvoldPassword.getText().toString();
         String password = tvPassword.getText().toString();
         String rePassword = tvRePassword.getText().toString();
-        Log.i("submiter", oldPassword + password + rePassword);
+        LogUtils.i("submiter", oldPassword + password + rePassword);
         if(TextUtils.isEmpty(oldPassword) || TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)){
             btnsubmit.setEnabled(true);
             return;

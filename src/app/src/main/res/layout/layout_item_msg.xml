@@ -7,7 +7,7 @@
     
     <com.tuisongbao.engine.demo.widght.swipe.SwipeLayout
         android:id="@+id/swipe"
-        app:drag_edge="right"
+        app:drag_edge="left"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         

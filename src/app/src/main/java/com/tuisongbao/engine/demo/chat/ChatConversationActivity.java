@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -28,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.google.gson.JsonObject;
 import com.tuisongbao.engine.chat.ChatManager;
@@ -55,6 +55,7 @@ import com.tuisongbao.engine.demo.common.CommonUtils;
 import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.view.activity.FriendMsgActivity_;
 import com.tuisongbao.engine.demo.view.activity.GroupSettingActivity_;
+import com.tuisongbao.engine.utils.StrUtils;
 
 import org.androidannotations.annotations.AfterExtras;
 import org.androidannotations.annotations.AfterViews;
@@ -229,7 +230,7 @@ public class ChatConversationActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            Utils.finish(this);
+            Utils.start_Activity(this, MainActivity_.class);
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -281,16 +282,16 @@ public class ChatConversationActivity extends BaseActivity {
     @AfterExtras
     public void afterExtras() {
         mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
-        Log.i("after extras", "----------------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
+        LogUtils.i("after extras", mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
 
         mListener = new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                final ChatMessage message = (ChatMessage)args[0];
+                final ChatMessage message = (ChatMessage) args[0];
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.i("got new message", message + "");
+                        LogUtils.i("got new message", message + "");
                         mMessageList.add(message);
                         mConversation.resetUnread(null);
                         messageAdapter.refresh(mMessageList);
@@ -302,7 +303,7 @@ public class ChatConversationActivity extends BaseActivity {
         };
 
         mConversation.bind(ChatConversation.EVENT_MESSAGE_NEW, mListener);
-        Log.i("after extras2", "----------------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
+        LogUtils.i("after extras2", mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
         voiceRecorder = new ChatVoiceRecorder();
         voiceRecorder.setMinDuration(2 * 1000, new Emitter.Listener() {
             @Override
@@ -328,21 +329,21 @@ public class ChatConversationActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i("destory", "-----------------" + mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW));
+        LogUtils.i("onDestroy", mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW));
         mConversation.unbind(ChatManager.EVENT_MESSAGE_NEW);
         mConversation.resetUnread(null);
     }
 
-    private ChatMessage generateSendingMsg(ChatMessageContent content){
-        ChatMessage message= new ChatMessage(App.getInstance2().getEngine());
+    private ChatMessage generateSendingMsg(ChatMessageContent content) {
+        ChatMessage message = new ChatMessage(App.getInstance2().getEngine());
         Long messageId = 0L;
-        if(!mMessageList.isEmpty()){
-            messageId = mMessageList.get(mMessageList.size()-1).getMessageId() + 1;
+        if (!mMessageList.isEmpty()) {
+            messageId = mMessageList.get(mMessageList.size() - 1).getMessageId() + 1;
         }
         message.setMessageId(messageId);
         message.setFrom(App.getInstance2().getChatUser().getUserId());
         message.setRecipient(mConversation.getTarget());
-        message.setCreatedAt(new Date().toString());
+        message.setCreatedAt(StrUtils.getTimeStringIOS8061(new Date()));
         message.setContent(content);
         return message;
     }
@@ -361,7 +362,7 @@ public class ChatConversationActivity extends BaseActivity {
     private void sendVoiceMessage(String filePath) {
         ChatMessageVoiceContent content = new ChatMessageVoiceContent();
         content.setFilePath(filePath);
-        Log.i("send file", filePath);
+        LogUtils.i("send file", filePath);
         ChatMessage message = generateSendingMsg(content);
         sendMediaMessage(message);
     }
@@ -401,7 +402,7 @@ public class ChatConversationActivity extends BaseActivity {
     }
 
     @Click(R.id.btn_send)
-    void sendText(){
+    void sendText() {
 //        hideKeyboard();
         String text = mEditTextContent.getText().toString();
         ChatMessageContent content = new ChatMessageContent();
@@ -416,7 +417,7 @@ public class ChatConversationActivity extends BaseActivity {
         setResult(RESULT_OK);
     }
 
-    void scrollToBotton(){
+    void scrollToBotton() {
         int selectionPosition = mMessageList.size();
         listView.setSelection(selectionPosition);
     }
@@ -428,13 +429,13 @@ public class ChatConversationActivity extends BaseActivity {
      */
     private void sendImage(final String filePath) {
         ChatMessageImageContent content = new ChatMessageImageContent();
-        Log.i("sending file path:", filePath);
+        LogUtils.i("sending file path:", filePath);
         content.setFilePath(filePath);
         ChatMessage message = generateSendingMsg(content);
         sendMediaMessage(message);
     }
 
-    void sendMediaMessage(final ChatMessage message){
+    void sendMediaMessage(final ChatMessage message) {
         JsonObject json = new JsonObject();
         json.addProperty("status", MessageStatus.INPROGRESS.getValue());
         message.getContent().setExtra(json);
@@ -600,14 +601,14 @@ public class ChatConversationActivity extends BaseActivity {
     }
 
     @Click(R.id.view_file)
-    void sendVideo(){
+    void sendVideo() {
         Intent intent = new Intent(getApplicationContext(), ChatCameraActivity.class);
         intent.setAction(ChatCameraActivity.ACTION_VIDEO);
         startActivityForResult(intent, REQUEST_CODE_TAKE_VIDEO);
     }
 
-    @Click({ R.id.view_video, R.id.view_audio})
-    public void sendMore(){
+    @Click({R.id.view_video, R.id.view_audio})
+    public void sendMore() {
         Utils.showShortToast(this, "尽情期待");
     }
 
@@ -684,7 +685,6 @@ public class ChatConversationActivity extends BaseActivity {
             buttonSend.setVisibility(View.GONE);
         }
     }
-
 
 
     @Click(R.id.img_back)
@@ -775,14 +775,14 @@ public class ChatConversationActivity extends BaseActivity {
         }
     }
 
-    void loadMoreMessage(){
+    void loadMoreMessage() {
         mConversation.getMessages(mStartMessageId, null, pagesize,
                 new EngineCallback<List<ChatMessage>>() {
 
                     @Override
                     public void onSuccess(final List<ChatMessage> t) {
-                        Log.i("got message size", t.size() + "");
-                        if (t.size() != pagesize){
+                        LogUtils.i("got message size", t.size() + "");
+                        if (t.size() != pagesize) {
                             haveMoreData = false;
                         }
 
@@ -828,7 +828,6 @@ public class ChatConversationActivity extends BaseActivity {
 
     /**
      * listview滑动监听listener
-     *
      */
     private class ListScrollListener implements AbsListView.OnScrollListener {
 
@@ -859,8 +858,9 @@ public class ChatConversationActivity extends BaseActivity {
 
     }
 
-    class MessageCallback implements EngineCallback<ChatMessage>{
+    class MessageCallback implements EngineCallback<ChatMessage> {
         private ChatMessage sendingMessage;
+
         public MessageCallback(final ChatMessage sendingMessage) {
             this.sendingMessage = sendingMessage;
         }
@@ -869,9 +869,9 @@ public class ChatConversationActivity extends BaseActivity {
         public void onSuccess(ChatMessage chatMessage) {
             this.sendingMessage.setContent(chatMessage.getContent());
             JsonObject json;
-            if(sendingMessage.getContent().getExtra() == null){
+            if (sendingMessage.getContent().getExtra() == null) {
                 json = new JsonObject();
-            }else{
+            } else {
                 json = sendingMessage.getContent().getExtra();
             }
             json.addProperty("status", MessageStatus.SUCCESS.getValue());
@@ -886,13 +886,14 @@ public class ChatConversationActivity extends BaseActivity {
         @Override
         public void onError(ResponseError error) {
             JsonObject json;
-            if(sendingMessage.getContent().getExtra() == null){
+            if (sendingMessage.getContent().getExtra() == null) {
                 json = new JsonObject();
-            }else{
+            } else {
                 json = sendingMessage.getContent().getExtra();
             }
             json.addProperty("status", MessageStatus.FAIL.getValue());
         }
     }
+
 }
 

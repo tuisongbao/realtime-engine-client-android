@@ -4,10 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.group.ChatGroup;
@@ -24,7 +24,6 @@ import org.androidannotations.annotations.rest.RestService;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ import java.util.List;
 @EActivity
 public class SplashActivity extends Activity{
     private Context mContext;
-    Connection connection;
+    private Connection connection;
 
     @RestService
     ChatDemoService chatDemoService;
@@ -65,12 +64,14 @@ public class SplashActivity extends Activity{
 
                 @Override
                 public void onError(ResponseError error) {
-                    Log.i("login failed", error.getMessage());
+                    Utils.showShortToast(mContext, "登陆失败");
+                    LogUtils.i("login failed", error.getMessage());
                 }
             });
         }
     };
 
+    // TODO 抽取一个 DemoGroup 缓存处理的工具类
     public void refreshDemoGroups(List<String> ids) {
         List<DemoGroup> groupList = null;
         LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -82,6 +83,8 @@ public class SplashActivity extends Activity{
         } catch (Exception e) {
 
         }
+
+        LogUtils.d("refreshDemoGroups", groupList);
 
         if (groupList != null) {
             GloableParams.ListGroupInfos = groupList;
@@ -96,17 +99,14 @@ public class SplashActivity extends Activity{
         super.onCreate(savedInstanceState);
         mContext = this;
         setContentView(R.layout.activity_start);
-        initData();
         bindConnectionEvent();
 
         if(connection.isConnected()){
-            Log.d("connected", "0");
             gotoLastView();
         }else{
             connection.bindOnce(Connection.State.Connected.getName(), new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    Log.d("connected", "1");
                     gotoLastView();
                 }
             });
@@ -115,60 +115,37 @@ public class SplashActivity extends Activity{
 
     private void gotoLastView(){
         int RunCount = Utils.getIntValue(this, "RUN_COUNT");
+        LogUtils.d("RunCount", RunCount);
+
         if (RunCount == 0) {
             // TODO 引导页面
         } else {
             Utils.putIntValue(this, "RUN_COUNT", RunCount++);
         }
+
         Boolean isLogin = Utils.getBooleanValue(SplashActivity.this,
                 Constants.LoginState);
+
+        LogUtils.d("isLogin", isLogin);
+
         if (isLogin) {
-            // Intent intent = new Intent(this, UpdateService.class);
-            // startService(intent);
-            getLogin();
-        } else {
-            mHandler.sendEmptyMessage(0);
-        }
-    }
-
-    private void initData() {
-        GloableParams.ListGroupInfos = new ArrayList<DemoGroup>();
-        GloableParams.GroupInfos = new HashMap<String, DemoGroup>();
-    }
-
-    private void getLogin() {
-        String name = Utils.getValue(this, Constants.User_ID);
-        String pwd = Utils.getValue(this, Constants.PWD);
-        if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(name))
-            getChatserive(name, pwd);
-        else {
-            Utils.RemoveValue(SplashActivity.this, Constants.LoginState);
-            mHandler.sendEmptyMessageDelayed(0, 600);
-        }
-    }
-
-    private Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            Boolean isLogin = Utils.getBooleanValue(SplashActivity.this,
-                    Constants.LoginState);
-            Intent intent = new Intent();
-            if (isLogin) {
-                intent.setClass(SplashActivity.this, MainActivity_.class);
-            } else {
-                intent.setClass(SplashActivity.this, LoginActivity_.class);
+            String name = Utils.getValue(this, Constants.User_ID);
+            if (!TextUtils.isEmpty(name) && !TextUtils.isEmpty(name)){
+                LogUtils.i("User login", name);
+                App.getInstance2().getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
+                App.getInstance2().getChatManager().login(name);
             }
+            else {
+                Utils.RemoveValue(SplashActivity.this, Constants.LoginState);
+            }
+        } else {
+            Intent intent = new Intent();
+            intent.setClass(SplashActivity.this, LoginActivity_.class);
             startActivity(intent);
             overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
             finish();
         }
-    };
-
-    private void getChatserive(final String userName, final String password) {
-        Log.d("loging", "------------------");
-        App.getInstance2().getChatManager().bindOnce(ChatManager.EVENT_LOGIN_SUCCEEDED, mLoginSuccessListener);
-        App.getInstance2().getChatManager().login(userName);
     }
-
 
     private void bindConnectionEvent() {
         connection = App.getInstance2().getEngine().getConnection();
@@ -181,7 +158,7 @@ public class SplashActivity extends Activity{
                     public void run() {
                         Connection.State state = (Connection.State)args[0];
                         String msg = "Connecting state: " + state.toString();
-                        Utils.showLongToast(mContext, msg);
+                        Utils.showShortToast(mContext, msg);
                     }
                 });
             }
@@ -200,7 +177,8 @@ public class SplashActivity extends Activity{
                     @Override
                     public void run() {
                         String msg = "Connecting in " + args[0] + " seconds";
-                        Utils.showLongToast(mContext, msg);
+                        Utils.showShortToast(mContext, msg);
+                        LogUtils.i("EVENT_CONNECTING_IN", msg);
                     }
                 });
             }
@@ -213,7 +191,8 @@ public class SplashActivity extends Activity{
                     @Override
                     public void run() {
                         String msg = "Connection state changed from " + args[0] + " to " + args[1];
-                        Utils.showLongToast(mContext, msg);
+                        Utils.showShortToast(mContext, msg);
+                        LogUtils.i("EVENT_STATE_CHANGED", msg);
                     }
                 });
             }
@@ -225,7 +204,8 @@ public class SplashActivity extends Activity{
                     @Override
                     public void run() {
                         String msg =  "Connection error," + args[0];
-                        Utils.showLongToast(mContext, msg);
+                        Utils.showShortToast(mContext, msg);
+                        LogUtils.e("EVENT_ERROR", msg);
                     }
                 });
             }

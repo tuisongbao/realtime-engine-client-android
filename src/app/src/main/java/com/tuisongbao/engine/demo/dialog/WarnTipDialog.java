@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.demo.R;
-
-
 public class WarnTipDialog extends BaseDialog implements
         android.view.View.OnClickListener {
     private TextView btn_cancel, btn_ok;

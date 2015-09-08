@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.common.Utils;
@@ -48,8 +49,9 @@ public class MainActivity extends FragmentActivity {
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
+    private String errTip;
+
     private Fragment[] fragments;
-    private String connectMsg = "";
     private int index = 0;
     private int currentTabIndex = 0;// 当前fragment的index
     private int keyBackClickCount = 0;
@@ -67,6 +69,7 @@ public class MainActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = this;
+        errTip = "";
         App.getInstance2().addActivity(this);
         bindConnection();
     }
@@ -127,6 +130,7 @@ public class MainActivity extends FragmentActivity {
     }
 
     public void onTabClicked(View view) {
+        LogUtils.i("change tab", view.getId());
         switch (view.getId()) {
             case R.id.re_conversations:
                 index = 0;
@@ -158,7 +162,7 @@ public class MainActivity extends FragmentActivity {
         switch (index) {
             case 0:
                 img_right.setVisibility(View.VISIBLE);
-                txt_title.setText(R.string.app_name);
+                txt_title.setText(getString(R.string.app_name) + errTip);
                 img_right.setImageResource(R.drawable.icon_titleaddfriend);
                 img_right.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -170,10 +174,10 @@ public class MainActivity extends FragmentActivity {
                 });
                 break;
             case 1:
-                txt_title.setText(R.string.contacts);
+                txt_title.setText(getString(R.string.contacts) + errTip);
                 break;
             case 2:
-                txt_title.setText(R.string.setting);
+                txt_title.setText(getString(R.string.setting) + errTip);
                 break;
         }
 
@@ -218,9 +222,14 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void run() {
-                connectMsg = getString(R.string.app_name);
-                txt_title.setText(connectMsg);
+                LogUtils.e("connected------------------------");
+
+                errTip = "";
+                refreshTab();
                 conversationsFragment.errorItem.setVisibility(View.GONE);
+                if (conversationsFragment != null) {
+                    conversationsFragment.refresh();
+                }
             }
         });
         }
@@ -233,14 +242,13 @@ public class MainActivity extends FragmentActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    connectMsg = "推送宝(未连接)";
-                    txt_title.setText(connectMsg);
-                    final String st1 = getResources().getString(
-                            R.string.Less_than_chat_server_connection);
+                    LogUtils.e("disconnected------------------------");
+                    errTip = "(未连接)";
+                    refreshTab();
                     final String st2 = getResources().getString(
                             R.string.the_current_network);
                     String msg =  "Connection error," + args[0];
-                    Utils.showLongToast(getApplicationContext(), msg);
+                    Utils.showShortToast(getApplicationContext(), msg);
                     conversationsFragment.errorItem.setVisibility(View.VISIBLE);
                     conversationsFragment.errorText.setText(st2);
                 }

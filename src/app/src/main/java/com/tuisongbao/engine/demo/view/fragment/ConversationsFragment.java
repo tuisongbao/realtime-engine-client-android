@@ -3,6 +3,7 @@ package com.tuisongbao.engine.demo.view.fragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -16,7 +17,7 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.MainActivity;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.demo.adpter.ConversationAdpter;
+import com.tuisongbao.engine.demo.adpter.ConversationAdapter;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity_;
 
@@ -42,26 +43,29 @@ public class ConversationsFragment extends Fragment {
     @ViewById(R.id.listview)
     ListView lvContact;
 
+    @ViewById(R.id.txt_nochat)
+    TextView noChat;
+
     private Activity ctx;
 
     Emitter.Listener mListener;
 
 
-    private ConversationAdpter adpter;
+    private ConversationAdapter adpter;
     private List<ChatConversation> conversationList = new ArrayList<ChatConversation>();
     private MainActivity parentActivity;
 
     @AfterViews
-    void afterView(){
+    void afterView() {
         ctx = this.getActivity();
         parentActivity = (MainActivity) getActivity();
+        initViews();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         conversationList.clear();
-        initViews();
         mListener = new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
@@ -82,12 +86,12 @@ public class ConversationsFragment extends Fragment {
     }
 
     private void initViews() {
-        if(conversationList == null){
+        if (conversationList == null) {
             conversationList = new ArrayList<>();
         }
 
-        if(adpter == null){
-            adpter = new ConversationAdpter(ctx,conversationList);
+        if (adpter == null) {
+            adpter = new ConversationAdapter(ctx, conversationList);
         }
 
         adpter.setConversationList(conversationList);
@@ -104,13 +108,16 @@ public class ConversationsFragment extends Fragment {
      * 刷新页面
      */
     public void refresh() {
-        conversationList.clear();
         App.getInstance2().getConversationManager().getList(null, null, new EngineCallback<List<ChatConversation>>() {
-
             public void onSuccess(final List<ChatConversation> t) {
                 Activity activity = getActivity();
                 if (activity == null) {
                     return;
+                }
+                if (t == null || t.isEmpty()) {
+                    noChat.setVisibility(View.VISIBLE);
+                } else {
+                    noChat.setVisibility(View.GONE);
                 }
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -142,6 +149,9 @@ public class ConversationsFragment extends Fragment {
 
     @ItemClick(R.id.listview)
     public void gotoConversation(int position) {
+        if (conversationList == null || conversationList.isEmpty()) {
+            return;
+        }
         ChatConversation mClickedChatConversation = conversationList.get(position);
         mClickedChatConversation.resetUnread(null);
         Intent intent = new Intent(this.getActivity(),

@@ -24,6 +24,7 @@ public class BaseActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
+        // 为了关闭时关闭全部的activity
         App.getInstance2().addActivity(this);
         netClient = new NetClient(this);
     }

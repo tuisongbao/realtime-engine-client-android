@@ -1,7 +1,5 @@
 package com.tuisongbao.engine.demo.net;
 
-import android.util.Log;
-
 import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
@@ -17,9 +15,7 @@ public abstract class BaseJsonRes extends JsonHttpResponseHandler {
 
     public void onSuccess(JSONObject response) {
         try {
-            Log.i("respose-------------", response.toString());
             String result = response.getString(Constants.Result);
-            // System.out.println("返回的值" + response);
             if (result == null) {
                 Utils.showLongToast(App.getInstance(), Constants.NET_ERROR);
             } else if (result.equals("1")) {

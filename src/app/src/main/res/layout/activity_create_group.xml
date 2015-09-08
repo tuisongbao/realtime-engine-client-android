@@ -5,79 +5,15 @@
     android:fadingEdge="vertical"
     android:scrollbars="vertical">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:materialdesign="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/black2"
+        android:background="@color/blackk"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="48.0dip"
-            android:background="@color/bar_color" >
-
-            <TextView
-                android:id="@+id/txt_left"
-                style="@style/txt_titleStyle1"
-                android:textSize="15sp"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:visibility="visible"/>
-
-            <ImageView
-                android:id="@+id/img_back"
-                android:layout_width="40dp"
-                android:layout_height="22dp"
-                android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/icon_back" />
-
-            <TextView
-                android:id="@+id/txt_title"
-                style="@style/txt_titleStyle1"
-                android:text="群组"
-                android:layout_centerInParent="true"  />
-
-            <ImageView
-                android:id="@+id/iv_group_add"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:layout_marginRight="35dp"
-                android:src="@drawable/icon_add" />
-            <ImageView
-                android:id="@+id/iv_group_cancel"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:visibility="gone"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/icon_qunliao" />
-            <ImageView
-                android:id="@+id/iv_group_remove"
-                android:layout_width="40dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/icon_me_setting" />
-
-            <TextView
-                android:id="@+id/txt_right"
-                style="@style/txt_titleStyle1"
-                android:textSize="16sp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"  />
-
-        </RelativeLayout>
+        <include
+            android:id="@+id/top_bar"
+            layout="@layout/layout_title" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -95,6 +31,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="15dp"
                     android:text="群组名称" />
 
                 <TextView
@@ -104,8 +41,10 @@
 
                 <EditText
                     android:id="@+id/et_group_name"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_login"
+                    />
             </LinearLayout>
 
             <View
@@ -125,21 +64,84 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="群组描述" />
+                    android:text="群组描述"
+                    android:layout_marginRight="15dp"
+                    />
+
+                <EditText
+                    android:id="@+id/et_group_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/edittext_login"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dip"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="公开" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
-                <EditText
-                    android:id="@+id/et_group_description"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content" />
+                <CheckBox
+                    android:id="@+id/cb_is_public"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/CustomCheckboxTheme"
+                    />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dip"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:background="@color/blackk" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="成员可邀请" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/cb_can_invite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/CustomCheckboxTheme"
+                    />
             </LinearLayout>
 
         </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -163,6 +165,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:layout_marginTop="20dip"
             android:background="@color/white"
             android:orientation="vertical">

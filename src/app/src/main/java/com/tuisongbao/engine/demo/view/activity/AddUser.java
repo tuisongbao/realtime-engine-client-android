@@ -57,6 +57,8 @@ public class AddUser extends BaseActivity{
 
     List<DemoUser> demoUsers;
 
+    private Integer position;
+
     @AfterViews
     public void afterViews() {
         txt_right.setText("确认");
@@ -69,6 +71,7 @@ public class AddUser extends BaseActivity{
 
     @TextChange(R.id.search_user)
     void onTextChangesOnSearchUserTextView(CharSequence text, TextView searchUserTextView, int before, int start, int count) {
+        position = null;
         if ("".equals(text.toString().trim())) {
             demoUsers = new ArrayList<>();
             userAdapter.refresh(demoUsers);
@@ -91,14 +94,35 @@ public class AddUser extends BaseActivity{
         }
     }
 
-    @ItemClick(R.id.activity_addUser_search_listView)
-    void gotoConversation(int position) {
+    @Click(R.id.txt_right)
+    void gotoConversation() {
+        if(position == null){
+            Utils.showShortToast(this, "没有选中用户");
+            return;
+        }
+
         Intent intent = new Intent(this,
                 ChatConversationActivity_.class);
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, demoUsers.get(position).getUsername());
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, ChatType.SingleChat);
 
         startActivity(intent);
+    }
+
+    @ItemClick(R.id.activity_addUser_search_listView)
+    void choseUser(int position){
+        this.position = position;
+        if(demoUsers.get(position).getChecked()!=null && demoUsers.get(position).getChecked()){
+            demoUsers.get(position).setChecked(false);
+            userAdapter.refresh(demoUsers);
+            this.position = null;
+            return;
+        }
+        for (DemoUser user: demoUsers){
+            user.setChecked(false);
+        }
+        demoUsers.get(position).setChecked(true);
+        userAdapter.refresh(demoUsers);
     }
 
     @Click(R.id.img_back)

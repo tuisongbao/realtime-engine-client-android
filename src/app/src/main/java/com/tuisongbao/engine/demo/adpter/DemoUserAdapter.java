@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -53,12 +54,19 @@ public class DemoUserAdapter extends BaseAdapter {
             convertView = View.inflate(mContext, R.layout.demo_user_item, null);
             holder.userAvatar = (ImageView) convertView.findViewById(R.id.avatar);
             holder.userName = (TextView) convertView.findViewById(R.id.userName);
+            holder.layout = (LinearLayout) convertView.findViewById(R.id.layout);
             convertView.setTag(holder);
         }
 
         DemoUser demoUser = mList.get(position);
         ImageLoader.getInstance().displayImage(Constants.USERAVATARURL + demoUser.getUsername(), holder.userAvatar);
         holder.userName.setText(demoUser.getUsername());
+
+        if(demoUser.getChecked() != null && demoUser.getChecked()){
+            holder.layout.setBackgroundResource(R.color.greenn);
+        }else{
+            holder.layout.setBackgroundColor(0);
+        }
 
         return convertView;
     }
@@ -80,5 +88,7 @@ public class DemoUserAdapter extends BaseAdapter {
          * 名称
          **/
         TextView userName;
+
+        LinearLayout layout;
     }
 }

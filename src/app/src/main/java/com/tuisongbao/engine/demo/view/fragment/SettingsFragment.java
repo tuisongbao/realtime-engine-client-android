@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apkfuns.logutils.LogUtils;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -49,6 +50,9 @@ public class SettingsFragment extends Fragment {
 
     @AfterViews
     void afterViews() {
+        if(App.getInstance2().getChatUser() == null){
+            return;
+        }
         String username = App.getInstance2().getChatUser().getUserId();
         tvname.setText(username);
         NetClient.getIconBitmap(head, Constants.USERAVATARURL + username);
@@ -126,14 +130,14 @@ public class SettingsFragment extends Fragment {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        Log.i("params", params + "");
+        LogUtils.i("params", params + "");
         client.post(url, params, new AsyncHttpResponseHandler() {
 
             @Override
             public void onSuccess(int statusCode, final Header[] headers, byte[] responseBody) {
                 Bitmap bmp = BitmapFactory.decodeFile(path);
                 String url = Constants.USERAVATARURL + App.getInstance2().getChatUser().getUserId();
-                Log.i("url------------", url);
+                LogUtils.i("url------------", url);
                 NetClient.updateImage(url, bmp, head);
                 Toast.makeText(getActivity(), "成功", Toast.LENGTH_LONG).show();
             }

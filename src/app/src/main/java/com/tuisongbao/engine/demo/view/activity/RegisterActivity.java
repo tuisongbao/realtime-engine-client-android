@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
 import com.juns.health.net.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.demo.Constants;
@@ -76,7 +77,7 @@ public class RegisterActivity extends BaseActivity{
         }
         try{
             RequestParams params = new RequestParams();
-            Log.i("tag login", username + "--------------" + password);
+            LogUtils.i("tag login", username + "--------------" + password);
             params.put("username", username);
             params.put("password", password);
             getLoadingDialog("正在注册...  ").show();
@@ -115,7 +116,7 @@ public class RegisterActivity extends BaseActivity{
         String username = tvUsername.getText().toString();
         String password = tvPassword.getText().toString();
         String rePassword = tvRePassword.getText().toString();
-        Log.i("register", username + password + rePassword);
+        LogUtils.i("register", username + password + rePassword);
         if(TextUtils.isEmpty(username) || TextUtils.isEmpty(password) || TextUtils.isEmpty(rePassword)){
             btnRegist.setEnabled(true);
             return;

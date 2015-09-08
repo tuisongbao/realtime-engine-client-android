@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,6 +62,12 @@ public class GroupSettingActivity extends BaseActivity {
     @ViewById(R.id.img_back)
     ImageView img_back;
 
+    @ViewById(R.id.cb_can_invite)
+    CheckBox canInviteCheckBox;
+
+    @ViewById(R.id.cb_is_public)
+    CheckBox isPublicCheckBox;
+
 
     private ChatGroup mGroup;
     private DemoGroup mDemoGroup;
@@ -82,6 +89,8 @@ public class GroupSettingActivity extends BaseActivity {
             public void onSuccess(List<ChatGroup> chatGroups) {
                 if (chatGroups != null && !chatGroups.isEmpty()) {
                     mGroup = chatGroups.get(0);
+                    isPublicCheckBox.setChecked(mGroup.isPublic());
+                    canInviteCheckBox.setChecked(mGroup.userCanInvite());
                     mDemoGroup = GloableParams.GroupInfos.get(mGroup.getGroupId());
                     if (mDemoGroup != null) {
                         runOnUiThread(new Runnable() {
@@ -92,6 +101,8 @@ public class GroupSettingActivity extends BaseActivity {
                             }
                         });
 
+                    }else{
+                        // TODO 尝试更新一次 demo group 的信息
                     }
 
                     if (App.getInstance2().getChatUser().getUserId().equals(mGroup.getOwner())){
@@ -105,7 +116,6 @@ public class GroupSettingActivity extends BaseActivity {
                             }
                         });
                     }
-
                     request();
                 }
             }

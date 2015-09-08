@@ -66,7 +66,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/call_self"
-        android:layout_marginTop="10dp"
+        android:padding="5dp"
         android:background="@drawable/setting_item_selector">
         <ImageView
             android:id="@+id/head"
@@ -78,10 +78,10 @@
         <TextView
             android:textSize="18.0dip"
             android:id="@+id/tvname"
-            android:layout_marginTop="20dp"
             android:layout_toRightOf="@+id/head"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="60.0dip"
+            android:gravity="center_vertical"
             android:text="Anson" />
 
         <ImageView

@@ -3,7 +3,6 @@ package com.tuisongbao.engine.demo.adpter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +20,7 @@ import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.GloableParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
+import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.common.ViewHolder;
 import com.tuisongbao.engine.demo.dialog.WarnTipDialog;
 import com.tuisongbao.engine.demo.net.NetClient;
@@ -32,22 +32,17 @@ import java.util.List;
 /**
  * Created by user on 15-9-1.
  */
-public class ConversationAdpter extends BaseAdapter {
+public class ConversationAdapter extends BaseAdapter {
     protected Context context;
     private List<ChatConversation> conversationList;
     private WarnTipDialog Tipdialog;
     private int deleteID;
     private String target;
-    private String userid;
     private Hashtable<String, String> ChatRecord = new Hashtable<String, String>();
 
-    public ConversationAdpter(Context ctx, List<ChatConversation> objects) {
+    public ConversationAdapter(Context ctx, List<ChatConversation> objects) {
         context = ctx;
         conversationList = objects;
-    }
-
-    public Hashtable<String, String> getChatRecord() {
-        return ChatRecord;
     }
 
     @Override
@@ -74,7 +69,6 @@ public class ConversationAdpter extends BaseAdapter {
         ImageView img_avar = ViewHolder.get(convertView,
                 R.id.contactitem_avatar_iv);
         TextView txt_name = ViewHolder.get(convertView, R.id.txt_name);
-        TextView txt_state = ViewHolder.get(convertView, R.id.txt_state);
         TextView txt_del = ViewHolder.get(convertView, R.id.txt_del);
         TextView txt_content = ViewHolder.get(convertView, R.id.txt_content);
         TextView txt_time = ViewHolder.get(convertView, R.id.txt_time);
@@ -115,7 +109,8 @@ public class ConversationAdpter extends BaseAdapter {
             // 把最后一条消息的内容作为item的message内容
             ChatMessage lastMessage = conversation.getLastMessage();
             txt_content.setText(getMessageDigest(lastMessage, context));
-            txt_time.setText(lastMessage.getCreatedAt());
+            String time = Utils.formatDateTime(lastMessage.getCreatedAtInDate());
+            txt_time.setText(time);
         }
 
         txt_del.setOnClickListener(new OnClickListener() {
@@ -168,22 +163,21 @@ public class ConversationAdpter extends BaseAdapter {
      */
     private String getMessageDigest(ChatMessage message, Context context) {
         String digest = "";
-        Log.i("0000000", message.getContent().getType().toString());
         switch (message.getContent().getType()) {
             case LOCATION: // 位置消息
-                digest = getStrng(context, R.string.location_message);
+                digest = getString(context, R.string.location_message);
                 break;
             case IMAGE: // 图片消息
-                digest = getStrng(context, R.string.picture);
+                digest = getString(context, R.string.picture);
                 break;
             case VOICE:// 语音消息
-                digest = getStrng(context, R.string.voice_msg);
+                digest = getString(context, R.string.voice_msg);
                 break;
             case VIDEO: // 视频消息
-                digest = getStrng(context, R.string.video);
+                digest = getString(context, R.string.video);
                 break;
             case EVENT: // 事件消息
-                digest = getStrng(context, R.string.event);
+                digest = getString(context, R.string.event);
                 break;
             case TEXT: // 文本消息
                 digest = message.getContent().getText();
@@ -195,7 +189,7 @@ public class ConversationAdpter extends BaseAdapter {
         return digest;
     }
 
-    String getStrng(Context context, int resId) {
+    String getString(Context context, int resId) {
         return context.getResources().getString(resId);
     }
 

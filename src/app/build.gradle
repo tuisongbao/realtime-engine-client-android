@@ -42,9 +42,14 @@ dependencies {
     // 图片缓存
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile 'com.nineoldandroids:library:2.4.0+'
-    compile 'com.beardedhen:androidbootstrap:+'
     compile files('libs/JunsNetHelper.jar')
     compile files('libs/JsonUtils.jar')
+
+    // loading
+//    compile 'com.vlonjatg.android:progress-activity:1.1.1'
+
+    // More convenient and easy to use android Log manager
+    compile 'com.apkfuns.logutils:library:1.0.6'
 }
 
 apt {
