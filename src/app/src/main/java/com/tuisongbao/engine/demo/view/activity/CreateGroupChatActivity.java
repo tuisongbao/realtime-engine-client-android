@@ -109,7 +109,7 @@ public class CreateGroupChatActivity extends BaseActivity{
                                 }
                             });
                         }
-                    });
+                    }, true);
                 }
 
                 @Override

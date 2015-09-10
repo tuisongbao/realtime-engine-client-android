@@ -4,7 +4,6 @@ package com.tuisongbao.engine.demo.service;
  * Created by user on 15-9-1.
  */
 
-import com.squareup.okhttp.Response;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.bean.DemoUser;
@@ -20,23 +19,16 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by user on 15-8-17.
  */
 @Rest(rootUrl = Constants.APIURL, converters = { StringHttpMessageConverter.class, FormHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class  })
 public interface ChatDemoService extends RestClientErrorHandling, RestClientHeaders {
-    @Post("/validateChatUser")
-    Response login(Map<String, String> data );
+    @Post("/getChatGroups?token={token}")
+    List<DemoGroup> getGroupDemoInfo(LinkedMultiValueMap<String, String> groupIds, String token);
 
-    @Post("/registerChatUser")
-    String regist(Map<String, String> data );
-
-    @Post("/getChatGroups")
-    List<DemoGroup> getGroupDemoInfo(LinkedMultiValueMap<String, String> groupIds);
-
-    @Get("/searchChatUsers?username={username}")
-    List<DemoUser> getDemoUser(String username);
+    @Get("/searchChatUsers?username={username}&token={token}")
+    List<DemoUser> getDemoUser(String username, String token);
 }
 
