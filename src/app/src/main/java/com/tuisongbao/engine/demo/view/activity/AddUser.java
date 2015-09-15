@@ -7,6 +7,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.adpter.DemoUserAdapter;
 import com.tuisongbao.engine.demo.bean.DemoUser;
@@ -82,7 +83,8 @@ public class AddUser extends BaseActivity{
 
     @Background
     void searchUser(String username) {
-        List<DemoUser> demoUserList = userService.getDemoUser(username);
+        String token = App.getInstance2().getToken();
+        List<DemoUser> demoUserList = userService.getDemoUser(username, token);
         if (demoUserList != null) {
             demoUsers = demoUserList;
             runOnUiThread(new Runnable() {

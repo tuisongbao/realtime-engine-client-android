@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
@@ -43,7 +42,7 @@ public class SplashActivity extends Activity{
             App.getInstance2().getGroupManager().getList(null, new EngineCallback<List<ChatGroup>>() {
                 @Override
                 public void onSuccess(List<ChatGroup> chatGroups) {
-                    Log.d("main", "登陆聊天服务器成功！");
+                    LogUtils.d("登陆推送宝服务器成功");
                     List<String> ids  = new ArrayList<String>();
                     App.getInstance2().setToken(Utils.getValue(mContext, Constants.AccessToken));
 
@@ -65,7 +64,7 @@ public class SplashActivity extends Activity{
                 @Override
                 public void onError(ResponseError error) {
                     Utils.showShortToast(mContext, "登陆失败");
-                    LogUtils.i("login failed", error.getMessage());
+                    LogUtils.e("login failed %s", error.getMessage());
                 }
             });
         }
@@ -79,12 +78,13 @@ public class SplashActivity extends Activity{
         map.put("groupIds[]", ids);
 
         try {
-            groupList = chatDemoService.getGroupDemoInfo(map);
+            String token = App.getInstance2().getToken();
+            groupList = chatDemoService.getGroupDemoInfo(map, token);
         } catch (Exception e) {
 
         }
 
-        LogUtils.d("refreshDemoGroups", groupList);
+        LogUtils.d("refreshDemoGroups: %s", groupList);
 
         if (groupList != null) {
             GloableParams.ListGroupInfos = groupList;
@@ -115,7 +115,7 @@ public class SplashActivity extends Activity{
 
     private void gotoLastView(){
         int RunCount = Utils.getIntValue(this, "RUN_COUNT");
-        LogUtils.d("RunCount", RunCount);
+        LogUtils.d("RunCount %d", RunCount);
 
         if (RunCount == 0) {
             // TODO 引导页面

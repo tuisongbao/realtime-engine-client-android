@@ -111,7 +111,8 @@ public class AddUserToGroup extends BaseActivity {
 
     @Background
     void searchUser(String username) {
-        List<DemoUser> demoUserList = userService.getDemoUser(username);
+        String token = App.getInstance2().getToken();
+        List<DemoUser> demoUserList = userService.getDemoUser(username, token);
         if (demoUserList != null) {
             List<DemoUser> newUsers = null;
             if (oldDemoUserNames != null) {

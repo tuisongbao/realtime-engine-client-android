@@ -79,7 +79,7 @@ public class LoginActivity extends BaseActivity {
                 public void onSuccess(List<ChatGroup> chatGroups) {
                     Log.d("main", "登陆聊天服务器成功！");
                     List<String> ids = new ArrayList<String>();
-                    App.getInstance2().setToken(Utils.getValue(mContext, Constants.AccessToken));
+                    App.getInstance2().setToken(App.getInstance2().getToken());
 
                     for (ChatGroup group : chatGroups) {
                         ids.add(group.getGroupId());
@@ -106,7 +106,8 @@ public class LoginActivity extends BaseActivity {
         map.put("groupIds[]", ids);
 
         try {
-            groupList = chatDemoService.getGroupDemoInfo(map);
+            String token = App.getInstance2().getToken();
+            groupList = chatDemoService.getGroupDemoInfo(map, token);
         } catch (Exception e) {
 
         }

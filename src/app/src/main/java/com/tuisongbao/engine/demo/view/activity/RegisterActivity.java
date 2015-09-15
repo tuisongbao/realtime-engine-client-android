@@ -16,7 +16,6 @@ import com.juns.health.net.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.Utils;
-import com.tuisongbao.engine.demo.service.ChatDemoService;
 import com.tuisongbao.engine.demo.view.BaseActivity;
 
 import org.androidannotations.annotations.AfterViews;
@@ -24,7 +23,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.rest.RestService;
 import org.json.JSONObject;
 
 /**
@@ -46,9 +44,6 @@ public class RegisterActivity extends BaseActivity{
 
     @ViewById(R.id.et_re_password)
     TextView tvRePassword;
-
-    @RestService
-    ChatDemoService chatDemoService;
 
     Activity activity;
 

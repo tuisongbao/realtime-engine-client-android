@@ -100,7 +100,7 @@ public class ChangePasswordActivity extends BaseActivity{
                     getLoadingDialog("正在修改密码").dismiss();
                     btnsubmit.setEnabled(true);
                 }
-            });
+            }, true);
         }catch (Exception e){
             Utils.showShortToast(this, "网络错误, 请重试");
             btnsubmit.setEnabled(true);

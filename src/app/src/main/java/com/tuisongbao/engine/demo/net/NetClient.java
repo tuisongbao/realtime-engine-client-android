@@ -191,6 +191,19 @@ public class NetClient {
         }
     }
 
+    public void post(String url, RequestParams params,
+                     final JsonHttpResponseHandler res, boolean hasToken) {
+        if(hasToken){
+            if(url.indexOf("?") > 0){
+                url += "&token=" + App.getInstance2().getToken();
+            }else {
+                url += "?token=" + App.getInstance2().getToken();
+            }
+        }
+
+        post(url, params, res);
+    }
+
     /**
      * json post方式请求调用方法 返回为json
      *  @param url
@@ -201,12 +214,13 @@ public class NetClient {
      */
     public void post(String url, RequestParams params,
                                 final JsonHttpResponseHandler res) {
-        System.out.println("请求URL：" + url);
+
         if (!NetUtil.checkNetWork(context)) {
             Utils.showLongToast(context, Constants.NET_ERROR);
         }
-        LogUtils.i("--------------", params.toString() + "_----" + res);
-        
+
+        LogUtils.i("请求URL:%s", url);
+
         try {
             if (params != null) {
                 client.post(url, params, res);
