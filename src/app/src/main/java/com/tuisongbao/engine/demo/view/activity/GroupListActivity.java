@@ -9,9 +9,9 @@ import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GloableParams;
+import com.tuisongbao.engine.demo.GlobeParams;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.demo.adpter.MyGroupAdpter;
+import com.tuisongbao.engine.demo.adapter.DemoGroupAdapter;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.view.BaseActivity;
@@ -43,7 +43,7 @@ public class GroupListActivity extends BaseActivity{
 
     List<DemoGroup> groupInfos;
 
-    MyGroupAdpter myGroupAdpter;
+    DemoGroupAdapter myGroupAdpter;
 
     @AfterViews
     void afterViews() {
@@ -61,7 +61,7 @@ public class GroupListActivity extends BaseActivity{
 
     protected void initView() {
         if (groupInfos != null && groupInfos.size() > 0) {
-            mlistview.setAdapter(new MyGroupAdpter(this, groupInfos));
+            mlistview.setAdapter(new DemoGroupAdapter(this, groupInfos));
         } else {
             TextView txt_nodata = (TextView) findViewById(R.id.txt_nochat);
             txt_nodata.setText("暂时没有群聊");
@@ -70,7 +70,7 @@ public class GroupListActivity extends BaseActivity{
     }
 
     protected void refresh() {
-        App.getInstance2().getGroupManager().getList(null, new EngineCallback<List<ChatGroup>>() {
+        App.getInstance().getGroupManager().getList(null, new EngineCallback<List<ChatGroup>>() {
             @Override
             public void onSuccess(List<ChatGroup> chatGroups) {
                 if(chatGroups == null || chatGroups.isEmpty()){
@@ -79,7 +79,7 @@ public class GroupListActivity extends BaseActivity{
                 groupInfos = new ArrayList<>();
                 for (ChatGroup group :
                         chatGroups) {
-                    DemoGroup demoGroup = GloableParams.GroupInfos.get(group.getGroupId());
+                    DemoGroup demoGroup = GlobeParams.GroupInfo.get(group.getGroupId());
 
                     if (demoGroup == null) {
                         demoGroup = new DemoGroup(group.getGroupId(), "未命名群组", "");

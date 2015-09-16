@@ -25,7 +25,7 @@ public class BaseActivity extends Activity {
         super.onCreate(savedInstanceState);
         context = this;
         // 为了关闭时关闭全部的activity
-        App.getInstance2().addActivity(this);
+        App.getInstance().addActivity(this);
         netClient = new NetClient(this);
     }
 
@@ -76,8 +76,10 @@ public class BaseActivity extends Activity {
     }
 
     public FlippingLoadingDialog getLoadingDialog(String msg) {
-        if (mLoadingDialog == null)
+        if (mLoadingDialog == null){
             mLoadingDialog = new FlippingLoadingDialog(this, msg);
+        }
+
         return mLoadingDialog;
     }
 }

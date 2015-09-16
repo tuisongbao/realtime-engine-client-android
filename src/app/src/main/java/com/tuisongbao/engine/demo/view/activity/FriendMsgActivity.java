@@ -12,7 +12,6 @@ import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.adapter.GroupUserAdapter;
@@ -53,7 +52,7 @@ public class FriendMsgActivity extends BaseActivity {
 
     @AfterExtras
     public void afterExtras() {
-        mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
+        mConversation = App.getInstance().getConversationManager().loadOne(conversationTarget, conversationType);
     }
 
     @Click(R.id.img_back)
@@ -69,7 +68,7 @@ public class FriendMsgActivity extends BaseActivity {
         img_back.setVisibility(View.VISIBLE);
         txt_title.setText(mConversation.getTarget());
         final List<String> names = new ArrayList<>();
-        String me = App.getInstance2().getChatUser().getUserId();
+        String me = App.getInstance().getChatUser().getUserId();
 
         if(!conversationTarget.equals(me)){
             names.add(conversationTarget);

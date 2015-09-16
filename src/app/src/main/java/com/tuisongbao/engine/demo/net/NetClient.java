@@ -7,9 +7,9 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.apkfuns.logutils.LogUtils;
-import com.juns.health.net.loopj.android.http.AsyncHttpClient;
-import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
-import com.juns.health.net.loopj.android.http.RequestParams;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.ResponseHandlerInterface;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -55,16 +55,16 @@ public class NetClient {
     }
 
     static {
-        ActivityManager am = (ActivityManager) App.getInstance()
+        ActivityManager am = (ActivityManager) App.getAppContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
         int memClass = am.getMemoryClass();
         int cacheSize = 1024 * 1024 * memClass / 4; // 硬引用缓存容量，为系统可用内存的1/4
 
         binner_options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.large_logo_default_4) // resource
+                .showImageOnLoading(R.drawable.default_image) // resource
                         // or
-                .showImageForEmptyUri(R.drawable.large_logo_default_4) // resource
-                .showImageOnFail(R.drawable.large_logo_default_4) // resource or
+                .showImageForEmptyUri(R.drawable.default_image) // resource
+                .showImageOnFail(R.drawable.default_image) // resource or
                 .cacheInMemory(false) // default
                 .cacheOnDisc(true) // default
                 .imageScaleType(ImageScaleType.IN_SAMPLE_POWER_OF_2) // default
@@ -94,7 +94,7 @@ public class NetClient {
                 .build();
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
-                App.getInstance()).threadPoolSize(10)
+                App.getAppContext()).threadPoolSize(10)
                 .threadPriority(Thread.NORM_PRIORITY + 1)
                 .tasksProcessingOrder(QueueProcessingType.FIFO)
                 .denyCacheImageMultipleSizesInMemory()
@@ -102,7 +102,8 @@ public class NetClient {
                 .memoryCacheSize(cacheSize)
                 .diskCache(new UnlimitedDiskCache(cacheDir))
                 .diskCacheSize(30 * 1024 * 1024).diskCacheFileCount(500)
-                .writeDebugLogs().build();
+//                .writeDebugLogs()
+                .build();
         mImageLoader = ImageLoader.getInstance();
         mImageLoader.init(config);
     }
@@ -135,6 +136,11 @@ public class NetClient {
         mImageLoader.loadImage(url, listener);
     }
 
+    public static void showAvatar(ImageView imageView, String username){
+        String url = Constants.USERAVATARURL + username + "&token=" + App.getInstance().getToken();
+        getIconBitmap(imageView, url);
+    }
+
     public static void updateImage(String url, Bitmap bitmap, ImageView iv){
 
         if(mImageLoader.getDiskCache().get(url)!= null && mImageLoader.getDiskCache().get(url).exists()){
@@ -154,8 +160,6 @@ public class NetClient {
     /**
      * 根据url获取大图片 并自动设置到imageview中 获取的图片不保存到内存
      *
-     
-     
      */
     public static void getHalfHeightBitmap(ImageView imageView, String uri,
                                            ImageLoadingListener lister) {
@@ -173,18 +177,22 @@ public class NetClient {
      *            必须实现此类 处理成功失败等 回调
      */
     public void get(String url, RequestParams params,
-                    final JsonHttpResponseHandler res) {
+                    final ResponseHandlerInterface res) {
         if (!NetUtil.checkNetWork(context)) {
-            Utils.showLongToast(context, Constants.NET_ERROR);
+            Utils.showLongToast(context, Constants.NETERROR);
             return;
         }
+        LogUtils.i("请求URL:%s", url);
         try {
-            if (params != null)
+            if (params != null){
+                String token = App.getInstance().getToken();
+                params.put("token", token);
                 // 带请求参数 获取json对象
                 client.get(url, params, res);
-            else
+            } else{
                 // 不请求参数 获取json对象
                 client.get(url, res);
+            }
         } catch (Exception e) {
             // TODO
             e.printStackTrace();
@@ -192,12 +200,12 @@ public class NetClient {
     }
 
     public void post(String url, RequestParams params,
-                     final JsonHttpResponseHandler res, boolean hasToken) {
+                     final ResponseHandlerInterface res, boolean hasToken) {
         if(hasToken){
             if(url.indexOf("?") > 0){
-                url += "&token=" + App.getInstance2().getToken();
+                url += "&token=" + App.getInstance().getToken();
             }else {
-                url += "?token=" + App.getInstance2().getToken();
+                url += "?token=" + App.getInstance().getToken();
             }
         }
 
@@ -213,10 +221,10 @@ public class NetClient {
      * @param res
      */
     public void post(String url, RequestParams params,
-                                final JsonHttpResponseHandler res) {
+                                final ResponseHandlerInterface res) {
 
         if (!NetUtil.checkNetWork(context)) {
-            Utils.showLongToast(context, Constants.NET_ERROR);
+            Utils.showLongToast(context, Constants.NETERROR);
         }
 
         LogUtils.i("请求URL:%s", url);

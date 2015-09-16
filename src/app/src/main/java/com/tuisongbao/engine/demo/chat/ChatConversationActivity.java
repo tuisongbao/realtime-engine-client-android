@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -45,16 +46,15 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GloableParams;
-import com.tuisongbao.engine.demo.MainActivity_;
+import com.tuisongbao.engine.demo.GlobeParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.MessageStatus;
 import com.tuisongbao.engine.demo.chat.adapter.MessageAdapter;
-import com.tuisongbao.engine.demo.chat.widght.PasteEditText;
 import com.tuisongbao.engine.demo.common.CommonUtils;
 import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.view.activity.FriendMsgActivity_;
 import com.tuisongbao.engine.demo.view.activity.GroupSettingActivity_;
+import com.tuisongbao.engine.demo.view.activity.MainActivity_;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import org.androidannotations.annotations.AfterExtras;
@@ -132,7 +132,7 @@ public class ChatConversationActivity extends BaseActivity {
     ListView listView;
 
     @ViewById(R.id.et_sendmessage)
-    PasteEditText mEditTextContent;
+    EditText mEditTextContent;
 
     @ViewById(R.id.btn_set_mode_keyboard)
     View buttonSetModeKeyboard;
@@ -254,8 +254,8 @@ public class ChatConversationActivity extends BaseActivity {
         img_right.setVisibility(View.VISIBLE);
         String name = conversationTarget;
         if (mConversation.getType().equals(ChatType.GroupChat)) {
-            if (GloableParams.GroupInfos.containsKey(conversationTarget)) {
-                name = GloableParams.GroupInfos.get(conversationTarget).getName();
+            if (GlobeParams.GroupInfo.containsKey(conversationTarget)) {
+                name = GlobeParams.GroupInfo.get(conversationTarget).getName();
             } else {
                 name = "未命名群组";
             }
@@ -281,8 +281,12 @@ public class ChatConversationActivity extends BaseActivity {
 
     @AfterExtras
     public void afterExtras() {
-        mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
-        LogUtils.i("after extras", mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
+        mConversation = App.getInstance().getConversationManager().loadOne(conversationTarget, conversationType);
+
+        if(mConversation == null) {
+            back();
+            return;
+        }
 
         mListener = new Emitter.Listener() {
             @Override
@@ -335,13 +339,13 @@ public class ChatConversationActivity extends BaseActivity {
     }
 
     private ChatMessage generateSendingMsg(ChatMessageContent content) {
-        ChatMessage message = new ChatMessage(App.getInstance2().getEngine());
+        ChatMessage message = new ChatMessage(App.getInstance().getEngine());
         Long messageId = 0L;
         if (!mMessageList.isEmpty()) {
             messageId = mMessageList.get(mMessageList.size() - 1).getMessageId() + 1;
         }
         message.setMessageId(messageId);
-        message.setFrom(App.getInstance2().getChatUser().getUserId());
+        message.setFrom(App.getInstance().getChatUser().getUserId());
         message.setRecipient(mConversation.getTarget());
         message.setCreatedAt(StrUtils.getTimeStringIOS8061(new Date()));
         message.setContent(content);
@@ -689,8 +693,7 @@ public class ChatConversationActivity extends BaseActivity {
 
     @Click(R.id.img_back)
     void back() {
-        Utils.start_Activity(this, MainActivity_.class);
-        finish();
+        Utils.finish(this);
     }
 
     /**

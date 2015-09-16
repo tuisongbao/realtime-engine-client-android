@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.demo.adpter;
+package com.tuisongbao.engine.demo.adapter;
 
 import android.content.Context;
 import android.view.View;

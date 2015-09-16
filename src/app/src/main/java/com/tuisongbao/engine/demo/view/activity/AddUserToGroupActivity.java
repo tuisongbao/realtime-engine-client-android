@@ -18,11 +18,10 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.R;
-import com.tuisongbao.engine.demo.adpter.DemoUserAdapter;
+import com.tuisongbao.engine.demo.adapter.DemoUserAdapter;
 import com.tuisongbao.engine.demo.bean.DemoUser;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.common.Utils;
-import com.tuisongbao.engine.demo.service.ChatDemoService;
 import com.tuisongbao.engine.demo.view.BaseActivity;
 
 import org.androidannotations.annotations.AfterViews;
@@ -32,7 +31,6 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
-import org.androidannotations.annotations.rest.RestService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ import java.util.List;
  * Created by user on 15-8-27.
  */
 @EActivity(R.layout.activity_add_user_to_group)
-public class AddUserToGroup extends BaseActivity {
+public class AddUserToGroupActivity extends BaseActivity {
     public static final String EXTRA_GROUP = "chatGroup";
     @ViewById(R.id.activity_addUser_search_listView)
     ListView userList;
@@ -63,9 +61,6 @@ public class AddUserToGroup extends BaseActivity {
     @ViewById(R.id.txt_right)
     TextView txt_right;
 
-    @RestService
-    ChatDemoService userService;
-
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
@@ -82,7 +77,7 @@ public class AddUserToGroup extends BaseActivity {
         Intent intent = getIntent();
         oldDemoUserNames = intent.getStringArrayListExtra("oldDemoUserNames");
         String chatGroupString = getIntent().getStringExtra(EXTRA_GROUP);
-        chatGroup = ChatGroup.deserialize(App.getInstance2().getEngine(), chatGroupString);
+        chatGroup = ChatGroup.deserialize(App.getInstance().getEngine(), chatGroupString);
     }
 
     @AfterViews
@@ -111,8 +106,8 @@ public class AddUserToGroup extends BaseActivity {
 
     @Background
     void searchUser(String username) {
-        String token = App.getInstance2().getToken();
-        List<DemoUser> demoUserList = userService.getDemoUser(username, token);
+        String token = App.getInstance().getToken();
+        List<DemoUser> demoUserList = null; // userService.getDemoUser(username, token);
         if (demoUserList != null) {
             List<DemoUser> newUsers = null;
             if (oldDemoUserNames != null) {
@@ -158,7 +153,7 @@ public class AddUserToGroup extends BaseActivity {
 
     @Click(R.id.img_back)
     void back() {
-        Utils.finish(AddUserToGroup.this);
+        Utils.finish(AddUserToGroupActivity.this);
     }
 
     @Click(R.id.txt_right)

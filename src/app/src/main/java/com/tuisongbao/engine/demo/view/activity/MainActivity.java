@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.demo;
+package com.tuisongbao.engine.demo.view.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,11 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.connection.Connection;
+import com.tuisongbao.engine.demo.App;
+import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.Utils;
-import com.tuisongbao.engine.demo.view.activity.AddUser_;
 import com.tuisongbao.engine.demo.view.fragment.ContactsFragment_;
 import com.tuisongbao.engine.demo.view.fragment.ConversationsFragment_;
 import com.tuisongbao.engine.demo.view.fragment.SettingsFragment_;
@@ -37,10 +37,10 @@ import java.util.TimerTask;
 @EActivity(R.layout.activity_main)
 public class MainActivity extends FragmentActivity {
 
-    @ViewsById({ R.id.ib_conversations, R.id.ib_contact_list, R.id.ib_setting })
+    @ViewsById({R.id.ib_conversations, R.id.ib_contact_list, R.id.ib_setting})
     List<ImageView> imagebuttons;
 
-    @ViewsById({ R.id.tv_conversations, R.id.tv_contact_list, R.id.tv_setting })
+    @ViewsById({R.id.tv_conversations, R.id.tv_contact_list, R.id.tv_setting})
     List<TextView> textviews;
 
     @ViewById(R.id.img_right)
@@ -49,42 +49,33 @@ public class MainActivity extends FragmentActivity {
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
-    private String errTip;
-
-    private Fragment[] fragments;
-    private int index = 0;
-    private int currentTabIndex = 0;// 当前fragment的index
-    private int keyBackClickCount = 0;
-
-    ConversationsFragment_ conversationsFragment;
-    ContactsFragment_ contactsFragment;
-    SettingsFragment_ settingsFragment;
-
     @ViewById(R.id.main_view_pager)
     ViewPager mViewPager;
 
-    Activity activity;
+    private String errTip;
+    private Fragment[] fragments;
+    private int index = 0;
+    private int currentTabIndex = 0;// 当前fragment的index
+
+    private int keyBackClickCount = 0;
+    private ConversationsFragment_ conversationsFragment;
+    private ContactsFragment_ contactsFragment;
+    private SettingsFragment_ settingsFragment;
+    private Activity activity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activity = this;
         errTip = "";
-        App.getInstance2().addActivity(this);
+        App.getInstance().addActivity(this);
         bindConnection();
     }
 
     @AfterViews
-    void afterViews(){
+    void afterViews() {
         initTabView();
-    }
-
-    void bindConnection(){
-        Connection connection = App.getInstance2().getEngine().getConnection();
-        connection.bind(Connection.State.Disconnected, disconnectedListener);
-        connection.bind(Connection.State.Failed, disconnectedListener);
-        connection.bind(Connection.EVENT_ERROR, disconnectedListener);
-        connection.bind(Connection.State.Connected, connectedListener);
     }
 
     private void initTabView() {
@@ -92,8 +83,8 @@ public class MainActivity extends FragmentActivity {
         contactsFragment = new ContactsFragment_();
         settingsFragment = new SettingsFragment_();
 
-        fragments = new Fragment[] { conversationsFragment, contactsFragment,
-                settingsFragment };
+        fragments = new Fragment[]{conversationsFragment, contactsFragment,
+                settingsFragment};
 
         imagebuttons.get(0).setSelected(true);
         textviews.get(0).setTextColor(0xFF45C01A);
@@ -130,13 +121,9 @@ public class MainActivity extends FragmentActivity {
     }
 
     public void onTabClicked(View view) {
-        LogUtils.i("change tab", view.getId());
         switch (view.getId()) {
             case R.id.re_conversations:
                 index = 0;
-                if (conversationsFragment != null) {
-                    conversationsFragment.refresh();
-                }
                 break;
             case R.id.re_contact_list:
                 if (contactsFragment != null) {
@@ -151,7 +138,7 @@ public class MainActivity extends FragmentActivity {
         refreshTab();
     }
 
-    void refreshTab(){
+    void refreshTab() {
         img_right.setVisibility(View.GONE);
         img_right.setOnClickListener(null);
 
@@ -168,7 +155,7 @@ public class MainActivity extends FragmentActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(activity,
-                                AddUser_.class);
+                                AddUserActivity_.class);
                         startActivity(intent);
                     }
                 });
@@ -205,7 +192,7 @@ public class MainActivity extends FragmentActivity {
                     }, 3000);
                     break;
                 case 1:
-                    App.getInstance2().exit();
+                    App.getInstance().exit();
                     finish();
                     overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
                     break;
@@ -215,23 +202,31 @@ public class MainActivity extends FragmentActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+
+    void bindConnection() {
+        Connection connection = App.getInstance().getEngine().getConnection();
+        connection.bind(Connection.State.Disconnected, disconnectedListener);
+        connection.bind(Connection.State.Failed, disconnectedListener);
+        connection.bind(Connection.EVENT_ERROR, disconnectedListener);
+        connection.bind(Connection.State.Connected, connectedListener);
+    }
+
+
     private Emitter.Listener connectedListener = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-        runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
 
-            @Override
-            public void run() {
-                LogUtils.e("connected------------------------");
-
-                errTip = "";
-                refreshTab();
-                conversationsFragment.errorItem.setVisibility(View.GONE);
-                if (conversationsFragment != null) {
-                    conversationsFragment.refresh();
+                @Override
+                public void run() {
+                    errTip = "";
+                    refreshTab();
+                    conversationsFragment.errorItem.setVisibility(View.GONE);
+                    if (conversationsFragment != null) {
+                        conversationsFragment.refresh();
+                    }
                 }
-            }
-        });
+            });
         }
     };
 
@@ -242,12 +237,11 @@ public class MainActivity extends FragmentActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    LogUtils.e("disconnected------------------------");
                     errTip = "(未连接)";
                     refreshTab();
                     final String st2 = getResources().getString(
                             R.string.the_current_network);
-                    String msg =  "Connection error," + args[0];
+                    String msg = "Connection error," + args[0];
                     Utils.showShortToast(getApplicationContext(), msg);
                     conversationsFragment.errorItem.setVisibility(View.VISIBLE);
                     conversationsFragment.errorText.setText(st2);

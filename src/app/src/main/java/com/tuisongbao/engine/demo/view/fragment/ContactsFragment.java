@@ -8,7 +8,6 @@ import android.widget.TextView;
 import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity_;
@@ -35,7 +34,7 @@ public class ContactsFragment extends Fragment {
 
     @AfterViews
     void afterViews(){
-        ChatUser chatUser = App.getInstance2().getChatUser();
+        ChatUser chatUser = App.getInstance().getChatUser();
         if(chatUser != null){
             username = chatUser.getUserId();
         }else {
@@ -45,7 +44,7 @@ public class ContactsFragment extends Fragment {
     }
 
     public void updateAvatar(){
-        NetClient.getIconBitmap(userAvatar, Constants.USERAVATARURL + username);
+        NetClient.showAvatar(userAvatar, username);
     }
 
     @Click(R.id.qun_zhu)
@@ -59,7 +58,7 @@ public class ContactsFragment extends Fragment {
     void gotoConversation(){
         Intent intent = new Intent(this.getActivity(),
                 ChatConversationActivity_.class);
-        username = App.getInstance2().getChatUser().getUserId();
+        username = App.getInstance().getChatUser().getUserId();
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, username);
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, ChatType.SingleChat);
         startActivity(intent);

@@ -2,9 +2,9 @@ package com.tuisongbao.engine.demo.view.activity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -12,14 +12,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.apkfuns.logutils.LogUtils;
-import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
-import com.juns.health.net.loopj.android.http.RequestParams;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
-import com.tuisongbao.engine.demo.GloableParams;
+import com.tuisongbao.engine.demo.GlobeParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.common.Utils;
@@ -30,7 +30,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
-import org.json.JSONObject;
+import org.apache.http.Header;
 
 /**
  * Created by user on 15-9-1.
@@ -62,54 +62,50 @@ public class CreateGroupChatActivity extends BaseActivity{
 
     @Click(R.id.btn_create_group)
     void createGroup(){
+        LogUtils.d(createBtn.isEnabled());
         createBtn.setEnabled(false);
         final String groupName = etGroupName.getText().toString();
         final String groupDescription = etGroupDescription.getText().toString();
-        if(TextUtils.isEmpty(groupName) || TextUtils.isEmpty(groupDescription) ){
-            Utils.showShortToast(this, "信息不能为空");
-            createBtn.setEnabled(true);
-            return;
-        }
         final Activity activity = this;
         try{
             boolean canInvite = canInviteCheckBox.isChecked();
             boolean isPublic = isPublicCheckBox.isChecked();
 
-            App.getInstance2().getGroupManager().create(null, isPublic, canInvite, new EngineCallback<ChatGroup>() {
+            App.getInstance().getGroupManager().create(null, isPublic, canInvite, new EngineCallback<ChatGroup>() {
                 @Override
                 public void onSuccess(final ChatGroup chatGroup) {
-                    RequestParams params = new RequestParams();
+                    final RequestParams params = new RequestParams();
                     params.put("groupId", chatGroup.getGroupId());
                     params.put("name", groupName);
                     params.put("description", groupDescription);
-                    netClient.post(Constants.CREATEGROUPAPI, params, new JsonHttpResponseHandler() {
+                    activity.runOnUiThread(new Runnable() {
                         @Override
-                        public void onSuccess(JSONObject response) {
-                            DemoGroup demoGroup = new DemoGroup();
-                            demoGroup.setGroupId(chatGroup.getGroupId());
-                            demoGroup.setName(groupName);
-                            demoGroup.setDescription(groupDescription);
-                            GloableParams.GroupInfos.put(chatGroup.getGroupId(),demoGroup);
-                            Utils.start_Activity(activity, GroupListActivity_.class);
-                            finish();
-                        }
-
-                        @Override
-                        public void onFailure(final Throwable e, final JSONObject errorResponse) {
-                            if(errorResponse == null){
-                                onSuccess(new JSONObject());
-                                return;
-                            }
-                            activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            netClient.post(Constants.CREATEGROUPURL, params, new AsyncHttpResponseHandler() {
                                 @Override
-                                public void run() {
-                                    Log.e("error", e.getMessage() + errorResponse + "");
+                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                    DemoGroup demoGroup = new DemoGroup();
+                                    demoGroup.setGroupId(chatGroup.getGroupId());
+                                    demoGroup.setName(groupName);
+                                    demoGroup.setDescription(groupDescription);
+                                    GlobeParams.GroupInfo.put(chatGroup.getGroupId(),demoGroup);
+                                    Intent intent = new Intent();
+                                    intent.setClass(activity, GroupListActivity_.class);
+                                    activity.startActivity(intent);
+                                    activity.overridePendingTransition(R.anim.push_right_in,
+                                            R.anim.push_right_out);
+                                    finish();
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                                     Utils.showShortToast(activity, "网络错误, 请重试");
+                                    LogUtils.e(new String(responseBody));
                                     createBtn.setEnabled(true);
                                 }
-                            });
+                            }, true);
                         }
-                    }, true);
+                    });
                 }
 
                 @Override
@@ -134,7 +130,7 @@ public class CreateGroupChatActivity extends BaseActivity{
     void textChange(){
         String groupName = etGroupName.getText().toString();
         String groupDescription = etGroupDescription.getText().toString();
-        LogUtils.i("register", groupName + groupDescription);
+
         if(TextUtils.isEmpty(groupName) || TextUtils.isEmpty(groupDescription) ){
             createBtn.setEnabled(true);
             return;

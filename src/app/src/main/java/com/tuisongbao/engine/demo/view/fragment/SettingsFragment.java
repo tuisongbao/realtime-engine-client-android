@@ -50,10 +50,10 @@ public class SettingsFragment extends Fragment {
 
     @AfterViews
     void afterViews() {
-        if(App.getInstance2().getChatUser() == null){
+        if(App.getInstance().getChatUser() == null){
             return;
         }
-        String username = App.getInstance2().getChatUser().getUserId();
+        String username = App.getInstance().getChatUser().getUserId();
         tvname.setText(username);
         NetClient.getIconBitmap(head, Constants.USERAVATARURL + username);
     }
@@ -113,7 +113,7 @@ public class SettingsFragment extends Fragment {
         //异步的客户端对象
 
         //指定url路径
-        final String url = Constants.uploadChatUserAvatar;
+        final String url = Constants.UPLOADCHATUSERAVATARURL;
 
         //根据路径创建文件
         final File file = new File(path);
@@ -126,7 +126,7 @@ public class SettingsFragment extends Fragment {
         RequestParams params = new RequestParams();
         try {
             params.put("avatar", file);
-            params.put("token", App.getInstance2().getToken());
+            params.put("token", App.getInstance().getToken());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -136,8 +136,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, final Header[] headers, byte[] responseBody) {
                 Bitmap bmp = BitmapFactory.decodeFile(path);
-                String url = Constants.USERAVATARURL + App.getInstance2().getChatUser().getUserId();
-                LogUtils.i("url------------", url);
+                String url = Constants.USERAVATARURL + App.getInstance().getChatUser().getUserId();
                 NetClient.updateImage(url, bmp, head);
                 Toast.makeText(getActivity(), "成功", Toast.LENGTH_LONG).show();
             }
@@ -152,7 +151,7 @@ public class SettingsFragment extends Fragment {
 
     @Click(R.id.btn_logout)
     void logout() {
-        App.getInstance2().getChatManager().logout(new EngineCallback<String>() {
+        App.getInstance().getChatManager().logout(new EngineCallback<String>() {
             @Override
             public void onSuccess(String s) {
                 getActivity().runOnUiThread(new Runnable() {
@@ -169,8 +168,8 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        Utils.RemoveValue(getActivity(), Constants.LoginState);
-        Utils.RemoveValue(getActivity(), Constants.UserInfo);
+        Utils.RemoveValue(getActivity(), Constants.LOGINSTATE);
+        Utils.RemoveValue(getActivity(), Constants.USERINFO);
         Intent intent = new Intent(getActivity(), LoginActivity_.class);
         startActivity(intent);
         getActivity().finish();
@@ -178,7 +177,7 @@ public class SettingsFragment extends Fragment {
 
     @Click(R.id.btn_logout_clean)
     void logoutAndClean() {
-        App.getInstance2().getChatManager().clearCache();
+        App.getInstance().getChatManager().clearCache();
         logout();
 
     }
