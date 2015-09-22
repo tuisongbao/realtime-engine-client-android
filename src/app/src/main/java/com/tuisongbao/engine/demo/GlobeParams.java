@@ -1,6 +1,6 @@
 package com.tuisongbao.engine.demo;
 
-import com.tuisongbao.engine.demo.bean.DemoGroup;
+import com.tuisongbao.engine.demo.group.entity.DemoGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
     
-    <com.tuisongbao.engine.demo.widght.swipe.SwipeLayout
+    <com.tuisongbao.engine.demo.common.view.widght.swipe.SwipeLayout
         android:id="@+id/swipe"
         app:drag_edge="left"
         android:layout_width="match_parent"
@@ -98,7 +98,7 @@
     </LinearLayout>
     
         
-    </com.tuisongbao.engine.demo.widght.swipe.SwipeLayout>
+    </com.tuisongbao.engine.demo.common.view.widght.swipe.SwipeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
