@@ -15,7 +15,7 @@ public interface Constants {
     String USERNAME = "USERNAME";
 
     // Demo Base Url
-    String BASEURL = "http://192.168.222.30";
+    String BASEURL = "http://www.tuisongbao.com";
 
     // 头像
     String USERAVATARURL = BASEURL + "/engine/demo/chatUserAvatar?id=";

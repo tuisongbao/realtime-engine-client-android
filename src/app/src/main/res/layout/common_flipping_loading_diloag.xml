@@ -6,7 +6,7 @@
     android:orientation="horizontal"
     android:background="@drawable/bg_common_toast" >
 
-    <com.tuisongbao.engine.demo.widght.FlippingImageView.FlippingImageView
+    <com.tuisongbao.engine.demo.common.view.widght.FlippingImageView.FlippingImageView
         android:id="@+id/loadingdialog_fiv_icon"
         android:layout_width="30dip"
         android:layout_height="30dip"

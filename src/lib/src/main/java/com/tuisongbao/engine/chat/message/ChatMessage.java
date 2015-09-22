@@ -33,6 +33,7 @@ public class ChatMessage {
     private ChatMessageContent content;
     private String createdAt;
 
+    transient Object extension;
     transient private Engine mEngine;
 
     public ChatMessage(Engine engine) {
