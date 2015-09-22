@@ -4,34 +4,31 @@ package com.tuisongbao.engine.demo;
  * Created by user on 15-8-31.
  */
 public interface Constants {
-    // 推送
+    // 推送宝AppId
     String APPID = "ab3d5241778158b2864c0852";
 
     // 聊天
-    String LoginState = "LoginState";
-    String UserInfo = "UserInfo";
-    String AccessToken = "AccessToken";
+    String LOGINSTATE = "LOGINSTATE";
+    String USERINFO = "USERINFO";
+    String ACCESSTOKEN = "ACCESSTOKEN";
     String PWD = "PWD";
-    String User_ID = "User_ID";
-
-    // JSON status
-    String Info = "info";
-    String Value = "data";
-    String Result = "status";
+    String USERNAME = "USERNAME";
 
     // Demo Base Url
-    String BaseUrl = "http://192.168.222.20";
+    String BASEURL = "http://192.168.222.30";
 
     // 头像
-    String USERAVATARURL = BaseUrl + "/engine/demo/chatUserAvatar?id=";
+    String USERAVATARURL = BASEURL + "/engine/demo/chatUserAvatar?id=";
 
     // Demo Api
-    String NET_ERROR = "网络错误，请稍后再试！";
-    String APIURL = BaseUrl + "/api/engineDemo";
+    String NETERROR = "网络错误，请稍后再试！";
+    String APIURL = BASEURL + "/api/engineDemo";
     String AUTHUSERURL = APIURL + "/authUser";
-    String CREATEGROUPAPI = APIURL + "/createChatGroup";
-    String uploadChatUserAvatar = APIURL + "/uploadChatUserAvatar";
-    String changPasswordUrl =  APIURL + "/changePassword";
-    String RegistURL =  APIURL + "/registerChatUser";
-    String Login_URL = APIURL + "/validateChatUser";
+    String CREATEGROUPURL = APIURL + "/createChatGroup";
+    String UPLOADCHATUSERAVATARURL = APIURL + "/uploadChatUserAvatar";
+    String CHANGPASSWORDURL =  APIURL + "/changePassword";
+    String REGISTURL =  APIURL + "/registerChatUser";
+    String LOGINURL = APIURL + "/validateChatUser";
+    String DEMOGROUPURL = APIURL + "/getChatGroups";
+    String DEMOUSERURL = APIURL + "/searchChatUsers";
 }

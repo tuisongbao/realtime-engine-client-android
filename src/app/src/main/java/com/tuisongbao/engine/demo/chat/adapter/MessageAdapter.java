@@ -27,11 +27,12 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.MessageStatus;
 import com.tuisongbao.engine.demo.chat.ChatVideoPlayerActivity;
 import com.tuisongbao.engine.demo.chat.ChatVideoPlayerActivity_;
+import com.tuisongbao.engine.demo.chat.ShowBigImageActivity;
+import com.tuisongbao.engine.demo.chat.ShowBigImageActivity_;
 import com.tuisongbao.engine.demo.chat.utils.ImageCache;
 import com.tuisongbao.engine.demo.common.Utils;
 import com.tuisongbao.engine.demo.net.NetClient;
@@ -123,7 +124,7 @@ public class MessageAdapter extends BaseAdapter {
     }
 
     private boolean isNotByMe(ChatMessage chatMessage) {
-        return !chatMessage.getFrom().equals(App.getInstance2().getChatUser().getUserId());
+        return !chatMessage.getFrom().equals(App.getInstance().getChatUser().getUserId());
     }
 
     /**
@@ -332,7 +333,7 @@ public class MessageAdapter extends BaseAdapter {
 
         // 获取头像
         if (holder.head_iv != null) {
-            NetClient.getIconBitmap(holder.head_iv, Constants.USERAVATARURL + message.getFrom());
+            NetClient.showAvatar(holder.head_iv, message.getFrom());
         }
 
         // 添加时间
@@ -761,6 +762,26 @@ public class MessageAdapter extends BaseAdapter {
                         holder.tv.setVisibility(View.GONE);
                         Bitmap bmp = BitmapFactory.decodeFile(filePath);
                         holder.iv.setImageBitmap(bmp);
+                        holder.iv.setClickable(true);
+                        holder.iv.setOnClickListener(new View.OnClickListener() {
+
+                            @Override
+                            public void onClick(View v) {
+                                String localFullSizePath = message.getContent().getFile().getFilePath();
+                                String fullRemoteUrl = message.getContent().getFile().getUrl();
+                                Intent intent = new Intent(activity, ShowBigImageActivity_.class);
+                                if(localFullSizePath != null){
+                                    File file = new File(localFullSizePath);
+                                    if (file.exists()) {
+                                        intent.putExtra(ShowBigImageActivity.LOCALFULLSIZEPATH, localFullSizePath);
+                                    }
+                                }
+
+                                intent.putExtra(ShowBigImageActivity.REMOTEPATH, fullRemoteUrl);
+                                activity.startActivity(intent);
+                            }
+                        });
+
                     }
                 });
             }
@@ -817,7 +838,6 @@ public class MessageAdapter extends BaseAdapter {
         if (isThumber) {
             filePath = message.getContent().getFile().getThumbnailPath();
             remoteUrl = message.getContent().getFile().getThumbUrl();
-
         } else {
             filePath = message.getContent().getFile().getFilePath();
             remoteUrl = message.getContent().getFile().getUrl();
@@ -831,6 +851,28 @@ public class MessageAdapter extends BaseAdapter {
             NetClient.getGirlBitmap(iv, remoteUrl);
         } else {
             iv.setImageResource(R.drawable.default_image);
+        }
+
+        if(isThumber){
+            iv.setClickable(true);
+            iv.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    String localFullSizePath = message.getContent().getFile().getFilePath();
+                    String fullRemoteUrl = message.getContent().getFile().getUrl();
+                    Intent intent = new Intent(activity, ShowBigImageActivity_.class);
+                    File file = new File(localFullSizePath);
+                    if (file.exists()) {
+                        intent.putExtra(ShowBigImageActivity.LOCALFULLSIZEPATH, localFullSizePath);
+                        System.err
+                                .println("here need to check why download everytime");
+                    }
+
+                    intent.putExtra(ShowBigImageActivity.REMOTEPATH, fullRemoteUrl);
+                    activity.startActivity(intent);
+                }
+            });
         }
 
         return false;

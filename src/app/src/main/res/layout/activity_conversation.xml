@@ -73,7 +73,7 @@
                 android:layout_marginRight="6dp"
                 android:layout_weight="1"
                 android:gravity="bottom">
-                <com.tuisongbao.engine.demo.chat.widght.PasteEditText
+                <EditText
                     android:id="@+id/et_sendmessage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.demo.adpter;
+package com.tuisongbao.engine.demo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -22,11 +22,11 @@ import java.util.List;
  * Created by user on 15-9-1.
  */
 
-public class MyGroupAdpter extends BaseAdapter {
+public class DemoGroupAdapter extends BaseAdapter {
     protected Context context;
     private List<DemoGroup> grouplist;
 
-    public MyGroupAdpter(Context ctx, List<DemoGroup> grouplist) {
+    public DemoGroupAdapter(Context ctx, List<DemoGroup> grouplist) {
         context = ctx;
         this.grouplist = grouplist;
     }

@@ -31,6 +31,8 @@ public class App extends Application{
 
     private Engine engine;
 
+    private String token;
+
     public String getToken() {
         return token;
     }
@@ -39,14 +41,22 @@ public class App extends Application{
         this.token = token;
     }
 
-    private String token;
-
     @Override
     public void onCreate() {
-        instance = this;
         super.onCreate();
+
+        String processName = getAppName(android.os.Process.myPid());
+
+        // remote service 启动时会有第二次 onCreate 的调用
+        // 为了解决这个问题，可以根据 process name 来防止SDK被初始化2次
+        if (processName == null
+                || !processName.equalsIgnoreCase("com.tuisongbao.engine.demo")) {
+            return;
+        }
+
+        instance = this;
         _context = getApplicationContext();
-        // CrashHandler crashHandler = CrashHandler.getInstance();// 全局异常捕捉
+        // CrashHandler crashHandler = CrashHandler.getAppContext();// 全局异常捕捉
         // crashHandler.init(_context);
         initEngine();
 
@@ -118,8 +128,6 @@ public class App extends Application{
         engine.getChatManager().enableCache();
     }
 
-
-
     @Override
     public void onLowMemory() {
         super.onLowMemory();
@@ -131,7 +139,7 @@ public class App extends Application{
         System.gc();
     }
 
-    public static Context getInstance() {
+    public static Context getAppContext() {
         return _context;
     }
 
@@ -141,7 +149,7 @@ public class App extends Application{
 
     // 构造方法
     // 实例化一次
-    public synchronized static App getInstance2() {
+    public synchronized static App getInstance() {
         if (null == instance) {
             instance = new App();
         }
@@ -171,18 +179,18 @@ public class App extends Application{
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED))
             return Environment.getExternalStorageDirectory().toString()
-                    + "/Health/Cache";
+                    + "/Cache";
         else
-            return "/System/com.tuisongbao.engine/Walk/Cache";
+            return "/System/com.tuisongbao.engine/Cache";
     }
 
     public static String getDemoDownLoadDir() {
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED))
             return Environment.getExternalStorageDirectory().toString()
-                    + "/Walk/Download";
+                    + "/Download";
         else {
-            return "/System/com.tuisongbao.engine/Walk/Download";
+            return "/System/com.tuisongbao.engine/Download";
         }
     }
 

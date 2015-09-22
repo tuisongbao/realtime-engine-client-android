@@ -44,9 +44,9 @@ public class GroupUserAdapter extends BaseAdapter {
         Collections.sort(userIds, new Comparator<String>() {
             @Override
             public int compare(String userId1, String userId2) {
-                if (userId1.equals(App.getInstance2().getChatUser().getUserId())) {
+                if (userId1.equals(App.getInstance().getChatUser().getUserId())) {
                     return -1;
-                } else if (userId2.equals(App.getInstance2().getChatUser().getUserId())) {
+                } else if (userId2.equals(App.getInstance().getChatUser().getUserId())) {
                     return 1;
                 } else {
                     return String.CASE_INSENSITIVE_ORDER.compare(userId1, userId2);

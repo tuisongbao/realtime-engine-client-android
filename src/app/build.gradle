@@ -35,15 +35,9 @@ dependencies {
     // 注解
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
-    compile 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.0'
-    compile 'com.j256.ormlite:ormlite-core:4.+'
-    compile 'com.j256.ormlite:ormlite-android:4.+'
+
     // 图片缓存
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
-    compile 'com.nineoldandroids:library:2.4.0+'
-    compile files('libs/JunsNetHelper.jar')
-    compile files('libs/JsonUtils.jar')
 
     // loading
 //    compile 'com.vlonjatg.android:progress-activity:1.1.1'

@@ -1,4 +1,4 @@
-package com.tuisongbao.engine.demo.adpter;
+package com.tuisongbao.engine.demo.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -16,8 +16,7 @@ import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.demo.Constants;
-import com.tuisongbao.engine.demo.GloableParams;
+import com.tuisongbao.engine.demo.GlobeParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.common.Utils;
@@ -85,9 +84,9 @@ public class ConversationAdapter extends BaseAdapter {
         target = conversation.getTarget();
         txt_del.setTag(target);
 
-        NetClient.getIconBitmap(img_avar, Constants.USERAVATARURL + target);
+        NetClient.showAvatar(img_avar, target);
         if (conversation.getType().equals(ChatType.GroupChat)) {
-            DemoGroup info = GloableParams.GroupInfos.get(target);
+            DemoGroup info = GlobeParams.GroupInfo.get(target);
             if (info != null) {
                 txt_name.setText(info.getName());
             } else {

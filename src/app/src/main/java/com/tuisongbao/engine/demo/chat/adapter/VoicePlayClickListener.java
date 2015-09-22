@@ -38,7 +38,7 @@ public class VoicePlayClickListener implements View.OnClickListener {
     }
 
     private boolean isNotByMe(ChatMessage chatMessage){
-        return !chatMessage.getFrom().equals(App.getInstance2().getChatUser().getUserId());
+        return !chatMessage.getFrom().equals(App.getInstance().getChatUser().getUserId());
     }
 
     private void showAnimation() {

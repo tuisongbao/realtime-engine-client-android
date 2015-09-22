@@ -67,7 +67,7 @@ public class ChatVideoPlayerActivity extends BaseActivity {
             showLocalVideo(localFilePath);
         } else if (!TextUtils.isEmpty(remotepath) && !remotepath.equals("null")) {
             try{
-                chatMessage = ChatMessage.deserialize(App.getInstance2().getEngine(), chatMessageStr);
+                chatMessage = ChatMessage.deserialize(App.getInstance().getEngine(), chatMessageStr);
                 ChatMessageVideoContent content = (ChatMessageVideoContent)chatMessage.getContent();
                 content.download(new EngineCallback<String>() {
                     @Override

@@ -16,8 +16,7 @@ import com.tuisongbao.engine.chat.group.ChatGroupUser;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GloableParams;
-import com.tuisongbao.engine.demo.MainActivity_;
+import com.tuisongbao.engine.demo.GlobeParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.bean.DemoGroup;
 import com.tuisongbao.engine.demo.chat.ChatConversationActivity;
@@ -83,15 +82,15 @@ public class GroupSettingActivity extends BaseActivity {
 
     @AfterExtras
     public void afterExtras() {
-        mConversation = App.getInstance2().getConversationManager().loadOne(conversationTarget, conversationType);
-        App.getInstance2().getGroupManager().getList(conversationTarget, new EngineCallback<List<ChatGroup>>() {
+        mConversation = App.getInstance().getConversationManager().loadOne(conversationTarget, conversationType);
+        App.getInstance().getGroupManager().getList(conversationTarget, new EngineCallback<List<ChatGroup>>() {
             @Override
             public void onSuccess(List<ChatGroup> chatGroups) {
                 if (chatGroups != null && !chatGroups.isEmpty()) {
                     mGroup = chatGroups.get(0);
                     isPublicCheckBox.setChecked(mGroup.isPublic());
                     canInviteCheckBox.setChecked(mGroup.userCanInvite());
-                    mDemoGroup = GloableParams.GroupInfos.get(mGroup.getGroupId());
+                    mDemoGroup = GlobeParams.GroupInfo.get(mGroup.getGroupId());
                     if (mDemoGroup != null) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -105,7 +104,7 @@ public class GroupSettingActivity extends BaseActivity {
                         // TODO 尝试更新一次 demo group 的信息
                     }
 
-                    if (App.getInstance2().getChatUser().getUserId().equals(mGroup.getOwner())){
+                    if (App.getInstance().getChatUser().getUserId().equals(mGroup.getOwner())){
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -166,10 +165,10 @@ public class GroupSettingActivity extends BaseActivity {
     @Click(R.id.iv_group_add)
     void addUserToGroup() {
         // You can specify the ID in the annotation, or use the naming convention
-        Intent intent = new Intent(this, AddUserToGroup_.class);
+        Intent intent = new Intent(this, AddUserToGroupActivity_.class);
         ArrayList<String> usernames = new ArrayList(userIds);
         intent.putStringArrayListExtra("oldDemoUserNames", usernames);
-        intent.putExtra(AddUserToGroup_.EXTRA_GROUP, mGroup.serialize());
+        intent.putExtra(AddUserToGroupActivity_.EXTRA_GROUP, mGroup.serialize());
         startActivity(intent);
     }
 

@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Created by user on 15-8-31.
  */
-public class GloableParams {
-    public static List<DemoGroup> ListGroupInfos = new ArrayList<DemoGroup>();// 群聊信息
-    public static Map<String, DemoGroup> GroupInfos = new HashMap<String, DemoGroup>();
+public class GlobeParams {
+    public static List<DemoGroup> ListGroupInfo = new ArrayList<DemoGroup>();// 群聊信息
+    public static Map<String, DemoGroup> GroupInfo = new HashMap<String, DemoGroup>();
 }

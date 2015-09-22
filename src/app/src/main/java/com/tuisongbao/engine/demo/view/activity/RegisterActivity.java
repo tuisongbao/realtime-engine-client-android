@@ -4,15 +4,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.apkfuns.logutils.LogUtils;
-import com.juns.health.net.loopj.android.http.JsonHttpResponseHandler;
-import com.juns.health.net.loopj.android.http.RequestParams;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.demo.Constants;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.Utils;
@@ -23,7 +22,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.TextChange;
 import org.androidannotations.annotations.ViewById;
-import org.json.JSONObject;
+import org.apache.http.Header;
 
 /**
  * Created by user on 15-8-31.
@@ -70,39 +69,37 @@ public class RegisterActivity extends BaseActivity{
             btnRegist.setEnabled(true);
             return;
         }
-        try{
-            RequestParams params = new RequestParams();
-            LogUtils.i("tag login", username + "--------------" + password);
-            params.put("username", username);
-            params.put("password", password);
-            getLoadingDialog("正在注册...  ").show();
-            netClient.post(Constants.RegistURL, params, new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(JSONObject response) {
-                    Utils.start_Activity(activity, LoginActivity_.class);
-                }
 
-                @Override
-                public void onFailure(final Throwable e, final JSONObject errorResponse) {
-                    if(errorResponse == null){
-                        Utils.start_Activity(activity, LoginActivity_.class);
-                        return;
+        RequestParams params = new RequestParams();
+        LogUtils.i("login", username + ":" + password);
+        params.put("username", username);
+        params.put("password", password);
+        getLoadingDialog("正在注册...  ").show();
+        netClient.post(Constants.REGISTURL, params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getLoadingDialog("正在注册").dismiss();
+                        Utils.showShortToast(activity, "注册成功");
                     }
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("error", e.getMessage() + errorResponse + "");
-                            Utils.showShortToast(activity, "网络错误, 请重试");
-                        }
-                    });
-                    getLoadingDialog("正在注册").dismiss();
-                    btnRegist.setEnabled(true);
-                }
-            });
-        }catch (Exception e){
-            Utils.showShortToast(this, "网络错误, 请重试");
-            btnRegist.setEnabled(true);
-        }
+                });
+                Utils.start_Activity(activity, LoginActivity_.class);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, final byte[] responseBody, Throwable error) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Utils.showShortToast(activity, new String(responseBody));
+                        getLoadingDialog("正在注册").dismiss();
+                    }
+                });
+                btnRegist.setEnabled(true);
+            }
+        });
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
