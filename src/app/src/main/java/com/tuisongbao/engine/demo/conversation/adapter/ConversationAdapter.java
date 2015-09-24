@@ -16,7 +16,7 @@ import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.group.entity.DemoGroup;
 import com.tuisongbao.engine.demo.common.utils.Utils;
@@ -86,7 +86,7 @@ public class ConversationAdapter extends BaseAdapter {
 
         NetClient.showAvatar(img_avar, target);
         if (conversation.getType().equals(ChatType.GroupChat)) {
-            DemoGroup info = GlobeParams.GroupInfo.get(target);
+            DemoGroup info = GlobalParams.GroupInfo.get(target);
             if (info != null) {
                 txt_name.setText(info.getName());
             } else {

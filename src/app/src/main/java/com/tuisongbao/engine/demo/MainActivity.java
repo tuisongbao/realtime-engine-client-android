@@ -14,18 +14,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.account.view.fragment.SettingsFragment_;
 import com.tuisongbao.engine.demo.common.utils.Utils;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity_;
 import com.tuisongbao.engine.demo.conversation.view.fragment.ConversationsFragment_;
-import com.tuisongbao.engine.demo.user.view.activity.AddUserActivity_;
+import com.tuisongbao.engine.demo.user.view.activity.SearchUserActivity;
+import com.tuisongbao.engine.demo.user.view.activity.SearchUserActivity_;
 import com.tuisongbao.engine.demo.user.view.fragment.ContactsFragment_;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.ViewsById;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,7 +48,7 @@ public class MainActivity extends FragmentActivity {
     @ViewsById({R.id.tv_conversations, R.id.tv_contact_list, R.id.tv_setting})
     List<TextView> textViews;
 
-    @ViewById(R.id.img_right)
+    @ViewById(R.id.imgRight)
     ImageView img_right;
 
     @ViewById(R.id.txt_title)
@@ -61,6 +67,9 @@ public class MainActivity extends FragmentActivity {
     private ContactsFragment_ contactsFragment;
     private SettingsFragment_ settingsFragment;
     private Activity activity;
+
+    private static final int TARGET = 1;
+    public static final String CONVERSATION_TARGET = "CONVERSATION_TARGET";
 
 
     @Override
@@ -154,8 +163,8 @@ public class MainActivity extends FragmentActivity {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(activity,
-                                AddUserActivity_.class);
-                        startActivity(intent);
+                                SearchUserActivity_.class);
+                        startActivityForResult(intent, TARGET);
                     }
                 });
                 break;
@@ -248,4 +257,20 @@ public class MainActivity extends FragmentActivity {
             });
         }
     };
+
+    @OnActivityResult(TARGET)
+    void onResult(int resultCode, Intent data) {
+        if(resultCode != Activity.RESULT_OK){
+            return;
+        }
+
+        ArrayList<String> targets = data.getStringArrayListExtra(SearchUserActivity.USERNAMES);
+
+        Intent intent = new Intent(this,
+                ChatConversationActivity_.class);
+        intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, targets.get(0));
+        intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, ChatType.SingleChat);
+
+        startActivity(intent);
+    }
 }

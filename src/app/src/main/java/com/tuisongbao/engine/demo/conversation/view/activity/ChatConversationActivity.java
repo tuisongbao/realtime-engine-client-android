@@ -46,15 +46,15 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.CommonUtils;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.conversation.adapter.MessageAdapter;
 import com.tuisongbao.engine.demo.conversation.entity.MessageStatus;
-import com.tuisongbao.engine.demo.group.view.activity.GroupSettingActivity_;
-import com.tuisongbao.engine.demo.user.view.activity.FriendMsgActivity_;
+import com.tuisongbao.engine.demo.group.view.activity.GroupInfoActivity_;
+import com.tuisongbao.engine.demo.user.view.activity.UserInfoActivity_;
 import com.tuisongbao.engine.utils.StrUtils;
 
 import org.androidannotations.annotations.AfterExtras;
@@ -153,10 +153,10 @@ public class ChatConversationActivity extends BaseActivity {
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
-    @ViewById(R.id.img_right)
+    @ViewById(R.id.imgRight)
     ImageView img_right;
 
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
 
     @ViewById(R.id.mic_image)
@@ -254,8 +254,8 @@ public class ChatConversationActivity extends BaseActivity {
         img_right.setVisibility(View.VISIBLE);
         String name = conversationTarget;
         if (mConversation.getType().equals(ChatType.GroupChat)) {
-            if (GlobeParams.GroupInfo.containsKey(conversationTarget)) {
-                name = GlobeParams.GroupInfo.get(conversationTarget).getName();
+            if (GlobalParams.GroupInfo.containsKey(conversationTarget)) {
+                name = GlobalParams.GroupInfo.get(conversationTarget).getName();
             } else {
                 name = "未命名群组";
             }
@@ -390,15 +390,15 @@ public class ChatConversationActivity extends BaseActivity {
         }
     }
 
-    @Click(R.id.img_right)
+    @Click(R.id.imgRight)
     void clickRight() {
         hideKeyboard();
         Intent intent;
         if (mConversation.getType().equals(ChatType.SingleChat)) {
-            intent = new Intent(this, FriendMsgActivity_.class);
+            intent = new Intent(this, UserInfoActivity_.class);
 
         } else {
-            intent = new Intent(this, GroupSettingActivity_.class);
+            intent = new Intent(this, GroupInfoActivity_.class);
         }
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, mConversation.getTarget());
         intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, mConversation.getType());
@@ -691,7 +691,7 @@ public class ChatConversationActivity extends BaseActivity {
     }
 
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
         Utils.finish(this);
     }

@@ -25,7 +25,7 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.MainActivity;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.NetClient;
@@ -113,9 +113,9 @@ public class ConversationsFragment extends Fragment {
                                     }.getType());
 
                                     if (groupList != null) {
-                                        GlobeParams.ListGroupInfo = groupList;
+                                        GlobalParams.ListGroupInfo = groupList;
                                         for (DemoGroup group : groupList) {
-                                            GlobeParams.GroupInfo.put(group.getGroupId(), group);
+                                            GlobalParams.GroupInfo.put(group.getGroupId(), group);
                                         }
                                     }
                                     refreshWithLocal();

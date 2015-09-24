@@ -44,7 +44,7 @@ public class LoginActivity extends BaseActivity {
     @ViewById(R.id.et_password)
     EditText etPassword;
 
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView backButton;
 
     @ViewById(R.id.btn_login)
@@ -97,7 +97,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     // 退出应用
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
         Utils.finish(LoginActivity.this);
     }

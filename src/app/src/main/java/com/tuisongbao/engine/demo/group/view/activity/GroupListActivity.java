@@ -9,7 +9,7 @@ import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
@@ -32,10 +32,10 @@ public class GroupListActivity extends BaseActivity{
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
 
-    @ViewById(R.id.img_right)
+    @ViewById(R.id.imgRight)
     ImageView img_right;
 
     @ViewById(R.id.listview)
@@ -49,7 +49,7 @@ public class GroupListActivity extends BaseActivity{
     void afterViews() {
         txt_title.setText("群聊");
         img_back.setVisibility(View.VISIBLE);
-        img_right = (ImageView) findViewById(R.id.img_right);
+        img_right = (ImageView) findViewById(R.id.imgRight);
         img_right.setImageResource(R.drawable.icon_add);
         img_right.setVisibility(View.VISIBLE);
         mlistview = (ListView) findViewById(R.id.listview);
@@ -79,7 +79,7 @@ public class GroupListActivity extends BaseActivity{
                 groupInfos = new ArrayList<>();
                 for (ChatGroup group :
                         chatGroups) {
-                    DemoGroup demoGroup = GlobeParams.GroupInfo.get(group.getGroupId());
+                    DemoGroup demoGroup = GlobalParams.GroupInfo.get(group.getGroupId());
 
                     if (demoGroup == null) {
                         demoGroup = new DemoGroup(group.getGroupId(), "未命名群组", "");
@@ -109,12 +109,12 @@ public class GroupListActivity extends BaseActivity{
     }
 
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back(){
         Utils.finish(GroupListActivity.this);
     }
 
-    @Click(R.id.img_right)
+    @Click(R.id.imgRight)
     void gotoCreateGroupActivity(){
         Utils.start_Activity(GroupListActivity.this,
                 CreateGroupChatActivity_.class);

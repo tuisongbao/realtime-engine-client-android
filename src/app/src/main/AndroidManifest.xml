@@ -83,18 +83,18 @@
         </activity>
 
         <activity
-            android:name=".user.view.activity.FriendMsgActivity_"  android:screenOrientation="portrait">
+            android:name=".user.view.activity.UserInfoActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
-            android:name=".group.view.activity.GroupSettingActivity_"  android:screenOrientation="portrait">
+            android:name=".group.view.activity.GroupInfoActivity_"  android:screenOrientation="portrait">
         </activity>
 
         <activity
             android:name=".user.view.activity.AddUserToGroupActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".user.view.activity.AddUserActivity_"  android:screenOrientation="portrait">
+            android:name=".user.view.activity.SearchUserActivity_"  android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".conversation.view.activity.ChatVideoPlayerActivity_"  android:screenOrientation="portrait">

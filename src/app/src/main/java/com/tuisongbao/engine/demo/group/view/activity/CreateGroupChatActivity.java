@@ -19,7 +19,7 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.Constants;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
@@ -37,7 +37,7 @@ import org.apache.http.Header;
  */
 @EActivity(R.layout.activity_create_group)
 public class CreateGroupChatActivity extends BaseActivity{
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
     @ViewById(R.id.et_group_name)
     EditText etGroupName;
@@ -88,7 +88,7 @@ public class CreateGroupChatActivity extends BaseActivity{
                                     demoGroup.setGroupId(chatGroup.getGroupId());
                                     demoGroup.setName(groupName);
                                     demoGroup.setDescription(groupDescription);
-                                    GlobeParams.GroupInfo.put(chatGroup.getGroupId(),demoGroup);
+                                    GlobalParams.GroupInfo.put(chatGroup.getGroupId(),demoGroup);
                                     Intent intent = new Intent();
                                     intent.setClass(activity, GroupListActivity_.class);
                                     activity.startActivity(intent);
@@ -140,7 +140,7 @@ public class CreateGroupChatActivity extends BaseActivity{
         createBtn.setEnabled(true);
     }
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back(){
         Utils.finish(CreateGroupChatActivity.this);
     }

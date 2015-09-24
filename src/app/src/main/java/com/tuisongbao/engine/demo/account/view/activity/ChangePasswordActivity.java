@@ -30,7 +30,7 @@ import org.apache.http.Header;
  */
 @EActivity(R.layout.activity_change_password)
 public class ChangePasswordActivity extends BaseActivity{
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
 
     @ViewById(R.id.btn_submit)
@@ -122,7 +122,7 @@ public class ChangePasswordActivity extends BaseActivity{
         btnSubmit.setEnabled(true);
     }
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
         Utils.finish(this);
     }
