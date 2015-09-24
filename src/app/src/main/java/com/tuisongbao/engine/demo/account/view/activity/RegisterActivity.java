@@ -29,7 +29,7 @@ import org.apache.http.Header;
  */
 @EActivity(R.layout.activity_regist)
 public class RegisterActivity extends BaseActivity{
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView imgBack;
 
     @ViewById(R.id.btn_regist)
@@ -118,7 +118,7 @@ public class RegisterActivity extends BaseActivity{
         btnRegist.setEnabled(true);
     }
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
         Utils.finish(this);
     }

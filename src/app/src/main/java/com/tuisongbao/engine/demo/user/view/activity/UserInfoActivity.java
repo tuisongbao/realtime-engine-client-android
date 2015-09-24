@@ -33,7 +33,7 @@ import java.util.List;
  * Created by user on 15-9-2.
  */
 @EActivity(R.layout.activity_friendmsg)
-public class FriendMsgActivity extends BaseActivity {
+public class UserInfoActivity extends BaseActivity {
     @Extra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET)
     String conversationTarget;
 
@@ -46,7 +46,7 @@ public class FriendMsgActivity extends BaseActivity {
     @ViewById(R.id.txt_title)
     TextView txt_title;
 
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
 
     private ChatConversation mConversation;
@@ -56,9 +56,9 @@ public class FriendMsgActivity extends BaseActivity {
         mConversation = App.getInstance().getConversationManager().loadOne(conversationTarget, conversationType);
     }
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
-        Utils.finish(FriendMsgActivity.this);
+        Utils.finish(UserInfoActivity.this);
     }
 
     @AfterViews
@@ -88,7 +88,7 @@ public class FriendMsgActivity extends BaseActivity {
         mConversation.delete(new EngineCallback<String>() {
             @Override
             public void onSuccess(String s) {
-                Intent intent = new Intent(FriendMsgActivity.this, MainActivity_.class);
+                Intent intent = new Intent(UserInfoActivity.this, MainActivity_.class);
                 startActivity(intent);
                 finish();
             }

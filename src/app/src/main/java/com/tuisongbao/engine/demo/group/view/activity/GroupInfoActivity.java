@@ -1,6 +1,7 @@
 package com.tuisongbao.engine.demo.group.view.activity;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.apkfuns.logutils.LogUtils;
 import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
 import com.tuisongbao.engine.chat.group.ChatGroup;
@@ -16,15 +18,16 @@ import com.tuisongbao.engine.chat.group.ChatGroupUser;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
-import com.tuisongbao.engine.demo.GlobeParams;
+import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
 import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity;
-import com.tuisongbao.engine.demo.user.adapter.GroupUserAdapter;
 import com.tuisongbao.engine.demo.group.entity.DemoGroup;
-import com.tuisongbao.engine.demo.user.view.activity.AddUserToGroupActivity_;
+import com.tuisongbao.engine.demo.user.adapter.GroupUserAdapter;
+import com.tuisongbao.engine.demo.user.view.activity.SearchUserActivity;
+import com.tuisongbao.engine.demo.user.view.activity.SearchUserActivity_;
 
 import org.androidannotations.annotations.AfterExtras;
 import org.androidannotations.annotations.AfterViews;
@@ -32,6 +35,7 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ItemClick;
+import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -41,7 +45,9 @@ import java.util.List;
  * Created by user on 15-9-2.
  */
 @EActivity(R.layout.activity_group_info)
-public class GroupSettingActivity extends BaseActivity {
+public class GroupInfoActivity extends BaseActivity {
+    private static final int ADDUSERNAMES = 1;
+
     @Extra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET)
     String conversationTarget;
 
@@ -60,7 +66,7 @@ public class GroupSettingActivity extends BaseActivity {
     @ViewById(R.id.iv_group_add)
     ImageView ivAdd;
 
-    @ViewById(R.id.img_back)
+    @ViewById(R.id.imgBack)
     ImageView img_back;
 
     @ViewById(R.id.cb_can_invite)
@@ -90,33 +96,40 @@ public class GroupSettingActivity extends BaseActivity {
             public void onSuccess(List<ChatGroup> chatGroups) {
                 if (chatGroups != null && !chatGroups.isEmpty()) {
                     mGroup = chatGroups.get(0);
-                    isPublicCheckBox.setChecked(mGroup.isPublic());
-                    canInviteCheckBox.setChecked(mGroup.userCanInvite());
-                    mDemoGroup = GlobeParams.GroupInfo.get(mGroup.getGroupId());
-                    if (mDemoGroup != null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                groupDescription.setText(mDemoGroup.getDescription());
-                                groupName.setText(mDemoGroup.getName());
-                            }
-                        });
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            isPublicCheckBox.setChecked(mGroup.isPublic());
+                            canInviteCheckBox.setChecked(mGroup.userCanInvite());
+                            mDemoGroup = GlobalParams.GroupInfo.get(mGroup.getGroupId());
+                            if (mDemoGroup != null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        groupDescription.setText(mDemoGroup.getDescription());
+                                        groupName.setText(mDemoGroup.getName());
+                                    }
+                                });
 
-                    }else{
-                        // TODO 尝试更新一次 demo group 的信息
-                    }
-
-                    if (App.getInstance().getChatUser().getUserId().equals(mGroup.getOwner())){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(ivAdd != null && ivRemove != null){
-                                    ivAdd.setVisibility(View.VISIBLE);
-                                    ivRemove.setVisibility(View.VISIBLE);
-                                }
+                            }else{
+                                // TODO 尝试更新一次 demo group 的信息
                             }
-                        });
-                    }
+
+                            LogUtils.i(mGroup.getOwner());
+
+                            if (App.getInstance().getChatUser().getUserId().equals(mGroup.getOwner())){
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(ivAdd != null && ivRemove != null){
+                                            ivAdd.setVisibility(View.VISIBLE);
+                                            ivRemove.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
                     request();
                 }
             }
@@ -144,6 +157,7 @@ public class GroupSettingActivity extends BaseActivity {
         mGroup.getUsers(new EngineCallback<List<ChatGroupUser>>() {
             @Override
             public void onSuccess(List<ChatGroupUser> chatGroupUsers) {
+                userIds = new ArrayList<>();
                 for (ChatGroupUser user : chatGroupUsers) {
                     userIds.add(user.getUserId());
                 }
@@ -167,11 +181,11 @@ public class GroupSettingActivity extends BaseActivity {
     @Click(R.id.iv_group_add)
     void addUserToGroup() {
         // You can specify the ID in the annotation, or use the naming convention
-        Intent intent = new Intent(this, AddUserToGroupActivity_.class);
-        ArrayList<String> usernames = new ArrayList(userIds);
-        intent.putStringArrayListExtra("oldDemoUserNames", usernames);
-        intent.putExtra(AddUserToGroupActivity_.EXTRA_GROUP, mGroup.serialize());
-        startActivity(intent);
+        Intent intent = new Intent(this, SearchUserActivity_.class);
+        ArrayList<String> excludeUsers = new ArrayList(userIds);
+        intent.putExtra(SearchUserActivity.ALLOWMULTISELECT, true);
+        intent.putStringArrayListExtra(SearchUserActivity.EXCLUDEUSERS, excludeUsers);
+        startActivityForResult(intent, ADDUSERNAMES);
     }
 
     @Click(R.id.iv_group_remove)
@@ -188,9 +202,9 @@ public class GroupSettingActivity extends BaseActivity {
         groupUserAdapter.setIsEdit(false);
     }
 
-    @Click(R.id.img_back)
+    @Click(R.id.imgBack)
     void back() {
-        Utils.finish(GroupSettingActivity.this);
+        Utils.finish(GroupInfoActivity.this);
     }
 
     @ItemClick(R.id.user_list)
@@ -223,13 +237,41 @@ public class GroupSettingActivity extends BaseActivity {
         mConversation.delete(new EngineCallback<String>() {
             @Override
             public void onSuccess(String s) {
-                Intent intent = new Intent(GroupSettingActivity.this, MainActivity_.class);
+                Intent intent = new Intent(GroupInfoActivity.this, MainActivity_.class);
                 startActivity(intent);
                 finish();
             }
 
             @Override
             public void onError(ResponseError error) {
+
+            }
+        });
+    }
+
+    @OnActivityResult(ADDUSERNAMES)
+    void onResult(int resultCode, Intent data) {
+        if(resultCode != Activity.RESULT_OK){
+            return;
+        }
+
+        ArrayList<String> users = data.getStringArrayListExtra(SearchUserActivity.USERNAMES);
+
+        LogUtils.i(users);
+
+        mGroup.inviteUsers(users, new EngineCallback<String>() {
+            @Override
+            public void onSuccess(String s) {
+                request();
+            }
+
+            @Override
+            public void onError(ResponseError error) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                    }
+                });
 
             }
         });
