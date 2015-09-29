@@ -10,12 +10,15 @@ import android.os.Bundle;
 import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.account.view.activity.LoginActivity_;
 import com.tuisongbao.engine.demo.common.utils.ChatMessageUtils;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity_;
 
 import org.androidannotations.annotations.EActivity;
 
@@ -55,15 +58,20 @@ public class SplashActivity extends BaseActivity {
                 String content = ChatMessageUtils.getMessageDigest(message, getApplicationContext());
 
                 Context context = getApplicationContext();
-                Notification.Builder builder = new Notification.Builder(context);
+                Intent intent = new Intent(context, ChatConversationActivity_.class);
+                String target = message.getRecipient();
+                if (message.getChatType() == ChatType.SingleChat) {
+                    target = message.getFrom();
+                }
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, target);
+                intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, message.getChatType());
 
-                Intent intent = new Intent(getApplicationContext(), MyBroadcastReceiver.class);
-                intent.setAction(NotificationHandleService.ACTION_NEW_NOTIFICATION);
-                intent.putExtra(NotificationHandleService.EXTRA_DATA, message.serialize());
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
                 NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+                Notification.Builder builder = new Notification.Builder(context);
                 builder.setSmallIcon(App.getInstance().getApplicationInfo().icon)
-                        .setContentText(message.getFrom() + ":" + content)
+                        .setContentText(message.getFrom() + ": " + content)
                         .setContentTitle(App.getInstance().getApplicationName())
                         .setContentIntent(pendingIntent)
                         .setDefaults(Notification.DEFAULT_ALL)
@@ -76,21 +84,6 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void gotoLoginView() {
-        // Handle click notification event
-        try {
-            Intent intent = getIntent();
-            String newNotificationMessage = intent.getExtras().getString(NotificationHandleService.EXTRA_DATA);
-            if (newNotificationMessage != null) {
-                ChatMessage message = ChatMessage.deserialize(App.getInstance().getEngine(), newNotificationMessage);
-                gotoConversation(message);
-
-                overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
-                finish();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         Intent intent = new Intent();
         intent.setClass(SplashActivity.this, LoginActivity_.class);
         startActivity(intent);
