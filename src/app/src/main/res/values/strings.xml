@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ChatDemo</string>
+    <string name="app_name">Chat Demo</string>
     <string name="contacts">通讯录</string>
     <string name="setting">设置</string>
     <string name="recommended_friends">新的朋友</string>

@@ -19,9 +19,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-/**
- * Created by user on 15-9-1.
- */
 @EFragment(R.layout.fragment_contacts)
 public class ContactsFragment extends Fragment {
     @ViewById(R.id.tvname)

@@ -16,6 +16,7 @@ import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.ChatUser;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
+import com.tuisongbao.push.PushManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +48,8 @@ public class App extends Application{
 
         String processName = getAppName(android.os.Process.myPid());
 
+        PushManager.init(this);
+
         // remote service 启动时会有第二次 onCreate 的调用
         // 为了解决这个问题，可以根据 process name 来防止SDK被初始化2次
         if (processName == null
@@ -67,12 +70,30 @@ public class App extends Application{
         // LogUtils.configAllowLog = false;
     }
 
-
     public Engine getEngine() {
         if(engine == null){
             initEngine();
         }
         return engine;
+    }
+
+    public static boolean isActivityVisible() {
+        return activityVisible;
+    }
+
+    public static void activityResumed() {
+        activityVisible = true;
+    }
+
+    public static void activityPaused() {
+        activityVisible = false;
+    }
+
+    private static boolean activityVisible;
+
+    public String getApplicationName() {
+        int stringId = this.getApplicationInfo().labelRes;
+        return this.getString(stringId);
     }
 
     public ChatManager getChatManager() {

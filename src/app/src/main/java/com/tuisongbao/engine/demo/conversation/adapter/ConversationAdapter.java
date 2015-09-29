@@ -18,6 +18,7 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.GlobalParams;
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.demo.common.utils.ChatMessageUtils;
 import com.tuisongbao.engine.demo.group.entity.DemoGroup;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.utils.ViewHolder;
@@ -74,12 +75,12 @@ public class ConversationAdapter extends BaseAdapter {
         TextView unreadLabel = ViewHolder.get(convertView,
                 R.id.unread_msg_number);
         SwipeLayout swipe = ViewHolder.get(convertView, R.id.swipe);
-        
-    
+
+
         swipe.setSwipeEnabled(true);
         // 获取与此用户/群组的会话
         final ChatConversation conversation = conversationList.get(position);
-        
+
         // 获取用户username或者群组groupid
         target = conversation.getTarget();
         txt_del.setTag(target);
@@ -107,7 +108,7 @@ public class ConversationAdapter extends BaseAdapter {
         if (conversation.getLastMessage() != null) {
             // 把最后一条消息的内容作为item的message内容
             ChatMessage lastMessage = conversation.getLastMessage();
-            txt_content.setText(getMessageDigest(lastMessage, context));
+            txt_content.setText(ChatMessageUtils.getMessageDigest(lastMessage, context));
             String time = Utils.formatDateTime(lastMessage.getCreatedAtInDate());
             txt_time.setText(time);
         }
@@ -123,7 +124,7 @@ public class ConversationAdapter extends BaseAdapter {
                 Tipdialog.show();
             }
         });
-        
+
         return convertView;
     }
 
@@ -152,45 +153,6 @@ public class ConversationAdapter extends BaseAdapter {
             });
         }
     };
-
-    /**
-     * 根据消息内容和消息类型获取消息内容提示
-     *
-     * @param message
-     * @param context
-     * @return
-     */
-    private String getMessageDigest(ChatMessage message, Context context) {
-        String digest = "";
-        switch (message.getContent().getType()) {
-            case LOCATION: // 位置消息
-                digest = getString(context, R.string.location_message);
-                break;
-            case IMAGE: // 图片消息
-                digest = getString(context, R.string.picture);
-                break;
-            case VOICE:// 语音消息
-                digest = getString(context, R.string.voice_msg);
-                break;
-            case VIDEO: // 视频消息
-                digest = getString(context, R.string.video);
-                break;
-            case EVENT: // 事件消息
-                digest = getString(context, R.string.event);
-                break;
-            case TEXT: // 文本消息
-                digest = message.getContent().getText();
-                break;
-            default:
-                System.err.println("error, unknow type");
-                return "";
-        }
-        return digest;
-    }
-
-    String getString(Context context, int resId) {
-        return context.getResources().getString(resId);
-    }
 
     public void setConversationList(List<ChatConversation> conversationList) {
         this.conversationList = conversationList;

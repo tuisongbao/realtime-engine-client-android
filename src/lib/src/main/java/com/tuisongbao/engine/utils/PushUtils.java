@@ -53,7 +53,7 @@ public class PushUtils {
      */
     private static boolean loadPushConfig() {
         try {
-            Class forName = Class.forName("com.tuisongbao.android.PushConfig");
+            Class forName = Class.forName("com.tuisongbao.push.PushConfig");
             // get push app id
             if (forName != null) {
                 // get push config instance
@@ -72,17 +72,17 @@ public class PushUtils {
                 }
                 // get push app id
                 if (StrUtils.isEmpty(mPushService) && pushConfig != null) {
-                    Field field = forName.getDeclaredField("mServiceType");
+                    Field field = forName.getDeclaredField("service");
                     field.setAccessible(true);
                     // service type
                     Object serviceType = field.get(pushConfig);
                     if (serviceType != null && serviceType instanceof Enum) {
-                        mPushService = ((Enum)serviceType).name();
+                        mPushService = serviceType.toString();
                     }
                 }
                 // get token
                 if (StrUtils.isEmpty(mPushToken)) {
-                    forName = Class.forName("com.tuisongbao.android.PushPreference");
+                    forName = Class.forName("com.tuisongbao.push.PushPreference");
                     if (forName != null) {
                         // get push config instance
                         Field pushPreferenceInstance = forName.getDeclaredField("mInstance");

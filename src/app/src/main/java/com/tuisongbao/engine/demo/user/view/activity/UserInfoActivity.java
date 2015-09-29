@@ -29,9 +29,6 @@ import org.androidannotations.annotations.ViewById;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by user on 15-9-2.
- */
 @EActivity(R.layout.activity_friendmsg)
 public class UserInfoActivity extends BaseActivity {
     @Extra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET)

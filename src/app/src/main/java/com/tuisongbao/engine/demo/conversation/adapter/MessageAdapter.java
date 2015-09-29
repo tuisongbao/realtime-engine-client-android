@@ -65,11 +65,7 @@ public class MessageAdapter extends BaseAdapter {
     private static final int MESSAGE_TYPE_SENT_VIDEO = 8;
     private static final int MESSAGE_TYPE_RECV_VIDEO = 9;
     private static final int MESSAGE_TYPE_EVENT = 10;
-    private static final int MESSAGE_TYPE_RECV_FILE = 11;
-    private static final int MESSAGE_TYPE_SENT_VOICE_CALL = 12;
-    private static final int MESSAGE_TYPE_RECV_VOICE_CALL = 13;
-    private static final int MESSAGE_TYPE_SENT_VIDEO_CALL = 14;
-    private static final int MESSAGE_TYPE_RECV_VIDEO_CALL = 15;
+
     private LayoutInflater inflater;
 
     private Activity activity;
@@ -372,7 +368,7 @@ public class MessageAdapter extends BaseAdapter {
         }
         return durationStr;
     }
-    
+
     /**
      * 文本消息
      *

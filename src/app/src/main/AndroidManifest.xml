@@ -7,19 +7,21 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="18" />
-    <!-- 网络连接. -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!-- 接收到新的推送消息，需要唤醒应用程序的进程 -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- push 权限 start -->
+    <!-- TPS推送需要网络连接. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 接收到新的推送消息，需要唤醒应用程序的进程. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <!-- 推送宝需要根据以下信息产生设备的唯一识别码 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- 开机启动和读取网络状态，使得Service运行稳定 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- 允许收到通知时设置振动 -->
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -27,11 +29,17 @@
     <!-- 点击消息时打开应用 -->
     <uses-permission android:name="android.permission.GET_TASKS" />
 
-    <!-- 用于记录日志 -->
+    <!-- 用于记录日志. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- 可选，建议配置，推送宝会跟踪用户的地理位置，开发者则可以进行基于区域的推送 -->
+    <!-- 可选，建议配置，推送宝会跟踪用户的地理位置，开发者则可以进行基于区域的推送. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <permission
+        android:name="com.tuisongbao.engine.demo.permission.PUSH"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.tuisongbao.engine.demo.permission.PUSH" />
     <!-- push 权限 end -->
 
     <!-- 语音消息和视频消息 -->
@@ -41,12 +49,6 @@
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.microphone"/>
     <uses-feature android:name="android.hardware.camera.autofocus" />
-
-    <permission
-        android:name="com.tuisongbao.engine.demo.permission.PUSH"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.tuisongbao.engine.demo.permission.PUSH" />
 
     <application
         android:allowBackup="true"
@@ -110,6 +112,37 @@
         <activity
             android:name=".conversation.view.activity.ShowBigImageActivity_"  android:screenOrientation="portrait">
         </activity>
+
+        <!-- push 配置 start -->
+        <service
+            android:name="com.tuisongbao.push.tps.PushService"
+            android:process=":tps" >
+            <intent-filter>
+                <action android:name="com.tuisongbao.engine.chat.PushService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="com.tuisongbao.push.PushBroadcastReceiver" >
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+
+            <intent-filter android:priority="1000" >
+                <action android:name="com.tuisongbao.push.action.RECEIVE" />
+                <action android:name="com.tuisongbao.push.action.GEOFENCE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.tuisongbao.engine.demo.NotificationHandleService" />
+        <!-- push 配置 end -->
+
+        <receiver
+            android:name="com.tuisongbao.engine.demo.MyBroadcastReceiver" >
+        </receiver>
+
     </application>
 
 </manifest>

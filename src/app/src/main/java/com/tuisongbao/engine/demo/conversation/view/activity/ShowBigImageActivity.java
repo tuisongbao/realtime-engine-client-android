@@ -15,6 +15,7 @@ import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.callback.ProgressCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
 import com.tuisongbao.engine.demo.conversation.task.LoadLocalBigImgTask;
 import com.tuisongbao.engine.demo.conversation.utils.DownloadUtils;
 import com.tuisongbao.engine.demo.conversation.utils.ImageCache;
@@ -28,9 +29,6 @@ import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
 
-/**
- * Created by user on 15-9-16.
- */
 @EActivity(R.layout.activity_show_big_image)
 public class ShowBigImageActivity extends BaseActivity {
     public static final String REMOTEPATH = "remotePath";

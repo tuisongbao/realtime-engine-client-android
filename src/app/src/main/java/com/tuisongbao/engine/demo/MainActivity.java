@@ -36,9 +36,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by user on 15-8-31.
- */
 @EActivity(R.layout.activity_main)
 public class MainActivity extends FragmentActivity {
 
@@ -69,8 +66,6 @@ public class MainActivity extends FragmentActivity {
     private Activity activity;
 
     private static final int TARGET = 1;
-    public static final String CONVERSATION_TARGET = "CONVERSATION_TARGET";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +74,18 @@ public class MainActivity extends FragmentActivity {
         errTip = "";
         App.getInstance().addActivity(this);
         bindConnection();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        App.activityResumed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        App.activityPaused();
     }
 
     @AfterViews

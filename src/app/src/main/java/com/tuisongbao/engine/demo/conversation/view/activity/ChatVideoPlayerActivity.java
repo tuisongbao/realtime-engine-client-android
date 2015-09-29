@@ -19,6 +19,7 @@ import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.demo.App;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.Utils;
+import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
 
 import org.androidannotations.annotations.AfterExtras;
 import org.androidannotations.annotations.EActivity;
@@ -27,9 +28,6 @@ import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
 
-/**
- * Created by user on 15-9-6.
- */
 @EActivity(R.layout.activity_show_video)
 public class ChatVideoPlayerActivity extends BaseActivity {
 

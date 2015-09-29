@@ -16,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.tuisongbao.engine.demo.R;
+import com.tuisongbao.engine.demo.common.view.activity.*;
 import com.tuisongbao.engine.demo.conversation.utils.DownloadUtils;
 import com.tuisongbao.engine.demo.conversation.view.widght.ChatCameraPreview;
 import com.tuisongbao.engine.utils.StrUtils;
@@ -26,10 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-/**
- * Created by user on 15-9-7.
- */
-public class ChatCameraActivity extends Activity{
+public class ChatCameraActivity extends BaseActivity {
     public static final String ACTION_PHOTO = "com.tuisongbao.android.engine.TSBTakeVideoActivity.action.photo";
     public static final String ACTION_VIDEO = "com.tuisongbao.android.engine.TSBTakeVideoActivity.action.video";
     public static final String EXTRA_PHOTO = "com.tuisongbao.android.engine.TSBTakeVideoActivity.result.photo";
@@ -96,7 +94,7 @@ public class ChatCameraActivity extends Activity{
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         if(mCamera != null) {
             mCamera.stopPreview();
             mPreview.setCamera(null);

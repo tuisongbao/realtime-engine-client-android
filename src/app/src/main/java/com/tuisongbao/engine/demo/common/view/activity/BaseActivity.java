@@ -2,19 +2,21 @@ package com.tuisongbao.engine.demo.common.view.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
+import com.tuisongbao.engine.chat.ChatType;
+import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.demo.App;
+import com.tuisongbao.engine.demo.common.utils.NetClient;
 import com.tuisongbao.engine.demo.common.utils.Utils;
 import com.tuisongbao.engine.demo.common.view.widght.dialog.FlippingLoadingDialog;
-import com.tuisongbao.engine.demo.common.utils.NetClient;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity;
+import com.tuisongbao.engine.demo.conversation.view.activity.ChatConversationActivity_;
 
 import org.apache.http.message.BasicNameValuePair;
 
-/**
- * Created by user on 15-8-31.
- */
 public class BaseActivity extends Activity {
     protected Activity context;
     protected NetClient netClient;
@@ -32,10 +34,12 @@ public class BaseActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        App.activityResumed();
     }
 
     public void onPause() {
         super.onPause();
+        App.activityPaused();
     }
 
     @Override
@@ -45,6 +49,18 @@ public class BaseActivity extends Activity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    protected void gotoConversation(ChatMessage message) {
+        Intent intent = new Intent(this, ChatConversationActivity_.class);
+        String target = message.getRecipient();
+        if (message.getChatType() == ChatType.SingleChat) {
+            target = message.getFrom();
+        }
+        intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TARGET, target);
+        intent.putExtra(ChatConversationActivity.EXTRA_CONVERSATION_TYPE, message.getChatType());
+
+        startActivity(intent);
     }
 
     /**

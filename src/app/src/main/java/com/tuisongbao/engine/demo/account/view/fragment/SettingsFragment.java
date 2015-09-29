@@ -36,9 +36,6 @@ import org.apache.http.Header;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-/**
- * Created by user on 15-9-1.
- */
 @EFragment(R.layout.fragment_setting)
 public class SettingsFragment extends Fragment {
     public static final int REQUEST_CODE_LOCAL = 0;

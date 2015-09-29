@@ -1,25 +1,30 @@
 package com.tuisongbao.engine.demo;
 
-import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.apkfuns.logutils.LogUtils;
 import com.github.nkzawa.emitter.Emitter;
+import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.connection.Connection;
 import com.tuisongbao.engine.demo.account.view.activity.LoginActivity_;
+import com.tuisongbao.engine.demo.common.utils.ChatMessageUtils;
 import com.tuisongbao.engine.demo.common.utils.Utils;
+import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
 
 import org.androidannotations.annotations.EActivity;
 
-/**
- * Created by user on 15-8-31.
- */
 @EActivity
-public class SplashActivity extends Activity{
+public class SplashActivity extends BaseActivity {
     private Context mContext;
     private Connection connection;
+
+    private Emitter.Listener mMessageNewListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +44,53 @@ public class SplashActivity extends Activity{
                 }
             });
         }
+
+        mMessageNewListener = new Emitter.Listener() {
+            @Override
+            public void call(final Object... args) {
+                if (App.isActivityVisible()) {
+                    return;
+                }
+                ChatMessage message = (ChatMessage)args[0];
+                String content = ChatMessageUtils.getMessageDigest(message, getApplicationContext());
+
+                Context context = getApplicationContext();
+                Notification.Builder builder = new Notification.Builder(context);
+
+                Intent intent = new Intent(getApplicationContext(), MyBroadcastReceiver.class);
+                intent.setAction(NotificationHandleService.ACTION_NEW_NOTIFICATION);
+                intent.putExtra(NotificationHandleService.EXTRA_DATA, message.serialize());
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+                builder.setSmallIcon(App.getInstance().getApplicationInfo().icon)
+                        .setContentText(message.getFrom() + ":" + content)
+                        .setContentTitle(App.getInstance().getApplicationName())
+                        .setContentIntent(pendingIntent)
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setAutoCancel(true);
+                Notification notification = builder.build();
+                notificationManager.notify(1, notification);
+            }
+        };
+        App.getInstance().getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mMessageNewListener);
     }
 
-    private void gotoLoginView(){
+    private void gotoLoginView() {
+        // Handle click notification event
+        try {
+            Intent intent = getIntent();
+            String newNotificationMessage = intent.getExtras().getString(NotificationHandleService.EXTRA_DATA);
+            if (newNotificationMessage != null) {
+                ChatMessage message = ChatMessage.deserialize(App.getInstance().getEngine(), newNotificationMessage);
+                gotoConversation(message);
+
+                overridePendingTransition(R.anim.push_up_in, R.anim.push_up_out);
+                finish();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Intent intent = new Intent();
         intent.setClass(SplashActivity.this, LoginActivity_.class);
         startActivity(intent);

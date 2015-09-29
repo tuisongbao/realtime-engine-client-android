@@ -51,6 +51,7 @@ import com.tuisongbao.engine.demo.MainActivity_;
 import com.tuisongbao.engine.demo.R;
 import com.tuisongbao.engine.demo.common.utils.CommonUtils;
 import com.tuisongbao.engine.demo.common.utils.Utils;
+import com.tuisongbao.engine.demo.common.view.activity.BaseActivity;
 import com.tuisongbao.engine.demo.conversation.adapter.MessageAdapter;
 import com.tuisongbao.engine.demo.conversation.entity.MessageStatus;
 import com.tuisongbao.engine.demo.group.view.activity.GroupInfoActivity_;
@@ -74,47 +75,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by user on 15-9-1.
- */
 @EActivity(R.layout.activity_conversation)
 public class ChatConversationActivity extends BaseActivity {
     public static final String EXTRA_CONVERSATION_TARGET = "EXTRA_CONVERSATION_TARGET";
     public static final String EXTRA_CONVERSATION_TYPE = "EXTRA_CONVERSATION_TYPE";
-    static final int REQUEST_CODE_EMPTY_HISTORY = 2;
-    public static final int REQUEST_CODE_CONTEXT_MENU = 3;
-    static final int REQUEST_CODE_MAP = 4;
-    public static final int REQUEST_CODE_TEXT = 5;
-    public static final int REQUEST_CODE_VOICE = 6;
-    public static final int REQUEST_CODE_PICTURE = 7;
-    public static final int REQUEST_CODE_LOCATION = 8;
-    public static final int REQUEST_CODE_NET_DISK = 9;
-    public static final int REQUEST_CODE_COPY_AND_PASTE = 11;
-    public static final int REQUEST_CODE_PICK_VIDEO = 12;
-    public static final int REQUEST_CODE_DOWNLOAD_VIDEO = 13;
-    public static final int REQUEST_CODE_VIDEO = 14;
-    public static final int REQUEST_CODE_DOWNLOAD_VOICE = 15;
-    public static final int REQUEST_CODE_SELECT_USER_CARD = 16;
-    public static final int REQUEST_CODE_SEND_USER_CARD = 17;
     public static final int REQUEST_CODE_CAMERA = 18;
     public static final int REQUEST_CODE_LOCAL = 19;
-    public static final int REQUEST_CODE_CLICK_DESTORY_IMG = 20;
-    public static final int REQUEST_CODE_GROUP_DETAIL = 21;
-    public static final int REQUEST_CODE_SELECT_VIDEO = 23;
-    public static final int REQUEST_CODE_SELECT_FILE = 24;
-    public static final int REQUEST_CODE_ADD_TO_BLACKLIST = 25;
-
-    public static final int RESULT_CODE_COPY = 1;
-    public static final int RESULT_CODE_DELETE = 2;
-    public static final int RESULT_CODE_FORWARD = 3;
-    public static final int RESULT_CODE_OPEN = 4;
-    public static final int RESULT_CODE_DWONLOAD = 5;
-    public static final int RESULT_CODE_TO_CLOUD = 6;
-    public static final int RESULT_CODE_EXIT_GROUP = 7;
-
-    public static final int CHATTYPE_SINGLE = 1;
-    public static final int CHATTYPE_GROUP = 2;
-    public static final String COPY_IMAGE = "EASEMOBIMG";
     private static final int REQUEST_CODE_TAKE_VIDEO = 10;
     private List<ChatMessage> mMessageList;
 
