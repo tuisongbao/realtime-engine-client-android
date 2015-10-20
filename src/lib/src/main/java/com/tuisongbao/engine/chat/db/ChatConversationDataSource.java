@@ -128,7 +128,7 @@ public class ChatConversationDataSource {
      */
     public void upsertMessage(String userId, final ChatMessage message) {
         // This message exists, but the new message has not something new to update.
-        if (isMessageExist(message)) {
+        if (message == null || isMessageExist(message)) {
             return;
         }
 
