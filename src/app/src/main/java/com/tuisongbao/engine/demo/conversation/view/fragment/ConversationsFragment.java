@@ -159,13 +159,18 @@ public class ConversationsFragment extends Fragment {
         super.onResume();
         App.getInstance().getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mListener);
         App.getInstance().getChatManager().getConversationManager().bind(ChatConversationManager.EVENT_CONVERSATION_CHANGED, mListener);
+        App.getInstance().getChatManager().getConversationManager().bind(ChatConversationManager.EVENT_CONVERSATION_NEW, mListener);
         refreshWithLocal();
     }
 
     public void onPause() {
         super.onPause();
         App.getInstance().getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mListener);
-        App.getInstance().getChatManager().getConversationManager().bind(ChatConversationManager.EVENT_CONVERSATION_CHANGED, mListener);
+        ChatConversationManager conversationManager = App.getInstance().getConversationManager();
+        if (conversationManager != null) {
+            conversationManager.unbind(ChatConversationManager.EVENT_CONVERSATION_CHANGED, mListener);
+            conversationManager.unbind(ChatConversationManager.EVENT_CONVERSATION_NEW, mListener);
+        }
     }
 
     private void initViews() {

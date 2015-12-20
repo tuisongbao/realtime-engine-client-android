@@ -57,28 +57,32 @@ public final class ChatConversationManager extends BaseManager {
         mChatManager.bind(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                ChatMessage message = (ChatMessage) args[0];
+                final ChatMessage message = (ChatMessage) args[0];
                 String target = message.getRecipient();
                 if (message.getChatType() == ChatType.SingleChat) {
                     target = message.getFrom();
                 }
                 ChatConversation conversation = conversationMap.get(target);
                 if (conversation == null) {
-                    conversation = new ChatConversation(engine);
-                    conversation.setTarget(target);
-                    conversation.setType(message.getChatType());
-                    conversationMap.put(target, conversation);
+                    final String targetToLoad = target;
+                    // Load conversations from server, because this conversation may has extras.
+                    sendRequestOfGetConversations(null, targetToLoad, null, new EngineCallback<List<ChatConversation>>() {
+                        @Override
+                        public void onSuccess(List<ChatConversation> chatConversations) {
+                            if (chatConversations.size() > 0) {
+                                conversationMap.put(targetToLoad, chatConversations.get(0));
+                                triggerNewEvent(targetToLoad, message);
+                            }
+                        }
+
+                        @Override
+                        public void onError(ResponseError error) {
+                            LogUtils.error(TAG, error.toString());
+                        }
+                    });
+                } else {
+                    triggerNewEvent(target, message);
                 }
-                conversation = conversationMap.get(target);
-                // When talking with self, do not inc unreadMessageCount
-                if (!message.getRecipient().equals(message.getFrom())) {
-                    conversation.incUnreadMessageCount();
-                }
-                conversation.setLastMessage(message);
-                // Conversations sort by this field
-                conversation.setLastActiveAt(message.getCreatedAt());
-                conversation.trigger(ChatConversation.EVENT_MESSAGE_NEW, message);
-                trigger(EVENT_CONVERSATION_NEW, conversation);
             }
         });
 
@@ -325,5 +329,18 @@ public final class ChatConversationManager extends BaseManager {
         ChatConversationGetEventHandler response = new ChatConversationGetEventHandler();
         response.setCallback(callback);
         send(event, response);
+    }
+
+    private void triggerNewEvent(String target, ChatMessage message) {
+        ChatConversation conversation = conversationMap.get(target);
+        // When talking with self, do not inc unreadMessageCount
+        if (!message.getRecipient().equals(message.getFrom())) {
+            conversation.incUnreadMessageCount();
+        }
+        conversation.setLastMessage(message);
+        // Conversations sort by this field
+        conversation.setLastActiveAt(message.getCreatedAt());
+        conversation.trigger(ChatConversation.EVENT_MESSAGE_NEW, message);
+        trigger(EVENT_CONVERSATION_NEW, conversation);
     }
 }

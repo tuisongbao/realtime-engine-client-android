@@ -251,7 +251,12 @@ public class ChatConversationDataSource {
         values.put(ChatConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
         values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
-        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, conversation.getExtra().toString());
+
+        String extra = "{}";
+        if (conversation.getExtra() != null) {
+            extra = conversation.getExtra().toString();
+        }
+        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, extra);
         values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         long id = conversationDB.insert(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
@@ -288,7 +293,12 @@ public class ChatConversationDataSource {
         ContentValues values = new ContentValues();
         values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
-        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, conversation.getExtra().toString());
+
+        String extra = "{}";
+        if (conversation.getExtra() != null) {
+            extra = conversation.getExtra().toString();
+        }
+        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, extra);
         values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
