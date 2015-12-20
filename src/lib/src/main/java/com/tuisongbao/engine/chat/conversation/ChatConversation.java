@@ -1,5 +1,6 @@
 package com.tuisongbao.engine.chat.conversation;
 
+import com.google.gson.JsonObject;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.message.ChatMessage;
@@ -35,14 +36,33 @@ public class ChatConversation extends EventEmitter {
      *    });
      * </pre>
      */
-    transient public static final String EVENT_MESSAGE_NEW = "conversation:message:new";
+    transient public static final String EVENT_MESSAGE_NEW = "message:new";
+    /**
+     * 会话变更事件，监听该事件，可以实时获取当前会话的变更信息。变更的字段只支持 extra 和 lastActiveAt。
+     *
+     * <pre>
+     *    conversation.bind(ChatConversation.EVENT_CHANGED, new Emitter.Listener() {
+     *        &#64;Override
+     *        public void call(final Object... args) {
+     *            Log.i(TAG, "当前会话有更新");
+     *            ChatConversation conversation = (ChatConversation)args[0];
+     *            JsonObject extra = conversation.getExtra();
+     *            Log.i(TAG, "获得新的 extra");
+     *            String lastActiveAt = conversation.getLastActiveAt();
+     *            Log.i(TAG, "获得新的 lastActiveAt");
+     *        }
+     *    });
+     * </pre>
+     */
+    transient public static final String EVENT_CHANGED = "changed";
     transient private static final String TAG = ChatConversation.class.getSimpleName();
 
     private ChatType type;
     private String target;
     private int unreadMessageCount;
-    private String lastActiveAt;
     private ChatMessage lastMessage;
+    private JsonObject extra;
+    private String lastActiveAt;
 
     transient private Engine mEngine;
     transient private ChatConversationManager mConversationManager;
@@ -82,6 +102,14 @@ public class ChatConversation extends EventEmitter {
 
     public void incUnreadMessageCount() {
         unreadMessageCount++;
+    }
+
+    public JsonObject getExtra() {
+        return extra;
+    }
+
+    public void setExtra(JsonObject extra) {
+        this.extra = extra;
     }
 
     public String getLastActiveAt() {
@@ -179,7 +207,7 @@ public class ChatConversation extends EventEmitter {
 
     @Override
     public String toString() {
-        return String.format("ChatConversation[type: %s, target: %s, unreadMessage: %d, lastActiveAt: %s]"
-                , type.getName(), target, unreadMessageCount, lastActiveAt);
+        return String.format("ChatConversation[type: %s, target: %s, unreadMessage: %d, lastMessage: %s, extra: %s, lastActiveAt: %s]"
+                , type.getName(), target, unreadMessageCount, lastMessage, extra, lastActiveAt);
     }
 }

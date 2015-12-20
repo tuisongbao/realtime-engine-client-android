@@ -14,9 +14,6 @@ import java.util.regex.Pattern;
 public class StrUtils {
     private static final String TAG = "TSB" + StrUtils.class.getSimpleName();
 
-    public static final String CODE_FORMAT1_CONNECTOR_1 = "&";
-    public static final String CODE_FORMAT1_CONNECTOR_2 = "#";
-
     /**
      * Tests whether the given string is null or has zero length.
      *

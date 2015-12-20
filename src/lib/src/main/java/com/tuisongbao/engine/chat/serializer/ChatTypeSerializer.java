@@ -11,7 +11,7 @@ import com.tuisongbao.engine.chat.ChatType;
 
 import java.lang.reflect.Type;
 
-public class ChatMessageChatTypeSerializer implements
+public class ChatTypeSerializer implements
         JsonSerializer<ChatType>, JsonDeserializer<ChatType> {
 
     @Override

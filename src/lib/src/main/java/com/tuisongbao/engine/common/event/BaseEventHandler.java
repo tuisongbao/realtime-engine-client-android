@@ -5,6 +5,7 @@ import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.RawEvent;
 import com.tuisongbao.engine.common.entity.ResponseError;
+import com.tuisongbao.engine.common.entity.ResponseEvent;
 import com.tuisongbao.engine.common.entity.ResponseEventData;
 
 public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
@@ -22,6 +23,16 @@ public abstract class BaseEventHandler<T> implements IEventHandler<BaseEvent> {
 
     public EngineCallback getCallback() {
         return mCallback;
+    }
+
+    protected void sendResponseEvent(RawEvent response) {
+        ResponseEvent event = new ResponseEvent();
+        ResponseEventData data = new ResponseEventData();
+        data.setOk(true);
+        data.setTo(response.getId());
+        event.setData(data);
+
+        engine.getConnection().send(event);
     }
 
     protected T genCallbackData(BaseEvent request, RawEvent response) {

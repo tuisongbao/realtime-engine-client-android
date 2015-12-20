@@ -3,6 +3,7 @@ package com.tuisongbao.engine.chat;
 import com.google.gson.Gson;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.conversation.ChatConversationChangedEventHandler;
 import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.chat.group.ChatGroupManager;
@@ -376,6 +377,7 @@ public final class ChatManager extends BaseManager {
         if (!hasLogin()) {
             bind(Protocol.EVENT_NAME_MESSAGE_NEW, new ChatMessageNewEventHandler(engine));
             bind(Protocol.EVENT_NAME_USER_PRESENCE_CHANGE, new ChatUserPresenceChangedEventHandler(engine));
+            bind(Protocol.EVENT_NAME_CONVERSATION_CHANGED, new ChatConversationChangedEventHandler(engine));
 
             // Init groups and conversations
             groupManager = new ChatGroupManager(engine);

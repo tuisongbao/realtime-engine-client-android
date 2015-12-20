@@ -17,8 +17,11 @@ class ChatConversationSQLiteHelper extends ChatBaseSQLiteHelper {
     public static final String COLUMN_TARGET = "target";
     public static final String COLUMN_TYPE = "type";
     public static final String COLUMN_UNREAD_MESSAGE_COUNT = "unreadMessageCount";
+    /**
+     * Json string of extra object
+     */
+    public static final String COLUMN_EXTRA = "extra";
     public static final String COLUMN_LAST_ACTIVE_AT = "lastActiveAt";
-    public static final String COLUMN_GROUP_NAME = "groupName";
 
     public ChatConversationSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,8 +36,8 @@ class ChatConversationSQLiteHelper extends ChatBaseSQLiteHelper {
           + COLUMN_TARGET + " text not null, "
           + COLUMN_TYPE + " text not null, "
           + COLUMN_UNREAD_MESSAGE_COUNT + " integer, "
-          + COLUMN_LAST_ACTIVE_AT + " text, "
-          + COLUMN_GROUP_NAME + " text"
+          + COLUMN_EXTRA + " text, "
+          + COLUMN_LAST_ACTIVE_AT + " text "
           + ");";
         LogUtils.debug(TAG, createDatabaseString);
         database.execSQL(createDatabaseString);

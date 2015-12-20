@@ -1,14 +1,13 @@
 package com.tuisongbao.engine.chat.conversation;
 
-import android.util.Log;
-
 import com.github.nkzawa.emitter.Emitter;
 import com.tuisongbao.engine.Engine;
 import com.tuisongbao.engine.chat.ChatManager;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.db.ChatConversationDataSource;
 import com.tuisongbao.engine.chat.message.ChatMessage;
-import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.common.BaseManager;
+import com.tuisongbao.engine.common.Protocol;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
 import com.tuisongbao.engine.utils.LogUtils;
@@ -33,7 +32,12 @@ public final class ChatConversationManager extends BaseManager {
      * 新会话事件，该事件触发时表示有新的会话生成，建议开发者调用 {@link #getList(ChatType, String, EngineCallback)} 或者 {@link #getLocalList()}
      * 刷新 UI。
      */
-    transient public static final String EVENT_CONVERSATION_NEW = "conversation:new";
+    public static final String EVENT_CONVERSATION_NEW = "conversation:new";
+    /**
+     * 会话变更事件，该事件触发时表示会话的 extra 等信息有改变，建议开发者调用 {@link #getList(ChatType, String, EngineCallback)} 或者 {@link #getLocalList()}
+     * 获取变更后的会话列表。
+     */
+    public static final String EVENT_CONVERSATION_CHANGED = "conversation:changed";
     private static final String TAG = "TSB" + ChatConversationManager.class.getSimpleName();
 
     private final ChatManager mChatManager;
@@ -50,11 +54,10 @@ public final class ChatConversationManager extends BaseManager {
         if (mChatManager.isCacheEnabled()) {
             dataSource = new ChatConversationDataSource(Engine.getContext(), engine);
         }
-        Log.d("000000000000000000000", "1111111111111111");
         mChatManager.bind(ChatManager.EVENT_MESSAGE_NEW, new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                ChatMessage message = (ChatMessage)args[0];
+                ChatMessage message = (ChatMessage) args[0];
                 String target = message.getRecipient();
                 if (message.getChatType() == ChatType.SingleChat) {
                     target = message.getFrom();
@@ -66,7 +69,6 @@ public final class ChatConversationManager extends BaseManager {
                     conversation.setType(message.getChatType());
                     conversationMap.put(target, conversation);
                 }
-
                 conversation = conversationMap.get(target);
                 // When talking with self, do not inc unreadMessageCount
                 if (!message.getRecipient().equals(message.getFrom())) {
@@ -75,9 +77,24 @@ public final class ChatConversationManager extends BaseManager {
                 conversation.setLastMessage(message);
                 // Conversations sort by this field
                 conversation.setLastActiveAt(message.getCreatedAt());
-
                 conversation.trigger(ChatConversation.EVENT_MESSAGE_NEW, message);
                 trigger(EVENT_CONVERSATION_NEW, conversation);
+            }
+        });
+
+        bind(Protocol.EVENT_NAME_CONVERSATION_CHANGED, new Listener() {
+            @Override
+            public void call(Object... args) {
+                ChatConversation changedConversation = (ChatConversation)args[0];
+                String target = changedConversation.getTarget();
+                ChatConversation conversation = conversationMap.get(target);
+
+                conversation.setExtra(changedConversation.getExtra());
+                conversation.setLastActiveAt(changedConversation.getLastActiveAt());
+                conversationMap.put(target, conversation);
+
+                conversation.trigger(ChatConversation.EVENT_CHANGED, changedConversation);
+                trigger(EVENT_CONVERSATION_CHANGED, changedConversation);
             }
         });
     }

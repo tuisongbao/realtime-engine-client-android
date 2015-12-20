@@ -8,17 +8,18 @@ import android.database.sqlite.SQLiteDatabase;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tuisongbao.engine.Engine;
+import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
-import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
-import com.tuisongbao.engine.chat.message.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.ChatMessage;
 import com.tuisongbao.engine.chat.message.ChatMessage.TYPE;
 import com.tuisongbao.engine.chat.message.ChatMessageContent;
+import com.tuisongbao.engine.chat.message.ChatMessageEventContent;
 import com.tuisongbao.engine.chat.message.ChatMessageEventEntity;
 import com.tuisongbao.engine.chat.message.ChatMessageFileEntity;
+import com.tuisongbao.engine.chat.message.ChatMessageLocationContent;
 import com.tuisongbao.engine.chat.message.ChatMessageLocationEntity;
-import com.tuisongbao.engine.chat.ChatType;
 import com.tuisongbao.engine.utils.LogUtils;
 import com.tuisongbao.engine.utils.StrUtils;
 
@@ -250,6 +251,7 @@ public class ChatConversationDataSource {
         values.put(ChatConversationSQLiteHelper.COLUMN_TARGET, conversation.getTarget());
         values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, conversation.getExtra().toString());
         values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         long id = conversationDB.insert(ChatConversationSQLiteHelper.TABLE_CHAT_CONVERSATION, null, values);
@@ -286,6 +288,7 @@ public class ChatConversationDataSource {
         ContentValues values = new ContentValues();
         values.put(ChatConversationSQLiteHelper.COLUMN_TYPE, conversation.getType().getName());
         values.put(ChatConversationSQLiteHelper.COLUMN_UNREAD_MESSAGE_COUNT, conversation.getUnreadMessageCount());
+        values.put(ChatConversationSQLiteHelper.COLUMN_EXTRA, conversation.getExtra().toString());
         values.put(ChatConversationSQLiteHelper.COLUMN_LAST_ACTIVE_AT, conversation.getLastActiveAt());
 
         int rowsAffected = conversationDB.update(TABLE_CONVERSATION, values, whereClause,
@@ -299,7 +302,12 @@ public class ChatConversationDataSource {
         conversation.setTarget(cursor.getString(2));
         conversation.setType(ChatType.getType(cursor.getString(3)));
         conversation.setUnreadMessageCount(cursor.getInt(4));
-        conversation.setLastActiveAt(cursor.getString(5));
+
+        JsonParser parser = new JsonParser();
+        JsonObject extra = parser.parse(cursor.getString(5)).getAsJsonObject();
+
+        conversation.setExtra(extra);
+        conversation.setLastActiveAt(cursor.getString(6));
 
         return conversation;
     }

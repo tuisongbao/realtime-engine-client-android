@@ -273,6 +273,13 @@ public class ChatConversationActivity extends BaseActivity {
         };
 
         mConversation.bind(ChatConversation.EVENT_MESSAGE_NEW, mListener);
+        mConversation.bind(ChatConversation.EVENT_CHANGED, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                ChatConversation changedConversation = (ChatConversation)args[0];
+                LogUtils.i("ChatConversationActivity", changedConversation);
+            }
+        });
         LogUtils.i("after extras2", mConversation.listeners(ChatConversation.EVENT_MESSAGE_NEW).size());
         voiceRecorder = new ChatVoiceRecorder();
         voiceRecorder.setMinDuration(2 * 1000, new Emitter.Listener() {

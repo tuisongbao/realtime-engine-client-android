@@ -19,6 +19,7 @@ public class Protocol {
 
     public static final String EVENT_NAME_MESSAGE_NEW = "engine_chat:message:new";
     public static final String EVENT_NAME_USER_PRESENCE_CHANGE = "engine_chat:user:presenceChanged";
+    public static final String EVENT_NAME_CONVERSATION_CHANGED = "engine_chat:conversation:changed";
 
     // connection
     public static final String EVENT_NAME_CONNECTION_ESTABLISHED = "engine_connection:established";

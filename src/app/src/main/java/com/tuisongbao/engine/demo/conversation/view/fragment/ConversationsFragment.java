@@ -20,6 +20,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.tuisongbao.engine.chat.ChatManager;
 import com.tuisongbao.engine.chat.conversation.ChatConversation;
+import com.tuisongbao.engine.chat.conversation.ChatConversationManager;
 import com.tuisongbao.engine.chat.group.ChatGroup;
 import com.tuisongbao.engine.common.callback.EngineCallback;
 import com.tuisongbao.engine.common.entity.ResponseError;
@@ -61,6 +62,9 @@ public class ConversationsFragment extends Fragment {
     @ViewById(R.id.txt_nochat)
     TextView noChat;
 
+    /**
+     * For conversation changes and new message received.
+     */
     Emitter.Listener mListener;
     private NetClient netClient;
 
@@ -81,6 +85,7 @@ public class ConversationsFragment extends Fragment {
                 });
             }
         };
+
         LogUtils.d("onCreateView");
         netClient = new NetClient(parentActivity);
         refreshDemoGroups();
@@ -153,12 +158,14 @@ public class ConversationsFragment extends Fragment {
     public void onResume() {
         super.onResume();
         App.getInstance().getChatManager().bind(ChatManager.EVENT_MESSAGE_NEW, mListener);
+        App.getInstance().getChatManager().getConversationManager().bind(ChatConversationManager.EVENT_CONVERSATION_CHANGED, mListener);
         refreshWithLocal();
     }
 
     public void onPause() {
         super.onPause();
         App.getInstance().getChatManager().unbind(ChatManager.EVENT_MESSAGE_NEW, mListener);
+        App.getInstance().getChatManager().getConversationManager().bind(ChatConversationManager.EVENT_CONVERSATION_CHANGED, mListener);
     }
 
     private void initViews() {
