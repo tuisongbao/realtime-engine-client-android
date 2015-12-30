@@ -24,11 +24,11 @@ public class PresenceChannel extends PrivateChannel {
     /**
      * 用户上线时会触发该事件，事件回调有一个参数，类型为 {@link PresenceChannelUser}；
      */
-    public static final String EVENT_USER_ADDED = "engine:user_added";
+    transient public static final String EVENT_USER_ADDED = "engine:user_added";
     /**
      * 用户下线时会触发该事件，事件回调有一个参数，类型为 {@link PresenceChannelUser}；
      */
-    public static final String EVENT_USER_REMOVED = "engine:user_removed";
+    transient public static final String EVENT_USER_REMOVED = "engine:user_removed";
 
     private String channelData;
     transient private String authData;

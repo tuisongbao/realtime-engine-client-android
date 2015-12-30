@@ -421,6 +421,9 @@ public class Connection extends BaseEngineIODataSource {
         } else if (Protocol.isValidEvent(eventName)) {
             // Notify the pipeline which will ferries data to sink
             dispatchEvent(eventString);
+        } else if (rawEvent.getChannel() != null) {
+            // Channel event
+            dispatchEvent(eventString);
         } else {
             LogUtils.warn(TAG, "Received unknown event");
         }

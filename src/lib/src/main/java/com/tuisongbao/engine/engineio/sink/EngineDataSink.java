@@ -34,8 +34,10 @@ public class EngineDataSink extends BaseEngineDataSink {
     protected void propagateEvent(String event) {
         RawEvent rawEvent = new Gson().fromJson(event, RawEvent.class);
         String eventName = rawEvent.getName();
-        if (!StrUtils.isEmpty(rawEvent.getChannel()) || Protocol.isChannelEvent(eventName)) {
+        if (Protocol.isChannelEvent(eventName)) {
             mEngine.getChannelManager().trigger(eventName, rawEvent);
+        } else if (!StrUtils.isEmpty(rawEvent.getChannel())) {
+            mEngine.getChannelManager().channelEventReceived(rawEvent.getChannel(), rawEvent);
         } else if (Protocol.isServerResponseEvent(eventName)) {
             ResponseEventData data = new Gson().fromJson(rawEvent.getData(), ResponseEventData.class);
             trigger(String.valueOf(data.getTo()), rawEvent);

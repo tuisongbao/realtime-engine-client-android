@@ -1,6 +1,5 @@
 package com.tuisongbao.engine.channel;
 
-import com.google.gson.JsonObject;
 import com.tuisongbao.engine.EngineOptions;
 
 /**
@@ -14,14 +13,14 @@ import com.tuisongbao.engine.EngineOptions;
  */
 public class PresenceChannelOnlineUser {
     private String userId;
-    private JsonObject userInfo;
+    private Object userInfo;
 
     /**
      * 获取用户信息
      *
      * @return  用户信息
      */
-    public JsonObject getUserInfo() {
+    public Object getUserInfo() {
         return userInfo;
     }
 

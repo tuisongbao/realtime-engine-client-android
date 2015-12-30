@@ -118,7 +118,9 @@ public final class ChannelManager extends BaseManager {
             }
             LogUtils.info(TAG, "Subscribe channel: " + channelName);
             mChannelMap.put(channelName, channel);
-            channel.subscribe();
+            if (engine.getConnection().isConnected()) {
+                channel.subscribe();
+            }
             return channel;
 
         } catch (Exception e) {
@@ -144,6 +146,13 @@ public final class ChannelManager extends BaseManager {
             }
         } catch (Exception e) {
             LogUtils.error(TAG, "Channel subscribe failed.", e);
+        }
+    }
+
+    public void channelEventReceived(String channelName, RawEvent event) {
+        Channel channel = mChannelMap.get(channelName);
+        if (channel != null) {
+            channel.trigger(event.getName(), event.getData());
         }
     }
 

@@ -32,15 +32,15 @@ public class Channel extends EventEmitter {
      *    });
      * </pre>
      */
-    public static final String EVENT_SUBSCRIPTION_SUCCESS = "engine:subscription_succeeded";
+    transient public static final String EVENT_SUBSCRIPTION_SUCCESS = "engine:subscription_succeeded";
     /**
      * 订阅 Channel 失败时会触发该事件，事件回调接收一个参数，类型为 {@code String}，表明失败原因
      */
-    public static final String EVENT_SUBSCRIPTION_ERROR = "engine:subscription_error";
+    transient public static final String EVENT_SUBSCRIPTION_ERROR = "engine:subscription_error";
 
-    private static final String TAG = "TSB" + Channel.class.getSimpleName();
+    transient private static final String TAG = "TSB" + Channel.class.getSimpleName();
 
-    final Engine engine;
+    transient final Engine engine;
 
     /**
      * This field must be channel, because when serialize message, this will be getCallbackData into it's name string.
@@ -119,7 +119,6 @@ public class Channel extends EventEmitter {
         SubscribeEvent message = new SubscribeEvent();
         // As PresenceChannel has all properties, so use it to be the event data.
         PresenceChannel data = new PresenceChannel(channel, engine);
-        data.setName(channel);
         message.setData(data);
 
         return message;
